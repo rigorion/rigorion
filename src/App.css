@@ -40,3 +40,17 @@
 .read-the-docs {
   color: #888;
 }
+
+.border-gradient {
+  position: relative;
+}
+
+.border-gradient::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #9b87f5, transparent);
+}
