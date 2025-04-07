@@ -1,0 +1,60 @@
+name: Sync Changes to All Repositories
+
+on:
+  push:
+    branches:
+      - main  # Replace 'main' with your default branch
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Main Repository
+        uses: actions/checkout@v3
+        with:
+          repository: engineercode36/broken-barrier-progress
+
+      - name: Set Up Git
+        run: |
+          git config user.name "GitHub Action Bot"
+          git config user.email "actions@github.com"
+
+      - name: Sync with Other Repositories
+        run: |
+          # List of repositories to sync (no need to include the main repo)
+          REPOS=("https://github.com/canlife4ever/note-haven-syntax-21.git")
+
+          # Hardcoded GitHub Token for authentication
+          TOKEN="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"
+          git config --global credential.helper store
+          echo "https://${TOKEN}:@github.com" > ~/.git-credentials
+
+          # Check out the repository
+          if [ ! -d ".git" ]; then
+            echo "Repository not found. Exiting."
+            exit 1
+          fi
+
+          # Loop through each repository and push changes
+          for repo in "${REPOS[@]}"; do
+            echo "Syncing with $repo"
+
+            # Add remote only if not already added
+            if ! git remote get-url target; then
+              git remote add target "$repo"
+            fi
+
+            # Push changes to the target repository
+            if git push --mirror target; then
+              echo "Successfully pushed to $repo"
+            else
+              echo "Failed to push to $repo"
+            fi
+
+            # Remove the remote after sync
+            git remote remove target
+          done
+
+          # Remove the git-credentials after the sync is done
+          rm -f ~/.git-credentials
