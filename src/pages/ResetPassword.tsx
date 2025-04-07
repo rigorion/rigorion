@@ -1,16 +1,55 @@
+
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import AuthLayout from "@/components/auth/AuthLayout";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [passwordMatchError, setPasswordMatchError] = useState(false);
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Password reset attempted");
+    
+    if (password !== confirmPassword) {
+      setPasswordMatchError(true);
+      return;
+    }
+    
+    setPasswordMatchError(false);
+    setIsLoading(true);
+    
+    try {
+      const { error } = await supabase.auth.updateUser({ password });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Password Updated",
+        description: "Your password has been reset successfully.",
+      });
+      
+      // Redirect to sign in page
+      setTimeout(() => {
+        navigate("/signin");
+      }, 2000);
+    } catch (error: any) {
+      console.error("Password reset error:", error);
+      toast({
+        title: "Reset Failed",
+        description: error.message || "There was an error resetting your password.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -35,12 +74,19 @@ const ResetPassword = () => {
             placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full rounded-xl"
+            className={`w-full rounded-xl ${passwordMatchError ? 'border-red-500' : ''}`}
             required
           />
+          {passwordMatchError && (
+            <p className="text-sm text-red-500">Passwords do not match</p>
+          )}
         </div>
-        <Button type="submit" className="w-full rounded-xl bg-primary hover:bg-primary/90">
-          Reset Password
+        <Button 
+          type="submit" 
+          className="w-full rounded-xl bg-primary hover:bg-primary/90"
+          disabled={isLoading}
+        >
+          {isLoading ? "Resetting..." : "Reset Password"}
         </Button>
         <div className="text-center mt-6">
           <Link to="/signin" className="text-primary hover:underline">

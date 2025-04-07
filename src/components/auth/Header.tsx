@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -40,10 +41,10 @@ export const Header = () => {
               </Button>
               <Button 
                 variant="ghost" 
-                onClick={() => navigate("/payment")}
+                onClick={() => navigate("/progress")}
                 className="text-gray-600 hover:text-primary hover:bg-blue-50"
               >
-                Pricing
+                Progress
               </Button>
             </nav>
           )}

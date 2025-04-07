@@ -1,17 +1,41 @@
+
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import AuthLayout from "@/components/auth/AuthLayout";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useToast } from "@/hooks/use-toast";
 
 const SignUp = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { signUp } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Sign up attempt:", { name, email });
+    setIsLoading(true);
+    
+    try {
+      await signUp(email, password, name);
+      toast({
+        title: "Account Created",
+        description: "Please check your email to verify your account.",
+      });
+      
+      // Redirect to sign in page after successful signup
+      setTimeout(() => {
+        navigate("/signin");
+      }, 2000);
+    } catch (error) {
+      console.error("Sign up error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -47,8 +71,12 @@ const SignUp = () => {
             required
           />
         </div>
-        <Button type="submit" className="w-full rounded-xl bg-primary hover:bg-primary/90">
-          Sign up
+        <Button 
+          type="submit" 
+          className="w-full rounded-xl bg-primary hover:bg-primary/90"
+          disabled={isLoading}
+        >
+          {isLoading ? "Signing up..." : "Sign up"}
         </Button>
         <div className="text-center mt-6">
           <span className="text-gray-600">Already have an account?</span>{" "}

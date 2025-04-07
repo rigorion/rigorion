@@ -1,133 +1,97 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { User } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
-interface AuthContextType {
-  user: User | null;
-  profile: any | null;
-  loading: boolean;
-  signUp: (email: string, password: string, name: string) => Promise<void>;
-  signIn: (email: string, password: string) => Promise<void>;
-}
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  profile: null,
-  loading: true,
-  signUp: async () => {},
-  signIn: async () => {},
+const formSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
 });
 
-export const useAuth = () => useContext(AuthContext);
+interface SignInFormProps {
+  onForgotPassword?: () => void;
+}
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+export const SignInForm = ({ onForgotPassword }: SignInFormProps) => {
+  const { signIn } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      } else {
-        setLoading(false);
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        } else {
-          setProfile(null);
-        }
-        setLoading(false);
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const fetchProfile = async (userId: string) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
-
-      if (error) throw error;
-      setProfile(data);
+      setIsLoading(true);
+      await signIn(values.email, values.password);
+      navigate("/welcome");
     } catch (error) {
-      console.error("Error fetching profile:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch user profile",
-        variant: "destructive",
-      });
+      console.error(error);
     } finally {
-      setLoading(false);
-    }
-  };
-
-  const signUp = async (email: string, password: string, name: string) => {
-    try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            name,
-          },
-        },
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Check your email to confirm your account.",
-      });
-    } catch (error: any) {
-      console.error("Sign-up error:", error.message);
-      toast({
-        title: "Sign Up Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const signIn = async (email: string, password: string) => {
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Signed In",
-        description: "Welcome back!",
-      });
-    } catch (error: any) {
-      console.error("Sign-in error:", error.message);
-      toast({
-        title: "Sign In Failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      setIsLoading(false);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signUp, signIn }}>
-      {children}
-    </AuthContext.Provider>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input {...field} type="email" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input {...field} type="password" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="text-right">
+          {onForgotPassword && (
+            <Button 
+              type="button" 
+              variant="link" 
+              onClick={onForgotPassword}
+              className="p-0 h-auto font-normal text-sm text-primary"
+            >
+              Forgot password?
+            </Button>
+          )}
+        </div>
+        <Button 
+          type="submit" 
+          className="w-full bg-gradient-to-r from-blue-400 to-blue-600"
+          disabled={isLoading}
+        >
+          {isLoading ? "Signing In..." : "Sign In"}
+        </Button>
+      </form>
+    </Form>
   );
 };

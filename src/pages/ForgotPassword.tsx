@@ -1,15 +1,38 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import AuthLayout from "@/components/auth/AuthLayout";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useToast } from "@/hooks/use-toast";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { resetPassword } = useAuth();
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Password reset requested for:", email);
+    setIsLoading(true);
+    
+    try {
+      await resetPassword(email);
+      toast({
+        title: "Reset Link Sent",
+        description: "Check your email for the password reset link.",
+      });
+    } catch (error) {
+      console.error("Password reset error:", error);
+      toast({
+        title: "Reset Failed",
+        description: "There was an error sending the reset link.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -28,8 +51,12 @@ const ForgotPassword = () => {
             required
           />
         </div>
-        <Button type="submit" className="w-full rounded-xl bg-primary hover:bg-primary/90">
-          Send Reset Link
+        <Button 
+          type="submit" 
+          className="w-full rounded-xl bg-primary hover:bg-primary/90"
+          disabled={isLoading}
+        >
+          {isLoading ? "Sending..." : "Send Reset Link"}
         </Button>
         <div className="text-center mt-6">
           <Link to="/signin" className="text-primary hover:underline">
