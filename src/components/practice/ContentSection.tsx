@@ -1,6 +1,8 @@
+
 // components/practice/ContentSection.tsx
 import { Question } from "@/types/QuestionInterface";
 import { CheckCircle, XCircle } from "lucide-react";
+import React from "react";
 
 interface ContentSectionProps {
   activeTab: "problem" | "solution" | "quote";
@@ -68,9 +70,14 @@ const ContentSection = ({
 
       {activeTab === "quote" && (
         <div className="prose max-w-none mb-12 p-6 bg-gray-50 rounded-lg">
-          <blockquote className="text-xl italic text-gray-700">
-            "{question.quote}"
-          </blockquote>
+          {question.quote && (
+            <blockquote className="text-xl italic text-gray-700">
+              "{question.quote.text}"
+              {question.quote.source && (
+                <footer className="mt-2 text-gray-500">- {question.quote.source}</footer>
+              )}
+            </blockquote>
+          )}
         </div>
       )}
 

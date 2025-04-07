@@ -14,6 +14,7 @@ import Practice from "./pages/Practice";
 import Progress from "./pages/Progress";
 import Chat from "./pages/Chat";
 import Welcome from "./pages/Welcome";
+import About from "./pages/About";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/practice" element={<ProtectedRoute><Practice /></ProtectedRoute>} />
             <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
             <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+            <Route path="/about" element={<About />} />
             <Route path="/" element={<Navigate to="/signin" replace />} />
           </Routes>
         </BrowserRouter>

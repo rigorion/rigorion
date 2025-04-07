@@ -5,13 +5,15 @@ import { ChapterProgress } from "./ChapterProgress";
 import SegmentedProgress from "@/components/SegmentedProgress";
 import { Progress } from "@/components/ui/progress";
 import { ProjectedScore } from "@/components/stats/ProjectedScore";
+import { cn } from "@/lib/utils";
 
 interface ProgressDashboardProps {
   period: string;
   type: string;
+  className?: string;
 }
 
-export default function ProgressDashboard({ period, type }: ProgressDashboardProps) {
+export default function ProgressDashboard({ period, type, className }: ProgressDashboardProps) {
   const stats = [
     { 
       title: "Speed", 
@@ -103,8 +105,8 @@ export default function ProgressDashboard({ period, type }: ProgressDashboardPro
   const unattemptedPercentage = Math.round((unattemptedQuestions / totalQuestions) * 100);
 
   return (
-    <div className="space-y-6"> {/* Reduced from space-y-8 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3"> {/* Reduced gap from 4 to 3 */}
+    <div className={cn("space-y-6", className)}> {/* Added cn() with className prop */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
         {stats.map((stat, index) => (
           stat.component ? (
             <stat.component key={index} />

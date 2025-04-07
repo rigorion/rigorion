@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -7,6 +8,7 @@ interface CountdownTimerProps {
   isActive: boolean;
   mode?: "timer" | "level" | "manual" | "pomodoro" | "exam";
   className?: string;
+  onUpdate?: (formattedTime: string) => void;
 }
 
 const CountdownTimer = ({ 
@@ -14,7 +16,8 @@ const CountdownTimer = ({
   onComplete, 
   isActive,
   mode = "timer",
-  className 
+  className,
+  onUpdate
 }: CountdownTimerProps) => {
   const [timeLeft, setTimeLeft] = useState(durationInSeconds);
   const [isPaused, setIsPaused] = useState(false);
@@ -50,7 +53,14 @@ const CountdownTimer = ({
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    const formattedTime = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    
+    // Call onUpdate if provided
+    if (onUpdate) {
+      onUpdate(formattedTime);
+    }
+    
+    return formattedTime;
   };
 
   // Calculate percentage for visual feedback

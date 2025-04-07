@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Questions from "@/components/practice/EncryptedQuestions"; // Import as default export
-// components/practice/Practice.tsx
 import { supabase } from "@/lib/supabase";
 import { fetchQuestions, fetchQuestionById } from "@/services/questionService";
 import { Question } from "@/types/QuestionInterface";
@@ -47,6 +46,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+
 interface PracticeProps {
   chapterTitle?: string;
   totalQuestions?: number;
@@ -123,7 +123,7 @@ const Practice = ({ chapterTitle = "Chapter 1", totalQuestions = sampleQuestions
 const [displaySettings, setDisplaySettings] = useState({
   fontFamily: 'times-new-roman',
   fontSize: 14,
-  colorStyle: 'plain' as 'gradient' | 'plain'
+  colorStyle: 'plain' as 'gradient'
 });
 // 2. Modify handleApplySettings
 const handleApplySettings = (key: string, value: string | number) => {
@@ -702,7 +702,7 @@ const handleGoToQuestion = () => {
           variant="outline"
           className="rounded-full"
           onClick={prevQuestion}
-          disabled={currentQuestion <= 1}
+          disabled={currentQuestionIndex <= 0}
         >
           <ChevronLeft className="h-4 w-4 mr-2" />
           Previous
@@ -757,12 +757,12 @@ const handleGoToQuestion = () => {
           variant="outline"
           className="rounded-full"
           onClick={nextQuestion}
-          disabled={currentQuestion >= totalQuestions}
+          disabled={currentQuestionIndex >= sampleQuestions.length - 1}
         >
           Next
           <ChevronRight className="h-4 w-4 ml-2" />
         </Button>
-         {/* checking the secured data */}
+        {/* checking the secured data */}
       
         <CommentSection />
         <Questions id="q1"/>
@@ -854,4 +854,3 @@ export default Practice;
 function setBoardColor(value: string) {
   throw new Error("Function not implemented.");
 }
-
