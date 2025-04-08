@@ -36,7 +36,7 @@ import ModeDialog from "../components/practice/ModeDialog";
 import ObjectiveDialog from "../components/practice/ObjectiveDialogue";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import CommunityStats from "../components/practice/CommunityStats";
-import CommentSection from "@/components/practice/CommentSection";
+import CommentSection from "../components/practice/CommentSection";
 import { sampleQuestions } from "@/components/practice/sampleQuestion";
 import SettingsDialog from "@/components/practice/SettingsDialog";
 import {
