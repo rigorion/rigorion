@@ -31,12 +31,12 @@ import {
   Palette
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import CountdownTimer from "../components/practice/CountDownTimer";
-import ModeDialog from "../components/practice/ModeDialog";
-import ObjectiveDialog from "../components/practice/ObjectiveDialogue";
+import CountdownTimer from "@/components/practice/CountDownTimer";
+import ModeDialog from "@/components/practice/ModeDialog";
+import ObjectiveDialog from "@/components/practice/ObjectiveDialogue";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import CommunityStats from "../components/practice/CommunityStats";
-import CommentSection from "../components/practice/CommentSection";
+import CommunityStats from "@/components/practice/CommunityStats";
+import CommentSection from "@/components/practice/CommentSection";
 import { sampleQuestions } from "@/components/practice/sampleQuestion";
 import SettingsDialog from "@/components/practice/SettingsDialog";
 import {
@@ -45,7 +45,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
 interface PracticeProps {
   chapterTitle?: string;
@@ -60,8 +60,7 @@ const chapters = [
   "Chapter 5: Advanced Functions"
 ];
 
-const Practice = ({ chapterTitle = "Chapter 1", totalQuestions = sampleQuestions.length
-}: PracticeProps) => {
+const Practice = ({ chapterTitle = "Chapter 1", totalQuestions = sampleQuestions.length }: PracticeProps) => {
   const navigate = useNavigate();
 
 // Basic question and UI states
@@ -86,7 +85,7 @@ const Practice = ({ chapterTitle = "Chapter 1", totalQuestions = sampleQuestions
   // New states for enhanced progress and music menu
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [incorrectAnswers, setIncorrectAnswers] = useState(0);
-  const [isMusicMenuOpen, setIsMusicMenuOpen] = useState(false);
+  const [isMusicMenuOpen, setIsMusicMenuOpen] useState(false);
   const [currentTrack, setCurrentTrack] = useState<string | null>(null);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
 
@@ -492,8 +491,7 @@ const handleGoToQuestion = () => {
        color: boardColor === 'black' ? '#fff' : colorSettings.content
      }}>
     {currentQuestion && (
-      // 3. Apply styles to question content section
-// In your Practice component
+      
 <div className="mb-8 pr-4" style={{
   fontFamily: displaySettings.fontFamily,
   fontSize: `${displaySettings.fontSize}px`,
@@ -697,7 +695,85 @@ const handleGoToQuestion = () => {
         </div>
 
         {/* Secondary Footer Navigation */}
-      <div className="border-t px-6 py-4 flex items-center justify-between gap-4 bg-gray-50">
+      
+
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="rounded-full relative"
+            onClick={() => setShowShareDialog(!showShareDialog)}
+          >
+            <Share2 className="h-4 w-4" />
+            {showShareDialog && (
+              <div className="absolute bottom-full left-0 mb-2 bg-white border rounded-lg shadow-lg p-2 w-48">
+                <div className="text-sm font-medium text-gray-700 p-2">Share Practice Session</div>
+                <div className="flex flex-col space-y-1">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    onClick={() => handleShare('whatsapp')}
+                  >
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    WhatsApp
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    onClick={() => handleShare('email')}
+                  >
+                    <Mail className="h-4 w-4 mr-2" />
+                    Email
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    onClick={() => handleShare('copy')}
+                  >
+                    <Link className="h-4 w-4 mr-2" />
+                    Copy Link
+                  </Button>
+                </div>
+              </div>
+            )}
+          </Button>
+          <Button variant="ghost" size="sm" className="rounded-full">
+            <Bookmark className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Conditionally render CommunityStats based on toggle */}
+      {showCommunityStats && (
+        <div className="mt-4 transition-all duration-500 ease-in-out">
+          <CommunityStats />
+        </div>
+      )}
+
+      {/* Dialogs */}
+      <ModeDialog
+        open={modeDialogOpen}
+        onOpenChange={setModeDialogOpen}
+        onSetMode={handleSetMode}
+      />
+
+     
+
+      
+
+<SettingsDialog
+  open={settingsOpen}
+  onOpenChange={setSettingsOpen}
+  settings={displaySettings}
+  onApply={handleApplySettings}
+/>
+
+      <ObjectiveDialog
+        open={objectiveDialogOpen}
+        onOpenChange={setObjectiveDialogOpen}
+        onSetObjective={handleSetObjective}
+      />
+<div className="border-t px-6 py-4 flex items-center justify-between gap-4 bg-gray-50">
         <Button
           variant="outline"
           className="rounded-full"
@@ -764,87 +840,8 @@ const handleGoToQuestion = () => {
         </Button>
         {/* checking the secured data */}
       
-        <CommentSection />
-        <Questions id="q1"/>
+        
       </div>
-
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="rounded-full relative"
-            onClick={() => setShowShareDialog(!showShareDialog)}
-          >
-            <Share2 className="h-4 w-4" />
-            {showShareDialog && (
-              <div className="absolute bottom-full left-0 mb-2 bg-white border rounded-lg shadow-lg p-2 w-48">
-                <div className="text-sm font-medium text-gray-700 p-2">Share Practice Session</div>
-                <div className="flex flex-col space-y-1">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onClick={() => handleShare('whatsapp')}
-                  >
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    WhatsApp
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onClick={() => handleShare('email')}
-                  >
-                    <Mail className="h-4 w-4 mr-2" />
-                    Email
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onClick={() => handleShare('copy')}
-                  >
-                    <Link className="h-4 w-4 mr-2" />
-                    Copy Link
-                  </Button>
-                </div>
-              </div>
-            )}
-          </Button>
-          <Button variant="ghost" size="sm" className="rounded-full">
-            <Bookmark className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Conditionally render CommunityStats based on toggle */}
-      {showCommunityStats && (
-        <div className="mt-4 transition-all duration-500 ease-in-out">
-          <CommunityStats />
-        </div>
-      )}
-
-      {/* Dialogs */}
-      <ModeDialog
-        open={modeDialogOpen}
-        onOpenChange={setModeDialogOpen}
-        onSetMode={handleSetMode}
-      />
-
-     
-
-      
-// 5. Update SettingsDialog integration
-<SettingsDialog
-  open={settingsOpen}
-  onOpenChange={setSettingsOpen}
-  settings={displaySettings}
-  onApply={handleApplySettings}
-/>
-
-      <ObjectiveDialog
-        open={objectiveDialogOpen}
-        onOpenChange={setObjectiveDialogOpen}
-        onSetObjective={handleSetObjective}
-      />
-
 
     </div>
   );
