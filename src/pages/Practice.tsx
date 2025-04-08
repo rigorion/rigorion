@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Questions from "@/components/practice/EncryptedQuestions"; // Import as default export
@@ -131,6 +132,29 @@ const handleApplySettings = (key: string, value: string | number) => {
     [key]: value
   }));
 };
+
+// Initialize loading to false since we're using sample data
+useEffect(() => {
+  // This ensures the component doesn't get stuck in loading state
+  setLoading(false);
+  
+  // Optionally fetch questions from Supabase in the future
+  // const loadQuestions = async () => {
+  //   try {
+  //     const { data, count } = await fetchQuestions(page, perPage, selectedDifficulty);
+  //     if (data) {
+  //       setQuestions(data);
+  //       setTotalPages(Math.ceil((count || 0) / perPage));
+  //     }
+  //   } catch (err) {
+  //     setError("Failed to load questions");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  // loadQuestions();
+}, []);
+
 // Handler for "Go to Question"
 const handleGoToQuestion = () => {
   const questionNumber = parseInt(targetQuestion);
@@ -320,6 +344,31 @@ const handleGoToQuestion = () => {
       </div>
     );
   };
+
+  // Display a loading indicator while content is loading
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <p className="mt-4 text-lg text-blue-500">Loading practice questions...</p>
+      </div>
+    );
+  }
+
+  // Display an error message if there's an error
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">Error!</strong>
+          <span className="block sm:inline"> {error}</span>
+        </div>
+        <Button className="mt-4" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
@@ -838,9 +887,6 @@ const handleGoToQuestion = () => {
           Next
           <ChevronRight className="h-4 w-4 ml-2" />
         </Button>
-        {/* checking the secured data */}
-      
-        
       </div>
 
     </div>
@@ -848,6 +894,4 @@ const handleGoToQuestion = () => {
 };
 
 export default Practice;
-function setBoardColor(value: string) {
-  throw new Error("Function not implemented.");
-}
+
