@@ -85,7 +85,7 @@ const Practice = ({ chapterTitle = "Chapter 1", totalQuestions = sampleQuestions
   // New states for enhanced progress and music menu
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [incorrectAnswers, setIncorrectAnswers] = useState(0);
-  const [isMusicMenuOpen, setIsMusicMenuOpen] useState(false);
+  const [isMusicMenuOpen, setIsMusicMenuOpen] = useState(false);
   const [currentTrack, setCurrentTrack] = useState<string | null>(null);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
 
