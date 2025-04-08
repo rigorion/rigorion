@@ -9,7 +9,7 @@ interface PracticeProgressProps {
   timerDuration: number;
   isTimerActive: boolean;
   handleTimerComplete: () => void;
-  mode: string;
+  mode: "timer" | "level" | "manual" | "pomodoro" | "exam";
   timeRemaining: string;
   setTimeRemaining: (time: string) => void;
 }
