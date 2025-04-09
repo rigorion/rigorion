@@ -2,8 +2,8 @@
 import { supabase } from '@/lib/supabase';
 import { uint8ArrayToBase64, base64ToUint8Array, secureWipe } from '@/utils/crypto';
 
-const STORAGE_BUCKET = 'secure-questions';
-const QUESTIONS_FILE = 'questions.enc';
+const STORAGE_BUCKET = 'sat';
+const QUESTIONS_FILE = 'satMath.json';
 
 /**
  * Upload encrypted data to Supabase storage
