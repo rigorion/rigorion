@@ -1,7 +1,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 
 interface AuthContextType {
@@ -33,28 +33,40 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      } else {
-        setLoading(false);
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+    const initAuth = async () => {
+      try {
+        // Get initial session
+        const { data: { session } } = await supabase.auth.getSession();
         setUser(session?.user ?? null);
+        
         if (session?.user) {
           await fetchProfile(session.user.id);
         } else {
-          setProfile(null);
+          // Important: Make sure to set loading to false when there's no session
+          setLoading(false);
         }
+        
+        // Set up auth state change listener
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+          async (_event, session) => {
+            setUser(session?.user ?? null);
+            if (session?.user) {
+              await fetchProfile(session.user.id);
+            } else {
+              setProfile(null);
+              setLoading(false);
+            }
+          }
+        );
+        
+        return () => subscription.unsubscribe();
+      } catch (error) {
+        console.error("Auth initialization error:", error);
         setLoading(false);
       }
-    );
-
-    return () => subscription.unsubscribe();
+    };
+    
+    initAuth();
   }, []);
 
   const fetchProfile = async (userId: string) => {
