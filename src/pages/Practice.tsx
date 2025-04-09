@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { sampleQuestions } from "@/components/practice/sampleQuestion";
@@ -15,7 +14,8 @@ import CommunityStats from "@/components/practice/CommunityStats";
 import ModeDialog from "@/components/practice/ModeDialog";
 import ObjectiveDialog from "@/components/practice/ObjectiveDialogue";
 import SettingsDialog from "@/components/practice/SettingsDialog";
-import EncryptedMathQuestions from "@/components/practice/EncryptedMathQuestions";
+// Import the unencrypted questions component instead of encrypted
+import UnencryptedMathQuestions from "@/components/practice/UnencryptedMathQuestions";
 
 interface PracticeProps {
   chapterTitle?: string;
@@ -81,8 +81,9 @@ const Practice = ({
   
   const [boardColor, setBoardColor] = useState('white');
 
-  // Handle encrypted questions being loaded
+  // Handle questions being loaded
   const handleQuestionsLoaded = (loadedQuestions: Question[]) => {
+    console.log("Loaded questions:", loadedQuestions.length);
     setQuestions(loadedQuestions);
     if (loadedQuestions.length > 0) {
       setCurrentQuestion(loadedQuestions[0]);
@@ -186,7 +187,7 @@ const Practice = ({
   if (loading && !currentQuestion) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <EncryptedMathQuestions onQuestionsLoaded={handleQuestionsLoaded} />
+        <UnencryptedMathQuestions onQuestionsLoaded={handleQuestionsLoaded} />
         <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mt-8"></div>
         <p className="mt-4 text-lg text-blue-500">Loading practice questions...</p>
       </div>
@@ -212,7 +213,7 @@ const Practice = ({
   if (!currentQuestion) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <EncryptedMathQuestions onQuestionsLoaded={handleQuestionsLoaded} />
+        <UnencryptedMathQuestions onQuestionsLoaded={handleQuestionsLoaded} />
         <p className="mt-4 text-lg">No questions available. Please load questions.</p>
       </div>
     );
@@ -306,10 +307,10 @@ const Practice = ({
         </div>
       )}
 
-      {/* Load encrypted questions component (hidden when questions are loaded) */}
+      {/* Load unencrypted questions component (hidden when questions are loaded) */}
       {questions.length === 0 && (
         <div className="fixed bottom-4 right-4 z-50">
-          <EncryptedMathQuestions onQuestionsLoaded={handleQuestionsLoaded} />
+          <UnencryptedMathQuestions onQuestionsLoaded={handleQuestionsLoaded} />
         </div>
       )}
 
