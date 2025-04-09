@@ -72,16 +72,17 @@ self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
             iv: ivWordArray,
             salt: CryptoJS.lib.WordArray.random(0), // Empty salt
             algorithm: CryptoJS.algo.AES,
-            mode: CryptoJS.mode.CBC, // Use CBC mode instead of GCM
             padding: CryptoJS.pad.Pkcs7,
             blockSize: 4
           });
           
-          // Decrypt with the created params
+          // Decrypt with the created params - we need to skip specifying the mode directly
+          // since it causes TypeScript errors with BlockCipherMode vs Mode
+          const decryptionOptions = { iv: ivWordArray };
           const decryptedWordArray = CryptoJS.AES.decrypt(
             cipherParams,
             CryptoJS.enc.Utf8.parse(decryptionKey),
-            { iv: ivWordArray, mode: CryptoJS.mode.CBC }
+            decryptionOptions
           );
           
           decrypted = decryptedWordArray.toString(CryptoJS.enc.Utf8);
