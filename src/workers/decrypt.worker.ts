@@ -52,6 +52,7 @@ self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
       
       // Use provided key or stored key
       const decryptionKey = key || secureContext.key || 'secure-key-for-demo-purposes-only';
+      console.log('Decryption key available:', !!decryptionKey);
       
       try {
         // Split IV and ciphertext if provided separately
@@ -73,7 +74,7 @@ self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
             salt: CryptoJS.lib.WordArray.random(0) // Empty salt
           });
           
-          // Decrypt with the created params - remove mode to avoid TypeScript errors
+          // Decrypt with the created params - removed mode to avoid TypeScript errors
           const decryptionOptions = { iv: ivWordArray };
           const decryptedWordArray = CryptoJS.AES.decrypt(
             cipherParams,
@@ -90,6 +91,8 @@ self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
         if (!decrypted) {
           throw new Error('Decryption resulted in empty string');
         }
+        
+        console.log('Decryption successful, data length:', decrypted.length);
         
         // Send the decrypted result back to the main thread
         self.postMessage({ success: true, result: decrypted } as WorkerResponse);

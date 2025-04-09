@@ -1,10 +1,9 @@
-
 import { supabase } from '@/lib/supabase';
 import { uint8ArrayToBase64, base64ToUint8Array, secureWipe } from '@/utils/crypto';
 
 // Update these constants to point to your Supabase bucket and file
 const STORAGE_BUCKET = 'sat'; // Your Supabase bucket name
-const QUESTIONS_FILE = 'satMath.json'; // Your file name in the bucket
+const QUESTIONS_FILE = 'encrypted.json'; // Updated to match your uploaded filename
 
 /**
  * Upload encrypted data to Supabase storage

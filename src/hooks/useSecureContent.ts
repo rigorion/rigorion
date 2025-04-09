@@ -6,12 +6,14 @@ import {
   storeDataLocally, 
   isLocalDataValid 
 } from '@/services/secureStorageService';
+import { useToast } from '@/components/ui/use-toast';
 
 export function useSecureContent() {
   const [questions, setQuestions] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [worker, setWorker] = useState<Worker | null>(null);
+  const { toast } = useToast();
   
   // Initialize worker
   useEffect(() => {
@@ -29,6 +31,11 @@ export function useSecureContent() {
     } catch (err) {
       console.error('Error initializing worker:', err);
       setError('Failed to initialize decryption worker');
+      toast({
+        title: "Worker Error",
+        description: "Failed to initialize decryption worker",
+        variant: "destructive"
+      });
     }
   }, []);
   
@@ -50,12 +57,13 @@ export function useSecureContent() {
         if (!encryptedData) {
           // If no local data or it's invalid, fetch from Supabase
           try {
-            console.log('Downloading fresh encrypted data');
+            console.log('Downloading fresh encrypted data from Supabase');
             encryptedData = await downloadEncryptedData();
             
             // Store for offline use
             if (encryptedData) {
               await storeDataLocally(encryptedData);
+              console.log('Encrypted data stored locally for future use');
             }
           } catch (downloadError) {
             console.error('Download error:', downloadError);
@@ -66,18 +74,30 @@ export function useSecureContent() {
               throw new Error('No data available online or offline');
             }
             console.log('Using expired local data as fallback');
+            toast({
+              title: "Using Offline Data",
+              description: "Could not download fresh data. Using cached data.",
+              variant: "default"
+            });
           }
         }
         
         // Parse the encrypted data
         const textDecoder = new TextDecoder();
         const jsonText = textDecoder.decode(encryptedData);
+        console.log('Data loaded, length:', jsonText.length);
         
         try {
           // Try to parse as JSON directly (for development/testing)
           const jsonData = JSON.parse(jsonText);
           if (jsonData.questions) {
+            console.log('Valid JSON found with questions property');
             setQuestions(jsonData.questions);
+            setIsLoading(false);
+          } else {
+            console.log('Valid JSON found, but no questions property');
+            // Save the entire JSON for later decryption
+            setQuestions({ _encrypted: jsonText });
             setIsLoading(false);
           }
         } catch (parseError) {
@@ -91,6 +111,11 @@ export function useSecureContent() {
         console.error('Error loading secure content:', err);
         setError(err instanceof Error ? err.message : 'Failed to load secure content');
         setIsLoading(false);
+        toast({
+          title: "Loading Error",
+          description: err instanceof Error ? err.message : 'Failed to load secure content',
+          variant: "destructive" 
+        });
       }
     }
     
@@ -100,11 +125,15 @@ export function useSecureContent() {
   // Decrypt question when needed
   const decryptQuestion = useCallback(async (questionId: string): Promise<string> => {
     if (!worker) {
-      return 'Decryption worker not initialized';
+      const errorMsg = 'Decryption worker not initialized';
+      console.error(errorMsg);
+      return errorMsg;
     }
     
     if (!questions._encrypted && !questions[questionId]) {
-      return 'Question not found';
+      const errorMsg = `Question ${questionId} not found`;
+      console.error(errorMsg);
+      return errorMsg;
     }
     
     return new Promise((resolve) => {
@@ -122,6 +151,8 @@ export function useSecureContent() {
       
       // Add message listener
       worker.addEventListener('message', messageHandler);
+      
+      console.log(`Attempting to decrypt ${questionId === '_encrypted' ? 'full dataset' : 'question ' + questionId}`);
       
       // If we have individual encrypted questions
       if (questions[questionId]) {

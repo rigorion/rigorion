@@ -15,6 +15,7 @@ import CommunityStats from "@/components/practice/CommunityStats";
 import ModeDialog from "@/components/practice/ModeDialog";
 import ObjectiveDialog from "@/components/practice/ObjectiveDialogue";
 import SettingsDialog from "@/components/practice/SettingsDialog";
+import EncryptedMathQuestions from "@/components/practice/EncryptedMathQuestions";
 
 interface PracticeProps {
   chapterTitle?: string;
@@ -35,7 +36,8 @@ const Practice = ({
 }: PracticeProps) => {
   // Basic question and UI states
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-  const currentQuestion = sampleQuestions[currentQuestionIndex];  
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedChapter, setSelectedChapter] = useState(0);
   const [mode, setMode] = useState<"timer" | "level" | "manual" | "pomodoro" | "exam">("manual");
@@ -57,8 +59,7 @@ const Practice = ({
   const [showCommunityStats, setShowCommunityStats] = useState(false);
 
   // Loading and error states
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
   const [perPage] = useState(10);
@@ -80,27 +81,25 @@ const Practice = ({
   
   const [boardColor, setBoardColor] = useState('white');
 
-  // Initialize loading to false since we're using sample data
+  // Handle encrypted questions being loaded
+  const handleQuestionsLoaded = (loadedQuestions: Question[]) => {
+    setQuestions(loadedQuestions);
+    if (loadedQuestions.length > 0) {
+      setCurrentQuestion(loadedQuestions[0]);
+      setTotalPages(Math.ceil(loadedQuestions.length / perPage));
+      setLoading(false);
+    }
+  };
+
+  // Update current question when questions change or index changes
   useEffect(() => {
-    // This ensures the component doesn't get stuck in loading state
-    setLoading(false);
-    
-    // Optionally fetch questions from Supabase in the future
-    // const loadQuestions = async () => {
-    //   try {
-    //     const { data, count } = await fetchQuestions(page, perPage, selectedDifficulty);
-    //     if (data) {
-    //       setQuestions(data);
-    //       setTotalPages(Math.ceil((count || 0) / perPage));
-    //     }
-    //   } catch (err) {
-    //     setError("Failed to load questions");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // loadQuestions();
-  }, []);
+    if (questions.length > 0 && currentQuestionIndex < questions.length) {
+      setCurrentQuestion(questions[currentQuestionIndex]);
+    } else if (questions.length === 0 && sampleQuestions.length > 0) {
+      // Fallback to sample questions if no encrypted questions available
+      setCurrentQuestion(sampleQuestions[currentQuestionIndex]);
+    }
+  }, [questions, currentQuestionIndex]);
 
   // Progress effect
   useEffect(() => {
@@ -144,7 +143,9 @@ const Practice = ({
 
   // Answer checking
   const checkAnswer = (answer: string) => {
-    const correct = answer === currentQuestion?.correctAnswer;
+    if (!currentQuestion) return;
+    
+    const correct = answer === currentQuestion.correctAnswer;
     setSelectedAnswer(answer);
     setIsCorrect(correct);
     
@@ -154,13 +155,14 @@ const Practice = ({
       setIncorrectAnswers(prev => prev + 1);
     }
     
-    if (correct && currentQuestionIndex < sampleQuestions.length - 1) {
+    if (correct && currentQuestionIndex < questions.length - 1) {
       setTimeout(nextQuestion, 1500);
     }
   };
 
   const nextQuestion = () => {
-    if (currentQuestionIndex < sampleQuestions.length - 1) {
+    const maxIndex = questions.length > 0 ? questions.length - 1 : sampleQuestions.length - 1;
+    if (currentQuestionIndex < maxIndex) {
       setCurrentQuestionIndex(prev => prev + 1);
       setSelectedAnswer(null);
       setIsCorrect(null);
@@ -181,10 +183,11 @@ const Practice = ({
   };
 
   // Display a loading indicator while content is loading
-  if (loading) {
+  if (loading && !currentQuestion) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <EncryptedMathQuestions onQuestionsLoaded={handleQuestionsLoaded} />
+        <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mt-8"></div>
         <p className="mt-4 text-lg text-blue-500">Loading practice questions...</p>
       </div>
     );
@@ -201,6 +204,16 @@ const Practice = ({
         <Button className="mt-4" onClick={() => window.location.reload()}>
           Retry
         </Button>
+      </div>
+    );
+  }
+
+  // Make sure we have a current question
+  if (!currentQuestion) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <EncryptedMathQuestions onQuestionsLoaded={handleQuestionsLoaded} />
+        <p className="mt-4 text-lg">No questions available. Please load questions.</p>
       </div>
     );
   }
@@ -222,7 +235,7 @@ const Practice = ({
       <PracticeProgress
         correctAnswers={correctAnswers}
         incorrectAnswers={incorrectAnswers}
-        totalQuestions={totalQuestions}
+        totalQuestions={questions.length || totalQuestions}
         timerDuration={timerDuration}
         isTimerActive={isTimerActive}
         handleTimerComplete={handleTimerComplete}
@@ -274,7 +287,7 @@ const Practice = ({
         nextQuestion={nextQuestion}
         prevQuestion={prevQuestion}
         currentQuestionIndex={currentQuestionIndex}
-        totalQuestions={totalQuestions}
+        totalQuestions={questions.length || totalQuestions}
         displaySettings={displaySettings}
         boardColor={boardColor}
         colorSettings={colorSettings}
@@ -290,6 +303,13 @@ const Practice = ({
       {showCommunityStats && (
         <div className="mt-4 transition-all duration-500 ease-in-out">
           <CommunityStats />
+        </div>
+      )}
+
+      {/* Load encrypted questions component (hidden when questions are loaded) */}
+      {questions.length === 0 && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <EncryptedMathQuestions onQuestionsLoaded={handleQuestionsLoaded} />
         </div>
       )}
 
