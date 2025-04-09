@@ -92,8 +92,9 @@ const PracticeProgress = ({
         </div>
       </div>
 
-      {/* Add the keyframes animation for the shining effect */}
-      <style jsx>{`
+      {/* Add the keyframes animation for the shining effect as a global style */}
+      <style>
+        {`
         @keyframes shine {
           0% {
             background-position: -100% 0;
@@ -113,7 +114,8 @@ const PracticeProgress = ({
           background-size: 200% 100%;
           animation: shine 2s infinite linear;
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
