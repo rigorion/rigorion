@@ -62,11 +62,11 @@ export function advancedEncrypt(
     // Convert key to WordArray
     const keyWordArray = CryptoJS.enc.Utf8.parse(key);
     
-    // Encrypt data with AES-GCM mode
+    // Encrypt data with AES using CBC mode instead of GCM (which is not available in CryptoJS)
     const encrypted = CryptoJS.AES.encrypt(
       JSON.stringify(data),
       keyWordArray,
-      { iv: iv, mode: CryptoJS.mode.GCM }
+      { iv: iv, mode: CryptoJS.mode.CBC }
     );
     
     // Return IV and encrypted data separately

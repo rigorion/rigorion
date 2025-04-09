@@ -66,11 +66,22 @@ self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
           const ivWordArray = CryptoJS.lib.WordArray.create(ivArray as unknown as number[]);
           const cipherWordArray = CryptoJS.lib.WordArray.create(encryptedArray as unknown as number[]);
           
-          // Decrypt
+          // Create a proper CipherParams object
+          const cipherParams = CryptoJS.lib.CipherParams.create({
+            ciphertext: cipherWordArray,
+            iv: ivWordArray,
+            salt: CryptoJS.lib.WordArray.random(0), // Empty salt
+            algorithm: CryptoJS.algo.AES,
+            mode: CryptoJS.mode.CBC, // Use CBC mode instead of GCM
+            padding: CryptoJS.pad.Pkcs7,
+            blockSize: 4
+          });
+          
+          // Decrypt with the created params
           const decryptedWordArray = CryptoJS.AES.decrypt(
-            { ciphertext: cipherWordArray },
+            cipherParams,
             CryptoJS.enc.Utf8.parse(decryptionKey),
-            { iv: ivWordArray, mode: CryptoJS.mode.GCM }
+            { iv: ivWordArray, mode: CryptoJS.mode.CBC }
           );
           
           decrypted = decryptedWordArray.toString(CryptoJS.enc.Utf8);
