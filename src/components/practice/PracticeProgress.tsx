@@ -96,7 +96,7 @@ const PracticeProgress = ({
       </div>
 
       {/* Add the keyframes animation for the shining effect as a global style with slower interval */}
-      <style jsx>
+      <style>
         {`
         @keyframes shine {
           0% {

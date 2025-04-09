@@ -63,7 +63,7 @@ const HintDialog = ({ hint = "Try breaking down the problem into smaller parts."
         </div>
       </PopoverContent>
       
-      <style jsx>
+      <style>
         {`
           @keyframes glow {
             0% {
