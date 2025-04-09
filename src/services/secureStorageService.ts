@@ -2,7 +2,7 @@
 import { supabase } from '@/lib/supabase';
 import { uint8ArrayToBase64, base64ToUint8Array, secureWipe } from '@/utils/crypto';
 
-const STORAGE_BUCKET = 'sat';
+const STORAGE_BUCKET = 'https://supabase.com/dashboard/project/eantvimmgdmxzwrjwrop/storage/buckets/sat';
 const QUESTIONS_FILE = 'https://eantvimmgdmxzwrjwrop.supabase.co/storage/v1/object/public/sat//satMath.json';
 
 /**
