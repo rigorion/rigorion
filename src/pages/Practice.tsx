@@ -14,10 +14,9 @@ import PracticeFooter from "@/components/practice/PracticeFooter";
 import CommunityStats from "@/components/practice/CommunityStats";
 import ModeDialog from "@/components/practice/ModeDialog";
 import ObjectiveDialog from "@/components/practice/ObjectiveDialogue";
-// Removed UnencryptedMathQuestions import
 
 // Import correct icons from lucide-react
-import { BoldIcon, ItalicIcon, UnderlineIcon } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 
@@ -62,7 +61,7 @@ const Practice = ({
   const [contentColor, setContentColor] = useState<string>('#374151');
   const [keyPhraseColor, setKeyPhraseColor] = useState<string>('#2563eb');
   const [formulaColor, setFormulaColor] = useState<string>('#dc2626');
-  const [styleCollapsed, setStyleCollapsed] = useState(false);
+  const [styleCollapsed, setStyleCollapsed] = useState(true);
 
   // Stats and feedback states
   const [correctAnswers, setCorrectAnswers] = useState(0);
@@ -243,98 +242,96 @@ const Practice = ({
         setTimeRemaining={setTimeRemaining}
       />
 
-      {/* Style Controls - Fixed the Collapsible structure here */}
-      <Collapsible open={!styleCollapsed} onOpenChange={setStyleCollapsed}>
-        <div className="px-6 py-2 flex items-center gap-3 bg-gray-50 border-b">
-          <button
-            className="text-gray-500 hover:text-gray-700 mr-2"
-            onClick={() => setStyleCollapsed(!styleCollapsed)}
+      {/* Style Controls - Modern floating button with popup */}
+      <div className="relative max-w-6xl mx-auto w-full">
+        <Popover>
+          <PopoverTrigger asChild>
+            <button 
+              className="fixed bottom-20 right-6 z-50 p-3 rounded-full bg-gradient-to-r from-blue-400 to-indigo-500 text-white shadow-lg hover:shadow-blue-300/50 transition-all duration-300 animate-pulse"
+              aria-label="Text styling options"
+            >
+              <Sparkles className="h-5 w-5" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent 
+            className="w-80 p-4 rounded-xl border border-blue-100 shadow-xl bg-white/90 backdrop-blur-sm transition-all duration-300 animate-in fade-in slide-in"
+            sideOffset={5}
+            align="end"
           >
-            {styleCollapsed ? '▼' : '▲'}
-          </button>
-          
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium">Font:</label>
-            <select
-              value={fontFamily}
-              onChange={(e) => handleUpdateStyle('fontFamily', e.target.value)}
-              className="p-1 text-sm border rounded"
-            >
-              <option value="inter">Inter</option>
-              <option value="times-new-roman">Times New Roman</option>
-              <option value="roboto">Roboto</option>
-              <option value="poppins">Poppins</option>
-              <option value="comic-sans">Comic Sans</option>
-            </select>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium">Size:</label>
-            <input
-              type="number"
-              min={10}
-              max={24}
-              value={fontSize}
-              onChange={(e) => handleUpdateStyle('fontSize', parseInt(e.target.value))}
-              className="p-1 text-sm border rounded w-16"
-            />
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium">Text:</label>
-            <input
-              type="color"
-              value={contentColor}
-              onChange={(e) => handleUpdateStyle('contentColor', e.target.value)}
-              className="w-6 h-6 p-0 border-none"
-            />
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium">Key phrases:</label>
-            <input
-              type="color"
-              value={keyPhraseColor}
-              onChange={(e) => handleUpdateStyle('keyPhraseColor', e.target.value)}
-              className="w-6 h-6 p-0 border-none"
-            />
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium">Formulas:</label>
-            <input
-              type="color"
-              value={formulaColor}
-              onChange={(e) => handleUpdateStyle('formulaColor', e.target.value)}
-              className="w-6 h-6 p-0 border-none"
-            />
-          </div>
-          
-          <div className="flex items-center gap-1 ml-2">
-            <button className="p-1 rounded hover:bg-gray-100">
-              <BoldIcon className="h-4 w-4" />
-            </button>
-            <button className="p-1 rounded hover:bg-gray-100">
-              <ItalicIcon className="h-4 w-4" />
-            </button>
-            <button className="p-1 rounded hover:bg-gray-100">
-              <UnderlineIcon className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-        
-        {/* When collapsed, show a minimal indicator */}
-        <CollapsibleContent>
-          <div className="px-6 py-1 bg-gray-50 border-b flex items-center">
-            <button
-              className="text-xs text-gray-500 hover:text-gray-700 flex items-center"
-              onClick={() => setStyleCollapsed(false)}
-            >
-              Show text styling options ▼
-            </button>
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium text-gray-700">Text Styling</h3>
+              
+              <div className="space-y-3">
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-medium text-gray-600">Font</label>
+                  <select
+                    value={fontFamily}
+                    onChange={(e) => handleUpdateStyle('fontFamily', e.target.value)}
+                    className="p-1.5 text-sm border rounded-lg bg-gray-50 focus:ring-1 focus:ring-blue-300 outline-none"
+                  >
+                    <option value="inter">Inter</option>
+                    <option value="times-new-roman">Times New Roman</option>
+                    <option value="roboto">Roboto</option>
+                    <option value="poppins">Poppins</option>
+                    <option value="share-tech-mono">Monospace</option>
+                    <option value="dancing-script">Cursive</option>
+                  </select>
+                </div>
+                
+                <div className="flex flex-col gap-2">
+                  <div className="flex justify-between items-center">
+                    <label className="text-xs font-medium text-gray-600">Size: {fontSize}px</label>
+                  </div>
+                  <Slider
+                    value={[fontSize]}
+                    min={10}
+                    max={24}
+                    step={1}
+                    onValueChange={(value) => handleUpdateStyle('fontSize', value[0])}
+                    className="py-2"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="flex flex-col gap-1 items-center">
+                    <label className="text-xs font-medium text-gray-600">Text</label>
+                    <input
+                      type="color"
+                      value={contentColor}
+                      onChange={(e) => handleUpdateStyle('contentColor', e.target.value)}
+                      className="w-8 h-8 p-0 border-none rounded-full"
+                    />
+                  </div>
+                  
+                  <div className="flex flex-col gap-1 items-center">
+                    <label className="text-xs font-medium text-gray-600">Key</label>
+                    <input
+                      type="color"
+                      value={keyPhraseColor}
+                      onChange={(e) => handleUpdateStyle('keyPhraseColor', e.target.value)}
+                      className="w-8 h-8 p-0 border-none rounded-full"
+                    />
+                  </div>
+                  
+                  <div className="flex flex-col gap-1 items-center">
+                    <label className="text-xs font-medium text-gray-600">Formula</label>
+                    <input
+                      type="color"
+                      value={formulaColor}
+                      onChange={(e) => handleUpdateStyle('formulaColor', e.target.value)}
+                      className="w-8 h-8 p-0 border-none rounded-full"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2 text-xs text-gray-400 italic">
+                Changes are applied automatically
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
 
       {/* Sidebar */}
       <Collapsible open={sidebarOpen} onOpenChange={setSidebarOpen}>
@@ -370,29 +367,32 @@ const Practice = ({
       {/* Question Tabs */}
       <PracticeTabSelector activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* Main Content */}
-      <PracticeDisplay
-        currentQuestion={currentQuestion}
-        selectedAnswer={selectedAnswer}
-        isCorrect={isCorrect}
-        checkAnswer={checkAnswer}
-        nextQuestion={nextQuestion}
-        prevQuestion={prevQuestion}
-        currentQuestionIndex={currentQuestionIndex}
-        totalQuestions={questions.length || totalQuestions}
-        displaySettings={{
-          fontFamily,
-          fontSize,
-          colorStyle: 'plain'
-        }}
-        boardColor={boardColor}
-        colorSettings={{
-          content: contentColor,
-          keyPhrase: keyPhraseColor,
-          formula: formulaColor
-        }}
-        activeTab={activeTab}
-      />
+      {/* Main Content Container with max width */}
+      <div className="max-w-6xl mx-auto w-full">
+        {/* Main Content */}
+        <PracticeDisplay
+          currentQuestion={currentQuestion}
+          selectedAnswer={selectedAnswer}
+          isCorrect={isCorrect}
+          checkAnswer={checkAnswer}
+          nextQuestion={nextQuestion}
+          prevQuestion={prevQuestion}
+          currentQuestionIndex={currentQuestionIndex}
+          totalQuestions={questions.length || totalQuestions}
+          displaySettings={{
+            fontFamily,
+            fontSize,
+            colorStyle: 'plain'
+          }}
+          boardColor={boardColor}
+          colorSettings={{
+            content: contentColor,
+            keyPhrase: keyPhraseColor,
+            formula: formulaColor
+          }}
+          activeTab={activeTab}
+        />
+      </div>
 
       {/* Footer with Controls */}
       <PracticeFooter
