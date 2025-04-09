@@ -14,15 +14,15 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
     react({
       // Disable browser feature policy checks which are causing warnings
       jsxImportSource: '@emotion/react',
-      plugins: [
+      plugins: [[
+        'disable-feature-policy-warnings',
         {
-          name: 'disable-feature-policy-warnings',
           enforce: 'post',
-          configResolved(config) {
+          configResolved() {
             // This is a no-op plugin that gets applied to disable certain browser warnings
           }
         }
-      ]
+      ]]
     }),
     mode === 'development' &&
     componentTagger(),
