@@ -165,7 +165,7 @@ const Practice = ({
       toast({
         title: "Correct!",
         description: "Great job on answering correctly!",
-        variant: "success",
+        variant: "default", // Changed from "success" to "default"
       });
     } else {
       setIncorrectAnswers(prev => prev + 1);
