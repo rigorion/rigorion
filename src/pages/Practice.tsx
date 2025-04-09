@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { sampleQuestions } from "@/components/practice/sampleQuestion";
-import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Question } from "@/types/QuestionInterface";
 import { toast } from "@/hooks/use-toast";
 
@@ -244,8 +243,8 @@ const Practice = ({
         setTimeRemaining={setTimeRemaining}
       />
 
-      {/* Style Controls - Collapsible section */}
-      <Collapsible open={!styleCollapsed}>
+      {/* Style Controls - Fixed the Collapsible structure here */}
+      <Collapsible open={!styleCollapsed} onOpenChange={setStyleCollapsed}>
         <div className="px-6 py-2 flex items-center gap-3 bg-gray-50 border-b">
           <button
             className="text-gray-500 hover:text-gray-700 mr-2"
@@ -323,10 +322,9 @@ const Practice = ({
             </button>
           </div>
         </div>
-      </Collapsible>
-      <CollapsibleContent>
+        
         {/* When collapsed, show a minimal indicator */}
-        {styleCollapsed && (
+        <CollapsibleContent>
           <div className="px-6 py-1 bg-gray-50 border-b flex items-center">
             <button
               className="text-xs text-gray-500 hover:text-gray-700 flex items-center"
@@ -335,8 +333,8 @@ const Practice = ({
               Show text styling options ▼
             </button>
           </div>
-        )}
-      </CollapsibleContent>
+        </CollapsibleContent>
+      </Collapsible>
 
       {/* Sidebar */}
       <Collapsible open={sidebarOpen} onOpenChange={setSidebarOpen}>
