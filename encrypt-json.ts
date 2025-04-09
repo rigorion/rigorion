@@ -5,7 +5,7 @@ const jsonData = {
   questions: [
     {
       id: "q1",
-      title: "Math Basics",
+      title: "Nati",
       content: "What is 2 + 2?",
       choices: [
         { id: "a", text: "3" },
@@ -41,7 +41,7 @@ const jsonData = {
     {
       id: "qt1",
       text: "Success is not final, failure is not fatal: It is the courage to continue that counts.",
-      author: "Winston Churchill"
+      author: "NATI"
     },
     {
       id: "qt2",
