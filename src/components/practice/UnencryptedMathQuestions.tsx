@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Question } from '@/types/QuestionInterface';
 import { fetchMathQuestions } from '@/services/mathQuestionService';
+import { toast } from "@/hooks/use-toast";
 
 interface UnencryptedMathQuestionsProps {
   onQuestionsLoaded: (questions: Question[]) => void;
@@ -16,10 +17,30 @@ const UnencryptedMathQuestions = ({ onQuestionsLoaded }: UnencryptedMathQuestion
       try {
         setLoading(true);
         const questions = await fetchMathQuestions();
-        onQuestionsLoaded(questions);
+        
+        if (questions && questions.length > 0) {
+          console.log(`Loaded ${questions.length} questions successfully`);
+          onQuestionsLoaded(questions);
+          toast({
+            title: "Questions loaded",
+            description: `Successfully loaded ${questions.length} questions`,
+          });
+        } else {
+          setError("No questions available");
+          toast({
+            title: "No questions available",
+            description: "Using sample questions instead",
+            variant: "destructive",
+          });
+        }
       } catch (err) {
         console.error('Error loading questions:', err);
         setError(err instanceof Error ? err.message : 'Unknown error loading questions');
+        toast({
+            title: "Error loading questions",
+            description: "Using sample questions instead",
+            variant: "destructive",
+        });
       } finally {
         setLoading(false);
       }

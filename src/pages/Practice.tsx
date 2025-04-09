@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { sampleQuestions } from "@/components/practice/sampleQuestion";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Question } from "@/types/QuestionInterface";
+import { toast } from "@/hooks/use-toast";
 
 // Import refactored components
 import PracticeHeader from "@/components/practice/PracticeHeader";
@@ -84,10 +85,19 @@ const Practice = ({
   // Handle questions being loaded
   const handleQuestionsLoaded = (loadedQuestions: Question[]) => {
     console.log("Loaded questions:", loadedQuestions.length);
-    setQuestions(loadedQuestions);
-    if (loadedQuestions.length > 0) {
+    if (loadedQuestions && loadedQuestions.length > 0) {
+      setQuestions(loadedQuestions);
       setCurrentQuestion(loadedQuestions[0]);
       setTotalPages(Math.ceil(loadedQuestions.length / perPage));
+      setLoading(false);
+      toast({
+        title: "Questions Loaded",
+        description: `Successfully loaded ${loadedQuestions.length} questions`,
+      });
+    } else {
+      console.error("No questions loaded, using sample questions");
+      setQuestions(sampleQuestions);
+      setCurrentQuestion(sampleQuestions[0]);
       setLoading(false);
     }
   };
@@ -97,8 +107,8 @@ const Practice = ({
     if (questions.length > 0 && currentQuestionIndex < questions.length) {
       setCurrentQuestion(questions[currentQuestionIndex]);
     } else if (questions.length === 0 && sampleQuestions.length > 0) {
-      // Fallback to sample questions if no encrypted questions available
-      setCurrentQuestion(sampleQuestions[currentQuestionIndex]);
+      // Fallback to sample questions if no questions available
+      setCurrentQuestion(sampleQuestions[currentQuestionIndex % sampleQuestions.length]);
     }
   }, [questions, currentQuestionIndex]);
 
@@ -152,8 +162,18 @@ const Practice = ({
     
     if (correct) {
       setCorrectAnswers(prev => prev + 1);
+      toast({
+        title: "Correct!",
+        description: "Great job on answering correctly!",
+        variant: "success",
+      });
     } else {
       setIncorrectAnswers(prev => prev + 1);
+      toast({
+        title: "Incorrect",
+        description: `The correct answer was: ${currentQuestion.correctAnswer}`,
+        variant: "destructive",
+      });
     }
     
     if (correct && currentQuestionIndex < questions.length - 1) {
@@ -198,6 +218,7 @@ const Practice = ({
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
+        <UnencryptedMathQuestions onQuestionsLoaded={handleQuestionsLoaded} />
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
           <strong className="font-bold">Error!</strong>
           <span className="block sm:inline"> {error}</span>
@@ -307,12 +328,10 @@ const Practice = ({
         </div>
       )}
 
-      {/* Load unencrypted questions component (hidden when questions are loaded) */}
-      {questions.length === 0 && (
-        <div className="fixed bottom-4 right-4 z-50">
-          <UnencryptedMathQuestions onQuestionsLoaded={handleQuestionsLoaded} />
-        </div>
-      )}
+      {/* Load unencrypted questions component */}
+      <div className="fixed bottom-4 right-4 z-50 opacity-0">
+        <UnencryptedMathQuestions onQuestionsLoaded={handleQuestionsLoaded} />
+      </div>
 
       {/* Dialogs */}
       <ModeDialog
