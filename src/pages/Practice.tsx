@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { sampleQuestions } from "@/components/practice/sampleQuestion";
@@ -14,9 +15,13 @@ import PracticeFooter from "@/components/practice/PracticeFooter";
 import CommunityStats from "@/components/practice/CommunityStats";
 import ModeDialog from "@/components/practice/ModeDialog";
 import ObjectiveDialog from "@/components/practice/ObjectiveDialogue";
-import SettingsDialog from "@/components/practice/SettingsDialog";
 // Import the unencrypted questions component instead of encrypted
 import UnencryptedMathQuestions from "@/components/practice/UnencryptedMathQuestions";
+
+// Remove SettingsDialog import as we'll replace it with inline styling options
+import { FontBoldIcon, FontItalicIcon, UnderlineIcon } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
 
 interface PracticeProps {
   chapterTitle?: string;
@@ -52,7 +57,13 @@ const Practice = ({
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<string>("00:00");
-  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  // Style states (replacing the settings dialog)
+  const [fontFamily, setFontFamily] = useState<string>('inter');
+  const [fontSize, setFontSize] = useState<number>(14);
+  const [contentColor, setContentColor] = useState<string>('#374151');
+  const [keyPhraseColor, setKeyPhraseColor] = useState<string>('#2563eb');
+  const [formulaColor, setFormulaColor] = useState<string>('#dc2626');
 
   // Stats and feedback states
   const [correctAnswers, setCorrectAnswers] = useState(0);
@@ -90,10 +101,7 @@ const Practice = ({
       setCurrentQuestion(loadedQuestions[0]);
       setTotalPages(Math.ceil(loadedQuestions.length / perPage));
       setLoading(false);
-      toast({
-        title: "Questions Loaded",
-        description: `Successfully loaded ${loadedQuestions.length} questions`,
-      });
+      // Removed toast notification here
     } else {
       console.error("No questions loaded, using sample questions");
       setQuestions(sampleQuestions);
@@ -145,11 +153,24 @@ const Practice = ({
     console.log("Time's up!");
   };
 
-  const handleApplySettings = (key: string, value: string | number) => {
-    setDisplaySettings(prev => ({
-      ...prev,
-      [key]: value
-    }));
+  // Update styling settings
+  const handleUpdateStyle = (key: string, value: string | number) => {
+    if (key === 'fontFamily') {
+      setFontFamily(value as string);
+      setDisplaySettings(prev => ({...prev, fontFamily: value as string}));
+    } else if (key === 'fontSize') {
+      setFontSize(value as number);
+      setDisplaySettings(prev => ({...prev, fontSize: value as number}));
+    } else if (key === 'contentColor') {
+      setContentColor(value as string);
+      setColorSettings(prev => ({...prev, content: value as string}));
+    } else if (key === 'keyPhraseColor') {
+      setKeyPhraseColor(value as string);
+      setColorSettings(prev => ({...prev, keyPhrase: value as string}));
+    } else if (key === 'formulaColor') {
+      setFormulaColor(value as string);
+      setColorSettings(prev => ({...prev, formula: value as string}));
+    }
   };
 
   // Answer checking
@@ -165,7 +186,7 @@ const Practice = ({
       toast({
         title: "Correct!",
         description: "Great job on answering correctly!",
-        variant: "default", // Changed from "success" to "default"
+        variant: "default",
       });
     } else {
       setIncorrectAnswers(prev => prev + 1);
@@ -245,7 +266,6 @@ const Practice = ({
       {/* Header */}
       <PracticeHeader
         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-        onOpenSettings={() => setSettingsOpen(true)}
         onOpenObjective={() => setObjectiveDialogOpen(true)}
         onOpenMode={() => setModeDialogOpen(true)}
         mode={mode}
@@ -265,6 +285,78 @@ const Practice = ({
         timeRemaining={timeRemaining}
         setTimeRemaining={setTimeRemaining}
       />
+
+      {/* Style Controls - New section replacing the Settings button/dialog */}
+      <div className="px-6 py-2 flex items-center gap-3 bg-gray-50 border-b">
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium">Font:</label>
+          <select
+            value={fontFamily}
+            onChange={(e) => handleUpdateStyle('fontFamily', e.target.value)}
+            className="p-1 text-sm border rounded"
+          >
+            <option value="inter">Inter</option>
+            <option value="times-new-roman">Times New Roman</option>
+            <option value="roboto">Roboto</option>
+            <option value="poppins">Poppins</option>
+            <option value="comic-sans">Comic Sans</option>
+          </select>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium">Size:</label>
+          <input
+            type="number"
+            min={10}
+            max={24}
+            value={fontSize}
+            onChange={(e) => handleUpdateStyle('fontSize', parseInt(e.target.value))}
+            className="p-1 text-sm border rounded w-16"
+          />
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium">Text:</label>
+          <input
+            type="color"
+            value={contentColor}
+            onChange={(e) => handleUpdateStyle('contentColor', e.target.value)}
+            className="w-6 h-6 p-0 border-none"
+          />
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium">Key phrases:</label>
+          <input
+            type="color"
+            value={keyPhraseColor}
+            onChange={(e) => handleUpdateStyle('keyPhraseColor', e.target.value)}
+            className="w-6 h-6 p-0 border-none"
+          />
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium">Formulas:</label>
+          <input
+            type="color"
+            value={formulaColor}
+            onChange={(e) => handleUpdateStyle('formulaColor', e.target.value)}
+            className="w-6 h-6 p-0 border-none"
+          />
+        </div>
+        
+        <div className="flex items-center gap-1 ml-2">
+          <button className="p-1 rounded hover:bg-gray-100">
+            <FontBoldIcon className="h-4 w-4" />
+          </button>
+          <button className="p-1 rounded hover:bg-gray-100">
+            <FontItalicIcon className="h-4 w-4" />
+          </button>
+          <button className="p-1 rounded hover:bg-gray-100">
+            <UnderlineIcon className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
 
       {/* Sidebar */}
       <Collapsible open={sidebarOpen} onOpenChange={setSidebarOpen}>
@@ -310,9 +402,17 @@ const Practice = ({
         prevQuestion={prevQuestion}
         currentQuestionIndex={currentQuestionIndex}
         totalQuestions={questions.length || totalQuestions}
-        displaySettings={displaySettings}
+        displaySettings={{
+          fontFamily,
+          fontSize,
+          colorStyle: 'plain'
+        }}
         boardColor={boardColor}
-        colorSettings={colorSettings}
+        colorSettings={{
+          content: contentColor,
+          keyPhrase: keyPhraseColor,
+          formula: formulaColor
+        }}
         activeTab={activeTab}
       />
 
@@ -338,13 +438,6 @@ const Practice = ({
         open={modeDialogOpen}
         onOpenChange={setModeDialogOpen}
         onSetMode={handleSetMode}
-      />
-
-      <SettingsDialog
-        open={settingsOpen}
-        onOpenChange={setSettingsOpen}
-        settings={displaySettings}
-        onApply={handleApplySettings}
       />
 
       <ObjectiveDialog

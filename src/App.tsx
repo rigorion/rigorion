@@ -1,53 +1,47 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "@/components/auth/AuthProvider";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { AuthProvider } from "./components/auth/AuthProvider";
+import { Toaster } from "@/components/ui/sonner";
+import { ReactQueryProvider } from "./components/ReactQueryProvider";
+import Index from "./pages/Index";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
+import NotFound from "./pages/NotFound";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Practice from "./pages/Practice";
 import Progress from "./pages/Progress";
 import Chat from "./pages/Chat";
-import Welcome from "./pages/Welcome";
 import About from "./pages/About";
+import Welcome from "./pages/Welcome";
+import Payment from "./pages/Payment";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      staleTime: 30000,
-    },
-  },
-});
+const router = createBrowserRouter([
+  { path: "/", element: <Welcome /> },
+  { path: "/signin", element: <SignIn /> },
+  { path: "/signup", element: <SignUp /> },
+  { path: "/forgot-password", element: <ForgotPassword /> },
+  { path: "/reset-password", element: <ResetPassword /> },
+  { path: "/practice", element: <ProtectedRoute><Practice /></ProtectedRoute> },
+  { path: "/progress", element: <ProtectedRoute><Progress /></ProtectedRoute> },
+  { path: "/chat", element: <ProtectedRoute><Chat /></ProtectedRoute> },
+  { path: "/about", element: <About /> },
+  { path: "/payment", element: <Payment /> },
+  { path: "/payment-success", element: <PaymentSuccess /> },
+  { path: "*", element: <NotFound /> },
+]);
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+function App() {
+  return (
+    <ReactQueryProvider>
       <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/welcome" element={<ProtectedRoute><Welcome /></ProtectedRoute>} />
-            <Route path="/practice" element={<ProtectedRoute><Practice /></ProtectedRoute>} />
-            <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
-            <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
-            <Route path="/about" element={<About />} />
-            <Route path="/" element={<Navigate to="/signin" replace />} />
-          </Routes>
-        </BrowserRouter>
+        <RouterProvider router={router} />
+        <Toaster closeButton position="bottom-right" />
       </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </ReactQueryProvider>
+  );
+}
 
 export default App;

@@ -38,24 +38,41 @@ const PracticeProgress = ({
 
   const { correct, incorrect } = calculateProgress();
 
+  // Generate segments for the broken pieces design
+  const generateSegments = (count: number, filledCount: number) => {
+    return Array.from({ length: count }).map((_, index) => {
+      const isFilled = index < filledCount;
+      return (
+        <div 
+          key={index} 
+          className={`h-full rounded-sm mx-0.5 transition-all duration-300 ${
+            isFilled 
+              ? 'bg-gradient-to-r from-emerald-400 to-blue-500 shadow-[0_0_10px_rgba(52,211,153,0.7)]' 
+              : 'bg-gray-200'
+          }`}
+          style={{ width: `calc(${100 / count}% - 4px)` }}
+        />
+      );
+    });
+  };
+
+  // Calculate how many segments should be filled
+  const segmentCount = 20; // Total number of segments
+  const filledSegments = Math.round((correctAnswers / totalQuestions) * segmentCount);
+
   return (
     <div className="px-3 py-2 border-b bg-white">
-      <div className="mb-1">
-        <div className="relative h-2 bg-gray-200 rounded-full overflow-hidden">
-          <div 
-            className="absolute h-full bg-emerald-500 transition-all duration-300"
-            style={{ width: `${correct}%` }}
-          />
-          <div 
-            className="absolute h-full bg-red-500 transition-all duration-300"
-            style={{ left: `${correct}%`, width: `${incorrect}%` }}
-          />
+      {/* Modern segmented progress bar with glow effect */}
+      <div className="mb-2 relative">
+        <div className="h-3 flex items-center relative">
+          {generateSegments(segmentCount, filledSegments)}
         </div>
       </div>
+      
       <div className="flex justify-between items-center">
         <div className="flex gap-4 text-sm">
           <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full" />
+            <div className="w-2 h-2 bg-gradient-to-r from-emerald-400 to-blue-500 rounded-full" />
             <span>Correct: {correctAnswers}</span>
           </div>
           <div className="flex items-center gap-1">

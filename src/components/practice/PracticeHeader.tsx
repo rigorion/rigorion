@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BookMarked, Palette, Target, Navigation, ChevronDown, LogOut } from "lucide-react";
+import { BookMarked, Target, Navigation, ChevronDown, LogOut } from "lucide-react";
 import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -15,7 +15,6 @@ import {
 
 interface PracticeHeaderProps {
   onToggleSidebar: () => void;
-  onOpenSettings: () => void;
   onOpenObjective: () => void;
   onOpenMode: () => void;
   mode: string;
@@ -25,7 +24,6 @@ interface PracticeHeaderProps {
 
 export const PracticeHeader = ({ 
   onToggleSidebar, 
-  onOpenSettings, 
   onOpenObjective, 
   onOpenMode, 
   mode,
@@ -139,16 +137,6 @@ export const PracticeHeader = ({
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onOpenSettings}
-          className="rounded-full bg-transparent hover:bg-gray-100 transition-colors"
-        >
-          <Palette className="h-4 w-4 mr-1.5 text-blue-500" />
-          Display
-        </Button>
         
         <Button
           variant="ghost"
