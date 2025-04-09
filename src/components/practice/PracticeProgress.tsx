@@ -62,7 +62,7 @@ const PracticeProgress = ({
       </div>
       
       <div className="flex justify-between items-center">
-        <div className="flex gap-4 text-sm">
+        <div className="flex gap-4 text-sm items-center">
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 bg-green-500 rounded-full" />
             <span>Correct: {correctAnswers}</span>
@@ -75,7 +75,10 @@ const PracticeProgress = ({
             <div className="w-2 h-2 bg-gray-300 rounded-full" />
             <span>Unattempted: {totalQuestions - correctAnswers - incorrectAnswers}</span>
           </div>
+          
+          {/* Style and Hint icons would be injected here from the parent component */}
         </div>
+        
         <div className="flex items-center gap-2">
           <Clock className="h-5 w-5 text-blue-500" />
           {timerDuration > 0 ? (
@@ -93,7 +96,7 @@ const PracticeProgress = ({
       </div>
 
       {/* Add the keyframes animation for the shining effect as a global style with slower interval */}
-      <style>
+      <style jsx>
         {`
         @keyframes shine {
           0% {

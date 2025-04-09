@@ -232,118 +232,120 @@ const Practice = ({
         setSidebarOpen={setSidebarOpen}
       />
 
-      {/* Progress Bar */}
-      <PracticeProgress
-        correctAnswers={correctAnswers}
-        incorrectAnswers={incorrectAnswers}
-        totalQuestions={questions.length || totalQuestions}
-        timerDuration={timerDuration}
-        isTimerActive={isTimerActive}
-        handleTimerComplete={handleTimerComplete}
-        mode={mode}
-        timeRemaining={timeRemaining}
-        setTimeRemaining={setTimeRemaining}
-      />
-
-      {/* Control area with styling and hint */}
-      <div className="flex items-center justify-center py-2 gap-4 border-b">
-        {/* Styling Button */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm" 
-              className="style-glow rounded-full"
-              aria-label="Text styling options"
+      {/* Progress Bar with Stats and Icons */}
+      <div className="px-3 py-2 border-b bg-white">
+        <PracticeProgress
+          correctAnswers={correctAnswers}
+          incorrectAnswers={incorrectAnswers}
+          totalQuestions={questions.length || totalQuestions}
+          timerDuration={timerDuration}
+          isTimerActive={isTimerActive}
+          handleTimerComplete={handleTimerComplete}
+          mode={mode}
+          timeRemaining={timeRemaining}
+          setTimeRemaining={setTimeRemaining}
+        />
+        
+        {/* Icons Row - Moved here from separate section */}
+        <div className="flex items-center justify-end gap-4 mt-2">
+          {/* Styling Button */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm" 
+                className="style-glow rounded-full"
+                aria-label="Text styling options"
+              >
+                <Sparkles className="h-4 w-4 text-blue-500" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent 
+              className="w-64 p-4 rounded-xl border border-blue-100 shadow-lg bg-white/90 backdrop-blur-sm transition-all duration-300 animate-in fade-in slide-in"
+              sideOffset={5}
+              align="center"
             >
-              <Sparkles className="h-4 w-4 text-blue-500" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent 
-            className="w-64 p-4 rounded-xl border border-blue-100 shadow-lg bg-white/90 backdrop-blur-sm transition-all duration-300 animate-in fade-in slide-in"
-            sideOffset={5}
-            align="center"
-          >
-            <div className="space-y-4">
-              <h3 className="text-sm font-medium text-gray-700">Text Styling</h3>
-              
-              <div className="space-y-3">
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs font-medium text-gray-600">Font</label>
-                  <select
-                    value={fontFamily}
-                    onChange={(e) => handleUpdateStyle('fontFamily', e.target.value)}
-                    className="p-1.5 text-sm border rounded-lg bg-gray-50 focus:ring-1 focus:ring-blue-300 outline-none"
-                  >
-                    <option value="inter">Inter</option>
-                    <option value="times-new-roman">Times New Roman</option>
-                    <option value="roboto">Roboto</option>
-                    <option value="poppins">Poppins</option>
-                    <option value="share-tech-mono">Monospace</option>
-                    <option value="dancing-script">Cursive</option>
-                  </select>
-                </div>
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium text-gray-700">Text Styling</h3>
                 
-                <div className="flex flex-col gap-2">
-                  <div className="flex justify-between items-center">
-                    <label className="text-xs font-medium text-gray-600">Size: {fontSize}px</label>
+                <div className="space-y-3">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-medium text-gray-600">Font</label>
+                    <select
+                      value={fontFamily}
+                      onChange={(e) => handleUpdateStyle('fontFamily', e.target.value)}
+                      className="p-1.5 text-sm border rounded-lg bg-gray-50 focus:ring-1 focus:ring-blue-300 outline-none"
+                    >
+                      <option value="inter">Inter</option>
+                      <option value="times-new-roman">Times New Roman</option>
+                      <option value="roboto">Roboto</option>
+                      <option value="poppins">Poppins</option>
+                      <option value="share-tech-mono">Monospace</option>
+                      <option value="dancing-script">Cursive</option>
+                    </select>
                   </div>
-                  <Slider
-                    value={[fontSize]}
-                    min={10}
-                    max={24}
-                    step={1}
-                    onValueChange={(value) => handleUpdateStyle('fontSize', value[0])}
-                    className="py-2"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="flex flex-col gap-1 items-center">
-                    <label className="text-xs font-medium text-gray-600">Text</label>
-                    <input
-                      type="color"
-                      value={contentColor}
-                      onChange={(e) => handleUpdateStyle('contentColor', e.target.value)}
-                      className="w-8 h-8 p-0 border-none rounded-full"
+                  
+                  <div className="flex flex-col gap-2">
+                    <div className="flex justify-between items-center">
+                      <label className="text-xs font-medium text-gray-600">Size: {fontSize}px</label>
+                    </div>
+                    <Slider
+                      value={[fontSize]}
+                      min={10}
+                      max={24}
+                      step={1}
+                      onValueChange={(value) => handleUpdateStyle('fontSize', value[0])}
+                      className="py-2"
                     />
                   </div>
                   
-                  <div className="flex flex-col gap-1 items-center">
-                    <label className="text-xs font-medium text-gray-600">Key</label>
-                    <input
-                      type="color"
-                      value={keyPhraseColor}
-                      onChange={(e) => handleUpdateStyle('keyPhraseColor', e.target.value)}
-                      className="w-8 h-8 p-0 border-none rounded-full"
-                    />
-                  </div>
-                  
-                  <div className="flex flex-col gap-1 items-center">
-                    <label className="text-xs font-medium text-gray-600">Formula</label>
-                    <input
-                      type="color"
-                      value={formulaColor}
-                      onChange={(e) => handleUpdateStyle('formulaColor', e.target.value)}
-                      className="w-8 h-8 p-0 border-none rounded-full"
-                    />
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="flex flex-col gap-1 items-center">
+                      <label className="text-xs font-medium text-gray-600">Text</label>
+                      <input
+                        type="color"
+                        value={contentColor}
+                        onChange={(e) => handleUpdateStyle('contentColor', e.target.value)}
+                        className="w-8 h-8 p-0 border-none rounded-full"
+                      />
+                    </div>
+                    
+                    <div className="flex flex-col gap-1 items-center">
+                      <label className="text-xs font-medium text-gray-600">Key</label>
+                      <input
+                        type="color"
+                        value={keyPhraseColor}
+                        onChange={(e) => handleUpdateStyle('keyPhraseColor', e.target.value)}
+                        className="w-8 h-8 p-0 border-none rounded-full"
+                      />
+                    </div>
+                    
+                    <div className="flex flex-col gap-1 items-center">
+                      <label className="text-xs font-medium text-gray-600">Formula</label>
+                      <input
+                        type="color"
+                        value={formulaColor}
+                        onChange={(e) => handleUpdateStyle('formulaColor', e.target.value)}
+                        className="w-8 h-8 p-0 border-none rounded-full"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </PopoverContent>
-        </Popover>
+            </PopoverContent>
+          </Popover>
 
-        {/* Hint Button */}
-        <HintDialog 
-          hint={currentQuestion?.hint || "Break down the problem into smaller parts."} 
-          currentQuestionIndex={currentQuestionIndex} 
-        />
+          {/* Hint Button */}
+          <HintDialog 
+            hint={currentQuestion?.hint || "Break down the problem into smaller parts."} 
+            currentQuestionIndex={currentQuestionIndex} 
+          />
 
-        {/* Timer */}
-        <div className="flex items-center gap-1 ml-2">
-          <Clock className="h-4 w-4 text-blue-500" />
-          <span className="text-sm">{timeRemaining}</span>
+          {/* Timer */}
+          <div className="flex items-center gap-1 ml-2">
+            <Clock className="h-4 w-4 text-blue-500" />
+            <span className="text-sm">{timeRemaining}</span>
+          </div>
         </div>
       </div>
 
@@ -382,8 +384,8 @@ const Practice = ({
       <PracticeTabSelector activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Main Content Container with max width */}
-      <div className="max-w-3xl mx-auto w-full px-4">
-        {/* Main Content */}
+      <div className="flex max-w-full mx-auto w-full">
+        {/* Main Content - Modified to use more space */}
         <PracticeDisplay
           currentQuestion={currentQuestion}
           selectedAnswer={selectedAnswer}

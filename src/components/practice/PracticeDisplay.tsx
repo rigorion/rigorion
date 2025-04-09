@@ -69,9 +69,9 @@ const PracticeDisplay = ({
   return (
     <>
       {/* Main Content Container */}
-      <div className="flex gap-8 px-6 h-[calc(100vh-300px)]">
-        {/* Left Section - Question & Choices (60% width) */}
-        <div className="flex-1 w-[60%] overflow-y-auto" 
+      <div className="flex gap-4 px-6 h-[calc(100vh-300px)] w-full">
+        {/* Left Section - Question & Choices (70% width) */}
+        <div className="flex-1 w-[70%] overflow-y-auto" 
           style={{ 
             backgroundColor: boardColor === 'black' ? '#000' : 
                               boardColor === 'green' ? '#f0fdf4' : '#fff',
@@ -146,8 +146,8 @@ const PracticeDisplay = ({
           )}
         </div>
         
-        {/* Right Section - Solution/Idea/Graph (40% width) */}
-        <div className="w-[40%] min-w-[400px] sticky top-32">
+        {/* Right Section - Solution/Idea/Graph (30% width) */}
+        <div className="w-[30%] min-w-[300px] sticky top-32">
           <div 
             className={`bg-white rounded-lg shadow-md border p-6 transition-all duration-300 ${
               (currentQuestion?.graph || 
@@ -259,7 +259,7 @@ const PracticeDisplay = ({
           </Button>
 
           {showGoToInput && (
-            <div className="absolute bottom-full left-0 mb-2 bg-white border rounded-lg shadow-lg p-4 w-64">
+            <div className="absolute bottom-full left-0 mb-2 bg-white border rounded-lg shadow-lg p-4 w-64 animate-in fade-in slide-in-from-bottom-5">
               <div className="flex flex-col space-y-2">
                 <div className="flex items-center gap-2">
                   <input

@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Lamp } from "lucide-react";
 
 interface HintDialogProps {
@@ -24,8 +24,8 @@ const HintDialog = ({ hint = "Try breaking down the problem into smaller parts."
   const isHintUsed = hintsUsed.includes(currentQuestionIndex);
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
+    <Popover open={isOpen} onOpenChange={handleOpenChange}>
+      <PopoverTrigger asChild>
         <Button
           variant="ghost"
           size="sm"
@@ -35,13 +35,11 @@ const HintDialog = ({ hint = "Try breaking down the problem into smaller parts."
         >
           <Lamp className={`h-4 w-4 ${isHintUsed ? 'text-amber-500' : 'text-blue-500'}`} />
         </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] bg-white">
-        <DialogHeader>
-          <DialogTitle className="text-center">Hint</DialogTitle>
-        </DialogHeader>
+      </PopoverTrigger>
+      <PopoverContent className="sm:max-w-[425px] bg-white animate-in fade-in slide-in-from-top-1 duration-300">
+        <div className="text-center font-medium mb-2">Hint</div>
         
-        <div className="py-4">
+        <div className="py-2">
           <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
             <p className="text-blue-800">{hint}</p>
           </div>
@@ -58,14 +56,14 @@ const HintDialog = ({ hint = "Try breaking down the problem into smaller parts."
           )}
         </div>
         
-        <DialogFooter>
-          <Button onClick={() => setIsOpen(false)} variant="outline" className="w-full">
+        <div className="flex justify-end mt-2">
+          <Button onClick={() => setIsOpen(false)} variant="outline" size="sm">
             Got it
           </Button>
-        </DialogFooter>
-      </DialogContent>
+        </div>
+      </PopoverContent>
       
-      <style>
+      <style jsx>
         {`
           @keyframes glow {
             0% {
@@ -84,7 +82,7 @@ const HintDialog = ({ hint = "Try breaking down the problem into smaller parts."
           }
         `}
       </style>
-    </Dialog>
+    </Popover>
   );
 };
 
