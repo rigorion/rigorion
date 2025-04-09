@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { sampleQuestions } from "@/components/practice/sampleQuestion";
@@ -18,8 +17,8 @@ import ObjectiveDialog from "@/components/practice/ObjectiveDialogue";
 // Import the unencrypted questions component instead of encrypted
 import UnencryptedMathQuestions from "@/components/practice/UnencryptedMathQuestions";
 
-// Remove SettingsDialog import as we'll replace it with inline styling options
-import { FontBoldIcon, FontItalicIcon, UnderlineIcon } from "lucide-react";
+// Import correct icons from lucide-react
+import { BoldIcon, ItalicIcon, UnderlineIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 
@@ -347,10 +346,10 @@ const Practice = ({
         
         <div className="flex items-center gap-1 ml-2">
           <button className="p-1 rounded hover:bg-gray-100">
-            <FontBoldIcon className="h-4 w-4" />
+            <BoldIcon className="h-4 w-4" />
           </button>
           <button className="p-1 rounded hover:bg-gray-100">
-            <FontItalicIcon className="h-4 w-4" />
+            <ItalicIcon className="h-4 w-4" />
           </button>
           <button className="p-1 rounded hover:bg-gray-100">
             <UnderlineIcon className="h-4 w-4" />
