@@ -65,23 +65,25 @@ const HintDialog = ({ hint = "Try breaking down the problem into smaller parts."
         </DialogFooter>
       </DialogContent>
       
-      <style jsx>{`
-        @keyframes glow {
-          0% {
-            box-shadow: 0 0 5px 2px rgba(249, 215, 28, 0.2);
+      <style>
+        {`
+          @keyframes glow {
+            0% {
+              box-shadow: 0 0 5px 2px rgba(249, 215, 28, 0.2);
+            }
+            50% {
+              box-shadow: 0 0 8px 4px rgba(249, 215, 28, 0.4);
+            }
+            100% {
+              box-shadow: 0 0 5px 2px rgba(249, 215, 28, 0.2);
+            }
           }
-          50% {
-            box-shadow: 0 0 8px 4px rgba(249, 215, 28, 0.4);
+          
+          .hint-glow {
+            animation: glow 10s infinite ease-in-out;
           }
-          100% {
-            box-shadow: 0 0 5px 2px rgba(249, 215, 28, 0.2);
-          }
-        }
-        
-        .hint-glow {
-          animation: glow 10s infinite ease-in-out;
-        }
-      `}</style>
+        `}
+      </style>
     </Dialog>
   );
 };

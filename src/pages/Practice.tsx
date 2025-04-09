@@ -4,7 +4,7 @@ import { sampleQuestions } from "@/components/practice/sampleQuestion";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { Question } from "@/types/QuestionInterface";
 import { toast } from "@/hooks/use-toast";
-import { Sparkles, Lamp } from "lucide-react";
+import { Sparkles, Lamp, Clock } from "lucide-react";
 
 // Import refactored components
 import PracticeHeader from "@/components/practice/PracticeHeader";

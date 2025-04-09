@@ -1,3 +1,4 @@
+
 import { Question } from "@/types/QuestionInterface";
 
 export const sampleQuestions: Question[] = [
@@ -17,6 +18,7 @@ export const sampleQuestions: Question[] = [
       alt: "Diagram showing circle with radius 5cm",
       caption: "Visual representation of the circle"
     },
+    hint: "Think about the formula for the area of a circle and how to use the radius value.",
     solutionSteps: [
       "Start with the area formula: A = πr²",
       "Substitute the radius: r = 5cm",
@@ -55,6 +57,7 @@ export const sampleQuestions: Question[] = [
     ],
     correctAnswer: "William Shakespeare",
     explanation: "First performed in 1597",
+    hint: "This famous playwright lived during the Renaissance era in England.",
     solutionSteps: [
       "Identify the work as a Renaissance-era play",
       "Recognize Shakespeare's signature tragic style",
@@ -77,6 +80,7 @@ export const sampleQuestions: Question[] = [
     choices: ["Ag", "Fe", "Au", "Cu"],
     correctAnswer: "Au",
     explanation: "Atomic number 79",
+    hint: "The Latin name for this element is 'aurum'.",
     solutionSteps: [
       "Recall periodic table elements",
       "Identify noble metals section",
@@ -86,4 +90,4 @@ export const sampleQuestions: Question[] = [
   }
 ];
 
-export default sampleQuestions; 
+export default sampleQuestions;

@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Module } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { useState } from "react";
 
 interface Module {
@@ -55,7 +55,7 @@ const ModulesDialog = () => {
           size="sm"
           className="rounded-full bg-transparent hover:bg-gray-100 transition-colors"
         >
-          <Module className="h-4 w-4 mr-1.5 text-blue-500" />
+          <BookOpen className="h-4 w-4 mr-1.5 text-blue-500" />
           Modules
         </Button>
       </DialogTrigger>

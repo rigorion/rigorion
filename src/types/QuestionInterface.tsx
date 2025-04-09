@@ -21,6 +21,7 @@ export interface Question {
         text: string;
         source?: string;
     };
+    hint?: string;
 }
 
 export default interface QuestionInterface {} // Or remove if unnecessary
