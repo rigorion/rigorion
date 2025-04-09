@@ -1,4 +1,3 @@
-
 import { supabase } from '@/lib/supabase';
 import { Question } from '@/types/QuestionInterface';
 import { toast } from "@/hooks/use-toast";

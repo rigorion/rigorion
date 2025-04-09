@@ -21,10 +21,7 @@ const UnencryptedMathQuestions = ({ onQuestionsLoaded }: UnencryptedMathQuestion
         if (questions && questions.length > 0) {
           console.log(`Loaded ${questions.length} questions successfully`);
           onQuestionsLoaded(questions);
-          toast({
-            title: "Questions loaded",
-            description: `Successfully loaded ${questions.length} questions`,
-          });
+          // Removed toast notification here
         } else {
           setError("No questions available");
           toast({
