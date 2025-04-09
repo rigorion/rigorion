@@ -7,7 +7,7 @@ import {
   isLocalDataValid 
 } from '@/services/secureStorageService';
 
-export default function useSecureContent() {
+export function useSecureContent() {
   const [questions, setQuestions] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -143,3 +143,5 @@ export default function useSecureContent() {
   
   return { decryptQuestion, isLoading, error };
 }
+
+export default useSecureContent;

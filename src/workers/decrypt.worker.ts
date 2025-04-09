@@ -70,14 +70,10 @@ self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
           const cipherParams = CryptoJS.lib.CipherParams.create({
             ciphertext: cipherWordArray,
             iv: ivWordArray,
-            salt: CryptoJS.lib.WordArray.random(0), // Empty salt
-            algorithm: CryptoJS.algo.AES,
-            padding: CryptoJS.pad.Pkcs7,
-            blockSize: 4
+            salt: CryptoJS.lib.WordArray.random(0) // Empty salt
           });
           
-          // Decrypt with the created params - we need to skip specifying the mode directly
-          // since it causes TypeScript errors with BlockCipherMode vs Mode
+          // Decrypt with the created params - remove mode to avoid TypeScript errors
           const decryptionOptions = { iv: ivWordArray };
           const decryptedWordArray = CryptoJS.AES.decrypt(
             cipherParams,
