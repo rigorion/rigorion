@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Bookmark, Link, Mail, MessageCircle, Music, Music2, Music4, Share2, Users } from "lucide-react";
+import CommentsDialog from "./CommentsDialog";
 
 interface PracticeFooterProps {
   onToggleCommunityStats: () => void;
@@ -60,7 +61,7 @@ const PracticeFooter = ({ onToggleCommunityStats }: PracticeFooterProps) => {
             {currentTrack ? "Playing" : "Music"}
           </Button>
           {isMusicMenuOpen && (
-            <div className="absolute bottom-full mb-2 left-0 bg-white border rounded-lg shadow-lg p-2 w-48">
+            <div className="absolute bottom-full mb-2 left-0 bg-white border rounded-lg shadow-lg p-2 w-48 transition-all duration-300 fade-in-animation z-50">
               <div className="text-sm text-gray-700 px-3 py-1">Background Music</div>
               <Button
                 variant="ghost"
@@ -95,6 +96,7 @@ const PracticeFooter = ({ onToggleCommunityStats }: PracticeFooterProps) => {
             </div>
           )}
         </div>
+        
         {/* Community Stats Toggle Button next to Music Button */}
         <div className="relative">
           <Button
@@ -107,6 +109,11 @@ const PracticeFooter = ({ onToggleCommunityStats }: PracticeFooterProps) => {
             Stats
           </Button>
         </div>
+
+        {/* Comments/Review Dialog */}
+        <div className="relative">
+          <CommentsDialog />
+        </div>
       </div>
 
       <div className="flex items-center gap-2">
@@ -118,7 +125,7 @@ const PracticeFooter = ({ onToggleCommunityStats }: PracticeFooterProps) => {
         >
           <Share2 className="h-4 w-4" />
           {showShareDialog && (
-            <div className="absolute bottom-full left-0 mb-2 bg-white border rounded-lg shadow-lg p-2 w-48">
+            <div className="absolute bottom-full left-0 mb-2 bg-white border rounded-lg shadow-lg p-2 w-48 transition-all duration-300 fade-in-animation z-50">
               <div className="text-sm font-medium text-gray-700 p-2">Share Practice Session</div>
               <div className="flex flex-col space-y-1">
                 <Button
@@ -153,6 +160,20 @@ const PracticeFooter = ({ onToggleCommunityStats }: PracticeFooterProps) => {
           <Bookmark className="h-4 w-4" />
         </Button>
       </div>
+
+      {/* Global Animation Styles */}
+      <style>
+        {`
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          
+          .fade-in-animation {
+            animation: fadeIn 0.3s ease-out forwards;
+          }
+        `}
+      </style>
     </div>
   );
 };

@@ -40,8 +40,8 @@ const PracticeProgress = ({
 
   return (
     <div className="px-3 py-2 border-b bg-white">
-      {/* Progress bar with smooth animated gradient effect */}
-      <div className="mb-2 relative h-3 bg-gray-100 rounded-full overflow-hidden">
+      {/* Progress bar with smooth animated gradient effect - 20% thinner */}
+      <div className="mb-2 relative h-2.5 bg-gray-100 rounded-full overflow-hidden">
         {/* Correct answers - green */}
         <div 
           className="absolute left-0 top-0 h-full bg-green-500 rounded-l-full transition-all duration-500 ease-out shine-animation"
@@ -54,9 +54,9 @@ const PracticeProgress = ({
           style={{ left: `${correct}%`, width: `${incorrect}%` }}
         />
         
-        {/* Unattempted - orange */}
+        {/* Unattempted - grey (changed from orange) */}
         <div 
-          className="absolute top-0 right-0 h-full bg-orange-300 rounded-r-full transition-all duration-500 ease-out"
+          className="absolute top-0 right-0 h-full bg-gray-300 rounded-r-full transition-all duration-500 ease-out"
           style={{ width: `${unattempted}%` }}
         />
       </div>
@@ -72,7 +72,7 @@ const PracticeProgress = ({
             <span>Incorrect: {incorrectAnswers}</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-orange-300 rounded-full" />
+            <div className="w-2 h-2 bg-gray-300 rounded-full" />
             <span>Unattempted: {totalQuestions - correctAnswers - incorrectAnswers}</span>
           </div>
         </div>
@@ -92,7 +92,7 @@ const PracticeProgress = ({
         </div>
       </div>
 
-      {/* Add the keyframes animation for the shining effect as a global style */}
+      {/* Add the keyframes animation for the shining effect as a global style with slower interval */}
       <style>
         {`
         @keyframes shine {
@@ -112,7 +112,7 @@ const PracticeProgress = ({
             rgba(255,255,255,0) 100%
           );
           background-size: 200% 100%;
-          animation: shine 2s infinite linear;
+          animation: shine 10s infinite linear; /* Changed from 2s to 10s */
         }
         `}
       </style>

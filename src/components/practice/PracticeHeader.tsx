@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BookMarked, Target, Navigation, ChevronDown, LogOut } from "lucide-react";
+import { Target, Navigation, ChevronDown, LogOut } from "lucide-react";
 import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import ModulesDialog from "./ModulesDialog";
 
 interface PracticeHeaderProps {
   onToggleSidebar: () => void;
@@ -77,7 +78,7 @@ export const PracticeHeader = ({
       <div className="flex items-center gap-4">
         <Collapsible open={sidebarOpen} onOpenChange={setSidebarOpen}>
           <CollapsibleTrigger className="rounded-lg p-2 hover:bg-gray-100 transition-colors">
-            <BookMarked className="h-5 w-5 text-blue-500" />
+            <Navigation className="h-5 w-5 text-blue-500" />
           </CollapsibleTrigger>
         </Collapsible>
         <h1
@@ -89,30 +90,8 @@ export const PracticeHeader = ({
       </div>
       
       <div className="flex items-center gap-4">
-        <DropdownMenu open={isNavDropdownOpen} onOpenChange={setIsNavDropdownOpen}>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="rounded-full bg-transparent hover:bg-gray-100 transition-colors"
-            >
-              <Navigation className="h-4 w-4 mr-1.5 text-blue-500" />
-              Navigation
-              <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isNavDropdownOpen ? "rotate-180" : ""}`} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48 bg-white border border-gray-200 shadow-lg rounded-md p-1">
-            {pages.map((page) => (
-              <DropdownMenuItem 
-                key={page.path} 
-                onClick={() => handleNavigation(page.path)}
-                className="cursor-pointer py-2 hover:bg-gray-100 rounded-sm transition-colors"
-              >
-                {page.name}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* Modules Button - Added before Chapters */}
+        <ModulesDialog />
 
         <DropdownMenu open={isChapterDropdownOpen} onOpenChange={setIsChapterDropdownOpen}>
           <DropdownMenuTrigger asChild>

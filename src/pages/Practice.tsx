@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { sampleQuestions } from "@/components/practice/sampleQuestion";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { Question } from "@/types/QuestionInterface";
 import { toast } from "@/hooks/use-toast";
+import { Sparkles, Lamp } from "lucide-react";
 
 // Import refactored components
 import PracticeHeader from "@/components/practice/PracticeHeader";
@@ -14,9 +15,11 @@ import PracticeFooter from "@/components/practice/PracticeFooter";
 import CommunityStats from "@/components/practice/CommunityStats";
 import ModeDialog from "@/components/practice/ModeDialog";
 import ObjectiveDialog from "@/components/practice/ObjectiveDialogue";
+import HintDialog from "@/components/practice/HintDialog";
+import CommentsDialog from "@/components/practice/CommentsDialog";
+import ModulesDialog from "@/components/practice/ModulesDialog";
 
 // Import correct icons from lucide-react
-import { Sparkles } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 
@@ -242,21 +245,24 @@ const Practice = ({
         setTimeRemaining={setTimeRemaining}
       />
 
-      {/* Style Controls - Modern floating button with popup */}
-      <div className="relative max-w-6xl mx-auto w-full">
+      {/* Control area with styling and hint */}
+      <div className="flex items-center justify-center py-2 gap-4 border-b">
+        {/* Styling Button */}
         <Popover>
           <PopoverTrigger asChild>
-            <button 
-              className="fixed bottom-20 right-6 z-50 p-3 rounded-full bg-gradient-to-r from-blue-400 to-indigo-500 text-white shadow-lg hover:shadow-blue-300/50 transition-all duration-300 animate-pulse"
+            <Button
+              variant="ghost"
+              size="sm" 
+              className="style-glow rounded-full"
               aria-label="Text styling options"
             >
-              <Sparkles className="h-5 w-5" />
-            </button>
+              <Sparkles className="h-4 w-4 text-blue-500" />
+            </Button>
           </PopoverTrigger>
           <PopoverContent 
-            className="w-80 p-4 rounded-xl border border-blue-100 shadow-xl bg-white/90 backdrop-blur-sm transition-all duration-300 animate-in fade-in slide-in"
+            className="w-64 p-4 rounded-xl border border-blue-100 shadow-lg bg-white/90 backdrop-blur-sm transition-all duration-300 animate-in fade-in slide-in"
             sideOffset={5}
-            align="end"
+            align="center"
           >
             <div className="space-y-4">
               <h3 className="text-sm font-medium text-gray-700">Text Styling</h3>
@@ -324,17 +330,25 @@ const Practice = ({
                   </div>
                 </div>
               </div>
-
-              <div className="pt-2 text-xs text-gray-400 italic">
-                Changes are applied automatically
-              </div>
             </div>
           </PopoverContent>
         </Popover>
+
+        {/* Hint Button */}
+        <HintDialog 
+          hint={currentQuestion?.hint || "Break down the problem into smaller parts."} 
+          currentQuestionIndex={currentQuestionIndex} 
+        />
+
+        {/* Timer */}
+        <div className="flex items-center gap-1 ml-2">
+          <Clock className="h-4 w-4 text-blue-500" />
+          <span className="text-sm">{timeRemaining}</span>
+        </div>
       </div>
 
       {/* Sidebar */}
-      <Collapsible open={sidebarOpen} onOpenChange={setSidebarOpen}>
+      <Collapsible open={sidebarOpen}>
         <CollapsibleContent
           className="absolute left-0 top-[56px] h-[calc(100vh-56px)] w-64 bg-white shadow-lg z-50 transform transition-all duration-500 ease-in-out"
           style={{ transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)", opacity: sidebarOpen ? 1 : 0 }}
@@ -368,7 +382,7 @@ const Practice = ({
       <PracticeTabSelector activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Main Content Container with max width */}
-      <div className="max-w-6xl mx-auto w-full">
+      <div className="max-w-3xl mx-auto w-full px-4">
         {/* Main Content */}
         <PracticeDisplay
           currentQuestion={currentQuestion}
@@ -418,6 +432,27 @@ const Practice = ({
         onOpenChange={setObjectiveDialogOpen}
         onSetObjective={handleSetObjective}
       />
+
+      {/* Global styles for animations */}
+      <style>
+        {`
+          @keyframes style-pulse {
+            0% {
+              box-shadow: 0 0 5px 2px rgba(59, 130, 246, 0.2);
+            }
+            50% {
+              box-shadow: 0 0 8px 4px rgba(59, 130, 246, 0.4);
+            }
+            100% {
+              box-shadow: 0 0 5px 2px rgba(59, 130, 246, 0.2);
+            }
+          }
+          
+          .style-glow {
+            animation: style-pulse 10s infinite ease-in-out;
+          }
+        `}
+      </style>
     </div>
   );
 };
