@@ -21,6 +21,8 @@ interface PracticeDisplayProps {
   boardColor: string;
   colorSettings: {
     content: string;
+    keyPhrase: string;
+    formula: string;
   };
   activeTab: "problem" | "solution" | "quote";
 }
@@ -92,7 +94,7 @@ const PracticeDisplay = ({
               <p className="mb-6 leading-relaxed">
                 {currentQuestion.content.split('**').map((part, i) => 
                   i % 2 === 1 ? (
-                    <span key={i} className="font-bold text-blue-600">
+                    <span key={i} className="font-bold" style={{ color: colorSettings.keyPhrase }}>
                       {part}
                     </span>
                   ) : (
@@ -197,8 +199,11 @@ const PracticeDisplay = ({
                     </h3>
                     <ol className="space-y-3 list-decimal list-inside pl-4">
                       {currentQuestion.solutionSteps.map((step, index) => (
-                        <li key={`step-${index}`} className="mb-3 text-gray-700">
-                          {step}
+                        <li key={`step-${index}`} className="mb-3" style={{ color: colorSettings.content }}>
+                          {step.includes("x") || step.includes("=") || step.includes("+") ? 
+                            <span style={{ color: colorSettings.formula }}>{step}</span> : 
+                            step
+                          }
                         </li>
                       ))}
                     </ol>
@@ -214,7 +219,7 @@ const PracticeDisplay = ({
                       </svg>
                       Historical Context
                     </h3>
-                    <blockquote className="italic text-gray-700 border-l-4 border-emerald-500 pl-4 py-2">
+                    <blockquote className="italic border-l-4 border-emerald-500 pl-4 py-2" style={{ color: colorSettings.keyPhrase }}>
                       {currentQuestion.quote.text}
                     </blockquote>
                     {currentQuestion.quote.source && (

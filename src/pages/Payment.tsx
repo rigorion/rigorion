@@ -13,21 +13,52 @@ const PaymentPage = () => {
   const location = useLocation();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [selectedOption, setSelectedOption] = useState<'monthly' | 'annual'>('monthly');
+  
+  // Card details state
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardName, setCardName] = useState('');
+  const [expiry, setExpiry] = useState('');
+  const [cvc, setCvc] = useState('');
+  const [formErrors, setFormErrors] = useState<{[key: string]: string}>({});
   
   // Get module details from location state or use defaults
   const moduleDetails = location.state?.module || {
     id: '1',
     title: 'Introduction to Calculus',
-    price: '€0.99',
+    price: '€4.99',
     imageUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3',
   };
 
-  const handlePaymentOptionChange = (option: 'monthly' | 'annual') => {
-    setSelectedOption(option);
+  const validateForm = () => {
+    const errors: {[key: string]: string} = {};
+    
+    if (!cardNumber.trim() || cardNumber.replace(/\s/g, '').length !== 16) {
+      errors.cardNumber = 'Please enter a valid 16-digit card number';
+    }
+    
+    if (!cardName.trim()) {
+      errors.cardName = 'Please enter the cardholder name';
+    }
+    
+    if (!expiry.trim() || !/^\d{2}\/\d{2}$/.test(expiry)) {
+      errors.expiry = 'Please enter expiry in MM/YY format';
+    }
+    
+    if (!cvc.trim() || !/^\d{3}$/.test(cvc)) {
+      errors.cvc = 'Please enter a valid 3-digit CVC';
+    }
+    
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
-  const handlePayment = async () => {
+  const handlePayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     if (!user) {
       toast({
         title: "Authentication required",
@@ -40,33 +71,42 @@ const PaymentPage = () => {
 
     setLoading(true);
     try {
-      // Call the Supabase Edge Function to create a Stripe checkout
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: {
-          priceId: selectedOption === 'monthly' ? 'price_monthly' : 'price_annual', // Replace with actual price IDs
-          successUrl: window.location.origin + '/payment-success',
-          cancelUrl: window.location.origin + '/payment',
-        }
-      });
-
-      if (error) {
-        throw new Error(error.message || 'Error creating checkout session');
-      }
-
-      if (data?.url) {
-        // Redirect to Stripe checkout
-        window.location.href = data.url;
-      } else {
-        throw new Error('No checkout URL returned');
-      }
+      // In a real implementation, this would securely send card details to Stripe
+      // For this demo, we'll simulate a successful payment
+      
+      setTimeout(() => {
+        navigate("/payment-success");
+      }, 2000);
+      
     } catch (error: any) {
       toast({
         title: "Payment error",
         description: error.message || "Could not process your payment request",
         variant: "destructive",
       });
-    } finally {
       setLoading(false);
+    }
+  };
+
+  // Format card number with spaces
+  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\s/g, '');
+    if (value.length <= 16 && /^\d*$/.test(value)) {
+      // Insert a space after every 4 digits
+      const formatted = value.replace(/(\d{4})/g, '$1 ').trim();
+      setCardNumber(formatted);
+    }
+  };
+  
+  // Format expiry date automatically
+  const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 4) {
+      if (value.length > 2) {
+        setExpiry(`${value.slice(0, 2)}/${value.slice(2)}`);
+      } else {
+        setExpiry(value);
+      }
     }
   };
 
@@ -171,101 +211,106 @@ const PaymentPage = () => {
             </div>
           </div>
           
-          {/* Right Column - Payment Options */}
+          {/* Right Column - Payment Form */}
           <div>
             <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
               <div className="p-6 border-b border-gray-100">
-                <h2 className="text-2xl font-semibold mb-1">Choose a plan</h2>
-                <p className="text-gray-500">Select the option that works best for you</p>
+                <h2 className="text-2xl font-semibold mb-1">Monthly Subscription</h2>
+                <p className="text-gray-500">€4.99 per month, cancel anytime</p>
               </div>
               
-              <div className="p-6 space-y-4">
-                {/* Monthly Option */}
-                <div 
-                  className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                    selectedOption === 'monthly' 
-                      ? 'border-blue-500 bg-blue-50 shadow-sm' 
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  onClick={() => handlePaymentOptionChange('monthly')}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className={`w-5 h-5 rounded-full border ${
-                        selectedOption === 'monthly' 
-                          ? 'border-blue-500 bg-blue-500' 
-                          : 'border-gray-300'
-                      } flex items-center justify-center mr-3`}>
-                        {selectedOption === 'monthly' && (
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </div>
-                      <div>
-                        <h3 className="font-medium">Monthly</h3>
-                        <p className="text-sm text-gray-500">Cancel anytime</p>
-                      </div>
+              <form onSubmit={handlePayment} className="p-6 space-y-4">
+                {/* Card Number */}
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-700">Card Number</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={cardNumber}
+                      onChange={handleCardNumberChange}
+                      placeholder="1234 5678 9012 3456"
+                      className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                        formErrors.cardNumber ? "border-red-500" : "border-gray-300"
+                      }`}
+                    />
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <CreditCard className="h-5 w-5 text-gray-400" />
                     </div>
-                    <div className="text-right">
-                      <span className="text-xl font-bold">€0.99</span>
-                      <span className="text-gray-500 text-sm">/month</span>
-                    </div>
+                  </div>
+                  {formErrors.cardNumber && (
+                    <p className="mt-1 text-xs text-red-500">{formErrors.cardNumber}</p>
+                  )}
+                </div>
+                
+                {/* Card Holder */}
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-700">Cardholder Name</label>
+                  <input
+                    type="text"
+                    value={cardName}
+                    onChange={(e) => setCardName(e.target.value)}
+                    placeholder="John Doe"
+                    className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                      formErrors.cardName ? "border-red-500" : "border-gray-300"
+                    }`}
+                  />
+                  {formErrors.cardName && (
+                    <p className="mt-1 text-xs text-red-500">{formErrors.cardName}</p>
+                  )}
+                </div>
+                
+                {/* Expiry and CVC */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700">Expiry Date</label>
+                    <input
+                      type="text"
+                      value={expiry}
+                      onChange={handleExpiryChange}
+                      placeholder="MM/YY"
+                      className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                        formErrors.expiry ? "border-red-500" : "border-gray-300"
+                      }`}
+                    />
+                    {formErrors.expiry && (
+                      <p className="mt-1 text-xs text-red-500">{formErrors.expiry}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700">CVC</label>
+                    <input
+                      type="text"
+                      value={cvc}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '');
+                        if (value.length <= 3) setCvc(value);
+                      }}
+                      placeholder="123"
+                      maxLength={3}
+                      className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                        formErrors.cvc ? "border-red-500" : "border-gray-300"
+                      }`}
+                    />
+                    {formErrors.cvc && (
+                      <p className="mt-1 text-xs text-red-500">{formErrors.cvc}</p>
+                    )}
                   </div>
                 </div>
                 
-                {/* Annual Option */}
-                <div 
-                  className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                    selectedOption === 'annual' 
-                      ? 'border-blue-500 bg-blue-50 shadow-sm' 
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  onClick={() => handlePaymentOptionChange('annual')}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className={`w-5 h-5 rounded-full border ${
-                        selectedOption === 'annual' 
-                          ? 'border-blue-500 bg-blue-500' 
-                          : 'border-gray-300'
-                      } flex items-center justify-center mr-3`}>
-                        {selectedOption === 'annual' && (
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </div>
-                      <div>
-                        <div className="flex items-center">
-                          <h3 className="font-medium">Annual</h3>
-                          <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
-                            Save 33%
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-500">Billed yearly</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-xl font-bold">€7.99</span>
-                      <span className="text-gray-500 text-sm">/year</span>
-                    </div>
+                <div className="pt-4 mt-6">
+                  <div className="flex justify-between text-gray-600 mb-4">
+                    <span>Monthly subscription</span>
+                    <span>€4.99</span>
                   </div>
-                </div>
-              </div>
-              
-              <div className="p-6 bg-gray-50 space-y-4">
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal</span>
-                  <span>{selectedOption === 'monthly' ? '€0.99' : '€7.99'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Total</span>
-                  <span className="font-bold">{selectedOption === 'monthly' ? '€0.99' : '€7.99'}</span>
+                  <div className="flex justify-between font-medium">
+                    <span>Total billed monthly</span>
+                    <span className="font-bold">€4.99</span>
+                  </div>
                 </div>
                 
                 <Button 
-                  onClick={handlePayment}
+                  type="submit"
                   disabled={loading}
                   className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
                 >
@@ -280,7 +325,7 @@ const PaymentPage = () => {
                   ) : (
                     <span className="flex items-center gap-2">
                       <CreditCard size={18} />
-                      Pay with Stripe
+                      Subscribe Now
                     </span>
                   )}
                 </Button>
@@ -292,14 +337,10 @@ const PaymentPage = () => {
                   </div>
                   <div className="flex items-center gap-1">
                     <Shield size={14} />
-                    <span>30-day guarantee</span>
+                    <span>Cancel anytime</span>
                   </div>
                 </div>
-                
-                <div className="flex justify-center pt-2">
-                  <img src="https://stripe.com/img/v3/home/twitter-card.png" alt="Stripe" className="h-6" />
-                </div>
-              </div>
+              </form>
             </div>
           </div>
         </div>

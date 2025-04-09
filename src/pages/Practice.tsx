@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { sampleQuestions } from "@/components/practice/sampleQuestion";
@@ -14,8 +15,7 @@ import PracticeFooter from "@/components/practice/PracticeFooter";
 import CommunityStats from "@/components/practice/CommunityStats";
 import ModeDialog from "@/components/practice/ModeDialog";
 import ObjectiveDialog from "@/components/practice/ObjectiveDialogue";
-// Import the unencrypted questions component instead of encrypted
-import UnencryptedMathQuestions from "@/components/practice/UnencryptedMathQuestions";
+// Removed UnencryptedMathQuestions import
 
 // Import correct icons from lucide-react
 import { BoldIcon, ItalicIcon, UnderlineIcon } from "lucide-react";
@@ -41,8 +41,8 @@ const Practice = ({
 }: PracticeProps) => {
   // Basic question and UI states
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
+  const [questions, setQuestions] = useState<Question[]>(sampleQuestions);
+  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(sampleQuestions[0]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedChapter, setSelectedChapter] = useState(0);
   const [mode, setMode] = useState<"timer" | "level" | "manual" | "pomodoro" | "exam">("manual");
@@ -57,12 +57,13 @@ const Practice = ({
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<string>("00:00");
 
-  // Style states (replacing the settings dialog)
+  // Style states
   const [fontFamily, setFontFamily] = useState<string>('inter');
   const [fontSize, setFontSize] = useState<number>(14);
   const [contentColor, setContentColor] = useState<string>('#374151');
   const [keyPhraseColor, setKeyPhraseColor] = useState<string>('#2563eb');
   const [formulaColor, setFormulaColor] = useState<string>('#dc2626');
+  const [styleCollapsed, setStyleCollapsed] = useState(false);
 
   // Stats and feedback states
   const [correctAnswers, setCorrectAnswers] = useState(0);
@@ -70,7 +71,7 @@ const Practice = ({
   const [showCommunityStats, setShowCommunityStats] = useState(false);
 
   // Loading and error states
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
   const [perPage] = useState(10);
@@ -92,30 +93,10 @@ const Practice = ({
   
   const [boardColor, setBoardColor] = useState('white');
 
-  // Handle questions being loaded
-  const handleQuestionsLoaded = (loadedQuestions: Question[]) => {
-    console.log("Loaded questions:", loadedQuestions.length);
-    if (loadedQuestions && loadedQuestions.length > 0) {
-      setQuestions(loadedQuestions);
-      setCurrentQuestion(loadedQuestions[0]);
-      setTotalPages(Math.ceil(loadedQuestions.length / perPage));
-      setLoading(false);
-      // Removed toast notification here
-    } else {
-      console.error("No questions loaded, using sample questions");
-      setQuestions(sampleQuestions);
-      setCurrentQuestion(sampleQuestions[0]);
-      setLoading(false);
-    }
-  };
-
   // Update current question when questions change or index changes
   useEffect(() => {
     if (questions.length > 0 && currentQuestionIndex < questions.length) {
       setCurrentQuestion(questions[currentQuestionIndex]);
-    } else if (questions.length === 0 && sampleQuestions.length > 0) {
-      // Fallback to sample questions if no questions available
-      setCurrentQuestion(sampleQuestions[currentQuestionIndex % sampleQuestions.length]);
     }
   }, [questions, currentQuestionIndex]);
 
@@ -223,22 +204,10 @@ const Practice = ({
     setSidebarOpen(false);
   };
 
-  // Display a loading indicator while content is loading
-  if (loading && !currentQuestion) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <UnencryptedMathQuestions onQuestionsLoaded={handleQuestionsLoaded} />
-        <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mt-8"></div>
-        <p className="mt-4 text-lg text-blue-500">Loading practice questions...</p>
-      </div>
-    );
-  }
-
   // Display an error message if there's an error
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <UnencryptedMathQuestions onQuestionsLoaded={handleQuestionsLoaded} />
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
           <strong className="font-bold">Error!</strong>
           <span className="block sm:inline"> {error}</span>
@@ -246,16 +215,6 @@ const Practice = ({
         <Button className="mt-4" onClick={() => window.location.reload()}>
           Retry
         </Button>
-      </div>
-    );
-  }
-
-  // Make sure we have a current question
-  if (!currentQuestion) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <UnencryptedMathQuestions onQuestionsLoaded={handleQuestionsLoaded} />
-        <p className="mt-4 text-lg">No questions available. Please load questions.</p>
       </div>
     );
   }
@@ -285,77 +244,99 @@ const Practice = ({
         setTimeRemaining={setTimeRemaining}
       />
 
-      {/* Style Controls - New section replacing the Settings button/dialog */}
-      <div className="px-6 py-2 flex items-center gap-3 bg-gray-50 border-b">
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium">Font:</label>
-          <select
-            value={fontFamily}
-            onChange={(e) => handleUpdateStyle('fontFamily', e.target.value)}
-            className="p-1 text-sm border rounded"
+      {/* Style Controls - Collapsible section */}
+      <Collapsible open={!styleCollapsed}>
+        <div className="px-6 py-2 flex items-center gap-3 bg-gray-50 border-b">
+          <button
+            className="text-gray-500 hover:text-gray-700 mr-2"
+            onClick={() => setStyleCollapsed(!styleCollapsed)}
           >
-            <option value="inter">Inter</option>
-            <option value="times-new-roman">Times New Roman</option>
-            <option value="roboto">Roboto</option>
-            <option value="poppins">Poppins</option>
-            <option value="comic-sans">Comic Sans</option>
-          </select>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium">Size:</label>
-          <input
-            type="number"
-            min={10}
-            max={24}
-            value={fontSize}
-            onChange={(e) => handleUpdateStyle('fontSize', parseInt(e.target.value))}
-            className="p-1 text-sm border rounded w-16"
-          />
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium">Text:</label>
-          <input
-            type="color"
-            value={contentColor}
-            onChange={(e) => handleUpdateStyle('contentColor', e.target.value)}
-            className="w-6 h-6 p-0 border-none"
-          />
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium">Key phrases:</label>
-          <input
-            type="color"
-            value={keyPhraseColor}
-            onChange={(e) => handleUpdateStyle('keyPhraseColor', e.target.value)}
-            className="w-6 h-6 p-0 border-none"
-          />
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium">Formulas:</label>
-          <input
-            type="color"
-            value={formulaColor}
-            onChange={(e) => handleUpdateStyle('formulaColor', e.target.value)}
-            className="w-6 h-6 p-0 border-none"
-          />
-        </div>
-        
-        <div className="flex items-center gap-1 ml-2">
-          <button className="p-1 rounded hover:bg-gray-100">
-            <BoldIcon className="h-4 w-4" />
+            {styleCollapsed ? '▼' : '▲'}
           </button>
-          <button className="p-1 rounded hover:bg-gray-100">
-            <ItalicIcon className="h-4 w-4" />
-          </button>
-          <button className="p-1 rounded hover:bg-gray-100">
-            <UnderlineIcon className="h-4 w-4" />
-          </button>
+          
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium">Font:</label>
+            <select
+              value={fontFamily}
+              onChange={(e) => handleUpdateStyle('fontFamily', e.target.value)}
+              className="p-1 text-sm border rounded"
+            >
+              <option value="inter">Inter</option>
+              <option value="times-new-roman">Times New Roman</option>
+              <option value="roboto">Roboto</option>
+              <option value="poppins">Poppins</option>
+              <option value="comic-sans">Comic Sans</option>
+            </select>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium">Size:</label>
+            <input
+              type="number"
+              min={10}
+              max={24}
+              value={fontSize}
+              onChange={(e) => handleUpdateStyle('fontSize', parseInt(e.target.value))}
+              className="p-1 text-sm border rounded w-16"
+            />
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium">Text:</label>
+            <input
+              type="color"
+              value={contentColor}
+              onChange={(e) => handleUpdateStyle('contentColor', e.target.value)}
+              className="w-6 h-6 p-0 border-none"
+            />
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium">Key phrases:</label>
+            <input
+              type="color"
+              value={keyPhraseColor}
+              onChange={(e) => handleUpdateStyle('keyPhraseColor', e.target.value)}
+              className="w-6 h-6 p-0 border-none"
+            />
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium">Formulas:</label>
+            <input
+              type="color"
+              value={formulaColor}
+              onChange={(e) => handleUpdateStyle('formulaColor', e.target.value)}
+              className="w-6 h-6 p-0 border-none"
+            />
+          </div>
+          
+          <div className="flex items-center gap-1 ml-2">
+            <button className="p-1 rounded hover:bg-gray-100">
+              <BoldIcon className="h-4 w-4" />
+            </button>
+            <button className="p-1 rounded hover:bg-gray-100">
+              <ItalicIcon className="h-4 w-4" />
+            </button>
+            <button className="p-1 rounded hover:bg-gray-100">
+              <UnderlineIcon className="h-4 w-4" />
+            </button>
+          </div>
         </div>
-      </div>
+      </Collapsible>
+      <CollapsibleContent>
+        {/* When collapsed, show a minimal indicator */}
+        {styleCollapsed && (
+          <div className="px-6 py-1 bg-gray-50 border-b flex items-center">
+            <button
+              className="text-xs text-gray-500 hover:text-gray-700 flex items-center"
+              onClick={() => setStyleCollapsed(false)}
+            >
+              Show text styling options ▼
+            </button>
+          </div>
+        )}
+      </CollapsibleContent>
 
       {/* Sidebar */}
       <Collapsible open={sidebarOpen} onOpenChange={setSidebarOpen}>
@@ -426,11 +407,6 @@ const Practice = ({
           <CommunityStats />
         </div>
       )}
-
-      {/* Load unencrypted questions component */}
-      <div className="fixed bottom-4 right-4 z-50 opacity-0">
-        <UnencryptedMathQuestions onQuestionsLoaded={handleQuestionsLoaded} />
-      </div>
 
       {/* Dialogs */}
       <ModeDialog

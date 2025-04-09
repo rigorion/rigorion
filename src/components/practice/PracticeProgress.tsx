@@ -36,43 +36,35 @@ const PracticeProgress = ({
     };
   };
 
-  const { correct, incorrect } = calculateProgress();
-
-  // Generate segments for the broken pieces design
-  const generateSegments = (count: number, filledCount: number) => {
-    return Array.from({ length: count }).map((_, index) => {
-      const isFilled = index < filledCount;
-      return (
-        <div 
-          key={index} 
-          className={`h-full rounded-sm mx-0.5 transition-all duration-300 ${
-            isFilled 
-              ? 'bg-gradient-to-r from-emerald-400 to-blue-500 shadow-[0_0_10px_rgba(52,211,153,0.7)]' 
-              : 'bg-gray-200'
-          }`}
-          style={{ width: `calc(${100 / count}% - 4px)` }}
-        />
-      );
-    });
-  };
-
-  // Calculate how many segments should be filled
-  const segmentCount = 20; // Total number of segments
-  const filledSegments = Math.round((correctAnswers / totalQuestions) * segmentCount);
+  const { correct, incorrect, unattempted } = calculateProgress();
 
   return (
     <div className="px-3 py-2 border-b bg-white">
-      {/* Modern segmented progress bar with glow effect */}
-      <div className="mb-2 relative">
-        <div className="h-3 flex items-center relative">
-          {generateSegments(segmentCount, filledSegments)}
-        </div>
+      {/* Progress bar with smooth animated gradient effect */}
+      <div className="mb-2 relative h-3 bg-gray-100 rounded-full overflow-hidden">
+        {/* Correct answers - green */}
+        <div 
+          className="absolute left-0 top-0 h-full bg-green-500 rounded-l-full transition-all duration-500 ease-out shine-animation"
+          style={{ width: `${correct}%` }}
+        />
+        
+        {/* Incorrect answers - red */}
+        <div 
+          className="absolute top-0 h-full bg-red-500 transition-all duration-500 ease-out"
+          style={{ left: `${correct}%`, width: `${incorrect}%` }}
+        />
+        
+        {/* Unattempted - orange */}
+        <div 
+          className="absolute top-0 right-0 h-full bg-orange-300 rounded-r-full transition-all duration-500 ease-out"
+          style={{ width: `${unattempted}%` }}
+        />
       </div>
       
       <div className="flex justify-between items-center">
         <div className="flex gap-4 text-sm">
           <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-gradient-to-r from-emerald-400 to-blue-500 rounded-full" />
+            <div className="w-2 h-2 bg-green-500 rounded-full" />
             <span>Correct: {correctAnswers}</span>
           </div>
           <div className="flex items-center gap-1">
@@ -99,6 +91,29 @@ const PracticeProgress = ({
           )}
         </div>
       </div>
+
+      {/* Add the keyframes animation for the shining effect */}
+      <style jsx>{`
+        @keyframes shine {
+          0% {
+            background-position: -100% 0;
+          }
+          100% {
+            background-position: 200% 0;
+          }
+        }
+        
+        .shine-animation {
+          background-image: linear-gradient(
+            90deg, 
+            rgba(255,255,255,0) 0%, 
+            rgba(255,255,255,0.3) 50%, 
+            rgba(255,255,255,0) 100%
+          );
+          background-size: 200% 100%;
+          animation: shine 2s infinite linear;
+        }
+      `}</style>
     </div>
   );
 };
