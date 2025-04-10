@@ -2,11 +2,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { 
-  Bookmark, ChevronLeft, ChevronRight, Link, 
+  Bookmark, ChevronLeft, ChevronRight, ArrowRight, 
   Mail, MessageCircle, Music, Music2, Music4, 
-  Search, Share2, Users 
+  Share2, Users 
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
 
 interface PracticeFooterProps {
   onToggleCommunityStats: () => void;
@@ -194,46 +195,48 @@ const PracticeFooter = ({
           </Popover>
         </div>
 
-        {/* Go to Question */}
+        {/* Go to Question - Updated to be more clear */}
         <div className="relative">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="rounded-full bg-transparent hover:bg-blue-50"
-            onClick={() => setShowGoToInput(!showGoToInput)}
-          >
-            <Search className="h-4 w-4 text-[#1EAEDB]" />
-          </Button>
-
-          {showGoToInput && (
-            <div className="absolute bottom-full left-0 mb-2 bg-white border rounded-lg shadow-lg p-4 w-64 animate-in fade-in slide-in-from-bottom-5">
+          <Popover open={showGoToInput} onOpenChange={setShowGoToInput}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="rounded-full flex items-center bg-transparent hover:bg-blue-50 px-3"
+              >
+                <span className="text-sm text-[#1EAEDB] mr-2">Go to</span>
+                <ArrowRight className="h-4 w-4 text-[#1EAEDB]" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64 p-4 bg-white border rounded-lg shadow-lg animate-in fade-in slide-in-from-bottom-5">
               <div className="flex flex-col space-y-2">
-                <div className="flex items-center gap-2">
-                  <input
+                <label className="text-sm text-gray-700">Go to Question</label>
+                <div className="flex gap-2">
+                  <Input
                     type="number"
                     min="1"
                     max={totalQuestions}
                     value={targetQuestion}
                     onChange={(e) => setTargetQuestion(e.target.value)}
-                    className="w-full px-3 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder={`Enter question (1-${totalQuestions})`}
+                    className="w-full"
+                    placeholder={`Enter (1-${totalQuestions})`}
                     onKeyPress={(e) => e.key === 'Enter' && handleGoToQuestion()}
                   />
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="bg-[#1EAEDB] hover:bg-[#0FA0CE]"
+                    onClick={handleGoToQuestion}
+                  >
+                    Go
+                  </Button>
                 </div>
                 {inputError && (
                   <div className="text-sm text-red-500">{inputError}</div>
                 )}
-                <Button
-                  variant="default"
-                  size="sm"
-                  className="w-full"
-                  onClick={handleGoToQuestion}
-                >
-                  Go
-                </Button>
               </div>
-            </div>
-          )}
+            </PopoverContent>
+          </Popover>
         </div>
 
         {/* Share Button */}
@@ -272,7 +275,7 @@ const PracticeFooter = ({
                   className="w-full justify-start"
                   onClick={() => handleShare('copy')}
                 >
-                  <Link className="h-4 w-4 mr-2 text-[#1EAEDB]" />
+                  <Share2 className="h-4 w-4 mr-2 text-[#1EAEDB]" />
                   Copy Link
                 </Button>
               </div>

@@ -1,4 +1,5 @@
-import { Clock, Lamp, Sparkles } from "lucide-react";
+
+import { Clock, Flag, Lamp, Sparkles } from "lucide-react";
 import CountdownTimer from "./CountDownTimer";
 import HintDialog from "./HintDialog";
 import { Button } from "@/components/ui/button";
@@ -43,16 +44,17 @@ const PracticeProgress = ({
     return {
       correct: (correctAnswers / total) * 100,
       incorrect: (incorrectAnswers / total) * 100,
-      unattempted: ((total - totalAnswered) / total) * 100
+      unattempted: ((total - totalAnswered) / total) * 100,
+      totalPercentage: Math.round((totalAnswered / total) * 100)
     };
   };
 
-  const { correct, incorrect, unattempted } = calculateProgress();
+  const { correct, incorrect, unattempted, totalPercentage } = calculateProgress();
 
   return (
     <div className="px-3 py-2 border-b bg-white">
       <div className="flex items-center justify-between mb-2">
-        {/* Progress bar with smooth animated gradient effect - 20% thinner */}
+        {/* Progress bar with percentage indicator */}
         <div className="relative h-2.5 bg-gray-100 rounded-full overflow-hidden flex-grow mr-4">
           {/* Correct answers - green */}
           <div 
@@ -71,31 +73,17 @@ const PracticeProgress = ({
             className="absolute top-0 right-0 h-full bg-gray-300 rounded-r-full transition-all duration-500 ease-out"
             style={{ width: `${unattempted}%` }}
           />
+          
+          {/* Progress percentage */}
+          <div className="absolute right-0 top-0 -translate-y-1/2 translate-x-full mt-1.5 ml-2 text-xs font-medium text-[#1EAEDB]">
+            {totalPercentage}%
+          </div>
         </div>
-        
-        {/* Tab selector moved inline */}
-        <PracticeTabSelector
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          className="h-8 min-h-0"
-        />
       </div>
       
       <div className="flex justify-between items-center">
-        <div className="flex gap-4 text-sm items-center flex-wrap">
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-green-500 rounded-full" />
-            <span>Correct: {correctAnswers}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-red-500 rounded-full" />
-            <span>Incorrect: {incorrectAnswers}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-gray-300 rounded-full" />
-            <span>Unattempted: {totalQuestions - correctAnswers - incorrectAnswers}</span>
-          </div>
-          
+        {/* Left side with collapsible icons and flag */}
+        <div className="flex items-center gap-3">
           {/* Style button inline */}
           <Popover>
             <PopoverTrigger asChild>
@@ -190,25 +178,63 @@ const PracticeProgress = ({
             hint={currentQuestionHint} 
             currentQuestionIndex={currentQuestionIndex} 
           />
+
+          {/* Flag icon for "review later" */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="p-1 h-6 rounded-full"
+          >
+            <Flag className="h-4 w-4 text-[#1EAEDB]" />
+          </Button>
         </div>
-        
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-[#1EAEDB]" />
-          {timerDuration > 0 ? (
-            <CountdownTimer
-              durationInSeconds={timerDuration}
-              onComplete={handleTimerComplete}
-              isActive={isTimerActive}
-              mode={mode}
-              onUpdate={(remaining: string) => setTimeRemaining(remaining)}
-            />
-          ) : (
-            <span>{timeRemaining}</span>
-          )}
+
+        {/* Center - Tab selector */}
+        <div className="flex-grow flex justify-center">
+          <PracticeTabSelector
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            className="h-8 min-h-0"
+          />
+        </div>
+
+        {/* Right side - Stats & Timer */}
+        <div className="flex items-center gap-4">
+          {/* Stats moved to the right */}
+          <div className="flex gap-4 text-sm items-center">
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-green-500 rounded-full" />
+              <span>Correct: {correctAnswers}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-red-500 rounded-full" />
+              <span>Incorrect: {incorrectAnswers}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-gray-300 rounded-full" />
+              <span>Unattempted: {totalQuestions - correctAnswers - incorrectAnswers}</span>
+            </div>
+          </div>
+
+          {/* Timer stays on the far right */}
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-[#1EAEDB]" />
+            {timerDuration > 0 ? (
+              <CountdownTimer
+                durationInSeconds={timerDuration}
+                onComplete={handleTimerComplete}
+                isActive={isTimerActive}
+                mode={mode}
+                onUpdate={(remaining: string) => setTimeRemaining(remaining)}
+              />
+            ) : (
+              <span>{timeRemaining}</span>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Add the keyframes animation for the shining effect as a global style with slower interval */}
+      {/* Add the keyframes animation for the shining effect */}
       <style>
         {`
         @keyframes shine {
