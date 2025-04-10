@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { CircleUserRound, UserCheck, UserRound, UserPlus, Target, Clock, Brain } from 'lucide-react';
+import { CircleUserRound, UserCheck, Zap, Trophy, Target, Clock, Brain } from 'lucide-react';
 import { ProgressChart } from "./ProgressChart";
 import { ChapterProgress } from "./ChapterProgress";
 import SegmentedProgress from "@/components/SegmentedProgress";
@@ -19,30 +19,36 @@ export default function ProgressDashboard({ period, type, className }: ProgressD
     { 
       title: "Speed", 
       value: "85%", 
-      icon: CircleUserRound,
+      icon: Clock,
       color: "bg-blue-600",
-      shadowColor: "shadow-blue-200" 
+      shadowColor: "shadow-blue-200",
+      transparent: true
     },
     { 
       title: "Streak", 
       value: "7 days", 
-      icon: UserCheck,
-      color: "bg-emerald-500",
-      shadowColor: "shadow-emerald-200"
+      icon: Zap, // Changed from UserCheck to Zap (lightning bolt)
+      color: "bg-amber-500", // Changed to gold color for streak
+      shadowColor: "shadow-amber-200",
+      transparent: true,
+      fill: true
     },
     { 
       title: "Avg Score", 
       value: "92", 
-      icon: UserRound,
+      icon: Target, // Changed from UserRound to Target
       color: "bg-purple-500",
-      shadowColor: "shadow-purple-200"
+      shadowColor: "shadow-purple-200",
+      transparent: true
     },
     { 
       title: "Rank", 
       value: "#120", 
-      icon: UserPlus,
-      color: "bg-amber-500",
-      shadowColor: "shadow-amber-200"
+      icon: Trophy, // Changed from UserPlus to Trophy
+      color: "bg-amber-500", // Changed to gold color for rank
+      shadowColor: "shadow-amber-200",
+      transparent: true,
+      fill: true
     },
     { 
       component: ProjectedScore
@@ -148,7 +154,7 @@ export default function ProgressDashboard({ period, type, className }: ProgressD
               <Card className="p-4 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group"> 
                 <div className="flex items-center gap-3"> 
                   <motion.div 
-                    className={`p-2.5 rounded-lg ${stat.color} ${stat.shadowColor} shadow-lg`}
+                    className={`p-2.5 rounded-full ${stat.color} ${stat.shadowColor} shadow-lg`}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     initial={{ rotate: 0 }}
@@ -159,7 +165,10 @@ export default function ProgressDashboard({ period, type, className }: ProgressD
                       repeat: 0 
                     }}
                   > 
-                    <stat.icon className="h-5 w-5 text-white" fill="white" strokeWidth={1.5} /> 
+                    <stat.icon 
+                      className={`h-5 w-5 text-white ${stat.fill ? 'fill-white' : ''}`} 
+                      strokeWidth={1.5} 
+                    /> 
                   </motion.div>
                   <div>
                     <p className="text-sm text-gray-500">{stat.title}</p>
@@ -172,6 +181,7 @@ export default function ProgressDashboard({ period, type, className }: ProgressD
         ))}
       </motion.div>
 
+      
       <motion.div 
         className="grid grid-cols-1 lg:grid-cols-3 gap-4"
         variants={containerVariants}

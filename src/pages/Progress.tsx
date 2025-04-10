@@ -21,7 +21,10 @@ import {
   Home,
   GraduationCap,
   BrainCircuit,
-  Info
+  Info,
+  Navigation,
+  ChevronRight,
+  Zap // Energy icon replacement
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
@@ -34,20 +37,40 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle
 } from "@/components/ui/navigation-menu";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Sidebar } from "@/components/practice/Sidebar";
+import { AnimatePresence } from "framer-motion";
 
 const Progress = () => {
   const [period, setPeriod] = useState("weekly");
   const [type, setType] = useState("performance");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
   return (
     <div className="flex min-h-screen w-full bg-gray-50">
+      {/* Animated Sidebar */}
+      <AnimatePresence>
+        {sidebarOpen && <Sidebar onClose={() => setSidebarOpen(false)} />}
+      </AnimatePresence>
+      
       {/* Main Content */}
       <div className="flex-1">
         {/* Header */}
         <header className="sticky top-0 z-50 w-full bg-white shadow-md">
           <div className="container flex h-16 max-w-screen-2xl items-center justify-between px-6">
             <div className="flex items-center gap-3">
+              {/* Collapsible Sidebar Trigger */}
+              <Collapsible open={sidebarOpen} onOpenChange={setSidebarOpen}>
+                <CollapsibleTrigger className="rounded-lg p-2 hover:bg-gray-100 transition-colors">
+                  <Navigation className="h-5 w-5 text-blue-500" />
+                </CollapsibleTrigger>
+              </Collapsible>
+              
               <h1 
                 className="text-2xl font-bold text-gray-800"
                 style={{ fontFamily: '"Dancing Script", cursive' }}
@@ -211,20 +234,21 @@ const Progress = () => {
                       <th className="px-4 py-3 text-left text-sm font-medium text-blue-800">Problems</th>
                       <th className="px-4 py-3 text-left text-sm font-medium text-blue-800">Accuracy</th>
                       <th className="px-4 py-3 text-left text-sm font-medium text-blue-800">Projected Score</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-blue-800">Trend</th>
                     </tr>
                   </thead>
                   <tbody>
                     {[
-                      { rank: 1, name: "Alex Zhang", problems: 456, accuracy: "94%", score: 98 },
-                      { rank: 2, name: "Maria Rodriguez", problems: 421, accuracy: "92%", score: 96 },
-                      { rank: 3, name: "David Kim", problems: 398, accuracy: "91%", score: 95 },
-                      { rank: 4, name: "Jessica Taylor", problems: 387, accuracy: "89%", score: 93 },
-                      { rank: 5, name: "Raj Patel", problems: 365, accuracy: "88%", score: 91 },
-                      { rank: 6, name: "Sophie Chen", problems: 342, accuracy: "87%", score: 90 },
-                      { rank: 7, name: "James Wilson", problems: 321, accuracy: "85%", score: 89 },
-                      { rank: 8, name: "Emma Johnson", problems: 310, accuracy: "84%", score: 88 },
-                      { rank: 9, name: "Michael Brown", problems: 298, accuracy: "82%", score: 86 },
-                      { rank: 10, name: "Current User", problems: 248, accuracy: "84%", score: 92, isCurrentUser: true },
+                      { rank: 1, name: "Alex Zhang", problems: 456, accuracy: "94%", score: 98, trend: +3 },
+                      { rank: 2, name: "Maria Rodriguez", problems: 421, accuracy: "92%", score: 96, trend: 0 },
+                      { rank: 3, name: "David Kim", problems: 398, accuracy: "91%", score: 95, trend: +1 },
+                      { rank: 4, name: "Jessica Taylor", problems: 387, accuracy: "89%", score: 93, trend: -2 },
+                      { rank: 5, name: "Raj Patel", problems: 365, accuracy: "88%", score: 91, trend: +5 },
+                      { rank: 6, name: "Sophie Chen", problems: 342, accuracy: "87%", score: 90, trend: -1 },
+                      { rank: 7, name: "James Wilson", problems: 321, accuracy: "85%", score: 89, trend: 0 },
+                      { rank: 8, name: "Emma Johnson", problems: 310, accuracy: "84%", score: 88, trend: +2 },
+                      { rank: 9, name: "Michael Brown", problems: 298, accuracy: "82%", score: 86, trend: -3 },
+                      { rank: 10, name: "Current User", problems: 248, accuracy: "84%", score: 92, isCurrentUser: true, trend: +4 },
                     ].map((user, index) => (
                       <tr 
                         key={index} 
@@ -243,9 +267,9 @@ const Progress = () => {
                             </span>
                             {user.rank <= 3 && (
                               <Trophy className={`ml-2 h-4 w-4 ${
-                                user.rank === 1 ? "text-amber-500" :
-                                user.rank === 2 ? "text-gray-500" :
-                                user.rank === 3 ? "text-amber-700" : ""
+                                user.rank === 1 ? "text-amber-500 fill-amber-500" :
+                                user.rank === 2 ? "text-gray-500 fill-gray-500" :
+                                user.rank === 3 ? "text-amber-700 fill-amber-700" : ""
                               }`} />
                             )}
                           </div>
@@ -258,6 +282,22 @@ const Progress = () => {
                             {user.score}
                             {user.rank <= 3 && (
                               <Star className="ml-2 h-4 w-4 text-yellow-500 fill-yellow-500" />
+                            )}
+                          </div>
+                        </td>
+                        <td className="border-t px-4 py-3">
+                          <div className={`flex items-center ${
+                            user.trend > 0 ? "text-emerald-500" : 
+                            user.trend < 0 ? "text-rose-500" : "text-gray-500"
+                          }`}>
+                            {user.trend > 0 && "+"}
+                            {user.trend}%
+                            {user.trend !== 0 && (
+                              <ChevronRight 
+                                className={`h-4 w-4 ml-1 ${
+                                  user.trend > 0 ? "rotate-90" : "rotate-270"
+                                }`}
+                              />
                             )}
                           </div>
                         </td>
