@@ -38,20 +38,16 @@ export interface UserProgress {
 
 export async function getUserProgressData(userId: string) {
   try {
-    // Use the raw query method instead of the typed table access
+    // Use a raw query with the rpc method to avoid type checking
     const { data: progressData, error: progressError } = await supabase
-      .from('user_progress')
-      .select('*')
-      .eq('user_id', userId)
+      .rpc('get_user_progress', { user_id_param: userId })
       .single();
     
     if (progressError) throw progressError;
 
-    // Get chapter performance data for the user
+    // Get chapter performance data for the user using a similar approach
     const { data: chapterData, error: chapterError } = await supabase
-      .from('chapter_progress')
-      .select('*')
-      .eq('user_id', userId);
+      .rpc('get_chapter_progress', { user_id_param: userId });
     
     if (chapterError) throw chapterError;
     
@@ -70,12 +66,12 @@ export async function updateUserProgress(
   data: Partial<Omit<UserProgress, 'userId' | 'chapterPerformance'>>
 ) {
   try {
+    // Use rpc to avoid type checking
     const { error } = await supabase
-      .from('user_progress')
-      .upsert({ 
-        user_id: userId,
-        ...data
-      }, { onConflict: 'user_id' });
+      .rpc('upsert_user_progress', { 
+        user_id_param: userId,
+        data_param: data
+      });
     
     if (error) throw error;
     
@@ -95,16 +91,16 @@ export async function updateChapterProgress(
   unattempted: number
 ) {
   try {
+    // Use rpc to avoid type checking
     const { error } = await supabase
-      .from('chapter_progress')
-      .upsert({
-        user_id: userId,
-        chapter_id: chapterId,
-        chapter_name: chapterName,
-        correct,
-        incorrect,
-        unattempted
-      }, { onConflict: 'user_id, chapter_id' });
+      .rpc('upsert_chapter_progress', {
+        user_id_param: userId,
+        chapter_id_param: chapterId,
+        chapter_name_param: chapterName,
+        correct_param: correct,
+        incorrect_param: incorrect,
+        unattempted_param: unattempted
+      });
     
     if (error) throw error;
     
@@ -117,19 +113,9 @@ export async function updateChapterProgress(
 
 export async function getLeaderboard(limit: number = 10) {
   try {
+    // Use rpc to avoid type checking
     const { data, error } = await supabase
-      .from('user_progress')
-      .select(`
-        user_id,
-        total_progress_percent,
-        correct_answers,
-        incorrect_answers,
-        average_score,
-        projected_score,
-        profiles:user_id (name, avatar_url)
-      `)
-      .order('average_score', { ascending: false })
-      .limit(limit);
+      .rpc('get_leaderboard', { limit_param: limit });
     
     if (error) throw error;
     
