@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Search, ChevronRight, ChevronLeft } from "lucide-react";
+import { Search } from "lucide-react";
 import { Question } from "@/types/QuestionInterface";
 
 interface PracticeDisplayProps {
@@ -9,8 +9,6 @@ interface PracticeDisplayProps {
   selectedAnswer: string | null;
   isCorrect: boolean | null;
   checkAnswer: (answer: string) => void;
-  nextQuestion: () => void;
-  prevQuestion: () => void;
   currentQuestionIndex: number;
   totalQuestions: number;
   displaySettings: {
@@ -32,8 +30,6 @@ const PracticeDisplay = ({
   selectedAnswer,
   isCorrect,
   checkAnswer,
-  nextQuestion,
-  prevQuestion,
   currentQuestionIndex,
   totalQuestions,
   displaySettings,
@@ -235,73 +231,39 @@ const PracticeDisplay = ({
         </div>
       </div>
 
-      {/* Bottom Navigation */}
-      <div className="border-t px-6 py-4 flex items-center justify-between gap-4 bg-gray-50">
-        <Button
-          variant="outline"
-          className="rounded-full"
-          onClick={prevQuestion}
-          disabled={currentQuestionIndex <= 0}
-        >
-          <ChevronLeft className="h-4 w-4 mr-2" />
-          Previous
-        </Button>
-
-        <div className="relative flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="rounded-full"
-            onClick={() => setShowGoToInput(!showGoToInput)}
-          >
-            <Search className="h-4 w-4 mr-2" />
-            Go to Question
-          </Button>
-
-          {showGoToInput && (
-            <div className="absolute bottom-full left-0 mb-2 bg-white border rounded-lg shadow-lg p-4 w-64 animate-in fade-in slide-in-from-bottom-5">
-              <div className="flex flex-col space-y-2">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    min="1"
-                    max={totalQuestions}
-                    value={targetQuestion}
-                    onChange={(e) => {
-                      setTargetQuestion(e.target.value);
-                      setInputError('');
-                    }}
-                    className="w-full px-3 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder={`Enter question (1-${totalQuestions})`}
-                    onKeyPress={(e) => e.key === 'Enter' && handleGoToQuestion()}
-                  />
-                </div>
-                {inputError && (
-                  <div className="text-sm text-red-500">{inputError}</div>
-                )}
-                <Button
-                  variant="default"
-                  size="sm"
-                  className="w-full"
-                  onClick={handleGoToQuestion}
-                >
-                  Go
-                </Button>
-              </div>
+      {/* Go to Question Popup */}
+      {showGoToInput && (
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-white border rounded-lg shadow-lg p-4 w-64 animate-in fade-in slide-in-from-bottom-5 z-20">
+          <div className="flex flex-col space-y-2">
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min="1"
+                max={totalQuestions}
+                value={targetQuestion}
+                onChange={(e) => {
+                  setTargetQuestion(e.target.value);
+                  setInputError('');
+                }}
+                className="w-full px-3 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder={`Enter question (1-${totalQuestions})`}
+                onKeyPress={(e) => e.key === 'Enter' && handleGoToQuestion()}
+              />
             </div>
-          )}
+            {inputError && (
+              <div className="text-sm text-red-500">{inputError}</div>
+            )}
+            <Button
+              variant="default"
+              size="sm"
+              className="w-full"
+              onClick={handleGoToQuestion}
+            >
+              Go
+            </Button>
+          </div>
         </div>
-
-        <Button
-          variant="outline"
-          className="rounded-full"
-          onClick={nextQuestion}
-          disabled={currentQuestionIndex >= totalQuestions - 1}
-        >
-          Next
-          <ChevronRight className="h-4 w-4 ml-2" />
-        </Button>
-      </div>
+      )}
     </>
   );
 };

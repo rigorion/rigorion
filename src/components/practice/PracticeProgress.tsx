@@ -1,6 +1,9 @@
-
-import { Clock } from "lucide-react";
+import { Clock, Lamp, Sparkles } from "lucide-react";
 import CountdownTimer from "./CountDownTimer";
+import HintDialog from "./HintDialog";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import PracticeTabSelector from "./PracticeTabSelector";
 
 interface PracticeProgressProps {
   correctAnswers: number;
@@ -12,6 +15,10 @@ interface PracticeProgressProps {
   mode: "timer" | "level" | "manual" | "pomodoro" | "exam";
   timeRemaining: string;
   setTimeRemaining: (time: string) => void;
+  activeTab: "problem" | "solution" | "quote";
+  setActiveTab: (tab: "problem" | "solution" | "quote") => void;
+  currentQuestionIndex: number;
+  currentQuestionHint?: string;
 }
 
 const PracticeProgress = ({
@@ -23,7 +30,11 @@ const PracticeProgress = ({
   handleTimerComplete,
   mode,
   timeRemaining,
-  setTimeRemaining
+  setTimeRemaining,
+  activeTab,
+  setActiveTab,
+  currentQuestionIndex,
+  currentQuestionHint = "Try breaking down the problem into smaller parts."
 }: PracticeProgressProps) => {
   const calculateProgress = () => {
     const total = totalQuestions;
@@ -40,29 +51,38 @@ const PracticeProgress = ({
 
   return (
     <div className="px-3 py-2 border-b bg-white">
-      {/* Progress bar with smooth animated gradient effect - 20% thinner */}
-      <div className="mb-2 relative h-2.5 bg-gray-100 rounded-full overflow-hidden">
-        {/* Correct answers - green */}
-        <div 
-          className="absolute left-0 top-0 h-full bg-green-500 rounded-l-full transition-all duration-500 ease-out shine-animation"
-          style={{ width: `${correct}%` }}
-        />
+      <div className="flex items-center justify-between mb-2">
+        {/* Progress bar with smooth animated gradient effect - 20% thinner */}
+        <div className="relative h-2.5 bg-gray-100 rounded-full overflow-hidden flex-grow mr-4">
+          {/* Correct answers - green */}
+          <div 
+            className="absolute left-0 top-0 h-full bg-green-500 rounded-l-full transition-all duration-500 ease-out shine-animation"
+            style={{ width: `${correct}%` }}
+          />
+          
+          {/* Incorrect answers - red */}
+          <div 
+            className="absolute top-0 h-full bg-red-500 transition-all duration-500 ease-out"
+            style={{ left: `${correct}%`, width: `${incorrect}%` }}
+          />
+          
+          {/* Unattempted - grey */}
+          <div 
+            className="absolute top-0 right-0 h-full bg-gray-300 rounded-r-full transition-all duration-500 ease-out"
+            style={{ width: `${unattempted}%` }}
+          />
+        </div>
         
-        {/* Incorrect answers - red */}
-        <div 
-          className="absolute top-0 h-full bg-red-500 transition-all duration-500 ease-out"
-          style={{ left: `${correct}%`, width: `${incorrect}%` }}
-        />
-        
-        {/* Unattempted - grey (changed from orange) */}
-        <div 
-          className="absolute top-0 right-0 h-full bg-gray-300 rounded-r-full transition-all duration-500 ease-out"
-          style={{ width: `${unattempted}%` }}
+        {/* Tab selector moved inline */}
+        <PracticeTabSelector
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          className="h-8 min-h-0"
         />
       </div>
       
       <div className="flex justify-between items-center">
-        <div className="flex gap-4 text-sm items-center">
+        <div className="flex gap-4 text-sm items-center flex-wrap">
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 bg-green-500 rounded-full" />
             <span>Correct: {correctAnswers}</span>
@@ -76,11 +96,104 @@ const PracticeProgress = ({
             <span>Unattempted: {totalQuestions - correctAnswers - incorrectAnswers}</span>
           </div>
           
-          {/* Style and Hint icons would be injected here from the parent component */}
+          {/* Style button inline */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm" 
+                className="p-1 h-6 rounded-full"
+                aria-label="Text styling options"
+              >
+                <Sparkles className="h-4 w-4 text-[#1EAEDB]" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent 
+              className="w-64 p-4 rounded-xl border border-blue-100 shadow-lg bg-white/90 backdrop-blur-sm transition-all duration-300 animate-in fade-in slide-in"
+              sideOffset={5}
+              align="center"
+            >
+              {/* Style content remains the same */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium text-gray-700">Text Styling</h3>
+                
+                <div className="space-y-3">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-medium text-gray-600">Font</label>
+                    <select
+                      value=""
+                      onChange={() => {}}
+                      className="p-1.5 text-sm border rounded-lg bg-gray-50 focus:ring-1 focus:ring-blue-300 outline-none"
+                    >
+                      <option value="inter">Inter</option>
+                      <option value="times-new-roman">Times New Roman</option>
+                      <option value="roboto">Roboto</option>
+                      <option value="poppins">Poppins</option>
+                      <option value="share-tech-mono">Monospace</option>
+                      <option value="dancing-script">Cursive</option>
+                    </select>
+                  </div>
+                  
+                  <div className="flex flex-col gap-2">
+                    <div className="flex justify-between items-center">
+                      <label className="text-xs font-medium text-gray-600">Size: px</label>
+                    </div>
+                    <input
+                      type="range"
+                      min="10"
+                      max="24"
+                      step="1"
+                      value="14"
+                      onChange={() => {}}
+                      className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="flex flex-col gap-1 items-center">
+                      <label className="text-xs font-medium text-gray-600">Text</label>
+                      <input
+                        type="color"
+                        value="#374151"
+                        onChange={() => {}}
+                        className="w-8 h-8 p-0 border-none rounded-full"
+                      />
+                    </div>
+                    
+                    <div className="flex flex-col gap-1 items-center">
+                      <label className="text-xs font-medium text-gray-600">Key</label>
+                      <input
+                        type="color"
+                        value="#2563eb"
+                        onChange={() => {}}
+                        className="w-8 h-8 p-0 border-none rounded-full"
+                      />
+                    </div>
+                    
+                    <div className="flex flex-col gap-1 items-center">
+                      <label className="text-xs font-medium text-gray-600">Formula</label>
+                      <input
+                        type="color"
+                        value="#dc2626"
+                        onChange={() => {}}
+                        className="w-8 h-8 p-0 border-none rounded-full"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+          
+          {/* Hint button inline */}
+          <HintDialog 
+            hint={currentQuestionHint} 
+            currentQuestionIndex={currentQuestionIndex} 
+          />
         </div>
         
         <div className="flex items-center gap-2">
-          <Clock className="h-5 w-5 text-blue-500" />
+          <Clock className="h-4 w-4 text-[#1EAEDB]" />
           {timerDuration > 0 ? (
             <CountdownTimer
               durationInSeconds={timerDuration}

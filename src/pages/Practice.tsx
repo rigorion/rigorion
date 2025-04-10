@@ -1,27 +1,19 @@
+
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { sampleQuestions } from "@/components/practice/sampleQuestion";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { Question } from "@/types/QuestionInterface";
 import { toast } from "@/hooks/use-toast";
-import { Sparkles, Lamp, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 // Import refactored components
 import PracticeHeader from "@/components/practice/PracticeHeader";
 import PracticeProgress from "@/components/practice/PracticeProgress";
-import PracticeTabSelector from "@/components/practice/PracticeTabSelector";
 import PracticeDisplay from "@/components/practice/PracticeDisplay";
 import PracticeFooter from "@/components/practice/PracticeFooter";
 import CommunityStats from "@/components/practice/CommunityStats";
 import ModeDialog from "@/components/practice/ModeDialog";
 import ObjectiveDialog from "@/components/practice/ObjectiveDialogue";
-import HintDialog from "@/components/practice/HintDialog";
-import CommentsDialog from "@/components/practice/CommentsDialog";
-import ModulesDialog from "@/components/practice/ModulesDialog";
-
-// Import correct icons from lucide-react
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Slider } from "@/components/ui/slider";
 
 interface PracticeProps {
   chapterTitle?: string;
@@ -57,6 +49,9 @@ const Practice = ({
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<string>("00:00");
+  const [showGoToInput, setShowGoToInput] = useState(false);
+  const [targetQuestion, setTargetQuestion] = useState('');
+  const [inputError, setInputError] = useState('');
 
   // Style states
   const [fontFamily, setFontFamily] = useState<string>('inter');
@@ -205,6 +200,32 @@ const Practice = ({
     setSidebarOpen(false);
   };
 
+  // Handler for "Go to Question"
+  const handleGoToQuestion = () => {
+    const questionNumber = parseInt(targetQuestion);
+    
+    // Validate input
+    if (isNaN(questionNumber)) {
+      setInputError('Please enter a valid number');
+      return;
+    }
+    
+    if (questionNumber < 1 || questionNumber > questions.length) {
+      setInputError(`Please enter a number between 1 and ${questions.length}`);
+      return;
+    }
+
+    // Set new current question index
+    setCurrentQuestionIndex(questionNumber - 1);
+    setSelectedAnswer(null);
+    setIsCorrect(null);
+
+    // Reset UI states
+    setTargetQuestion('');
+    setShowGoToInput(false);
+    setInputError('');
+  };
+
   // Display an error message if there's an error
   if (error) {
     return (
@@ -232,122 +253,22 @@ const Practice = ({
         setSidebarOpen={setSidebarOpen}
       />
 
-      {/* Progress Bar with Stats and Icons */}
-      <div className="px-3 py-2 border-b bg-white">
-        <PracticeProgress
-          correctAnswers={correctAnswers}
-          incorrectAnswers={incorrectAnswers}
-          totalQuestions={questions.length || totalQuestions}
-          timerDuration={timerDuration}
-          isTimerActive={isTimerActive}
-          handleTimerComplete={handleTimerComplete}
-          mode={mode}
-          timeRemaining={timeRemaining}
-          setTimeRemaining={setTimeRemaining}
-        />
-        
-        {/* Icons Row - Moved here from separate section */}
-        <div className="flex items-center justify-end gap-4 mt-2">
-          {/* Styling Button */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm" 
-                className="style-glow rounded-full"
-                aria-label="Text styling options"
-              >
-                <Sparkles className="h-4 w-4 text-blue-500" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent 
-              className="w-64 p-4 rounded-xl border border-blue-100 shadow-lg bg-white/90 backdrop-blur-sm transition-all duration-300 animate-in fade-in slide-in"
-              sideOffset={5}
-              align="center"
-            >
-              <div className="space-y-4">
-                <h3 className="text-sm font-medium text-gray-700">Text Styling</h3>
-                
-                <div className="space-y-3">
-                  <div className="flex flex-col gap-2">
-                    <label className="text-xs font-medium text-gray-600">Font</label>
-                    <select
-                      value={fontFamily}
-                      onChange={(e) => handleUpdateStyle('fontFamily', e.target.value)}
-                      className="p-1.5 text-sm border rounded-lg bg-gray-50 focus:ring-1 focus:ring-blue-300 outline-none"
-                    >
-                      <option value="inter">Inter</option>
-                      <option value="times-new-roman">Times New Roman</option>
-                      <option value="roboto">Roboto</option>
-                      <option value="poppins">Poppins</option>
-                      <option value="share-tech-mono">Monospace</option>
-                      <option value="dancing-script">Cursive</option>
-                    </select>
-                  </div>
-                  
-                  <div className="flex flex-col gap-2">
-                    <div className="flex justify-between items-center">
-                      <label className="text-xs font-medium text-gray-600">Size: {fontSize}px</label>
-                    </div>
-                    <Slider
-                      value={[fontSize]}
-                      min={10}
-                      max={24}
-                      step={1}
-                      onValueChange={(value) => handleUpdateStyle('fontSize', value[0])}
-                      className="py-2"
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="flex flex-col gap-1 items-center">
-                      <label className="text-xs font-medium text-gray-600">Text</label>
-                      <input
-                        type="color"
-                        value={contentColor}
-                        onChange={(e) => handleUpdateStyle('contentColor', e.target.value)}
-                        className="w-8 h-8 p-0 border-none rounded-full"
-                      />
-                    </div>
-                    
-                    <div className="flex flex-col gap-1 items-center">
-                      <label className="text-xs font-medium text-gray-600">Key</label>
-                      <input
-                        type="color"
-                        value={keyPhraseColor}
-                        onChange={(e) => handleUpdateStyle('keyPhraseColor', e.target.value)}
-                        className="w-8 h-8 p-0 border-none rounded-full"
-                      />
-                    </div>
-                    
-                    <div className="flex flex-col gap-1 items-center">
-                      <label className="text-xs font-medium text-gray-600">Formula</label>
-                      <input
-                        type="color"
-                        value={formulaColor}
-                        onChange={(e) => handleUpdateStyle('formulaColor', e.target.value)}
-                        className="w-8 h-8 p-0 border-none rounded-full"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-
-          {/* Hint Button */}
-          <HintDialog 
-            hint={currentQuestion?.hint || "Break down the problem into smaller parts."} 
-            currentQuestionIndex={currentQuestionIndex} 
-          />
-
-          {/* Timer */}
-          <div className="flex items-center gap-1 ml-2">
-            <Clock className="h-4 w-4 text-blue-500" />
-            <span className="text-sm">{timeRemaining}</span>
-          </div>
-        </div>
-      </div>
+      {/* Progress Bar with Stats and Tabs */}
+      <PracticeProgress
+        correctAnswers={correctAnswers}
+        incorrectAnswers={incorrectAnswers}
+        totalQuestions={questions.length || totalQuestions}
+        timerDuration={timerDuration}
+        isTimerActive={isTimerActive}
+        handleTimerComplete={handleTimerComplete}
+        mode={mode}
+        timeRemaining={timeRemaining}
+        setTimeRemaining={setTimeRemaining}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        currentQuestionIndex={currentQuestionIndex}
+        currentQuestionHint={currentQuestion?.hint}
+      />
 
       {/* Sidebar */}
       <Collapsible open={sidebarOpen}>
@@ -380,19 +301,14 @@ const Practice = ({
         </CollapsibleContent>
       </Collapsible>
 
-      {/* Question Tabs */}
-      <PracticeTabSelector activeTab={activeTab} setActiveTab={setActiveTab} />
-
-      {/* Main Content Container with max width */}
-      <div className="flex max-w-full mx-auto w-full">
-        {/* Main Content - Modified to use more space */}
+      {/* Main Content Container */}
+      <div className="flex max-w-full mx-auto w-full flex-grow">
+        {/* Main Content */}
         <PracticeDisplay
           currentQuestion={currentQuestion}
           selectedAnswer={selectedAnswer}
           isCorrect={isCorrect}
           checkAnswer={checkAnswer}
-          nextQuestion={nextQuestion}
-          prevQuestion={prevQuestion}
           currentQuestionIndex={currentQuestionIndex}
           totalQuestions={questions.length || totalQuestions}
           displaySettings={{
@@ -410,9 +326,19 @@ const Practice = ({
         />
       </div>
 
-      {/* Footer with Controls */}
+      {/* Footer with Navigation Controls */}
       <PracticeFooter
         onToggleCommunityStats={() => setShowCommunityStats(!showCommunityStats)}
+        onPrevious={prevQuestion}
+        onNext={nextQuestion}
+        currentQuestionIndex={currentQuestionIndex}
+        totalQuestions={questions.length}
+        showGoToInput={showGoToInput}
+        setShowGoToInput={setShowGoToInput}
+        targetQuestion={targetQuestion}
+        setTargetQuestion={setTargetQuestion}
+        handleGoToQuestion={handleGoToQuestion}
+        inputError={inputError}
       />
 
       {/* Conditionally render CommunityStats based on toggle */}
