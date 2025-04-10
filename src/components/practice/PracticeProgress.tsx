@@ -1,4 +1,3 @@
-
 import { Clock, Flag, Lamp, Sparkles } from "lucide-react";
 import CountdownTimer from "./CountDownTimer";
 import HintDialog from "./HintDialog";
@@ -20,6 +19,8 @@ interface PracticeProgressProps {
   setActiveTab: (tab: "problem" | "solution" | "quote") => void;
   currentQuestionIndex: number;
   currentQuestionHint?: string;
+  objective?: { type: "questions" | "time", value: number } | null;
+  progress?: number;
 }
 
 const PracticeProgress = ({
@@ -35,7 +36,9 @@ const PracticeProgress = ({
   activeTab,
   setActiveTab,
   currentQuestionIndex,
-  currentQuestionHint = "Try breaking down the problem into smaller parts."
+  currentQuestionHint = "Try breaking down the problem into smaller parts.",
+  objective = null,
+  progress = 0
 }: PracticeProgressProps) => {
   const calculateProgress = () => {
     const total = totalQuestions;
@@ -54,8 +57,8 @@ const PracticeProgress = ({
   return (
     <div className="px-3 py-2 border-b bg-white">
       <div className="flex items-center justify-between mb-2">
-        {/* Progress bar with percentage indicator */}
-        <div className="relative h-2.5 bg-gray-100 rounded-full overflow-hidden flex-grow mr-4">
+        {/* Progress bar with percentage indicator and target progress */}
+        <div className="relative h-2.5 bg-gray-100 rounded-full overflow-hidden flex-grow">
           {/* Correct answers - green */}
           <div 
             className="absolute left-0 top-0 h-full bg-green-500 rounded-l-full transition-all duration-500 ease-out shine-animation"
@@ -78,6 +81,11 @@ const PracticeProgress = ({
           <div className="absolute right-0 top-0 -translate-y-1/2 translate-x-full mt-1.5 ml-2 text-xs font-medium text-[#1EAEDB]">
             {totalPercentage}%
           </div>
+        </div>
+
+        {/* Target Progress indicator placed before the timer */}
+        <div className="flex items-center mr-4 text-sm">
+          <span className="text-[#1EAEDB] font-medium">Target Progress: {objective?.value ? Math.round(progress) : totalPercentage}%</span>
         </div>
       </div>
       
@@ -198,39 +206,36 @@ const PracticeProgress = ({
           />
         </div>
 
-        {/* Right side - Stats & Timer */}
-        <div className="flex items-center gap-4">
-          {/* Stats moved to the right */}
-          <div className="flex gap-4 text-sm items-center">
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-green-500 rounded-full" />
-              <span>Correct: {correctAnswers}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-red-500 rounded-full" />
-              <span>Incorrect: {incorrectAnswers}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-gray-300 rounded-full" />
-              <span>Unattempted: {totalQuestions - correctAnswers - incorrectAnswers}</span>
-            </div>
-          </div>
+        {/* Right side - Timer */}
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-[#1EAEDB]" />
+          {timerDuration > 0 ? (
+            <CountdownTimer
+              durationInSeconds={timerDuration}
+              onComplete={handleTimerComplete}
+              isActive={isTimerActive}
+              mode={mode}
+              onUpdate={(remaining: string) => setTimeRemaining(remaining)}
+            />
+          ) : (
+            <span>{timeRemaining}</span>
+          )}
+        </div>
+      </div>
 
-          {/* Timer stays on the far right */}
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-[#1EAEDB]" />
-            {timerDuration > 0 ? (
-              <CountdownTimer
-                durationInSeconds={timerDuration}
-                onComplete={handleTimerComplete}
-                isActive={isTimerActive}
-                mode={mode}
-                onUpdate={(remaining: string) => setTimeRemaining(remaining)}
-              />
-            ) : (
-              <span>{timeRemaining}</span>
-            )}
-          </div>
+      {/* Add a condensed stats display at the bottom for mobile views */}
+      <div className="flex justify-center gap-4 text-xs mt-2 md:hidden">
+        <div className="flex items-center gap-1">
+          <div className="w-2 h-2 bg-green-500 rounded-full" />
+          <span>Correct: {correctAnswers}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-2 h-2 bg-red-500 rounded-full" />
+          <span>Incorrect: {incorrectAnswers}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-2 h-2 bg-gray-300 rounded-full" />
+          <span>Unattempted: {totalQuestions - correctAnswers - incorrectAnswers}</span>
         </div>
       </div>
 

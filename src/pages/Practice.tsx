@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { sampleQuestions } from "@/components/practice/sampleQuestion";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
@@ -268,6 +267,8 @@ const Practice = ({
         setActiveTab={setActiveTab}
         currentQuestionIndex={currentQuestionIndex}
         currentQuestionHint={currentQuestion?.hint}
+        objective={objective}
+        progress={progress}
       />
 
       {/* Sidebar */}
