@@ -38,16 +38,16 @@ export interface UserProgress {
 
 export async function getUserProgressData(userId: string) {
   try {
-    // Use a raw query with the rpc method to avoid type checking
-    const { data: progressData, error: progressError } = await supabase
-      .rpc('get_user_progress', { user_id_param: userId })
+    // Use the rpc method with type assertion to bypass TypeScript errors
+    const { data: progressData, error: progressError } = await (supabase
+      .rpc('get_user_progress', { user_id_param: userId }) as any)
       .single();
     
     if (progressError) throw progressError;
 
     // Get chapter performance data for the user using a similar approach
-    const { data: chapterData, error: chapterError } = await supabase
-      .rpc('get_chapter_progress', { user_id_param: userId });
+    const { data: chapterData, error: chapterError } = await (supabase
+      .rpc('get_chapter_progress', { user_id_param: userId }) as any);
     
     if (chapterError) throw chapterError;
     
@@ -66,12 +66,12 @@ export async function updateUserProgress(
   data: Partial<Omit<UserProgress, 'userId' | 'chapterPerformance'>>
 ) {
   try {
-    // Use rpc to avoid type checking
-    const { error } = await supabase
+    // Use rpc with type assertion to bypass TypeScript errors
+    const { error } = await (supabase
       .rpc('upsert_user_progress', { 
         user_id_param: userId,
         data_param: data
-      });
+      }) as any);
     
     if (error) throw error;
     
@@ -91,8 +91,8 @@ export async function updateChapterProgress(
   unattempted: number
 ) {
   try {
-    // Use rpc to avoid type checking
-    const { error } = await supabase
+    // Use rpc with type assertion to bypass TypeScript errors
+    const { error } = await (supabase
       .rpc('upsert_chapter_progress', {
         user_id_param: userId,
         chapter_id_param: chapterId,
@@ -100,7 +100,7 @@ export async function updateChapterProgress(
         correct_param: correct,
         incorrect_param: incorrect,
         unattempted_param: unattempted
-      });
+      }) as any);
     
     if (error) throw error;
     
@@ -113,9 +113,9 @@ export async function updateChapterProgress(
 
 export async function getLeaderboard(limit: number = 10) {
   try {
-    // Use rpc to avoid type checking
-    const { data, error } = await supabase
-      .rpc('get_leaderboard', { limit_param: limit });
+    // Use rpc with type assertion to bypass TypeScript errors
+    const { data, error } = await (supabase
+      .rpc('get_leaderboard', { limit_param: limit }) as any);
     
     if (error) throw error;
     
