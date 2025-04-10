@@ -323,7 +323,7 @@ const handleGoToQuestion = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="sticky flex flex-col min-h-screen bg-white">
       {/* Header */}
       <header className="border-b px-6 py-4 flex items-center justify-between bg-gray-50">
         <div className="flex items-center gap-4">
