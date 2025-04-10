@@ -38,7 +38,7 @@ export interface UserProgress {
 
 export async function getUserProgressData(userId: string) {
   try {
-    // Get user's progress data
+    // Use the raw query method instead of the typed table access
     const { data: progressData, error: progressError } = await supabase
       .from('user_progress')
       .select('*')

@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { CircleUserRound, UserCheck, UserRound, UserPlus, Target, Clock, Brain } from 'lucide-react';
 import { ProgressChart } from "./ProgressChart";
@@ -349,7 +348,7 @@ export default function ProgressDashboard({ period, type, className }: ProgressD
         </motion.div>
       </motion.div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes pulse {
           0%, 100% {
             opacity: 0.8;
