@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import ProgressDashboard from "@/components/progress/ProgressDashboard";
 import { cn } from "@/lib/utils";
@@ -7,14 +6,11 @@ import { Sidebar } from "@/components/practice/Sidebar";
 import { ProgressNavigation } from "@/components/progress/ProgressNavigation";
 import { ProgressControls } from "@/components/progress/ProgressControls";
 import { LeaderboardData } from "@/components/progress/LeaderboardData";
-
 const Progress = () => {
   const [period, setPeriod] = useState("weekly");
   const [type, setType] = useState("performance");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  return (
-    <div className="flex min-h-screen w-full bg-gray-50">
+  return <div className="flex min-h-screen w-full bg-gray-50">
       {/* Animated Sidebar */}
       <AnimatePresence>
         {sidebarOpen && <Sidebar onClose={() => setSidebarOpen(false)} />}
@@ -25,43 +21,18 @@ const Progress = () => {
         {/* Header */}
         <header className="sticky top-0 z-50 w-full bg-white shadow-md">
           <div className="container flex h-16 max-w-screen-2xl items-center justify-between px-6">
-            <ProgressNavigation 
-              sidebarOpen={sidebarOpen} 
-              setSidebarOpen={setSidebarOpen} 
-              setPeriod={setPeriod}
-              setType={setType}
-            />
+            <ProgressNavigation sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} setPeriod={setPeriod} setType={setType} />
             
             {/* Controls */}
-            <ProgressControls 
-              period={period} 
-              setPeriod={setPeriod} 
-              type={type} 
-              setType={setType} 
-            />
+            <ProgressControls period={period} setPeriod={setPeriod} type={type} setType={setType} />
           </div>
         </header>
 
         {/* Main Content */}
-        <main className="container mx-auto px-6 py-10">
-          {type === "leaderboard" ? (
-            <LeaderboardData />
-          ) : (
-            <ProgressDashboard 
-              period={period} 
-              type={type}
-              className={cn(
-                "[&_path]:stroke-blue-600",
-                "[&_.recharts-area]:fill-gradient-to-b [&_.recharts-area]:from-blue-100 [&_.recharts-area]:to-blue-50",
-                "[&_.recharts-bar]:fill-gradient-to-b [&_.recharts-bar]:from-blue-400 [&_.recharts-bar]:to-blue-600",
-                "[&_.recharts-line]:stroke-blue-600"
-              )}
-            />
-          )}
+        <main className="container mx-auto px-6 py-10 bg-white">
+          {type === "leaderboard" ? <LeaderboardData /> : <ProgressDashboard period={period} type={type} className={cn("[&_path]:stroke-blue-600", "[&_.recharts-area]:fill-gradient-to-b [&_.recharts-area]:from-blue-100 [&_.recharts-area]:to-blue-50", "[&_.recharts-bar]:fill-gradient-to-b [&_.recharts-bar]:from-blue-400 [&_.recharts-bar]:to-blue-600", "[&_.recharts-line]:stroke-blue-600")} />}
         </main>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Progress;
