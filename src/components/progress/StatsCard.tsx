@@ -47,7 +47,7 @@ export const StatsCard = ({
     shadowColor,
     fill = false
   } = stat;
-  return <Card className="p-4 hover:shadow-md transition-all duration-300 overflow-hidden group rounded-none bg-transparent px-[16px]">
+  return <Card className="p-4 hover:shadow-md transition-all duration-300 overflow-hidden ">
       <div className="flex items-center gap-3">
         <motion.div className={`p-2.5 rounded-full ${color} ${shadowColor} shadow-lg`} whileHover={{
         scale: 1.05
