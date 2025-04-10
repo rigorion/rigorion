@@ -329,7 +329,7 @@ const handleGoToQuestion = () => {
         <div className="flex items-center gap-4">
           <Collapsible open={sidebarOpen} onOpenChange={setSidebarOpen}>
             <CollapsibleTrigger className="rounded-lg p-2 hover:bg-gray-100">
-              <BookMarked className="h-5 w-5 text-blue-500" />
+              <BookMarked className="h-5 w-5 text-blue-700" />
             </CollapsibleTrigger>
           </Collapsible>
           <h1
