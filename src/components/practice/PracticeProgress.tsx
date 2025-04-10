@@ -57,7 +57,7 @@ const PracticeProgress = ({
   return (
     <div className="px-3 py-2 border-b bg-white">
       <div className="flex items-center justify-between mb-2">
-        {/* Progress bar with percentage indicator and target progress */}
+        {/* Progress bar with percentage indicator */}
         <div className="relative h-2.5 bg-gray-100 rounded-full overflow-hidden flex-grow">
           {/* Correct answers - green */}
           <div 
@@ -78,20 +78,34 @@ const PracticeProgress = ({
           />
           
           {/* Progress percentage */}
-          <div className="absolute right-0 top-0 -translate-y-1/2 translate-x-full mt-1.5 ml-2 text-xs font-medium text-[#1EAEDB]">
+          <div className="absolute right-0 top-0 -translate-y-1/2 translate-x-full mt-1.5 ml-2 text-xs font-medium text-blue-600">
             {totalPercentage}%
           </div>
-        </div>
-
-        {/* Target Progress indicator placed before the timer */}
-        <div className="flex items-center mr-4 text-sm">
-          <span className="text-[#1EAEDB] font-medium">Target Progress: {objective?.value ? Math.round(progress) : totalPercentage}%</span>
         </div>
       </div>
       
       <div className="flex justify-between items-center">
         {/* Left side with collapsible icons and flag */}
         <div className="flex items-center gap-3">
+          {/* Legend for progress bar */}
+          <div className="flex gap-2 text-xs">
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-green-500 rounded-full" />
+              <span>Correct</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-red-500 rounded-full" />
+              <span>Incorrect</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-gray-300 rounded-full" />
+              <span>Unattempted</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Center - Styling, Hint, Flag, and Tab selector */}
+        <div className="flex items-center gap-2">
           {/* Style button inline */}
           <Popover>
             <PopoverTrigger asChild>
@@ -101,7 +115,7 @@ const PracticeProgress = ({
                 className="p-1 h-6 rounded-full"
                 aria-label="Text styling options"
               >
-                <Sparkles className="h-4 w-4 text-[#1EAEDB]" />
+                <Sparkles className="h-4 w-4 text-blue-600" />
               </Button>
             </PopoverTrigger>
             <PopoverContent 
@@ -193,12 +207,10 @@ const PracticeProgress = ({
             size="sm"
             className="p-1 h-6 rounded-full"
           >
-            <Flag className="h-4 w-4 text-[#1EAEDB]" />
+            <Flag className="h-4 w-4 text-blue-600" />
           </Button>
-        </div>
-
-        {/* Center - Tab selector */}
-        <div className="flex-grow flex justify-center">
+          
+          {/* Tab selector */}
           <PracticeTabSelector
             activeTab={activeTab}
             setActiveTab={setActiveTab}
@@ -206,24 +218,32 @@ const PracticeProgress = ({
           />
         </div>
 
-        {/* Right side - Timer */}
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-[#1EAEDB]" />
-          {timerDuration > 0 ? (
-            <CountdownTimer
-              durationInSeconds={timerDuration}
-              onComplete={handleTimerComplete}
-              isActive={isTimerActive}
-              mode={mode}
-              onUpdate={(remaining: string) => setTimeRemaining(remaining)}
-            />
-          ) : (
-            <span>{timeRemaining}</span>
-          )}
+        {/* Right side - Target Progress and Timer */}
+        <div className="flex items-center gap-4">
+          {/* Target Progress indicator placed before the timer */}
+          <div className="flex items-center text-sm">
+            <span className="text-blue-600 font-medium">Target Progress: {objective?.value ? Math.round(progress) : totalPercentage}%</span>
+          </div>
+
+          {/* Timer */}
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-blue-600" />
+            {timerDuration > 0 ? (
+              <CountdownTimer
+                durationInSeconds={timerDuration}
+                onComplete={handleTimerComplete}
+                isActive={isTimerActive}
+                mode={mode}
+                onUpdate={(remaining: string) => setTimeRemaining(remaining)}
+              />
+            ) : (
+              <span>{timeRemaining}</span>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Add a condensed stats display at the bottom for mobile views */}
+      {/* Add a condensed stats display only for mobile views */}
       <div className="flex justify-center gap-4 text-xs mt-2 md:hidden">
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 bg-green-500 rounded-full" />
