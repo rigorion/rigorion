@@ -325,7 +325,7 @@ const handleGoToQuestion = () => {
   return (
     <div className="sticky flex flex-col min-h-screen bg-white">
       {/* Header */}
-      <header className="border-b px-6 py-4 flex items-center justify-between bg-gray-50">
+      <header className="sticky border-b px-6 py-4 flex items-center justify-between bg-gray-50">
         <div className="flex items-center gap-4">
           <Collapsible open={sidebarOpen} onOpenChange={setSidebarOpen}>
             <CollapsibleTrigger className="rounded-lg p-2 hover:bg-gray-100">
