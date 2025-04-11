@@ -17,7 +17,7 @@ export const PerformanceGraphCard = () => {
     }
   }}>
       <Card className="p-6 hover:shadow-md transition-all duration-300">
-        <h3 className="text-lg font-semibold mb-4">Performance Graph</h3>
+        <h3 className="text-lg font-semibold mb-4 text-center">Performance Graph</h3>
         <ProgressChart />
       </Card>
     </motion.div>;
