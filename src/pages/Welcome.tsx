@@ -11,6 +11,7 @@ const MODULES: Module[] = [
     category: 'Mathematics',
     questionsCount: 125,
     chaptersCount: 8,
+    examsCount: 5,
     participantsCount: 1250,
     status: 'available',
     rating: 4.5,
@@ -22,7 +23,8 @@ const MODULES: Module[] = [
     imageUrl: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3',
     category: 'Chemistry',
     questionsCount: 98,
-    chaptersCount: 12,
+    chaptersCount: 6,
+    examsCount: 4,
     participantsCount: 985,
     status: 'available',
     rating: 4.0,
@@ -34,7 +36,8 @@ const MODULES: Module[] = [
     imageUrl: 'https://images.unsplash.com/photo-1447069387593-a5de0862481e?ixlib=rb-4.0.3',
     category: 'History',
     questionsCount: 210,
-    chaptersCount: 15,
+    chaptersCount: 12,
+    examsCount: 7,
     participantsCount: 1750,
     status: 'available',
     rating: 4.8,
@@ -47,6 +50,7 @@ const MODULES: Module[] = [
     category: 'Physics',
     questionsCount: 156,
     chaptersCount: 10,
+    examsCount: 6,
     participantsCount: 1420,
     status: 'available',
     rating: 4.2,
@@ -59,6 +63,7 @@ const MODULES: Module[] = [
     category: 'Literature',
     questionsCount: 87,
     chaptersCount: 7,
+    examsCount: 3,
     participantsCount: 890,
     status: 'available',
     rating: 3.9,
@@ -71,6 +76,7 @@ const MODULES: Module[] = [
     category: 'Physics',
     questionsCount: 178,
     chaptersCount: 14,
+    examsCount: 5,
     participantsCount: 0,
     status: 'coming-soon',
     rating: 0,
@@ -83,6 +89,7 @@ const MODULES: Module[] = [
     category: 'Biology',
     questionsCount: 132,
     chaptersCount: 9,
+    examsCount: 4,
     participantsCount: 1100,
     status: 'available',
     rating: 4.6,
@@ -95,6 +102,7 @@ const MODULES: Module[] = [
     category: 'Statistics',
     questionsCount: 110,
     chaptersCount: 11,
+    examsCount: 2,
     participantsCount: 0,
     status: 'coming-soon',
     rating: 0,
@@ -223,5 +231,3 @@ const Index = () => {
 };
 
 export default Index;
-
-

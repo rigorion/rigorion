@@ -97,7 +97,15 @@ export default {
           '0%': { backgroundPosition: '0% 50%' },
           '50%': { backgroundPosition: '100% 50%' },
           '100%': { backgroundPosition: '0% 50%' },
-        }
+        },
+        "pulse-subtle": {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.8' },
+        },
+        "glow": {
+          '0%, 100%': { boxShadow: '0 0 5px rgba(239, 68, 68, 0.6), 0 0 10px rgba(239, 68, 68, 0.4)' },
+          '50%': { boxShadow: '0 0 15px rgba(239, 68, 68, 0.8), 0 0 20px rgba(239, 68, 68, 0.6)' },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -107,6 +115,8 @@ export default {
         "orange-glow": "orange-glow 2s infinite",
         "bubble": "bubble 6s linear infinite",
         "gradient-x": "gradient-x 5s ease infinite",
+        "pulse-subtle": "pulse-subtle 2s infinite ease-in-out",
+        "glow": "glow 2s infinite ease-in-out",
       },
       backgroundSize: {
         'gradient-stretch': '200% 200%',

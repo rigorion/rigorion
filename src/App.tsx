@@ -19,7 +19,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 const router = createBrowserRouter([
-  { path: "/welcome", element: <Welcome /> },
+  { path: "/", element: <Welcome /> },
   { path: "/landing", element: <Index /> },
   { path: "/signin", element: <SignIn /> },
   { path: "/signup", element: <SignUp /> },
