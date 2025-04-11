@@ -55,22 +55,36 @@ const ModuleCard: React.FC<ModuleCardProps> = ({ module }) => {
   return (
     <Card className="overflow-hidden bg-white rounded-xl transition-all duration-300 hover:shadow-md border border-gray-100">
       <div className="relative">
-        {/* Status badge */}
-        {module.status === "available" ? (
-          <div className="absolute top-3 right-3 bg-green-500 text-white text-xs font-medium px-3 py-1 rounded-full">
-            Available
-          </div>
-        ) : (
-          <div className="absolute top-3 right-3 bg-amber-500 text-white text-xs font-medium px-3 py-1 rounded-full">
-            Coming Soon
-          </div>
-        )}
+        {/* Image with status badge */}
+        <div className="h-40 overflow-hidden relative">
+          <img 
+            src={module.imageUrl} 
+            alt={module.title}
+            className="w-full h-full object-cover"
+          />
+          
+          {/* Status badge positioned on the image */}
+          {module.status === "available" ? (
+            <div className="absolute top-3 right-3 bg-green-500 text-white text-xs font-medium px-3 py-1 rounded-full">
+              Available
+            </div>
+          ) : (
+            <div className="absolute top-3 right-3 bg-amber-500 text-white text-xs font-medium px-3 py-1 rounded-full">
+              Coming Soon
+            </div>
+          )}
+        </div>
         
         {/* Card content */}
         <div className="p-6">
           <div className="text-blue-600 uppercase text-sm font-medium tracking-wide mb-4">
             {module.category}
           </div>
+          
+          {/* Module title */}
+          <h3 className="text-lg font-medium text-gray-800 mb-4 line-clamp-2">
+            {module.title}
+          </h3>
           
           {/* Progress bars section */}
           <div className="mb-6 space-y-4">
@@ -107,11 +121,11 @@ const ModuleCard: React.FC<ModuleCardProps> = ({ module }) => {
             </span>
           </div>
           
-          {/* Join button */}
+          {/* Join button - updated with red border and white fill */}
           {module.status === "available" && (
             <button
               onClick={handleClick}
-              className="w-full py-2.5 rounded-md bg-gradient-to-r from-red-500 to-red-600 text-white font-medium transition-all duration-300 hover:shadow-md hover:from-red-600 hover:to-red-700 animate-pulse-subtle glow-button"
+              className="text-sm px-4 py-2 rounded-md border-2 border-red-500 text-red-500 bg-white hover:bg-red-50 transition-all duration-300 glow-button"
             >
               Join Now
             </button>
