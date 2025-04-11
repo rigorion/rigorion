@@ -19,7 +19,7 @@ export const Hero = () => {
             </div>
           </div>
           
-          <Button className="bg-[#8A0303] hover:bg-[#6a0202] text-white font-medium px-8 py-6 rounded-md text-lg h-auto">
+          <Button className="bg-[#8A0303] hover:bg-[#6a0202] text-white font-medium px-8 py-1 rounded-md h-auto text-lg">
             Take it Now
           </Button>
         </div>
