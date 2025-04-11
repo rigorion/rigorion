@@ -70,7 +70,7 @@ export const PartnerLogos = () => {
         scrollBehavior: 'smooth'
       }}>
           {allLogos.map((logo, index) => <div key={`${logo.name}-${index}`} className="inline-flex items-center justify-center min-w-[200px] px-8">
-              <span className="text-xl text-gray-400 font-medium">{logo.name}</span>
+              <span className="font-medium text-base text-slate-400 text-center">{logo.name}</span>
             </div>)}
         </div>
       </div>
