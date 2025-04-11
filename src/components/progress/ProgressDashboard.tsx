@@ -1,6 +1,6 @@
 
 import { Card } from "@/components/ui/card";
-import { CircleUserRound, UserCheck, Zap, Trophy, Target, Clock, Brain } from 'lucide-react';
+import { Clock, Zap, Trophy, Target, Brain } from 'lucide-react';
 import { ChapterProgress } from "./ChapterProgress";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";

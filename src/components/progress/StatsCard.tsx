@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { LucideIcon } from "lucide-react";
@@ -47,9 +48,9 @@ export const StatsCard = ({
     shadowColor,
     fill = false
   } = stat;
-  return <Card className="p-4 hover:shadow-md transition-all duration-300 overflow-hidden ">
+  return <Card className="p-4 hover:shadow-md transition-all duration-300 overflow-hidden border-0">
       <div className="flex items-center gap-3">
-        <motion.div className={`p-2.5 rounded-full ${color} ${shadowColor} shadow-lg`} whileHover={{
+        <motion.div className={`${color} ${shadowColor}`} whileHover={{
         scale: 1.05
       }} whileTap={{
         scale: 0.95
@@ -62,7 +63,7 @@ export const StatsCard = ({
         ease: "easeInOut",
         repeat: 0
       }}>
-          <Icon className={`h-5 w-5 text-white ${fill ? 'fill-white' : ''}`} strokeWidth={1.5} />
+          <Icon className={`h-8 w-8 text-white ${fill ? 'fill-white' : ''}`} strokeWidth={1.5} />
         </motion.div>
         <div>
           <p className="text-sm text-gray-500">{title}</p>
