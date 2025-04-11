@@ -20,6 +20,7 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 const router = createBrowserRouter([
   { path: "/", element: <Welcome /> },
+  { path: "/landing", element: <Index /> },
   { path: "/signin", element: <SignIn /> },
   { path: "/signup", element: <SignUp /> },
   { path: "/forgot-password", element: <ForgotPassword /> },
