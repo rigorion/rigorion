@@ -68,7 +68,7 @@ export const PrinciplesSection = () => {
             <div className="relative">
               <Carousel
                 className="w-full max-w-xl mx-auto"
-                onSelect={(index) => setCurrentSlide(index)}
+                onSelectHandler={(index) => setCurrentSlide(index)}
               >
                 <CarouselContent>
                   {SLIDES.map((slide) => (
