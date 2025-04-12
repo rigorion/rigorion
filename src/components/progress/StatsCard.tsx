@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { LucideIcon } from "lucide-react";
@@ -90,7 +89,7 @@ export const StatsCardGrid = ({
         staggerChildren: 0.1
       }
     }
-  }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 bg-inherit">
+  }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 bg-white">
       {stats.map((stat, index) => <motion.div key={index} variants={itemVariants}>
           <StatsCard stat={stat} index={index} />
         </motion.div>)}
