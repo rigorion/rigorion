@@ -15,19 +15,19 @@ const STATS: StatType[] = [
   {
     id: "students",
     value: 288,
-    label: "HAPPY CUSTOMERS",
+    label: "Our Students",
     icon: <Users className="w-6 h-6 text-white" />
   },
   {
     id: "problems",
     value: 158,
-    label: "PROJECT COMPLETED",
+    label: "Solved Problems",
     icon: <CheckSquare className="w-6 h-6 text-white" />
   },
   {
     id: "time",
     value: 98,
-    label: "CUPS OF COFFEE",
+    label: "Total Time Invested",
     icon: <Clock className="w-6 h-6 text-white" />
   },
   {
@@ -81,7 +81,7 @@ export const StatsCounter = () => {
       ref={ref}
       className="py-24 bg-gray-900 bg-opacity-80 relative"
       style={{
-        backgroundImage: 'url(https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?auto=format&fit=crop&w=1600&q=80)',
+        backgroundImage: 'url(https://cdn.pixabay.com/photo/2019/12/16/04/06/binary-4698414_1280.jpg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center'
       }}
