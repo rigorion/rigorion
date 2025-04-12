@@ -105,7 +105,7 @@ const ModuleCard: React.FC<ModuleCardProps> = ({
           </div>
           
           {/* Join button - updated with red border and white fill */}
-          {module.status === "available" && <button onClick={handleClick} className="text-sm px-4 py-2 r-5 rounded-full border border-red-600 text-red-600 bg-white hover:bg-red-600 text-white transition-all duration-300 glow-button">
+          {module.status === "available" && <button onClick={handleClick} className="text-sm px-4 py-2 r-5 rounded-full border border-red-600 text-white-600 bg-white hover:bg-green-500 text-white transition-all duration-300 glow-button border-green-500">
               Join Now
             </button>}
         </div>
