@@ -47,7 +47,7 @@ export const StatsCard = ({
     shadowColor,
     fill = false
   } = stat;
-  return <Card className="p-4 hover:shadow-md transition-all duration-300 overflow-hidden border-0">
+  return <Card className="p-4 hover:shadow-md transition-all duration-300 overflow-hidden border-0 rounded-full">
       <div className="flex items-center gap-3">
         <motion.div className={`${color} ${shadowColor}`} whileHover={{
         scale: 1.05
@@ -89,7 +89,7 @@ export const StatsCardGrid = ({
         staggerChildren: 0.1
       }
     }
-  }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 bg-white">
+  }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 bg-white rounded-full">
       {stats.map((stat, index) => <motion.div key={index} variants={itemVariants}>
           <StatsCard stat={stat} index={index} />
         </motion.div>)}
