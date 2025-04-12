@@ -5,7 +5,7 @@ import { Award } from "lucide-react";
 
 export const Hero = () => {
   return (
-    <section className="relative py-32 overflow-hidden">
+    <section className="relative bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 py-32 overflow-hidden">
       <div className="absolute inset-0">
         <img 
           src="/lovable-uploads/grad.png" 
