@@ -199,7 +199,7 @@ const Index = () => {
             <div className="bg-blue-light/30 p-5 rounded-full mb-4">
               <svg 
                 xmlns="http://www.w3.org/2000/svg" 
-                className="h-10 w-10 text-blue-dark/70" 
+                className="h-20 w-10 text-blue-dark/70" 
                 fill="none" 
                 viewBox="0 0 24 24" 
                 stroke="currentColor"
