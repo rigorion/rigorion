@@ -35,7 +35,7 @@ export const ChapterProgress = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-5">
+      <div className="grid grid-cols-1 gap-5 bg-white">
         {chapters.map((chapter, index) => {
         const totalQuestions = chapter.correct + chapter.incorrect + chapter.unattempted;
         const correctPercent = calculatePercentage(chapter.correct, totalQuestions);
