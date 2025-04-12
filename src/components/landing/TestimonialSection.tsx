@@ -9,19 +9,19 @@ type TestimonialType = {
 };
 const TESTIMONIALS: TestimonialType[] = [{
   id: 1,
-  content: "Every 7 nights on a pull-out...get a test sleep ever.",
+  content: "I am using Rigorion and I highly recommend it",
   author: "Jason",
   location: "Netherlands",
   image: "https://randomuser.me/api/portraits/men/32.jpg"
 }, {
   id: 2,
-  content: "Somebody tried to tell me their mattress was more comfortable than my @Casper. #FAKESNOOZE",
+  content: "Somebody tried to tell me that Rigorion is the best and yes it is",
   author: "Chad Yat",
   location: "Australia",
   image: "https://randomuser.me/api/portraits/men/43.jpg"
 }, {
   id: 3,
-  content: "Just received my @pillow today. Holy pillows! It's amazing. Goodnight!",
+  content: "I scored 1420 in My SAT, Thank you guys",
   author: "Annie",
   location: "Denver",
   image: "https://randomuser.me/api/portraits/women/26.jpg"
