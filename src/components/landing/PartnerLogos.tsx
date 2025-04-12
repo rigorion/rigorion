@@ -83,7 +83,7 @@ export const PartnerLogos = () => {
                         >
                           {/* Increased height by ~25% (from 350 to 440) */}
                           {/* Simplified shadow (removed extra shadow or double box shadows) */}
-                          <div className="relative h-[440px] overflow-hidden rounded-md shadow-md">
+                          <div className="relative h-[440px] overflow-hidden rounded-md">
                             <img 
                               src={item.imageUrl} 
                               alt={item.title}
@@ -108,8 +108,8 @@ export const PartnerLogos = () => {
                           <DialogTitle className="text-2xl font-bold">{item.title}</DialogTitle>
                         </DialogHeader>
                         {/* Increased spacing between image and text with gap-8 */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 mt-4">
-                          <div className="rounded-md overflow-hidden shadow-md">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-20 mt-4">
+                          <div className="rounded-md overflow-hidden">
                             <img 
                               src={item.imageUrl} 
                               alt={item.title}
