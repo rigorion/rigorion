@@ -129,7 +129,7 @@ export const ComparisonTable = () => {
   return (
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-14">Module Comparison</h2>
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-14">Product Comparison Chart</h2>
         
         <div className="overflow-x-auto">
           <table className="w-full min-w-[800px] border-collapse">
