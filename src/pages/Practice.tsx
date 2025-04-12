@@ -10,14 +10,16 @@ import PracticeHeader from "@/components/practice/PracticeHeader";
 import PracticeProgress from "@/components/practice/PracticeProgress";
 import PracticeDisplay from "@/components/practice/PracticeDisplay";
 import PracticeFooter from "@/components/practice/PracticeFooter";
-import CommunityStats from "@/components/practice/CommunityStats";
 import ModeDialog from "@/components/practice/ModeDialog";
 import ObjectiveDialog from "@/components/practice/ObjectiveDialogue";
+
 interface PracticeProps {
   chapterTitle?: string;
   totalQuestions?: number;
 }
+
 const chapters = ["Chapter 1: Introduction to Mathematics", "Chapter 2: Basic Algebra", "Chapter 3: Geometry Fundamentals", "Chapter 4: Probability & Statistics", "Chapter 5: Advanced Functions"];
+
 const Practice = ({
   chapterTitle = "Chapter 1",
   totalQuestions = sampleQuestions.length
@@ -238,12 +240,36 @@ const Practice = ({
         </Button>
       </div>;
   }
+
   return <div className="flex flex-col min-h-screen bg-white">
       {/* Header */}
-      <PracticeHeader onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} onOpenObjective={() => setObjectiveDialogOpen(true)} onOpenMode={() => setModeDialogOpen(true)} mode={mode} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <PracticeHeader 
+        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} 
+        onOpenObjective={() => setObjectiveDialogOpen(true)} 
+        onOpenMode={() => setModeDialogOpen(true)} 
+        mode={mode} 
+        sidebarOpen={sidebarOpen} 
+        setSidebarOpen={setSidebarOpen} 
+      />
 
       {/* Progress Bar with Stats and Tabs */}
-      <PracticeProgress correctAnswers={correctAnswers} incorrectAnswers={incorrectAnswers} totalQuestions={questions.length || totalQuestions} timerDuration={timerDuration} isTimerActive={isTimerActive} handleTimerComplete={handleTimerComplete} mode={mode} timeRemaining={timeRemaining} setTimeRemaining={setTimeRemaining} activeTab={activeTab} setActiveTab={setActiveTab} currentQuestionIndex={currentQuestionIndex} currentQuestionHint={currentQuestion?.hint} objective={objective} progress={progress} />
+      <PracticeProgress 
+        correctAnswers={correctAnswers} 
+        incorrectAnswers={incorrectAnswers} 
+        totalQuestions={questions.length || totalQuestions} 
+        timerDuration={timerDuration} 
+        isTimerActive={isTimerActive} 
+        handleTimerComplete={handleTimerComplete} 
+        mode={mode} 
+        timeRemaining={timeRemaining} 
+        setTimeRemaining={setTimeRemaining} 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        currentQuestionIndex={currentQuestionIndex} 
+        currentQuestionHint={currentQuestion?.hint} 
+        objective={objective} 
+        progress={progress} 
+      />
 
       {/* Sidebar */}
       <Collapsible open={sidebarOpen}>
@@ -273,29 +299,55 @@ const Practice = ({
       {/* Main Content Container */}
       <div className="flex max-w-full mx-auto w-full flex-grow py-[28px]">
         {/* Main Content */}
-        <PracticeDisplay currentQuestion={currentQuestion} selectedAnswer={selectedAnswer} isCorrect={isCorrect} checkAnswer={checkAnswer} currentQuestionIndex={currentQuestionIndex} totalQuestions={questions.length || totalQuestions} displaySettings={{
-        fontFamily,
-        fontSize,
-        colorStyle: 'plain'
-      }} boardColor={boardColor} colorSettings={{
-        content: contentColor,
-        keyPhrase: keyPhraseColor,
-        formula: formulaColor
-      }} activeTab={activeTab} />
+        <PracticeDisplay 
+          currentQuestion={currentQuestion} 
+          selectedAnswer={selectedAnswer} 
+          isCorrect={isCorrect} 
+          checkAnswer={checkAnswer} 
+          currentQuestionIndex={currentQuestionIndex} 
+          totalQuestions={questions.length || totalQuestions} 
+          displaySettings={{
+            fontFamily,
+            fontSize,
+            colorStyle: 'plain'
+          }} 
+          boardColor={boardColor} 
+          colorSettings={{
+            content: contentColor,
+            keyPhrase: keyPhraseColor,
+            formula: formulaColor
+          }} 
+          activeTab={activeTab} 
+        />
       </div>
 
       {/* Footer with Navigation Controls */}
-      <PracticeFooter onToggleCommunityStats={() => setShowCommunityStats(!showCommunityStats)} onPrevious={prevQuestion} onNext={nextQuestion} currentQuestionIndex={currentQuestionIndex} totalQuestions={questions.length} showGoToInput={showGoToInput} setShowGoToInput={setShowGoToInput} targetQuestion={targetQuestion} setTargetQuestion={setTargetQuestion} handleGoToQuestion={handleGoToQuestion} inputError={inputError} />
-
-      {/* Conditionally render CommunityStats based on toggle */}
-      {showCommunityStats && <div className="mt-4 transition-all duration-500 ease-in-out">
-          <CommunityStats />
-        </div>}
+      <PracticeFooter 
+        onToggleCommunityStats={() => setShowCommunityStats(!showCommunityStats)} 
+        onPrevious={prevQuestion} 
+        onNext={nextQuestion} 
+        currentQuestionIndex={currentQuestionIndex} 
+        totalQuestions={questions.length} 
+        showGoToInput={showGoToInput} 
+        setShowGoToInput={setShowGoToInput} 
+        targetQuestion={targetQuestion} 
+        setTargetQuestion={setTargetQuestion} 
+        handleGoToQuestion={handleGoToQuestion} 
+        inputError={inputError} 
+      />
 
       {/* Dialogs */}
-      <ModeDialog open={modeDialogOpen} onOpenChange={setModeDialogOpen} onSetMode={handleSetMode} />
+      <ModeDialog 
+        open={modeDialogOpen} 
+        onOpenChange={setModeDialogOpen} 
+        onSetMode={handleSetMode} 
+      />
 
-      <ObjectiveDialog open={objectiveDialogOpen} onOpenChange={setObjectiveDialogOpen} onSetObjective={handleSetObjective} />
+      <ObjectiveDialog 
+        open={objectiveDialogOpen} 
+        onOpenChange={setObjectiveDialogOpen} 
+        onSetObjective={handleSetObjective} 
+      />
 
       {/* Global styles for animations */}
       <style>
@@ -319,4 +371,5 @@ const Practice = ({
       </style>
     </div>;
 };
+
 export default Practice;

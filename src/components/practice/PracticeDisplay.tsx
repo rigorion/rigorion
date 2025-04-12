@@ -1,7 +1,10 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { Question } from "@/types/QuestionInterface";
+import CommentSection from "./CommentSection";
+
 interface PracticeDisplayProps {
   currentQuestion: Question;
   selectedAnswer: string | null;
@@ -22,6 +25,7 @@ interface PracticeDisplayProps {
   };
   activeTab: "problem" | "solution" | "quote";
 }
+
 const PracticeDisplay = ({
   currentQuestion,
   selectedAnswer,
@@ -57,6 +61,7 @@ const PracticeDisplay = ({
     setShowGoToInput(false);
     setInputError('');
   };
+
   return <>
       {/* Main Content Container */}
       <div className="flex gap-4 h-[calc(100vh-300px)] w-full px-[28px]">
@@ -75,7 +80,7 @@ const PracticeDisplay = ({
               </h2>
               
               {/* Question Content */}
-              <p className="mb-6 leading-relaxed">
+              <p className="mb-6 leading-relaxed" style={{ color: colorSettings.content }}>
                 {currentQuestion.content.split('**').map((part, i) => i % 2 === 1 ? <span key={i} className="font-bold" style={{
               color: colorSettings.keyPhrase
             }}>
@@ -188,6 +193,12 @@ const PracticeDisplay = ({
             </Button>
           </div>
         </div>}
+
+      {/* Floating Comment Button */}
+      <div className="fixed bottom-20 right-6 z-50">
+        <CommentSection />
+      </div>
     </>;
 };
+
 export default PracticeDisplay;
