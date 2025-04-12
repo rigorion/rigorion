@@ -112,9 +112,7 @@ export const PartnerLogos = () => {
               <div className="prose prose-sm text-gray-500">
                 <p>{PROMOTIONAL_ITEMS[activeIndex].detailedDescription}</p>
               </div>
-              <Button className="mt-8 bg-[#8A0303] hover:bg-[#6a0202] text-white w-fit" onClick={() => handleItemClick(PROMOTIONAL_ITEMS[activeIndex])}>
-                Learn More
-              </Button>
+              <Button onClick={() => handleItemClick(PROMOTIONAL_ITEMS[activeIndex])} className="mt-8 bg-[#8A0303] hover:bg-[#6a0202] text-white w-fit text-center rounded-full">See Details</Button>
             </div>
           </div>
         </div>
