@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import type { EmblaCarouselType } from 'embla-carousel-react';
+import type { UseEmblaCarouselType } from 'embla-carousel-react';
 
 type PromotionalItem = {
   id: string;
@@ -64,7 +64,7 @@ export const PartnerLogos = () => {
                 containScroll: "trimSnaps"
               }}
               className="w-full"
-              onSelect={(api: EmblaCarouselType) => {
+              onSelect={(api: UseEmblaCarouselType[1]) => {
                 const index = api.selectedScrollSnap();
                 handleCarouselSelect(index);
               }}
