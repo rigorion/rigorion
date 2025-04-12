@@ -1,10 +1,8 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { Question } from "@/types/QuestionInterface";
 import CommentSection from "./CommentSection";
-
 interface PracticeDisplayProps {
   currentQuestion: Question;
   selectedAnswer: string | null;
@@ -25,7 +23,6 @@ interface PracticeDisplayProps {
   };
   activeTab: "problem" | "solution" | "quote";
 }
-
 const PracticeDisplay = ({
   currentQuestion,
   selectedAnswer,
@@ -61,7 +58,6 @@ const PracticeDisplay = ({
     setShowGoToInput(false);
     setInputError('');
   };
-
   return <>
       {/* Main Content Container */}
       <div className="flex gap-4 h-[calc(100vh-300px)] w-full px-[28px]">
@@ -80,7 +76,9 @@ const PracticeDisplay = ({
               </h2>
               
               {/* Question Content */}
-              <p className="mb-6 leading-relaxed" style={{ color: colorSettings.content }}>
+              <p className="mb-6 leading-relaxed" style={{
+            color: colorSettings.content
+          }}>
                 {currentQuestion.content.split('**').map((part, i) => i % 2 === 1 ? <span key={i} className="font-bold" style={{
               color: colorSettings.keyPhrase
             }}>
@@ -90,10 +88,10 @@ const PracticeDisplay = ({
 
               {/* Answer Choices */}
               <div className="space-y-4">
-                {currentQuestion.choices.map((choice, index) => <div key={index} className="p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => checkAnswer(choice)} style={{
+                {currentQuestion.choices.map((choice, index) => <div key={index} onClick={() => checkAnswer(choice)} style={{
               borderColor: selectedAnswer === choice ? isCorrect ? '#10b981' : '#ef4444' : '#e5e7eb',
               backgroundColor: selectedAnswer === choice ? isCorrect ? '#ecfdf5' : '#fef2f2' : 'transparent'
-            }}>
+            }} className="p-4 border-1 cursor-pointer transition-colors bg-transparent shadow-md hover:shadow-large py-[10px] px-[16px] rounded-full">
                     <span className="mr-2 text-gray-500">{index + 1}.</span>
                     <span className={selectedAnswer === choice ? "font-medium" : ""}>
                       {choice}
@@ -200,5 +198,4 @@ const PracticeDisplay = ({
       </div>
     </>;
 };
-
 export default PracticeDisplay;
