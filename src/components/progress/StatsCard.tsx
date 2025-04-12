@@ -89,7 +89,7 @@ export const StatsCardGrid = ({
         staggerChildren: 0.1
       }
     }
-  }} className="grid grid-cols-5 gap-3">
+  }} className="grid grid-cols-5 gap-6">
       {stats.map((stat, index) => <motion.div key={index} variants={itemVariants} className="w-full">
           <StatsCard stat={stat} index={index} />
         </motion.div>)}
