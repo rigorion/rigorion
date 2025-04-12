@@ -12,18 +12,25 @@ import { TimeManagementCard } from "./TimeManagementCard";
 import { GoalsCard } from "./GoalsCard";
 import { AnimatedContainer, AnimatedItem } from "./AnimationWrappers";
 import { ProjectedScore } from "@/components/stats/ProjectedScore";
+import { UserProgress } from "@/services/progressService";
 
 interface ProgressDashboardProps {
   period: string;
   type: string;
   className?: string;
+  userData: UserProgress;
 }
 
-export default function ProgressDashboard({ period, type, className }: ProgressDashboardProps) {
+export default function ProgressDashboard({ 
+  period, 
+  type, 
+  className, 
+  userData 
+}: ProgressDashboardProps) {
   const stats = [
     { 
       title: "Speed", 
-      value: "85%", 
+      value: `${userData.speed}%`, 
       icon: Clock,
       color: "bg-blue-600",
       shadowColor: "shadow-blue-200",
@@ -31,7 +38,7 @@ export default function ProgressDashboard({ period, type, className }: ProgressD
     },
     { 
       title: "Streak", 
-      value: "7 days", 
+      value: `${userData.streak} days`, 
       icon: Zap,
       color: "bg-amber-500",
       shadowColor: "shadow-amber-200",
@@ -40,7 +47,7 @@ export default function ProgressDashboard({ period, type, className }: ProgressD
     },
     { 
       title: "Avg Score", 
-      value: "92", 
+      value: `${userData.averageScore}`, 
       icon: Target,
       color: "bg-purple-500",
       shadowColor: "shadow-purple-200",
@@ -48,7 +55,7 @@ export default function ProgressDashboard({ period, type, className }: ProgressD
     },
     { 
       title: "Rank", 
-      value: "#120", 
+      value: `#${userData.rank}`, 
       icon: Trophy,
       color: "bg-amber-500",
       shadowColor: "shadow-amber-200",
@@ -56,60 +63,42 @@ export default function ProgressDashboard({ period, type, className }: ProgressD
       fill: true
     },
     { 
-      component: ProjectedScore
+      component: () => (
+        <ProjectedScore score={userData.projectedScore} />
+      )
     },
   ];
 
   const difficultyStats = [
     { 
       title: "Easy Questions", 
-      correct: 45,
-      total: 50,
-      avgTime: "1.5 min",
+      correct: userData.easyCompleted,
+      total: userData.easyTotal,
+      avgTime: `${userData.easyAvgTime} min`,
       color: "bg-emerald-500" 
     },
     { 
       title: "Medium Questions", 
-      correct: 35,
-      total: 50,
-      avgTime: "2.5 min",
+      correct: userData.mediumCompleted,
+      total: userData.mediumTotal,
+      avgTime: `${userData.mediumAvgTime} min`,
       color: "bg-amber-500" 
     },
     { 
       title: "Hard Questions", 
-      correct: 25,
-      total: 30,
-      avgTime: "4 min",
+      correct: userData.hardCompleted,
+      total: userData.hardTotal,
+      avgTime: `${userData.hardAvgTime} min`,
       color: "bg-rose-500" 
     },
   ];
 
   const timeManagementStats = {
-    avgTimePerQuestion: "2.5 min",
-    avgTimeCorrect: "2 min",
-    avgTimeIncorrect: "3.5 min",
-    longestQuestion: "8 min",
+    avgTimePerQuestion: `${userData.averageTime} min`,
+    avgTimeCorrect: `${userData.correctAnswerAvgTime} min`,
+    avgTimeIncorrect: `${userData.incorrectAnswerAvgTime} min`,
+    longestQuestion: `${userData.longestQuestionTime} min`,
   };
-
-  const goals = [
-    {
-      title: "Complete 100 Questions",
-      current: 75,
-      target: 100,
-      deadline: "2024-05-01",
-    },
-    {
-      title: "Achieve 90% in Hard Questions",
-      current: 83,
-      target: 90,
-      deadline: "2024-05-15",
-    },
-  ];
-
-  const totalQuestions = 130;
-  const correctQuestions = 53;
-  const incorrectQuestions = 21;
-  const unattemptedQuestions = 56;
 
   return (
     <AnimatedContainer className={cn("space-y-6", className)}>
@@ -118,15 +107,15 @@ export default function ProgressDashboard({ period, type, className }: ProgressD
       <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <AnimatedItem>
           <TotalProgressCard 
-            totalQuestions={totalQuestions} 
-            correctQuestions={correctQuestions}
-            incorrectQuestions={incorrectQuestions}
-            unattemptedQuestions={unattemptedQuestions}
+            totalQuestions={userData.correctAnswers + userData.incorrectAnswers + userData.unattemptedQuestions} 
+            correctQuestions={userData.correctAnswers}
+            incorrectQuestions={userData.incorrectAnswers}
+            unattemptedQuestions={userData.unattemptedQuestions}
           />
         </AnimatedItem>
 
         <AnimatedItem className="lg:col-span-2">
-          <PerformanceGraphCard />
+          <PerformanceGraphCard data={userData.performanceGraph} />
         </AnimatedItem>
       </AnimatedContainer>
 
@@ -134,13 +123,13 @@ export default function ProgressDashboard({ period, type, className }: ProgressD
 
       <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <TimeManagementCard timeManagementStats={timeManagementStats} />
-        <GoalsCard goals={goals} />
+        <GoalsCard goals={userData.goals} />
       </AnimatedContainer>
 
       <AnimatedContainer className="grid grid-cols-1 gap-4">
         <AnimatedItem>
           <Card className="p-6 shadow-sm hover:shadow-md transition-all duration-300">
-            <ChapterProgress />
+            <ChapterProgress chapters={userData.chapterPerformance} />
           </Card>
         </AnimatedItem>
       </AnimatedContainer>

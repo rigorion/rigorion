@@ -1,88 +1,21 @@
+
 import { Progress } from "@/components/ui/progress";
 
 interface ChapterStats {
-  name: string;
-  totalQuestions: number;
+  chapterId: string;
+  chapterName: string;
   correct: number;
   incorrect: number;
   unattempted: number;
 }
 
-export const ChapterProgress = () => {
-  const chapters: ChapterStats[] = [
-    { 
-      name: "Chapter 1", 
-      totalQuestions: 20,
-      correct: 12,
-      incorrect: 3,
-      unattempted: 5
-    },
-    { 
-      name: "Chapter 2", 
-      totalQuestions: 15,
-      correct: 8,
-      incorrect: 2,
-      unattempted: 5
-    },
-    { 
-      name: "Chapter 3", 
-      totalQuestions: 25,
-      correct: 10,
-      incorrect: 5,
-      unattempted: 10
-    },
-    { 
-      name: "Chapter 4", 
-      totalQuestions: 30,
-      correct: 20,
-      incorrect: 4,
-      unattempted: 6
-    },
-    { 
-      name: "Chapter 5", 
-      totalQuestions: 18,
-      correct: 5,
-      incorrect: 3,
-      unattempted: 10
-    },
-    { 
-      name: "Chapter 6", 
-      totalQuestions: 22,
-      correct: 8,
-      incorrect: 4,
-      unattempted: 10
-    },
-    { 
-      name: "Chapter 7", 
-      totalQuestions: 25,
-      correct: 15,
-      incorrect: 5,
-      unattempted: 5
-    },
-    { 
-      name: "Chapter 8", 
-      totalQuestions: 20,
-      correct: 10,
-      incorrect: 5,
-      unattempted: 5
-    },
-    { 
-      name: "Chapter 9", 
-      totalQuestions: 28,
-      correct: 18,
-      incorrect: 6,
-      unattempted: 4
-    },
-    { 
-      name: "Chapter 10", 
-      totalQuestions: 24,
-      correct: 14,
-      incorrect: 4,
-      unattempted: 6
-    },
-  ];
+interface ChapterProgressProps {
+  chapters: ChapterStats[];
+}
 
+export const ChapterProgress = ({ chapters = [] }: ChapterProgressProps) => {
   const calculatePercentage = (value: number, total: number) => {
+    if (total === 0) return 0;
     return (value / total) * 100;
   };
 
@@ -106,18 +39,19 @@ export const ChapterProgress = () => {
       </div>
 
       {chapters.map((chapter, index) => {
-        const correctPercent = calculatePercentage(chapter.correct, chapter.totalQuestions);
-        const incorrectPercent = calculatePercentage(chapter.incorrect, chapter.totalQuestions);
-        const unattemptedPercent = calculatePercentage(chapter.unattempted, chapter.totalQuestions);
+        const totalQuestions = chapter.correct + chapter.incorrect + chapter.unattempted;
+        const correctPercent = calculatePercentage(chapter.correct, totalQuestions);
+        const incorrectPercent = calculatePercentage(chapter.incorrect, totalQuestions);
+        const unattemptedPercent = calculatePercentage(chapter.unattempted, totalQuestions);
         const coveredQuestions = chapter.correct + chapter.incorrect;
-        const totalProgress = calculatePercentage(coveredQuestions, chapter.totalQuestions);
+        const totalProgress = calculatePercentage(coveredQuestions, totalQuestions);
 
         return (
           <div key={index} className="space-y-2 p-4 bg-white rounded-lg shadow-lg">
             <div className="flex justify-between items-center text-sm">
-              <span className="font-medium">{chapter.name}</span>
+              <span className="font-medium">{chapter.chapterName}</span>
               <span className="text-gray-500">
-                {coveredQuestions}/{chapter.totalQuestions} ({totalProgress.toFixed(1)}%)
+                {coveredQuestions}/{totalQuestions} ({totalProgress.toFixed(1)}%)
               </span>
             </div>
             
