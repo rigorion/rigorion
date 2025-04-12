@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Clock, Zap, Trophy, Target, Brain } from 'lucide-react';
 import { ChapterProgress } from "./ChapterProgress";
@@ -13,105 +12,82 @@ import { GoalsCard } from "./GoalsCard";
 import { AnimatedContainer, AnimatedItem } from "./AnimationWrappers";
 import { ProjectedScore } from "@/components/stats/ProjectedScore";
 import { UserProgress } from "@/services/types/progressTypes";
-
 interface ProgressDashboardProps {
   period: string;
   type: string;
   className?: string;
   userData: UserProgress;
 }
-
-export default function ProgressDashboard({ 
-  period, 
-  type, 
-  className, 
-  userData 
+export default function ProgressDashboard({
+  period,
+  type,
+  className,
+  userData
 }: ProgressDashboardProps) {
-  const stats = [
-    { 
-      title: "Speed", 
-      value: `${userData.speed}%`, 
-      icon: Clock,
-      color: "bg-purple-500",
-      shadowColor: "shadow-purple-200",
-      transparent: true
-    },
-    { 
-      title: "Streak", 
-      value: `${userData.streak} days`, 
-      icon: Zap,
-      color: "bg-amber-500",
-      shadowColor: "shadow-amber-200",
-      transparent: true,
-      fill: true
-    },
-    { 
-      title: "Avg Score", 
-      value: `${userData.averageScore}`, 
-      icon: Target,
-      color: "bg-emerald-500",
-      shadowColor: "shadow-emerald-200",
-      transparent: true
-    },
-    { 
-      title: "Rank", 
-      value: `#${userData.rank}`, 
-      icon: Trophy,
-      color: "bg-blue-500",
-      shadowColor: "shadow-blue-200",
-      transparent: true,
-      fill: true
-    },
-    { 
-      component: () => (
-        <ProjectedScore score={userData.projectedScore} />
-      )
-    },
-  ];
-
-  const difficultyStats = [
-    { 
-      title: "Easy Questions", 
-      correct: userData.easyCompleted,
-      total: userData.easyTotal,
-      avgTime: `${userData.easyAvgTime} min`,
-      color: "bg-emerald-500" 
-    },
-    { 
-      title: "Medium Questions", 
-      correct: userData.mediumCompleted,
-      total: userData.mediumTotal,
-      avgTime: `${userData.mediumAvgTime} min`,
-      color: "bg-amber-500" 
-    },
-    { 
-      title: "Hard Questions", 
-      correct: userData.hardCompleted,
-      total: userData.hardTotal,
-      avgTime: `${userData.hardAvgTime} min`,
-      color: "bg-rose-500" 
-    },
-  ];
-
+  const stats = [{
+    title: "Speed",
+    value: `${userData.speed}%`,
+    icon: Clock,
+    color: "bg-purple-500",
+    shadowColor: "shadow-purple-200",
+    transparent: true
+  }, {
+    title: "Streak",
+    value: `${userData.streak} days`,
+    icon: Zap,
+    color: "bg-amber-500",
+    shadowColor: "shadow-amber-200",
+    transparent: true,
+    fill: true
+  }, {
+    title: "Avg Score",
+    value: `${userData.averageScore}`,
+    icon: Target,
+    color: "bg-emerald-500",
+    shadowColor: "shadow-emerald-200",
+    transparent: true
+  }, {
+    title: "Rank",
+    value: `#${userData.rank}`,
+    icon: Trophy,
+    color: "bg-blue-500",
+    shadowColor: "shadow-blue-200",
+    transparent: true,
+    fill: true
+  }, {
+    component: () => <ProjectedScore score={userData.projectedScore} />
+  }];
+  const difficultyStats = [{
+    title: "Easy Questions",
+    correct: userData.easyCompleted,
+    total: userData.easyTotal,
+    avgTime: `${userData.easyAvgTime} min`,
+    color: "bg-emerald-500"
+  }, {
+    title: "Medium Questions",
+    correct: userData.mediumCompleted,
+    total: userData.mediumTotal,
+    avgTime: `${userData.mediumAvgTime} min`,
+    color: "bg-amber-500"
+  }, {
+    title: "Hard Questions",
+    correct: userData.hardCompleted,
+    total: userData.hardTotal,
+    avgTime: `${userData.hardAvgTime} min`,
+    color: "bg-rose-500"
+  }];
   const timeManagementStats = {
     avgTimePerQuestion: `${userData.averageTime} min`,
     avgTimeCorrect: `${userData.correctAnswerAvgTime} min`,
     avgTimeIncorrect: `${userData.incorrectAnswerAvgTime} min`,
-    longestQuestion: `${userData.longestQuestionTime} min`,
+    longestQuestion: `${userData.longestQuestionTime} min`
   };
-
-  return (
-    <AnimatedContainer className={cn("space-y-8", className)}>
+  return <AnimatedContainer className={cn("space-y-8", className)}>
       <StatsCardGrid stats={stats} />
       
       <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <AnimatedItem>
-          <TotalProgressCard 
-            totalQuestions={userData.correctAnswers + userData.incorrectAnswers + userData.unattemptedQuestions} 
-            correctQuestions={userData.correctAnswers}
-            incorrectQuestions={userData.incorrectAnswers}
-            unattemptedQuestions={userData.unattemptedQuestions}
-          />
+          <TotalProgressCard totalQuestions={userData.correctAnswers + userData.incorrectAnswers + userData.unattemptedQuestions} correctQuestions={userData.correctAnswers} incorrectQuestions={userData.incorrectAnswers} unattemptedQuestions={userData.unattemptedQuestions} />
         </AnimatedItem>
 
         <AnimatedItem className="lg:col-span-2">
@@ -128,7 +104,7 @@ export default function ProgressDashboard({
 
       <AnimatedContainer className="grid grid-cols-1 gap-6">
         <AnimatedItem>
-          <Card className="p-6 shadow-md hover:shadow-lg transition-all duration-300">
+          <Card className="p-6 hover:shadow-lg transition-all duration-300 bg-white">
             <ChapterProgress chapters={userData.chapterPerformance} />
           </Card>
         </AnimatedItem>
@@ -146,6 +122,5 @@ export default function ProgressDashboard({
           }
         }
       `}</style>
-    </AnimatedContainer>
-  );
+    </AnimatedContainer>;
 }
