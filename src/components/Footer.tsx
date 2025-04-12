@@ -1,57 +1,59 @@
-
 import React from 'react';
 import { Twitter, Facebook, Instagram, Linkedin, Youtube } from 'lucide-react';
-
-const footerLinks = [
-  { title: "SEARCH", href: "#" },
-  { title: "ABOUT US", href: "#" },
-  { title: "BAG SIZES", href: "#" },
-  { title: "WEDDINGS AND EVENTS", href: "#" },
-  { title: "CONTACT US", href: "#" },
-  { title: "FAQ", href: "#" },
-];
-
-const socialLinks = [
-  { icon: <Twitter className="h-4 w-4" />, href: "#", label: "Twitter" },
-  { icon: <Facebook className="h-4 w-4" />, href: "#", label: "Facebook" },
-  { icon: <Instagram className="h-4 w-4" />, href: "#", label: "Instagram" },
-  { icon: <Linkedin className="h-4 w-4" />, href: "#", label: "LinkedIn" },
-  { icon: <Youtube className="h-4 w-4" />, href: "#", label: "YouTube" },
-];
-
-const paymentMethods = [
-  "PayPal",
-  "MasterCard",
-  "Visa"
-];
-
+const footerLinks = [{
+  title: "SEARCH",
+  href: "#"
+}, {
+  title: "ABOUT US",
+  href: "#"
+}, {
+  title: "BAG SIZES",
+  href: "#"
+}, {
+  title: "WEDDINGS AND EVENTS",
+  href: "#"
+}, {
+  title: "CONTACT US",
+  href: "#"
+}, {
+  title: "FAQ",
+  href: "#"
+}];
+const socialLinks = [{
+  icon: <Twitter className="h-4 w-4" />,
+  href: "#",
+  label: "Twitter"
+}, {
+  icon: <Facebook className="h-4 w-4" />,
+  href: "#",
+  label: "Facebook"
+}, {
+  icon: <Instagram className="h-4 w-4" />,
+  href: "#",
+  label: "Instagram"
+}, {
+  icon: <Linkedin className="h-4 w-4" />,
+  href: "#",
+  label: "LinkedIn"
+}, {
+  icon: <Youtube className="h-4 w-4" />,
+  href: "#",
+  label: "YouTube"
+}];
+const paymentMethods = ["PayPal", "MasterCard", "Visa"];
 export const Footer = () => {
-  return (
-    <footer className="bg-white pt-16 pb-6 border-t border-gray-200">
+  return <footer className="bg-white pt-6 pb-6 border-t border-gray-200">
       <div className="container mx-auto px-4">
         <div className="flex flex-wrap justify-center space-x-6 md:space-x-12 mb-10">
-          {footerLinks.map((link, index) => (
-            <a
-              key={index}
-              href={link.href}
-              className="text-gray-600 hover:text-[#8A0303] font-medium mb-4 text-sm uppercase tracking-wider"
-            >
+          {footerLinks.map((link, index) => <a key={index} href={link.href} className="text-gray-600 hover:text-[#8A0303] font-medium mb-4 text-sm uppercase tracking-wider">
               {link.title}
-            </a>
-          ))}
+            </a>)}
         </div>
         
         <div className="flex justify-center space-x-6 mb-10">
-          {socialLinks.map((link, index) => (
-            <a
-              key={index}
-              href={link.href}
-              className="text-gray-500 hover:text-[#8A0303] transition-colors"
-              aria-label={link.label}
-            >
+          {socialLinks.map((link, index) => <a key={index} href={link.href} className="text-gray-500 hover:text-[#8A0303] transition-colors" aria-label={link.label}>
               {link.icon}
-            </a>
-          ))}
+            </a>)}
         </div>
         
         <div className="flex flex-col md:flex-row justify-between items-center border-t border-gray-200 pt-6">
@@ -60,14 +62,11 @@ export const Footer = () => {
           </p>
           
           <div className="flex items-center space-x-4">
-            {paymentMethods.map((method, index) => (
-              <span key={index} className="text-sm text-gray-500">
+            {paymentMethods.map((method, index) => <span key={index} className="text-sm text-gray-500">
                 {method}
-              </span>
-            ))}
+              </span>)}
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
