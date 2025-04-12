@@ -1,8 +1,10 @@
+
 import React, { useState } from 'react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import type { UseEmblaCarouselType } from 'embla-carousel-react';
+
 type PromotionalItem = {
   id: string;
   title: string;
@@ -10,6 +12,7 @@ type PromotionalItem = {
   imageUrl: string;
   detailedDescription: string;
 };
+
 const PROMOTIONAL_ITEMS: PromotionalItem[] = Array.from({
   length: 12
 }, (_, i) => ({
@@ -19,21 +22,26 @@ const PROMOTIONAL_ITEMS: PromotionalItem[] = Array.from({
   imageUrl: "https://cdn.pixabay.com/photo/2015/06/24/16/36/home-820389_1280.jpg",
   detailedDescription: `Detailed description for item ${i + 1}. Our Quiz feature helps students test their knowledge in a stress-free environment. Create custom quizzes based on specific topics or use our pre-made quizzes designed by education experts. Track your progress and identify areas that need more focus.`
 }));
+
 export const PartnerLogos = () => {
   const [autoPlay, setAutoPlay] = useState(true);
   const [selectedItem, setSelectedItem] = useState<PromotionalItem | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+
   const handleCarouselSelect = (index: number) => {
     setActiveIndex(index);
   };
+
   const handleItemClick = (item: PromotionalItem) => {
     setSelectedItem(item);
     setAutoPlay(false);
   };
+
   const handleDialogClose = () => {
     setSelectedItem(null);
     setAutoPlay(true);
   };
+
   return <section className="overflow-hidden bg-gray-50 py-2 h-[600px]">
       <div className="container mx-auto mb-8 px-0">
         <h2 className="text-xl font-bold text-center text-gray-800 mb-12" style={{
@@ -50,7 +58,7 @@ export const PartnerLogos = () => {
             align: "center",
             slidesToScroll: 1,
             containScroll: "trimSnaps"
-          }} className="w-full" onSelect={(api: UseEmblaCarouselType[1]) => {
+          }} className="w-full" onSelect={(api: any) => {
             const index = api.selectedScrollSnap();
             handleCarouselSelect(index);
           }}>

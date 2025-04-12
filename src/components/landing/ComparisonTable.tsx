@@ -29,7 +29,7 @@ const FEATURES: FeatureType[] = [
   {
     name: "Content Quality",
     competitors: {
-      knewt: true,
+      rigorion: true,
       canvasa: false,
       mojule: false,
       techmarin: true,
@@ -40,7 +40,7 @@ const FEATURES: FeatureType[] = [
   {
     name: "Adaptive Learning",
     competitors: {
-      knewt: true,
+      rigorion: true,
       canvasa: true,
       mojule: false,
       techmarin: false,
@@ -51,7 +51,7 @@ const FEATURES: FeatureType[] = [
   {
     name: "Mock Test Realism",
     competitors: {
-      knewt: true,
+      rigorion: true,
       canvasa: true,
       mojule: true,
       techmarin: false,
@@ -62,7 +62,7 @@ const FEATURES: FeatureType[] = [
   {
     name: "Performance Analytics",
     competitors: {
-      knewt: true,
+      rigorion: true,
       canvasa: false,
       mojule: true,
       techmarin: true,
@@ -73,7 +73,7 @@ const FEATURES: FeatureType[] = [
   {
     name: "Official Test Content",
     competitors: {
-      knewt: false,
+      rigorion: false,
       canvasa: true,
       mojule: false,
       techmarin: false,
@@ -84,7 +84,7 @@ const FEATURES: FeatureType[] = [
   {
     name: "Gamification",
     competitors: {
-      knewt: false,
+      rigorion: false,
       canvasa: true,
       mojule: true,
       techmarin: true,
@@ -95,7 +95,7 @@ const FEATURES: FeatureType[] = [
   {
     name: "Differntiating Feature #1",
     competitors: {
-      knewt: true,
+      rigorion: true,
       canvasa: false,
       mojule: true,
       techmarin: true,
@@ -106,7 +106,7 @@ const FEATURES: FeatureType[] = [
   {
     name: "Differntiating Feature #2",
     competitors: {
-      knewt: false,
+      rigorion: false,
       canvasa: false,
       mojule: false,
       techmarin: false,
