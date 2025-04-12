@@ -1,5 +1,7 @@
+
 import React, { useState } from 'react';
 import { Quote } from 'lucide-react';
+
 type TestimonialType = {
   id: number;
   content: string;
@@ -7,6 +9,7 @@ type TestimonialType = {
   location: string;
   image?: string;
 };
+
 const TESTIMONIALS: TestimonialType[] = [{
   id: 1,
   content: "Every 7 nights on a pull-out...get a test sleep ever.",
@@ -26,10 +29,11 @@ const TESTIMONIALS: TestimonialType[] = [{
   location: "Denver",
   image: "https://randomuser.me/api/portraits/women/26.jpg"
 }];
+
 export const TestimonialSection = () => {
   const [activeIndex, setActiveIndex] = useState(1);
-  return <section className="bg-white py-[2px]">
-      <div className="container mx-auto px-4 py-[2px]">
+  return <section className="bg-white py-16">
+      <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-16">What Our Students Say</h2>
         
         <div className="max-w-3xl mx-auto relative">
@@ -45,7 +49,7 @@ export const TestimonialSection = () => {
                   </p>
                   
                   <footer className="mt-8">
-                    {testimonial.image && <div className="mx-auto mb-4 w-16 h-16 rounded-full overflow-hidden">
+                    {testimonial.image && <div className="mx-auto mb-4 w-16 h-16 rounded-full overflow-hidden shadow-md">
                         <img src={testimonial.image} alt={testimonial.author} className="w-full h-full object-cover" />
                       </div>}
                     <div className="text-base font-medium text-gray-900">{testimonial.author}</div>
