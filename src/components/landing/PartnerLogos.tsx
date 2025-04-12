@@ -102,7 +102,7 @@ export const PartnerLogos = () => {
 
           {/* Text content on the right side */}
           <div className="lg:col-span-5">
-            <div className="h-full flex flex-col justify-center">
+            <div className="h-full flex flex-col justify-center mx-[24px]">
               <h3 className="text-2xl font-bold text-gray-800 mb-4">
                 {PROMOTIONAL_ITEMS[activeIndex].title}
               </h3>
