@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import ProgressDashboard from "@/components/progress/ProgressDashboard";
 import { cn } from "@/lib/utils";
@@ -10,9 +11,10 @@ import { useQuery } from "@tanstack/react-query";
 import { getUserProgressData } from "@/services/progressService";
 import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 const Progress = () => {
   const [period, setPeriod] = useState("weekly");
-  const [type, setType] = useState("performance");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Use this specific user ID as requested
@@ -25,6 +27,7 @@ const Progress = () => {
     queryKey: ['userProgress', userId, period],
     queryFn: () => getUserProgressData(userId)
   });
+
   if (isLoading) {
     return <div className="flex min-h-screen items-center justify-center bg-white">
         <div className="text-center">
@@ -34,6 +37,7 @@ const Progress = () => {
         </div>
       </div>;
   }
+
   if (error) {
     return <div className="flex min-h-screen items-center justify-center bg-white">
         <motion.div initial={{
@@ -52,6 +56,7 @@ const Progress = () => {
         </motion.div>
       </div>;
   }
+
   return <div className="flex min-h-screen w-full bg-[#F1F0FB]">
       {/* Animated Sidebar */}
       <AnimatePresence>
@@ -63,20 +68,47 @@ const Progress = () => {
         {/* Header */}
         <header className="sticky top-0 z-50 w-full bg-white shadow-md">
           <div className="container flex h-16 max-w-screen-2xl items-center justify-between px-6">
-            <ProgressNavigation sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} setPeriod={setPeriod} setType={setType} />
+            <ProgressNavigation sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} setPeriod={setPeriod} />
             
             {/* Controls */}
-            <ProgressControls period={period} setPeriod={setPeriod} type={type} setType={setType} />
+            <ProgressControls period={period} setPeriod={setPeriod} />
           </div>
         </header>
 
         {/* Main Content */}
         <main className="container mx-auto p-6 md:px-8 py-10 bg-white">
-          {type === "leaderboard" ? <LeaderboardData userId={userId} /> : <ProgressDashboard period={period} type={type} userData={userProgress} className={cn(
-        // Use a purple theme for charts
-        "[&_path]:stroke-purple-600", "[&_.recharts-area]:fill-gradient-to-b [&_.recharts-area]:from-purple-100 [&_.recharts-area]:to-purple-50", "[&_.recharts-bar]:fill-gradient-to-b [&_.recharts-bar]:from-purple-400 [&_.recharts-bar]:to-purple-600", "[&_.recharts-line]:stroke-purple-600")} />}
+          <Tabs defaultValue="performance" className="w-full">
+            <TabsList className="mb-6 w-full justify-start border-b rounded-none h-auto pb-0">
+              <TabsTrigger value="performance" className="data-[state=active]:border-b-2 data-[state=active]:border-purple-500 rounded-none pb-2 px-6">
+                Performance
+              </TabsTrigger>
+              <TabsTrigger value="leaderboard" className="data-[state=active]:border-b-2 data-[state=active]:border-purple-500 rounded-none pb-2 px-6">
+                Leaderboard
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="performance">
+              <ProgressDashboard 
+                period={period} 
+                type="performance" 
+                userData={userProgress} 
+                className={cn(
+                  // Use a purple theme for charts
+                  "[&_path]:stroke-purple-600", 
+                  "[&_.recharts-area]:fill-gradient-to-b [&_.recharts-area]:from-purple-100 [&_.recharts-area]:to-purple-50", 
+                  "[&_.recharts-bar]:fill-gradient-to-b [&_.recharts-bar]:from-purple-400 [&_.recharts-bar]:to-purple-600", 
+                  "[&_.recharts-line]:stroke-purple-600"
+                )} 
+              />
+            </TabsContent>
+            
+            <TabsContent value="leaderboard">
+              <LeaderboardData userId={userId} />
+            </TabsContent>
+          </Tabs>
         </main>
       </div>
     </div>;
 };
+
 export default Progress;

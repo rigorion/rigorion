@@ -1,7 +1,9 @@
+
 import { Card } from "@/components/ui/card";
 import { Clock, CheckCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
+
 interface DifficultyStatProps {
   title: string;
   correct: number;
@@ -9,6 +11,7 @@ interface DifficultyStatProps {
   avgTime: string;
   color: string;
 }
+
 export const DifficultyStatCard = ({
   stat
 }: {
@@ -21,7 +24,9 @@ export const DifficultyStatCard = ({
     avgTime,
     color
   } = stat;
+  
   const accuracy = Math.round(correct / total * 100);
+  
   return <motion.div variants={{
     hidden: {
       opacity: 0,
@@ -79,6 +84,7 @@ export const DifficultyStatCard = ({
       </Card>
     </motion.div>;
 };
+
 export const DifficultyStatsGrid = ({
   stats
 }: {

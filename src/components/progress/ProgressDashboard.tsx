@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Clock, Zap, Trophy, Target, Brain } from 'lucide-react';
 import { ChapterProgress } from "./ChapterProgress";
@@ -12,12 +13,14 @@ import { GoalsCard } from "./GoalsCard";
 import { AnimatedContainer, AnimatedItem } from "./AnimationWrappers";
 import { ProjectedScore } from "@/components/stats/ProjectedScore";
 import { UserProgress } from "@/services/types/progressTypes";
+
 interface ProgressDashboardProps {
   period: string;
   type: string;
   className?: string;
   userData: UserProgress;
 }
+
 export default function ProgressDashboard({
   period,
   type,
@@ -57,6 +60,7 @@ export default function ProgressDashboard({
   }, {
     component: () => <ProjectedScore score={userData.projectedScore} />
   }];
+  
   const difficultyStats = [{
     title: "Easy Questions",
     correct: userData.easyCompleted,
@@ -68,22 +72,29 @@ export default function ProgressDashboard({
     correct: userData.mediumCompleted,
     total: userData.mediumTotal,
     avgTime: `${userData.mediumAvgTime} min`,
-    color: "bg-amber-500"
+    color: "bg-emerald-500" // Changed from amber-500 to emerald-500
   }, {
     title: "Hard Questions",
     correct: userData.hardCompleted,
     total: userData.hardTotal,
     avgTime: `${userData.hardAvgTime} min`,
-    color: "bg-rose-500"
+    color: "bg-amber-500" // Changed from rose-500 to amber-500
   }];
+  
   const timeManagementStats = {
     avgTimePerQuestion: `${userData.averageTime} min`,
     avgTimeCorrect: `${userData.correctAnswerAvgTime} min`,
     avgTimeIncorrect: `${userData.incorrectAnswerAvgTime} min`,
     longestQuestion: `${userData.longestQuestionTime} min`
   };
+  
   return <AnimatedContainer className={cn("space-y-8", className)}>
-      <StatsCardGrid stats={stats} />
+      {/* Stats Row - Horizontal with small width containers */}
+      <div className="flex justify-center">
+        <div className="max-w-4xl w-full">
+          <StatsCardGrid stats={stats} />
+        </div>
+      </div>
       
       <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <AnimatedItem>
@@ -98,16 +109,18 @@ export default function ProgressDashboard({
       <DifficultyStatsGrid stats={difficultyStats} />
 
       <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <TimeManagementCard timeManagementStats={timeManagementStats} />
-        <GoalsCard goals={userData.goals} />
-      </AnimatedContainer>
-
-      <AnimatedContainer className="grid grid-cols-1 gap-6">
+        {/* Left column: Chapter Progress */}
         <AnimatedItem>
-          <Card className="p-6 hover:shadow-lg transition-all duration-300 bg-white">
+          <Card className="p-6 hover:shadow-lg transition-all duration-300 bg-white h-full">
             <ChapterProgress chapters={userData.chapterPerformance} />
           </Card>
         </AnimatedItem>
+
+        {/* Right column: Time Management and Goals stacked */}
+        <AnimatedContainer className="space-y-6">
+          <TimeManagementCard timeManagementStats={timeManagementStats} />
+          <GoalsCard goals={userData.goals} />
+        </AnimatedContainer>
       </AnimatedContainer>
 
       <style>{`
