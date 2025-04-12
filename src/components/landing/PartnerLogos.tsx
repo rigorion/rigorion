@@ -59,8 +59,7 @@ export const PartnerLogos = () => {
                 align: "start",
                 slidesToScroll: 1,
                 containScroll: "trimSnaps",
-                dragFree: false,
-                slidesToShow: 2
+                dragFree: false
               }}
               onSelect={(api) => {
                 const emblaApi = api as unknown as UseEmblaCarouselType[1];
