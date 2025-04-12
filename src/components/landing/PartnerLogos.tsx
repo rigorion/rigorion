@@ -50,7 +50,7 @@ export const PartnerLogos = () => {
     <section className="overflow-hidden bg-gray-50 py-2 h-[600px]">
       <div className="container mx-auto px-4 mb-8">
         <h2 className="text-xl font-bold text-center text-gray-800 mb-12" 
-  style={{ fontFamily: "'Dancing Script', cursive" }} >
+  style={{ fontFamily: 'cursive' }} >
           "Master Any Exam with Rigorion "
         </h2>
 
