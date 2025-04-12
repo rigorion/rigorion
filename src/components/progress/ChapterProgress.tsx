@@ -52,7 +52,7 @@ export const ChapterProgress = ({
         }} transition={{
           duration: 0.3,
           delay: index * 0.1
-        }} className="space-y-3 p-0 hover:shadow-lg transition-all duration-300 bg-white rounded-none">
+        }} className="space-y-3 p-0 hover:transition-all duration-300 bg-white rounded-none">
               <div className="flex justify-between items-center">
                 <h4 className="font-medium text-gray-800">{chapter.chapterName}</h4>
                 <span className="text-sm text-gray-500 font-medium">
