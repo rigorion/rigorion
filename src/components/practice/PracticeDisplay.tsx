@@ -59,7 +59,7 @@ const PracticeDisplay = ({
   };
   return <>
       {/* Main Content Container */}
-      <div className="flex gap-4 px-6 h-[calc(100vh-300px)] w-full">
+      <div className="flex gap-4 h-[calc(100vh-300px)] w-full px-[28px]">
         {/* Left Section - Question & Choices (70% width) */}
         <div className="flex-1 w-[70%] overflow-y-auto" style={{
         backgroundColor: boardColor === 'black' ? '#000' : boardColor === 'green' ? '#f0fdf4' : '#fff',
@@ -69,7 +69,7 @@ const PracticeDisplay = ({
           fontFamily: displaySettings.fontFamily,
           fontSize: `${displaySettings.fontSize}px`,
           background: displaySettings.colorStyle === 'gradient' ? 'linear-gradient(145deg, #f8fafc 0%, #f0fdf4 100%)' : '#ffffff'
-        }} className="mb-8 pr-4 py-[24px]">
+        }} className="mb-8 pr-4 py-0">
               <h2 className="text-2xl font-semibold mb-4">
                 Question {currentQuestionIndex + 1}
               </h2>
