@@ -105,7 +105,7 @@ const PracticeFooter = ({
   return (
     <div className="border-t px-6 py-4 flex flex-col bg-gray-50">
       <div className="flex items-center justify-between gap-4">
-        {/* Left Side - Previous Button and Community Stats */}
+        {/* Left Side - Previous Button */}
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
@@ -117,26 +117,42 @@ const PracticeFooter = ({
             Previous
           </Button>
           
-          {/* Inline Community Stats (Always Visible) */}
-          <div className="flex items-center gap-4 bg-white px-4 py-2 rounded-lg border">
-            <div className="flex items-center gap-1">
-              <Users className="h-4 w-4 text-blue-600" />
-              <span className="text-sm font-medium">{communityStats.totalAttempts}</span>
-            </div>
-            
-            <div className="flex items-center gap-1">
-              <Star className="h-4 w-4 text-yellow-500" />
-              <span className="text-sm font-medium">{communityStats.accuracy}%</span>
-            </div>
-            
-            <div className="flex items-center gap-1">
-              <Clock className="h-4 w-4 text-green-600" />
-              <span className="text-sm font-medium">{communityStats.avgTime}</span>
-            </div>
-          </div>
+          {/* Community Stats Toggle Button */}
+          <Popover open={showCommunityStats} onOpenChange={toggleCommunityStats}>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="rounded-full bg-transparent hover:bg-blue-50 flex items-center"
+              >
+                <Users className="h-4 w-4 text-blue-600" />
+                {showCommunityStats && (
+                  <span className="ml-2 text-sm">Stats</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-2">
+              <div className="flex items-center gap-4 bg-white px-4 py-2 rounded-lg">
+                <div className="flex items-center gap-1">
+                  <Users className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm font-medium">{communityStats.totalAttempts}</span>
+                </div>
+                
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4 text-yellow-500" />
+                  <span className="text-sm font-medium">{communityStats.accuracy}%</span>
+                </div>
+                
+                <div className="flex items-center gap-1">
+                  <Clock className="h-4 w-4 text-green-600" />
+                  <span className="text-sm font-medium">{communityStats.avgTime}</span>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
 
-        {/* Center Section with Features - Now a row of buttons */}
+        {/* Center Section with Features */}
         <div className="flex items-center gap-3 justify-center">
           {/* Music Menu Button */}
           <Popover open={isMusicMenuOpen} onOpenChange={setIsMusicMenuOpen}>

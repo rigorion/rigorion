@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Check, X } from "lucide-react";
@@ -18,20 +19,20 @@ export const MultipleChoice = ({ onSelect, selectedValue, isCorrect }: MultipleC
 
   return (
     <div className="grid grid-cols-2 gap-4">
-      {choices.map((choice) => (
+      {choices.map((choice, index) => (
         <motion.div
           key={choice.id}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="w-[70%] mx-auto" // Reduced size by 30%
+          className="w-full"
         >
           <Button
-            className={`w-full h-12 text-lg relative rounded-[999px] shadow-md ${
+            className={`w-full h-12 text-lg relative rounded-md border ${
               selectedValue === choice.id
                 ? isCorrect
                   ? "bg-gradient-to-r from-green-400 to-green-600 text-white"
                   : "bg-gradient-to-r from-red-400 to-red-600 text-white"
-                : "bg-white text-gray-800 hover:bg-gray-50 transition-colors"
+                : "bg-white text-gray-800 hover:bg-gray-50 transition-colors border-gray-200"
             }`}
             variant="ghost"
             onClick={() => onSelect(choice.id)}
@@ -44,9 +45,9 @@ export const MultipleChoice = ({ onSelect, selectedValue, isCorrect }: MultipleC
                 className="absolute right-4"
               >
                 {isCorrect ? (
-                  <Check className="h-6 w-6 text-black font-normal" />
+                  <Check className="h-5 w-5 text-white" />
                 ) : (
-                  <X className="h-6 w-6 text-black font-normal" />
+                  <X className="h-5 w-5 text-white" />
                 )}
               </motion.div>
             )}
