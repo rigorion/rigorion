@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import ProgressDashboard from "@/components/progress/ProgressDashboard";
 import { cn } from "@/lib/utils";
 import { AnimatePresence } from "framer-motion";

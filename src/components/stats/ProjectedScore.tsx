@@ -8,9 +8,9 @@ interface ProjectedScoreProps {
 
 export const ProjectedScore = ({ score = 92 }: ProjectedScoreProps) => {
   return (
-    <Card className="p-4 hover:shadow-xl">
+    <Card className="p-4 hover:shadow-xl transition-all duration-300">
       <div className="flex items-center gap-3">
-        <div className="bg-emerald-500 shadow-emerald-200 shadow-lg">
+        <div className="bg-emerald-500 shadow-emerald-200 shadow-lg p-2 rounded-lg">
           <Target className="h-8 w-8 text-white" fill="white" strokeWidth={1.5} />
         </div>
         <div>
