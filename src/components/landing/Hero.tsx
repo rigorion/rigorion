@@ -4,7 +4,7 @@ import { Award } from "lucide-react";
 export const Hero = () => {
   return <section className="relative bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 py-32 overflow-hidden">
       <div className="absolute inset-0">
-        <img src="/lovable-uploads/cd57f5b5-61c8-44ec-a6f5-22d2a8296a14.png" alt="Colorful intellectual background" className="w-full h-full object-cover mix-blend-overlay" />
+        <img src="/lovable-uploads/https://cdn.pixabay.com/photo/2021/04/26/17/12/group-6209550_1280.jpg alt="Colorful intellectual background" className="w-full h-full object-cover mix-blend-overlay" />
       </div>
       <div className="absolute inset-0 bg-black/30 mix-blend-multiply" />
       
