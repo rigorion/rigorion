@@ -34,7 +34,7 @@ export const PartnerLogos = () => {
     setSelectedItem(null);
     setAutoPlay(true);
   };
-  return <section className="overflow-hidden bg-gray-50 py-2 h-[600px]">
+  return <section className="overflow-hidden bg-gray-50 py-2 h-[500px]">
       <div className="container mx-auto mb-8 px-0">
         <h2 className="text-xl font-bold text-center text-gray-800 mb-12" style={{
         fontFamily: 'cursive'
@@ -95,7 +95,7 @@ export const PartnerLogos = () => {
             </Carousel>
 
             {/* Carousel Indicators */}
-            <div className="flex justify-center mt-6 space-x-2">
+            <div className="flex justify-center mt-0 space-x-2">
               {PROMOTIONAL_ITEMS.map((_, index) => <button key={index} onClick={() => handleCarouselSelect(index)} className={`w-2 h-2 rounded-full transition-all ${activeIndex === index ? "bg-[#8A0303] w-4" : "bg-gray-300"}`} aria-label={`Go to slide ${index + 1}`} />)}
             </div>
           </div>
