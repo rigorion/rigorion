@@ -60,10 +60,7 @@ export const PartnerLogos = () => {
                 slidesToScroll: 1,
                 containScroll: "trimSnaps",
                 dragFree: false,
-                slides: {
-                  perView: 2,
-                  spacing: 16
-                }
+                slidesToShow: 2
               }}
               onSelect={(api) => {
                 const emblaApi = api as unknown as UseEmblaCarouselType[1];
