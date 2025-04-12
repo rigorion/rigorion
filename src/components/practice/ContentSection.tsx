@@ -69,7 +69,7 @@ const ContentSection = ({
       )}
 
       {activeTab === "quote" && (
-        <div className="prose max-w-none mb-12 p-6 bg-gray-50 rounded-lg">
+        <div className="prose max-w-none mb-12 p-6 pt-24 bg-gray-50 rounded-lg">
           {question.quote && (
             <blockquote className="text-xl italic text-gray-700">
               "{question.quote.text}"
