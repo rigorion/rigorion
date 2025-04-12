@@ -30,7 +30,7 @@ export const TestimonialSection = () => {
   const [activeIndex, setActiveIndex] = useState(1);
   return <section className="bg-white py-[12px]">
       <div className="container mx-auto px-[2px]">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-16">Our Testimonial</h2>
+        <h2 className="text-3xl text-center italic mb-16 text-slate-950 font-semibold tracking-wider">Our Practitioners' Testimonials</h2>
         
         <div className="max-w-3xl mx-auto relative">
           <div className="text-6xl text-gray-200 absolute -top-10 left-1/2 -translate-x-1/2">
@@ -40,7 +40,7 @@ export const TestimonialSection = () => {
           <div className="relative">
             {TESTIMONIALS.map((testimonial, index) => <div key={testimonial.id} className={`transition-all duration-500 ease-in-out ${index === activeIndex ? 'opacity-100 block' : 'opacity-0 hidden'}`}>
                 <blockquote className="text-center">
-                  <p className="text-xl lg:text-2xl text-gray-600 leading-relaxed mb-6">
+                  <p className="text-xl lg:text-2xl text-gray-600 leading-relaxed mb-6 py-[5px] text-center">
                     {testimonial.content}
                   </p>
                   
