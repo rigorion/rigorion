@@ -17,7 +17,6 @@ type PromotionalItem = {
   detailedDescription: string;
 };
 
-// Create 12 items (all referencing the same image for demo purposes).
 const PROMOTIONAL_ITEMS: PromotionalItem[] = Array.from({ length: 12 }, (_, i) => ({
   id: `quiz-${i + 1}`,
   title: `Quiz Yourself ${i + 1}`,
@@ -37,12 +36,12 @@ export const PartnerLogos = () => {
 
   const handleItemClick = (item: PromotionalItem) => {
     setSelectedItem(item);
-    setAutoPlay(false); // Pause autoplay when an item is clicked
+    setAutoPlay(false);
   };
 
   const handleDialogClose = () => {
     setSelectedItem(null);
-    setAutoPlay(true); // Resume autoplay when dialog is closed
+    setAutoPlay(true);
   };
 
   return (
@@ -53,54 +52,62 @@ export const PartnerLogos = () => {
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-6xl mx-auto">
-          {/* Carousel Section */}
-          {/* The wrapper does not include any outer border or shadow */}
+          {/* Carousel with 3D effect */}
           <div className="lg:col-span-7 relative">
             <Carousel
-              // Updated configuration: Using slides.perView=1.15 for partial view,
-              // and removing dragFree to enable a sliding snap effect.
               opts={{
                 loop: true,
-                align: "start",
-                containScroll: "trimSnaps",
-                dragFree: false,
                 slides: {
-                  perView: 1.15,
+                  origin: 'center',
+                  perView: 1.3, // Shows 1 full slide and 15% of the next/previous
+                  spacing: 24, // Space between slides
                 },
-                ...(autoPlay && { autoPlay: { delay: 4000, stopOnInteraction: true } })
+                breakpoints: {
+                  '(min-width: 768px)': {
+                    slides: {
+                      perView: 1.2,
+                      spacing: 32,
+                    },
+                  },
+                },
+                ...(autoPlay && { 
+                  autoplay: { 
+                    delay: 4000, 
+                    disableOnInteraction: false 
+                  } 
+                })
               }}
-              className="w-full overflow-visible" // allow neighboring slides to show
-              onSelectHandler={handleCarouselSelect}
+              plugins={[
+                // Add any necessary plugins for your carousel library
+              ]}
+              className="w-full"
+              onSelect={handleCarouselSelect}
             >
-              <CarouselContent>
+              <CarouselContent className="-ml-4">
                 {PROMOTIONAL_ITEMS.map((item, index) => (
-                  <CarouselItem
-                    key={item.id}
-                    // Apply a transform so that the active slide is at 100%, while
-                    // the other slides are slightly scaled down with a bit less opacity.
-                    className={`transition-transform duration-500 ease-out ${
-                      activeIndex === index ? 'scale-100 opacity-100 z-10' : 'scale-90 opacity-80 z-0'
+                  <CarouselItem 
+                    key={item.id} 
+                    className={`pl-4 transition-all duration-300 ${
+                      activeIndex === index ? 'scale-100 z-10' : 'scale-90 opacity-80'
                     }`}
                   >
                     <Dialog open={selectedItem?.id === item.id} onOpenChange={handleDialogClose}>
                       <DialogTrigger asChild>
                         <div 
-                          className="cursor-pointer"
+                          className="h-full cursor-pointer"
                           onClick={() => handleItemClick(item)}
                         >
-                          {/* Increased height (e.g., 550px) */}
-                          {/* Removed any container shadow/frame styling */}
-                          <div className="relative h-[550px] overflow-hidden rounded-md">
+                          <div className="relative h-[550px] overflow-hidden rounded-xl shadow-lg">
                             <img 
                               src={item.imageUrl} 
                               alt={item.title}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
-                            <div className="absolute bottom-3 right-3">
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                            <div className="absolute bottom-4 right-4">
                               <span
                                 className={`px-3 py-1 text-xs font-medium rounded-full ${
-                                  activeIndex === index ? 'bg-green-500 text-white' : 'bg-white/80 text-gray-800'
+                                  activeIndex === index ? 'bg-green-500 text-white' : 'bg-white/90 text-gray-800'
                                 }`}
                               >
                                 {activeIndex === index ? 'Featured' : 'View'}
@@ -109,14 +116,12 @@ export const PartnerLogos = () => {
                           </div>
                         </div>
                       </DialogTrigger>
-                      {/* Dialog Content */}
                       <DialogContent className="sm:max-w-[720px]">
                         <DialogHeader>
                           <DialogTitle className="text-2xl font-bold">{item.title}</DialogTitle>
                         </DialogHeader>
-                        {/* Increased spacing between image and text */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-24 mt-4">
-                          <div className="rounded-md overflow-hidden">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+                          <div className="rounded-xl overflow-hidden shadow-md">
                             <img 
                               src={item.imageUrl} 
                               alt={item.title}
@@ -139,18 +144,18 @@ export const PartnerLogos = () => {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="-left-4 bg-white/70 hover:bg-white" />
-              <CarouselNext className="-right-4 bg-white/70 hover:bg-white" />
+              <CarouselPrevious className="-left-4 bg-white/90 hover:bg-white shadow-md" />
+              <CarouselNext className="-right-4 bg-white/90 hover:bg-white shadow-md" />
             </Carousel>
 
             {/* Carousel Indicators */}
-            <div className="flex justify-center mt-5 space-x-2">
+            <div className="flex justify-center mt-6 space-x-2">
               {PROMOTIONAL_ITEMS.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => handleCarouselSelect(index)}
                   className={`w-2 h-2 rounded-full transition-all ${
-                    activeIndex === index ? "bg-[#8A0303] w-4" : "bg-gray-100"
+                    activeIndex === index ? "bg-[#8A0303] w-4" : "bg-gray-300"
                   }`}
                   aria-label={`Go to slide ${index + 1}`}
                 />
@@ -158,7 +163,7 @@ export const PartnerLogos = () => {
             </div>
           </div>
 
-          {/* Text Content Section */}
+          {/* Text content on the right side */}
           <div className="lg:col-span-5">
             <div className="h-full flex flex-col justify-center">
               <h3 className="text-2xl font-bold text-gray-800 mb-4">
