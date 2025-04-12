@@ -59,7 +59,7 @@ const Progress = () => {
       </AnimatePresence>
       
       {/* Main Content */}
-      <div className="flex-1">
+      <div className="flex-1 bg-white">
         {/* Header */}
         <header className="sticky top-0 z-50 w-full bg-white shadow-md">
           <div className="container flex h-16 max-w-screen-2xl items-center justify-between px-6">
