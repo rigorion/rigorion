@@ -47,7 +47,7 @@ export const PartnerLogos = () => {
   };
 
   return (
-    <section className="overflow-hidden bg-gray-50 py-8 h-[300px]">
+    <section className="overflow-hidden bg-gray-50 py-8 h-[600px]">
       <div className="container mx-auto px-4 mb-8">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
           Crack any Exam in a Legit way !
