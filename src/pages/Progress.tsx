@@ -52,6 +52,9 @@ const Progress = () => {
           <h2 className="mb-3 text-2xl font-semibold text-red-700">Error Loading Progress</h2>
           <p className="text-red-600 mb-4">Something went wrong while fetching your progress data.</p>
           <p className="text-gray-700">Please try refreshing the page or contact support if the problem persists.</p>
+          <pre className="mt-4 text-xs text-left bg-red-100 p-2 rounded overflow-auto">
+            {error instanceof Error ? error.message : 'Unknown error'}
+          </pre>
         </motion.div>
       </div>
     );

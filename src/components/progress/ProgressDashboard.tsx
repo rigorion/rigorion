@@ -134,7 +134,8 @@ export default function ProgressDashboard({
         </AnimatedItem>
       </AnimatedContainer>
 
-      <style jsx global>{`
+      <style>
+        {`
         @keyframes pulse {
           0%, 100% {
             opacity: 0.8;
@@ -145,7 +146,8 @@ export default function ProgressDashboard({
             transform: scale(1.05);
           }
         }
-      `}</style>
+        `}
+      </style>
     </AnimatedContainer>
   );
 }

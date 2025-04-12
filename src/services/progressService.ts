@@ -150,22 +150,32 @@ export async function getUserProgressData(userId: string): Promise<UserProgress>
       return userProgressCache.get(userId)!;
     }
     
+    console.log('Getting user progress data for:', userId);
+    
     // Try to fetch data from Supabase (this is for future implementation)
-    // Currently will fall back to dummy data
+    // Temporarily using dummy data because Supabase tables don't exist yet
     try {
-      // Check if the questions table exists at least
-      const { data: tableExists } = await supabase
+      // We need to check if the Supabase database has the required tables
+      const { data: tableInfo, error } = await supabase
         .from('questions')
         .select('id')
         .limit(1);
-
-      console.log('Checking if questions table has data:', tableExists);
-      // In a real implementation, we would check for user_progress table
+      
+      console.log('Table check result:', tableInfo, error);
+      
+      // If we can connect to Supabase but don't have the required tables,
+      // we should log that information for debugging
+      if (error) {
+        console.log('Error checking tables:', error);
+      } else {
+        console.log('Connected to Supabase, but using dummy data for now');
+      }
     } catch (error) {
-      console.log('Table check failed, using dummy data instead');
+      console.log('Table check failed:', error);
     }
 
-    // Generate dummy data
+    // Generate dummy data for now
+    // In a real implementation, you would fetch this data from your Supabase tables
     const dummyData = generateDummyData(userId);
     
     // Store in cache
