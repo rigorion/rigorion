@@ -48,7 +48,7 @@ export const PerformanceGraphCard = ({
       }
     }
   }}>
-      <Card className="p-6 hover: transition-all duration-300 border-0">
+      <Card className="p-6 hover: transition-all duration-300 ">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-semibold">Performance Graph</h3>
           <div className="flex items-center gap-2">
