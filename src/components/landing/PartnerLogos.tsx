@@ -53,7 +53,7 @@ export const PartnerLogos = () => {
           }} onSelect={(api: any) => {
             const index = api.selectedScrollSnap();
             handleCarouselSelect(index);
-          }} className="w-full h-full border-red-500">
+          }} className="w-full h-full border-red-500 h-[150px]">
               <CarouselContent className="-ml-4">
                 {PROMOTIONAL_ITEMS.map((item, index) => <CarouselItem key={item.id} className={`pl-4 transition-all duration-300 ${activeIndex === index ? 'scale-100 z-10' : 'scale-90 opacity-80'}`}>
                     <Dialog open={selectedItem?.id === item.id} onOpenChange={handleDialogClose}>
