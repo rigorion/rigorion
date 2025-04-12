@@ -5,7 +5,7 @@ import { Check, X } from 'lucide-react';
 type FeatureType = {
   name: string;
   competitors: {
-    knewt: boolean;
+    rigorion: boolean;
     canvasa: boolean;
     mojule: boolean;
     techmarin: boolean;
@@ -18,7 +18,7 @@ const FEATURES: FeatureType[] = [
   {
     name: "Cost",
     competitors: {
-      knewt: true,
+      rigorion: true,
       canvasa: true,
       mojule: true,
       techmarin: true,
