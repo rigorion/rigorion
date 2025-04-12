@@ -99,8 +99,8 @@ export default {
           '100%': { backgroundPosition: '0% 50%' },
         },
         "pulse-subtle": {
-          '0%, 100%': { opacity: '1' },
-          '50%': { opacity: '0.8' },
+          '0%, 100%': { opacity: '1', boxShadow: '0 0 5px rgba(22, 163, 74, 0.4)' },
+          '50%': { opacity: '0.93', boxShadow: '0 0 12px rgba(22, 163, 74, 0.7)' },
         },
         "glow": {
           '0%, 100%': { boxShadow: '0 0 5px rgba(239, 68, 68, 0.6), 0 0 10px rgba(239, 68, 68, 0.4)' },
@@ -115,7 +115,7 @@ export default {
         "orange-glow": "orange-glow 2s infinite",
         "bubble": "bubble 6s linear infinite",
         "gradient-x": "gradient-x 5s ease infinite",
-        "pulse-subtle": "pulse-subtle 2s infinite ease-in-out",
+        "pulse-subtle": "pulse-subtle 2.5s infinite ease-in-out",
         "glow": "glow 2s infinite ease-in-out",
       },
       backgroundSize: {
@@ -124,7 +124,6 @@ export default {
     },
   },
   plugins: [
-    
     require("tailwindcss-animate"),
     require('@tailwindcss/container-queries'),
   ],

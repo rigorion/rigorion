@@ -1,8 +1,11 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Star } from "lucide-react";
+import { motion } from "framer-motion";
+
 export interface Module {
   id: string;
   title: string;
@@ -16,9 +19,11 @@ export interface Module {
   price: string;
   examsCount?: number; // Added exams count
 }
+
 interface ModuleCardProps {
   module: Module;
 }
+
 const ModuleCard: React.FC<ModuleCardProps> = ({
   module
 }) => {
@@ -38,38 +43,66 @@ const ModuleCard: React.FC<ModuleCardProps> = ({
   const chaptersPercent = Math.min(100, module.chaptersCount / 12 * 100);
   const examsPercent = Math.min(100, (module.examsCount || 0) / 7 * 100);
 
-  // Generate stars for rating
+  // Generate stars for rating with thin black stroke
   const renderStars = (rating: number) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
-      stars.push(<Star key={i} size={16} className={i <= rating ? "fill-amber-400 text-amber-400" : "text-gray-300"} />);
+      stars.push(
+        <Star 
+          key={i} 
+          size={16} 
+          className={i <= rating ? "fill-amber-400 text-amber-400 stroke-[0.5px] stroke-black" : "text-gray-300 stroke-[0.5px] stroke-black"} 
+        />
+      );
     }
     return stars;
   };
-  return <Card className="overflow-hidden bg-white rounded-xl transition-all duration-300 hover:shadow-md border border-gray-100">
+
+  return (
+    <Card className="overflow-hidden bg-white rounded-xl transition-all duration-300 hover:shadow-md border border-gray-100">
       <div className="relative">
-        {/* Image with status badge */}
+        {/* Image with soft gradient overlay for smooth text integration */}
         <div className="h-40 overflow-hidden relative">
-          <img src={module.imageUrl} alt={module.title} className="w-full h-full object-cover" />
+          <img 
+            src={module.imageUrl} 
+            alt={module.title} 
+            className="w-full h-full object-cover" 
+          />
+          {/* Gradient overlay for smooth bottom edge */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30"></div>
           
           {/* Status badge positioned on the image */}
-          {module.status === "available" ? <div className="absolute top-3 right-3 bg-green-500 text-white text-xs font-medium px-3 py-1 rounded-full">
+          {module.status === "available" ? (
+            <div className="absolute top-3 right-3 bg-green-500 text-white text-xs font-medium px-3 py-1 rounded-full">
               Available
-            </div> : <div className="absolute top-3 right-3 bg-amber-500 text-white text-xs font-medium px-3 py-1 rounded-full">
+            </div>
+          ) : (
+            <div className="absolute top-3 right-3 bg-amber-500 text-white text-xs font-medium px-3 py-1 rounded-full">
               Coming Soon
-            </div>}
+            </div>
+          )}
         </div>
         
         {/* Card content */}
         <div className="p-6">
-          <div className="text-blue-600 uppercase text-sm font-medium tracking-wide mb-4">
+          <motion.div 
+            initial={{ opacity: 0.8 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse" }}
+            className="text-blue-600 uppercase text-sm font-medium tracking-wide mb-4"
+          >
             {module.category}
-          </div>
+          </motion.div>
           
-          {/* Module title */}
-          <h3 className="text-lg font-medium text-gray-800 mb-4 line-clamp-2">
+          {/* Animated module title */}
+          <motion.h3 
+            className="text-lg font-medium text-gray-800 mb-4 line-clamp-2"
+            initial={{ opacity: 0.9 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+          >
             {module.title}
-          </h3>
+          </motion.h3>
           
           {/* Progress bars section */}
           <div className="mb-6 space-y-4">
@@ -95,21 +128,30 @@ const ModuleCard: React.FC<ModuleCardProps> = ({
               <div className="flex mr-2">
                 {renderStars(Math.round(module.rating))}
               </div>
-              {module.rating > 0 && <span className="text-amber-600 font-medium">
+              {module.rating > 0 && (
+                <span className="text-amber-600 font-medium">
                   {module.rating.toFixed(1)}
-                </span>}
+                </span>
+              )}
             </div>
             <span className="text-sm text-gray-600">
               {module.participantsCount} participants
             </span>
           </div>
           
-          {/* Join button - updated with red border and white fill */}
-          {module.status === "available" && <button onClick={handleClick} className="text-m px-4 py-1 r-5 rounded-full border border-green-600 text-white-600 bg-green hover:bg-green-500 text-white transition-all duration-300 glow-button border-green-500">
+          {/* Updated Join button - green-600 with white text and subtle glow */}
+          {module.status === "available" && (
+            <button 
+              onClick={handleClick} 
+              className="text-xs px-3 py-1 rounded-full border border-green-600 text-white bg-green-600 hover:bg-green-700 transition-all duration-300 animate-pulse-subtle"
+            >
               Join Now
-            </button>}
+            </button>
+          )}
         </div>
       </div>
-    </Card>;
+    </Card>
+  );
 };
+
 export default ModuleCard;
