@@ -48,7 +48,7 @@ export const PartnerLogos = () => {
     <section className="overflow-hidden bg-gray-50 py-8 h-[300px]">
       <div className="container mx-auto px-4 mb-8">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
-          Trusted By Leading Educational Institutions
+          Crack any Exam in a Legit way !
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-6xl mx-auto">
