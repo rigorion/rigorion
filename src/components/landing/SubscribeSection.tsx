@@ -15,7 +15,7 @@ export const SubscribeSection = () => {
     toast.success("Thanks for subscribing!");
     setEmail('');
   };
-  return <section className="py-16 bg-gray-50">
+  return <section className="bg-gray-50 py-[32px]">
       <div className="container mx-auto px-4 max-w-xl text-center">
         <h2 className="text-xl md:text-2xl font-medium text-gray-800 tracking-wide uppercase mb-6">BE THE ONE WE CONTACT WHEN WE HAVE NEW PRODUCTS &amp; SERVICES</h2>
         
