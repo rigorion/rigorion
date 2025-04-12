@@ -28,7 +28,7 @@ const TESTIMONIALS: TestimonialType[] = [{
 }];
 export const TestimonialSection = () => {
   const [activeIndex, setActiveIndex] = useState(1);
-  return <section className="bg-white py-16">
+  return <section className="bg-white py-[12px]">
       <div className="container mx-auto px-[2px]">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-16">Our Testimonial</h2>
         
