@@ -7,7 +7,7 @@ import './index.css';
 // Force refresh to ensure latest version of the app is loaded
 if (window.location.hash === '#refresh') {
   window.location.hash = '';
-  window.location.reload(true); // Force a complete reload, bypassing the cache
+  window.location.reload();  // Removed the 'true' argument as it's not needed
 }
 
 const root = createRoot(document.getElementById('root')!);

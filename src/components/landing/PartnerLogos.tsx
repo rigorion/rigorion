@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   Carousel,
@@ -8,6 +9,7 @@ import {
 } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import type { EmblaCarouselType } from 'embla-carousel-react';
 
 type PromotionalItem = {
   id: string;
@@ -57,31 +59,15 @@ export const PartnerLogos = () => {
             <Carousel
               opts={{
                 loop: true,
-                slides: {
-                  origin: 'center',
-                  perView: 1.3, // Shows 1 full slide and 15% of the next/previous
-                  spacing: 24, // Space between slides
-                },
-                breakpoints: {
-                  '(min-width: 768px)': {
-                    slides: {
-                      perView: 1.2,
-                      spacing: 32,
-                    },
-                  },
-                },
-                ...(autoPlay && { 
-                  autoplay: { 
-                    delay: 4000, 
-                    disableOnInteraction: false 
-                  } 
-                })
+                align: "center",
+                slidesToScroll: 1,
+                containScroll: "trimSnaps"
               }}
-              plugins={[
-                // Add any necessary plugins for your carousel library
-              ]}
               className="w-full"
-              onSelect={handleCarouselSelect}
+              onSelect={(api: EmblaCarouselType) => {
+                const index = api.selectedScrollSnap();
+                handleCarouselSelect(index);
+              }}
             >
               <CarouselContent className="-ml-4">
                 {PROMOTIONAL_ITEMS.map((item, index) => (
