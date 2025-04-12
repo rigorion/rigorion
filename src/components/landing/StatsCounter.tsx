@@ -81,7 +81,7 @@ export const StatsCounter = () => {
       ref={ref}
       className="py-24 bg-gray-900 bg-opacity-80 relative"
       style={{
-        backgroundImage: 'url(https://cdn.pixabay.com/photo/2019/12/16/04/06/binary-4698414_1280.jpg)',
+        backgroundImage: 'url(https://cdn.pixabay.com/photo/2016/10/03/22/47/robot-arm-1713081_1280.jpg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center'
       }}
