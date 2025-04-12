@@ -45,7 +45,7 @@ export const PartnerLogos = () => {
   };
 
   return (
-    <section className="overflow-hidden bg-gray-50 py-16">
+    <section className="overflow-hidden bg-gray-50 py-8">
       <div className="container mx-auto px-4 mb-8">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
           Trusted By Leading Educational Institutions
@@ -97,7 +97,7 @@ export const PartnerLogos = () => {
                           className="h-full cursor-pointer"
                           onClick={() => handleItemClick(item)}
                         >
-                          <div className="relative h-[550px] overflow-hidden rounded-xl shadow-lg">
+                          <div className="relative h-[550px] overflow-hidden rounded-xl">
                             <img 
                               src={item.imageUrl} 
                               alt={item.title}
@@ -120,8 +120,8 @@ export const PartnerLogos = () => {
                         <DialogHeader>
                           <DialogTitle className="text-2xl font-bold">{item.title}</DialogTitle>
                         </DialogHeader>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-                          <div className="rounded-xl overflow-hidden shadow-md">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-24 mt-4">
+                          <div className="rounded-xl overflow-hidden">
                             <img 
                               src={item.imageUrl} 
                               alt={item.title}
