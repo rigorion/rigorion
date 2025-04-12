@@ -1,7 +1,5 @@
-
 import React, { useState } from 'react';
 import { Quote } from 'lucide-react';
-
 type TestimonialType = {
   id: number;
   content: string;
@@ -9,7 +7,6 @@ type TestimonialType = {
   location: string;
   image?: string;
 };
-
 const TESTIMONIALS: TestimonialType[] = [{
   id: 1,
   content: "Every 7 nights on a pull-out...get a test sleep ever.",
@@ -29,12 +26,11 @@ const TESTIMONIALS: TestimonialType[] = [{
   location: "Denver",
   image: "https://randomuser.me/api/portraits/women/26.jpg"
 }];
-
 export const TestimonialSection = () => {
   const [activeIndex, setActiveIndex] = useState(1);
   return <section className="bg-white py-16">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-16">What Our Students Say</h2>
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-16">Our Testimonial</h2>
         
         <div className="max-w-3xl mx-auto relative">
           <div className="text-6xl text-gray-200 absolute -top-10 left-1/2 -translate-x-1/2">
