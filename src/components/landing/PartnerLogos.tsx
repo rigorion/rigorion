@@ -18,7 +18,6 @@ type PromotionalItem = {
 };
 
 // Create 12 items (all referencing the same image for demo purposes).
-// Update the title, description, etc. as you wish.
 const PROMOTIONAL_ITEMS: PromotionalItem[] = Array.from({ length: 12 }, (_, i) => ({
   id: `quiz-${i + 1}`,
   title: `Quiz Yourself ${i + 1}`,
@@ -38,7 +37,7 @@ export const PartnerLogos = () => {
 
   const handleItemClick = (item: PromotionalItem) => {
     setSelectedItem(item);
-    setAutoPlay(false); // Stop autoplay when an item is clicked
+    setAutoPlay(false); // Pause autoplay when an item is clicked
   };
 
   const handleDialogClose = () => {
@@ -54,35 +53,43 @@ export const PartnerLogos = () => {
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-6xl mx-auto">
-          {/* Carousel with full-sized images */}
+          {/* Carousel Section */}
+          {/* The wrapper does not include any outer border or shadow */}
           <div className="lg:col-span-7 relative">
             <Carousel
-              // Example KeenSlider config for fade transition and autoplay
+              // Updated configuration: Using slides.perView=1.15 for partial view,
+              // and removing dragFree to enable a sliding snap effect.
               opts={{
                 loop: true,
                 align: "start",
                 containScroll: "trimSnaps",
-                dragFree: false, // Usually 'false' for fade transitions
-                mode: "free-snap", // Depending on your carousel library, you might need something like `mode: "fade"` or a plugin
+                dragFree: false,
                 slides: {
-                  perView: 1,
+                  perView: 1.15,
                 },
                 ...(autoPlay && { autoPlay: { delay: 4000, stopOnInteraction: true } })
               }}
-              className="w-full"
+              className="w-full overflow-visible" // allow neighboring slides to show
               onSelectHandler={handleCarouselSelect}
             >
               <CarouselContent>
                 {PROMOTIONAL_ITEMS.map((item, index) => (
-                  <CarouselItem key={item.id} className="md:basis-full">
+                  <CarouselItem
+                    key={item.id}
+                    // Apply a transform so that the active slide is at 100%, while
+                    // the other slides are slightly scaled down with a bit less opacity.
+                    className={`transition-transform duration-500 ease-out ${
+                      activeIndex === index ? 'scale-100 opacity-100 z-10' : 'scale-90 opacity-80 z-0'
+                    }`}
+                  >
                     <Dialog open={selectedItem?.id === item.id} onOpenChange={handleDialogClose}>
                       <DialogTrigger asChild>
                         <div 
-                          className="h-full cursor-pointer"
+                          className="cursor-pointer"
                           onClick={() => handleItemClick(item)}
                         >
-                          {/* Increased height by ~25% (from 350 to 440) */}
-                          {/* Simplified shadow (removed extra shadow or double box shadows) */}
+                          {/* Increased height (e.g., 550px) */}
+                          {/* Removed any container shadow/frame styling */}
                           <div className="relative h-[550px] overflow-hidden rounded-md">
                             <img 
                               src={item.imageUrl} 
@@ -107,7 +114,7 @@ export const PartnerLogos = () => {
                         <DialogHeader>
                           <DialogTitle className="text-2xl font-bold">{item.title}</DialogTitle>
                         </DialogHeader>
-                        {/* Increased spacing between image and text with gap-8 */}
+                        {/* Increased spacing between image and text */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-24 mt-4">
                           <div className="rounded-md overflow-hidden">
                             <img 
@@ -151,7 +158,7 @@ export const PartnerLogos = () => {
             </div>
           </div>
 
-          {/* Text content on the right side */}
+          {/* Text Content Section */}
           <div className="lg:col-span-5">
             <div className="h-full flex flex-col justify-center">
               <h3 className="text-2xl font-bold text-gray-800 mb-4">
