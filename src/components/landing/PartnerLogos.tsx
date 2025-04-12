@@ -21,7 +21,7 @@ const PROMOTIONAL_ITEMS: PromotionalItem[] = Array.from({ length: 12 }, (_, i) =
   id: `quiz-${i + 1}`,
   title: `Quiz Yourself ${i + 1}`,
   description: `Description for item ${i + 1}`,
-  imageUrl: "https://cdn.pixabay.com/photo/2016/11/29/08/41/apple-1868496_960_720.jpg",
+  imageUrl: "https://cdn.pixabay.com/photo/2016/11/29/08/41/apple-1868496_1280.jpg",
   detailedDescription: `Detailed description for item ${i + 1}. Our Quiz feature helps students test their knowledge in a stress-free environment. Create custom quizzes based on specific topics or use our pre-made quizzes designed by education experts. Track your progress and identify areas that need more focus.`,
 }));
 
