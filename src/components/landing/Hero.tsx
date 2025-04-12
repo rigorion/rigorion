@@ -13,9 +13,9 @@ export const Hero = () => {
           <h1 className="font-cursive md:text-7xl text-white mb-4 text-5xl">Rigorion</h1>
           
           <div className="flex items-center justify-center mb-8">
-            <div className="bg-white/90 backdrop-blur-sm rounded-full px-5 py-2 flex items-center space-x-2">
-              <Award className="text-[#8A0303] h-5 w-5" />
-              <span className="text-[#8A0303] font-semibold">#1 Global Ranking</span>
+            <div className="backdrop-blur-sm rounded-full px-5 py-2 flex items-center space-x-2 bg-transparent">
+              
+              <span className="font-semibold text-amber-200">#1 Global Ranking</span>
             </div>
           </div>
           
