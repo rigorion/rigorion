@@ -7,7 +7,7 @@ const MODULES: Module[] = [
   {
     id: '1',
     title: 'Introduction to Calculus',
-    imageUrl: 'https://pixabay.com/photos/nature-landscape-mountains-summit-2609624/',
+    imageUrl: 'https://cdn.pixabay.com/photo/2021/10/01/03/57/mountain-6671289_960_720.jpg',
     category: 'Mathematics',
     questionsCount: 125,
     chaptersCount: 8,
