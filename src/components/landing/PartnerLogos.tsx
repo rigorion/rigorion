@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Carousel,
@@ -18,43 +17,15 @@ type PromotionalItem = {
   detailedDescription: string;
 };
 
-const PROMOTIONAL_ITEMS: PromotionalItem[] = [
-  {
-    id: "quiz",
-    title: "Quiz Yourself",
-    description: "Take a break from your notes to see what you've learned",
-    imageUrl: "public/lovable-uploads/2a802479-06b1-45c1-ba44-dbce5f3f2dc1.png",
-    detailedDescription: "Our Quiz feature helps students test their knowledge in a stress-free environment. Create custom quizzes based on specific topics or use our pre-made quizzes designed by education experts. Track your progress and identify areas that need more focus."
-  },
-  {
-    id: "help",
-    title: "Help You Pass the Exam",
-    description: "Provide practice for all exam subjects",
-    imageUrl: "public/lovable-uploads/2a802479-06b1-45c1-ba44-dbce5f3f2dc1.png",
-    detailedDescription: "Our comprehensive exam preparation system covers all subject areas with practice questions similar to what you'll find on your actual exam. With detailed explanations for every answer, you'll understand not just what is correct, but why."
-  },
-  {
-    id: "sat",
-    title: "Pass Your SAT® Exam",
-    description: "Easy Prep, Easy to Pass!",
-    imageUrl: "public/lovable-uploads/2a802479-06b1-45c1-ba44-dbce5f3f2dc1.png",
-    detailedDescription: "Our specialized SAT® prep materials help students achieve their target scores through proven study methods, personalized learning paths, and thousands of practice questions with detailed explanations. Students using our platform see an average score increase of 100+ points."
-  },
-  {
-    id: "questions",
-    title: "Over 1,300+ Questions",
-    description: "With Explanations",
-    imageUrl: "public/lovable-uploads/2a802479-06b1-45c1-ba44-dbce5f3f2dc1.png",
-    detailedDescription: "Access our extensive library of over 1,300 professionally written questions across all subjects. Each question comes with a detailed explanation to help you understand concepts better, not just memorize answers."
-  },
-  {
-    id: "customize",
-    title: "Customize Your Quiz",
-    description: "Take any quiz anytime, anywhere",
-    imageUrl: "public/lovable-uploads/2a802479-06b1-45c1-ba44-dbce5f3f2dc1.png",
-    detailedDescription: "Create completely customized quizzes based on your specific needs. Choose topics, difficulty levels, and question types. Our mobile-friendly platform lets you study effectively whether you're at home, on the bus, or in between classes."
-  }
-];
+// Create 12 items (all referencing the same image for demo purposes).
+// Update the title, description, etc. as you wish.
+const PROMOTIONAL_ITEMS: PromotionalItem[] = Array.from({ length: 12 }, (_, i) => ({
+  id: `quiz-${i + 1}`,
+  title: `Quiz Yourself ${i + 1}`,
+  description: `Description for item ${i + 1}`,
+  imageUrl: "public/lovable-uploads/2a802479-06b1-45c1-ba44-dbce5f3f2dc1.png",
+  detailedDescription: `Detailed description for item ${i + 1}. Our Quiz feature helps students test their knowledge in a stress-free environment. Create custom quizzes based on specific topics or use our pre-made quizzes designed by education experts. Track your progress and identify areas that need more focus.`,
+}));
 
 export const PartnerLogos = () => {
   const [autoPlay, setAutoPlay] = useState(true);
@@ -86,11 +57,16 @@ export const PartnerLogos = () => {
           {/* Carousel with full-sized images */}
           <div className="lg:col-span-7 relative">
             <Carousel
+              // Example KeenSlider config for fade transition and autoplay
               opts={{
                 loop: true,
                 align: "start",
                 containScroll: "trimSnaps",
-                dragFree: true,
+                dragFree: false, // Usually 'false' for fade transitions
+                mode: "free-snap", // Depending on your carousel library, you might need something like `mode: "fade"` or a plugin
+                slides: {
+                  perView: 1,
+                },
                 ...(autoPlay && { autoPlay: { delay: 4000, stopOnInteraction: true } })
               }}
               className="w-full"
@@ -99,13 +75,15 @@ export const PartnerLogos = () => {
               <CarouselContent>
                 {PROMOTIONAL_ITEMS.map((item, index) => (
                   <CarouselItem key={item.id} className="md:basis-full">
-                    <Dialog>
+                    <Dialog open={selectedItem?.id === item.id} onOpenChange={handleDialogClose}>
                       <DialogTrigger asChild>
                         <div 
                           className="h-full cursor-pointer"
                           onClick={() => handleItemClick(item)}
                         >
-                          <div className="relative h-[350px] overflow-hidden rounded-xl shadow-sm">
+                          {/* Increased height by ~25% (from 350 to 440) */}
+                          {/* Simplified shadow (removed extra shadow or double box shadows) */}
+                          <div className="relative h-[440px] overflow-hidden rounded-md shadow-md">
                             <img 
                               src={item.imageUrl} 
                               alt={item.title}
@@ -113,21 +91,25 @@ export const PartnerLogos = () => {
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
                             <div className="absolute bottom-3 right-3">
-                              <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                                activeIndex === index ? 'bg-green-500 text-white' : 'bg-white/80 text-gray-800'
-                              }`}>
+                              <span
+                                className={`px-3 py-1 text-xs font-medium rounded-full ${
+                                  activeIndex === index ? 'bg-green-500 text-white' : 'bg-white/80 text-gray-800'
+                                }`}
+                              >
                                 {activeIndex === index ? 'Featured' : 'View'}
                               </span>
                             </div>
                           </div>
                         </div>
                       </DialogTrigger>
+                      {/* Dialog Content */}
                       <DialogContent className="sm:max-w-[720px]">
                         <DialogHeader>
                           <DialogTitle className="text-2xl font-bold">{item.title}</DialogTitle>
                         </DialogHeader>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                          <div className="rounded-lg overflow-hidden">
+                        {/* Increased spacing between image and text with gap-8 */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+                          <div className="rounded-md overflow-hidden shadow-md">
                             <img 
                               src={item.imageUrl} 
                               alt={item.title}
@@ -154,10 +136,12 @@ export const PartnerLogos = () => {
               <CarouselNext className="-right-4 bg-white/70 hover:bg-white" />
             </Carousel>
 
+            {/* Carousel Indicators */}
             <div className="flex justify-center mt-5 space-x-2">
               {PROMOTIONAL_ITEMS.map((_, index) => (
                 <button
                   key={index}
+                  onClick={() => handleCarouselSelect(index)}
                   className={`w-2 h-2 rounded-full transition-all ${
                     activeIndex === index ? "bg-[#8A0303] w-4" : "bg-gray-300"
                   }`}
