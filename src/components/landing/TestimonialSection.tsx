@@ -40,7 +40,7 @@ export const TestimonialSection = () => {
           <div className="relative">
             {TESTIMONIALS.map((testimonial, index) => <div key={testimonial.id} className={`transition-all duration-500 ease-in-out ${index === activeIndex ? 'opacity-100 block' : 'opacity-0 hidden'}`}>
                 <blockquote className="text-center">
-                  <p className="text-xl lg:text-2xl text-gray-600 leading-relaxed mb-6 py-[5px] text-center">
+                  <p className="text-xl text-gray-600 leading-relaxed mb-6 text-center lg:text-lg py-[6px]">
                     {testimonial.content}
                   </p>
                   
