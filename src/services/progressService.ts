@@ -152,30 +152,117 @@ export async function getUserProgressData(userId: string): Promise<UserProgress>
     
     console.log('Getting user progress data for:', userId);
     
-    // Try to fetch data from Supabase (this is for future implementation)
-    // Temporarily using dummy data because Supabase tables don't exist yet
+    // Try to fetch data from Supabase first
     try {
-      // We need to check if the Supabase database has the required tables
-      const { data: tableInfo, error } = await supabase
-        .from('questions')
-        .select('id')
-        .limit(1);
+      // Query the user_progress table
+      const { data: userProgressData, error: userProgressError } = await supabase
+        .from('user_progress')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
       
-      console.log('Table check result:', tableInfo, error);
-      
-      // If we can connect to Supabase but don't have the required tables,
-      // we should log that information for debugging
-      if (error) {
-        console.log('Error checking tables:', error);
-      } else {
-        console.log('Connected to Supabase, but using dummy data for now');
+      if (userProgressError) {
+        console.log('Error fetching user_progress:', userProgressError);
+        console.log('Falling back to dummy data');
+      } else if (userProgressData) {
+        console.log('Found user progress data in Supabase:', userProgressData);
+        
+        // Now fetch the performance graph data
+        const { data: performanceData, error: performanceError } = await supabase
+          .from('performance_graph')
+          .select('*')
+          .eq('user_id', userId)
+          .order('date', { ascending: true });
+          
+        if (performanceError) {
+          console.log('Error fetching performance graph:', performanceError);
+        }
+        
+        // Fetch chapter performance data
+        const { data: chapterData, error: chapterError } = await supabase
+          .from('chapter_stats')
+          .select('*')
+          .eq('user_id', userId);
+          
+        if (chapterError) {
+          console.log('Error fetching chapter stats:', chapterError);
+        }
+        
+        // Fetch goals data
+        const { data: goalsData, error: goalsError } = await supabase
+          .from('goals')
+          .select('*')
+          .eq('user_id', userId);
+          
+        if (goalsError) {
+          console.log('Error fetching goals:', goalsError);
+        }
+        
+        // If we have all the data, construct the UserProgress object
+        if (userProgressData && performanceData && chapterData && goalsData) {
+          const userProgress: UserProgress = {
+            userId,
+            totalProgressPercent: userProgressData.total_progress_percent,
+            correctAnswers: userProgressData.correct_answers,
+            incorrectAnswers: userProgressData.incorrect_answers,
+            unattemptedQuestions: userProgressData.unattempted_questions,
+            questionsAnsweredToday: userProgressData.questions_answered_today,
+            streak: userProgressData.streak_days,
+            averageScore: userProgressData.avg_score,
+            rank: userProgressData.rank,
+            projectedScore: userProgressData.projected_score,
+            speed: userProgressData.speed,
+            easyAccuracy: userProgressData.easy_accuracy,
+            easyAvgTime: userProgressData.easy_avg_time_min,
+            easyCompleted: userProgressData.easy_completed,
+            easyTotal: userProgressData.easy_total,
+            mediumAccuracy: userProgressData.medium_accuracy,
+            mediumAvgTime: userProgressData.medium_avg_time_min,
+            mediumCompleted: userProgressData.medium_completed,
+            mediumTotal: userProgressData.medium_total,
+            hardAccuracy: userProgressData.hard_accuracy,
+            hardAvgTime: userProgressData.hard_avg_time_min,
+            hardCompleted: userProgressData.hard_completed,
+            hardTotal: userProgressData.hard_total,
+            goalAchievementPercent: userProgressData.goal_achievement_percent,
+            averageTime: userProgressData.avg_time_per_question,
+            correctAnswerAvgTime: userProgressData.avg_time_correct,
+            incorrectAnswerAvgTime: userProgressData.avg_time_incorrect,
+            longestQuestionTime: userProgressData.longest_time,
+            performanceGraph: performanceData.map(item => ({
+              date: item.date,
+              attempted: item.attempted
+            })),
+            chapterPerformance: chapterData.map(chapter => ({
+              chapterId: chapter.chapter_id,
+              chapterName: chapter.chapter_name,
+              correct: chapter.correct,
+              incorrect: chapter.incorrect,
+              unattempted: chapter.unattempted
+            })),
+            goals: goalsData.map(goal => ({
+              id: goal.id,
+              title: goal.title,
+              targetValue: goal.target_value,
+              currentValue: goal.current_value,
+              dueDate: goal.due_date
+            }))
+          };
+          
+          // Store in cache
+          userProgressCache.set(userId, userProgress);
+          
+          return userProgress;
+        }
       }
     } catch (error) {
-      console.log('Table check failed:', error);
+      console.error('Supabase query error:', error);
+      console.log('Falling back to dummy data');
     }
 
-    // Generate dummy data for now
-    // In a real implementation, you would fetch this data from your Supabase tables
+    // If we got here, we couldn't fetch from Supabase successfully
+    // Generate dummy data instead
+    console.log('Using dummy data for user progress');
     const dummyData = generateDummyData(userId);
     
     // Store in cache
@@ -198,10 +285,41 @@ export async function getLeaderboard(limit: number = 10): Promise<any[]> {
       return leaderboardCache;
     }
 
-    // Try to fetch from Supabase (for future implementation)
-    // Currently will use dummy data
+    // Try to fetch from Supabase
+    try {
+      const { data: leaderboardData, error: leaderboardError } = await supabase
+        .from('leaderboard_entries')
+        .select('*')
+        .order('rank', { ascending: true })
+        .limit(limit);
+        
+      if (leaderboardError) {
+        console.log('Error fetching leaderboard:', leaderboardError);
+        console.log('Falling back to dummy data');
+      } else if (leaderboardData && leaderboardData.length > 0) {
+        console.log('Found leaderboard data in Supabase:', leaderboardData.length, 'entries');
+        
+        const formattedData = leaderboardData.map(entry => ({
+          rank: entry.rank,
+          name: entry.name,
+          problems: entry.problems_solved,
+          accuracy: `${entry.accuracy}%`,
+          score: entry.projected_score,
+          trend: entry.trend_percent_change,
+          isCurrentUser: entry.is_current_user
+        }));
+        
+        // Store in cache
+        leaderboardCache = formattedData;
+        
+        return formattedData;
+      }
+    } catch (error) {
+      console.error('Supabase leaderboard query error:', error);
+      console.log('Falling back to dummy leaderboard data');
+    }
     
-    // Generate dummy leaderboard data
+    // Generate dummy leaderboard data if Supabase fetch failed
     const dummyEntries = [
       { rank: 1, name: 'Alex Zhang', problems: 456, accuracy: '94%', score: 98, trend: 3, isCurrentUser: false },
       { rank: 2, name: 'Maria Rodriguez', problems: 421, accuracy: '92%', score: 96, trend: 0, isCurrentUser: false },
