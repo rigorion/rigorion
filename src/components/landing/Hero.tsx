@@ -8,7 +8,7 @@ export const Hero = () => {
     <section className="relative bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 py-32 overflow-hidden">
       <div className="absolute inset-0">
         <img 
-          src="/lovable-uploads/https://cdn.pixabay.com/photo/2021/04/26/17/12/group-6209550_1280.jpg" 
+          src="/lovable-uploads/grad.jpeg" 
           alt="Colorful intellectual background" 
           className="w-full h-full object-cover mix-blend-overlay" 
         />
@@ -27,7 +27,7 @@ export const Hero = () => {
           </div>
           
           <Button className="bg-[#8A0303] hover:bg-[#6a0202] text-white font-medium px-8 py-1 rounded-md h-auto text-lg">
-            Take it Now
+            Join us Now
           </Button>
         </div>
       </div>
