@@ -195,7 +195,7 @@ const Index = () => {
             ))}
           </div>
         ) : filteredModules.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="flex flex-col items-center justify-center py-8 text-center">
             <div className="bg-blue-light/30 p-5 rounded-full mb-4">
               <svg 
                 xmlns="http://www.w3.org/2000/svg" 
