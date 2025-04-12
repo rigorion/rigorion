@@ -1,6 +1,6 @@
 
 import { Card } from "@/components/ui/card";
-import { Clock } from "lucide-react";
+import { Clock, CheckCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
 
@@ -14,6 +14,7 @@ interface DifficultyStatProps {
 
 export const DifficultyStatCard = ({ stat }: { stat: DifficultyStatProps }) => {
   const { title, correct, total, avgTime, color } = stat;
+  const accuracy = Math.round((correct / total) * 100);
 
   return (
     <motion.div
@@ -29,13 +30,13 @@ export const DifficultyStatCard = ({ stat }: { stat: DifficultyStatProps }) => {
         }
       }}
     >
-      <Card className="p-6 shadow-sm hover:shadow-md transition-all duration-300">
+      <Card className="p-6 shadow-md hover:shadow-lg transition-all duration-300 border-0">
         <h3 className="text-lg font-semibold mb-4">{title}</h3>
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div>
             <div className="flex justify-between text-sm text-gray-600 mb-2">
               <span>Accuracy</span>
-              <span>{Math.round((correct / total) * 100)}%</span>
+              <span className="font-medium">{accuracy}%</span>
             </div>
             <motion.div
               initial={{ scaleX: 0 }}
@@ -43,15 +44,29 @@ export const DifficultyStatCard = ({ stat }: { stat: DifficultyStatProps }) => {
               transition={{ duration: 1, ease: "easeOut" }}
               style={{ originX: 0 }}
             >
-              <Progress value={(correct / total) * 100} className={`h-2 ${color}`} />
+              <Progress 
+                value={(correct / total) * 100} 
+                className={`h-2 bg-gray-100 [&>div]:${color}`} 
+              />
             </motion.div>
           </div>
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-gray-500" />
-            <span className="text-sm text-gray-600">Avg Time: {avgTime}</span>
-          </div>
-          <div className="text-sm text-gray-600">
-            {correct}/{total} Completed
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+              <Clock className="h-5 w-5 text-gray-500" />
+              <div>
+                <p className="text-xs text-gray-500">Avg Time</p>
+                <p className="font-medium">{avgTime}</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+              <CheckCircle className="h-5 w-5 text-gray-500" />
+              <div>
+                <p className="text-xs text-gray-500">Completed</p>
+                <p className="font-medium">{correct}/{total}</p>
+              </div>
+            </div>
           </div>
         </div>
       </Card>
@@ -62,7 +77,7 @@ export const DifficultyStatCard = ({ stat }: { stat: DifficultyStatProps }) => {
 export const DifficultyStatsGrid = ({ stats }: { stats: DifficultyStatProps[] }) => {
   return (
     <motion.div
-      className="grid grid-cols-1 lg:grid-cols-3 gap-4"
+      className="grid grid-cols-1 lg:grid-cols-3 gap-6"
       variants={{
         hidden: { opacity: 0 },
         visible: {
@@ -73,6 +88,8 @@ export const DifficultyStatsGrid = ({ stats }: { stats: DifficultyStatProps[] })
           }
         }
       }}
+      initial="hidden"
+      animate="visible"
     >
       {stats.map((stat, index) => (
         <DifficultyStatCard key={index} stat={stat} />

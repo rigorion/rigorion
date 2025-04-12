@@ -32,8 +32,8 @@ export default function ProgressDashboard({
       title: "Speed", 
       value: `${userData.speed}%`, 
       icon: Clock,
-      color: "bg-blue-600",
-      shadowColor: "shadow-blue-200",
+      color: "bg-purple-500",
+      shadowColor: "shadow-purple-200",
       transparent: true
     },
     { 
@@ -49,16 +49,16 @@ export default function ProgressDashboard({
       title: "Avg Score", 
       value: `${userData.averageScore}`, 
       icon: Target,
-      color: "bg-purple-500",
-      shadowColor: "shadow-purple-200",
+      color: "bg-emerald-500",
+      shadowColor: "shadow-emerald-200",
       transparent: true
     },
     { 
       title: "Rank", 
       value: `#${userData.rank}`, 
       icon: Trophy,
-      color: "bg-amber-500",
-      shadowColor: "shadow-amber-200",
+      color: "bg-blue-500",
+      shadowColor: "shadow-blue-200",
       transparent: true,
       fill: true
     },
@@ -101,10 +101,10 @@ export default function ProgressDashboard({
   };
 
   return (
-    <AnimatedContainer className={cn("space-y-6", className)}>
+    <AnimatedContainer className={cn("space-y-8", className)}>
       <StatsCardGrid stats={stats} />
       
-      <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <AnimatedItem>
           <TotalProgressCard 
             totalQuestions={userData.correctAnswers + userData.incorrectAnswers + userData.unattemptedQuestions} 
@@ -121,20 +121,20 @@ export default function ProgressDashboard({
 
       <DifficultyStatsGrid stats={difficultyStats} />
 
-      <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <TimeManagementCard timeManagementStats={timeManagementStats} />
         <GoalsCard goals={userData.goals} />
       </AnimatedContainer>
 
-      <AnimatedContainer className="grid grid-cols-1 gap-4">
+      <AnimatedContainer className="grid grid-cols-1 gap-6">
         <AnimatedItem>
-          <Card className="p-6 shadow-sm hover:shadow-md transition-all duration-300">
+          <Card className="p-6 shadow-md hover:shadow-lg transition-all duration-300">
             <ChapterProgress chapters={userData.chapterPerformance} />
           </Card>
         </AnimatedItem>
       </AnimatedContainer>
 
-      <style>{`
+      <style jsx global>{`
         @keyframes pulse {
           0%, 100% {
             opacity: 0.8;
