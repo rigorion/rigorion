@@ -21,7 +21,7 @@ const PROMOTIONAL_ITEMS: PromotionalItem[] = Array.from({ length: 12 }, (_, i) =
   id: `quiz-${i + 1}`,
   title: `Quiz Yourself ${i + 1}`,
   description: `Description for item ${i + 1}`,
-  imageUrl: "https://cdn.pixabay.com/photo/2016/11/29/08/41/apple-1868496_1280.jpg",
+  imageUrl: "https://cdn.pixabay.com/photo/2015/06/24/16/36/home-820389_1280.jpg",
   detailedDescription: `Detailed description for item ${i + 1}. Our Quiz feature helps students test their knowledge in a stress-free environment. Create custom quizzes based on specific topics or use our pre-made quizzes designed by education experts. Track your progress and identify areas that need more focus.`,
 }));
 
@@ -45,7 +45,7 @@ export const PartnerLogos = () => {
   };
 
   return (
-    <section className="overflow-hidden bg-gray-50 py-8">
+    <section className="overflow-hidden bg-gray-50 py-8 h-[300px]">
       <div className="container mx-auto px-4 mb-8">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
           Trusted By Leading Educational Institutions
