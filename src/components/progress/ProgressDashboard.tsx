@@ -12,7 +12,7 @@ import { TimeManagementCard } from "./TimeManagementCard";
 import { GoalsCard } from "./GoalsCard";
 import { AnimatedContainer, AnimatedItem } from "./AnimationWrappers";
 import { ProjectedScore } from "@/components/stats/ProjectedScore";
-import { UserProgress } from "@/services/progressService";
+import { UserProgress } from "@/services/types/progressTypes";
 
 interface ProgressDashboardProps {
   period: string;
@@ -134,7 +134,7 @@ export default function ProgressDashboard({
         </AnimatedItem>
       </AnimatedContainer>
 
-      <style jsx>{`
+      <style>{`
         @keyframes pulse {
           0%, 100% {
             opacity: 0.8;
