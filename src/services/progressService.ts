@@ -154,7 +154,7 @@ export async function getUserProgressData(userId: string): Promise<UserProgress>
     
     // Try to fetch data from Supabase first
     try {
-      // Query the user_progress table
+      // Query the user_progress table using a more generic approach
       const { data: userProgressData, error: userProgressError } = await supabase
         .from('user_progress')
         .select('*')
@@ -202,51 +202,51 @@ export async function getUserProgressData(userId: string): Promise<UserProgress>
         if (userProgressData && performanceData && chapterData && goalsData) {
           const userProgress: UserProgress = {
             userId,
-            totalProgressPercent: userProgressData.total_progress_percent,
-            correctAnswers: userProgressData.correct_answers,
-            incorrectAnswers: userProgressData.incorrect_answers,
-            unattemptedQuestions: userProgressData.unattempted_questions,
-            questionsAnsweredToday: userProgressData.questions_answered_today,
-            streak: userProgressData.streak_days,
-            averageScore: userProgressData.avg_score,
-            rank: userProgressData.rank,
-            projectedScore: userProgressData.projected_score,
-            speed: userProgressData.speed,
-            easyAccuracy: userProgressData.easy_accuracy,
-            easyAvgTime: userProgressData.easy_avg_time_min,
-            easyCompleted: userProgressData.easy_completed,
-            easyTotal: userProgressData.easy_total,
-            mediumAccuracy: userProgressData.medium_accuracy,
-            mediumAvgTime: userProgressData.medium_avg_time_min,
-            mediumCompleted: userProgressData.medium_completed,
-            mediumTotal: userProgressData.medium_total,
-            hardAccuracy: userProgressData.hard_accuracy,
-            hardAvgTime: userProgressData.hard_avg_time_min,
-            hardCompleted: userProgressData.hard_completed,
-            hardTotal: userProgressData.hard_total,
-            goalAchievementPercent: userProgressData.goal_achievement_percent,
-            averageTime: userProgressData.avg_time_per_question,
-            correctAnswerAvgTime: userProgressData.avg_time_correct,
-            incorrectAnswerAvgTime: userProgressData.avg_time_incorrect,
-            longestQuestionTime: userProgressData.longest_time,
-            performanceGraph: performanceData.map(item => ({
-              date: item.date,
-              attempted: item.attempted
-            })),
-            chapterPerformance: chapterData.map(chapter => ({
-              chapterId: chapter.chapter_id,
-              chapterName: chapter.chapter_name,
-              correct: chapter.correct,
-              incorrect: chapter.incorrect,
-              unattempted: chapter.unattempted
-            })),
-            goals: goalsData.map(goal => ({
-              id: goal.id,
-              title: goal.title,
-              targetValue: goal.target_value,
-              currentValue: goal.current_value,
-              dueDate: goal.due_date
-            }))
+            totalProgressPercent: userProgressData.total_progress_percent || 0,
+            correctAnswers: userProgressData.correct_answers || 0,
+            incorrectAnswers: userProgressData.incorrect_answers || 0,
+            unattemptedQuestions: userProgressData.unattempted_questions || 0,
+            questionsAnsweredToday: userProgressData.questions_answered_today || 0,
+            streak: userProgressData.streak_days || 0,
+            averageScore: userProgressData.avg_score || 0,
+            rank: userProgressData.rank || 0,
+            projectedScore: userProgressData.projected_score || 0,
+            speed: userProgressData.speed || 0,
+            easyAccuracy: userProgressData.easy_accuracy || 0,
+            easyAvgTime: userProgressData.easy_avg_time_min || 0,
+            easyCompleted: userProgressData.easy_completed || 0,
+            easyTotal: userProgressData.easy_total || 0,
+            mediumAccuracy: userProgressData.medium_accuracy || 0,
+            mediumAvgTime: userProgressData.medium_avg_time_min || 0,
+            mediumCompleted: userProgressData.medium_completed || 0,
+            mediumTotal: userProgressData.medium_total || 0,
+            hardAccuracy: userProgressData.hard_accuracy || 0,
+            hardAvgTime: userProgressData.hard_avg_time_min || 0,
+            hardCompleted: userProgressData.hard_completed || 0,
+            hardTotal: userProgressData.hard_total || 0,
+            goalAchievementPercent: userProgressData.goal_achievement_percent || 0,
+            averageTime: userProgressData.avg_time_per_question || 0,
+            correctAnswerAvgTime: userProgressData.avg_time_correct || 0,
+            incorrectAnswerAvgTime: userProgressData.avg_time_incorrect || 0,
+            longestQuestionTime: userProgressData.longest_time || 0,
+            performanceGraph: performanceData?.map((item: any) => ({
+              date: item.date || '',
+              attempted: item.attempted || 0
+            })) || [],
+            chapterPerformance: chapterData?.map((chapter: any) => ({
+              chapterId: chapter.chapter_id || '',
+              chapterName: chapter.chapter_name || '',
+              correct: chapter.correct || 0,
+              incorrect: chapter.incorrect || 0,
+              unattempted: chapter.unattempted || 0
+            })) || [],
+            goals: goalsData?.map((goal: any) => ({
+              id: goal.id || '',
+              title: goal.title || '',
+              targetValue: goal.target_value || 0,
+              currentValue: goal.current_value || 0,
+              dueDate: goal.due_date || ''
+            })) || []
           };
           
           // Store in cache
@@ -299,14 +299,14 @@ export async function getLeaderboard(limit: number = 10): Promise<any[]> {
       } else if (leaderboardData && leaderboardData.length > 0) {
         console.log('Found leaderboard data in Supabase:', leaderboardData.length, 'entries');
         
-        const formattedData = leaderboardData.map(entry => ({
-          rank: entry.rank,
-          name: entry.name,
-          problems: entry.problems_solved,
-          accuracy: `${entry.accuracy}%`,
-          score: entry.projected_score,
-          trend: entry.trend_percent_change,
-          isCurrentUser: entry.is_current_user
+        const formattedData = leaderboardData.map((entry: any) => ({
+          rank: entry.rank || 0,
+          name: entry.name || 'Unknown',
+          problems: entry.problems_solved || 0,
+          accuracy: `${entry.accuracy || 0}%`,
+          score: entry.projected_score || 0,
+          trend: entry.trend_percent_change || 0,
+          isCurrentUser: entry.is_current_user || false
         }));
         
         // Store in cache

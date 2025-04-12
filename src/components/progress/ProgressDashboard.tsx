@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Clock, Zap, Trophy, Target, Brain } from 'lucide-react';
 import { ChapterProgress } from "./ChapterProgress";
@@ -133,8 +134,7 @@ export default function ProgressDashboard({
         </AnimatedItem>
       </AnimatedContainer>
 
-      <style dangerouslySetInnerHTML={{
-        __html: `
+      <style jsx>{`
         @keyframes pulse {
           0%, 100% {
             opacity: 0.8;
@@ -145,8 +145,7 @@ export default function ProgressDashboard({
             transform: scale(1.05);
           }
         }
-        `
-      }} />
+      `}</style>
     </AnimatedContainer>
   );
 }
