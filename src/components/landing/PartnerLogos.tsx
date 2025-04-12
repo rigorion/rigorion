@@ -47,10 +47,10 @@ export const PartnerLogos = () => {
   };
 
   return (
-    <section className="overflow-hidden bg-gray-50 py-8 h-[600px]">
+    <section className="overflow-hidden bg-gray-50 py-2 h-[600px]">
       <div className="container mx-auto px-4 mb-8">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
-          Crack any Exam in a Legit way !
+          "Reach Your Potential – Master Exams with Integrity."
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-6xl mx-auto">
