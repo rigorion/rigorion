@@ -8,24 +8,24 @@ type ProductType = {
 };
 const PRODUCTS: ProductType[] = [{
   id: 1,
-  name: "Strawberry",
-  image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9",
+  name: "SAT",
+  image: "https://cdn.pixabay.com/photo/2015/04/20/18/58/student-732012_1280.jpg",
   badge: "BESTSELLER"
 }, {
   id: 2,
-  name: "Raspberry",
-  image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9",
+  name: "GRE",
+  image: "https://cdn.pixabay.com/photo/2020/02/13/16/11/street-4846133_1280.jpg",
   badge: "POPULAR"
 }, {
   id: 3,
-  name: "Caramel",
-  image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9",
+  name: "TOEFL",
+  image: "https://cdn.pixabay.com/photo/2017/10/01/14/14/street-2805643_1280.jpg",
   badge: "NEW"
 }, {
   id: 4,
-  name: "Chocolate",
-  image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9",
-  badge: "LIMITED"
+  name: "IELTS",
+  image: "https://cdn.pixabay.com/photo/2019/09/22/16/18/bicycle-4496443_640.jpg",
+  badge: "Exclusive"
 }];
 export const ProductsShowcase = () => {
   return <section className="bg-white py-[12px]">
