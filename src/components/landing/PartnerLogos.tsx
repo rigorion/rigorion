@@ -78,99 +78,114 @@ export const PartnerLogos = () => {
   return (
     <section className="overflow-hidden bg-gray-50 py-16">
       <div className="container mx-auto px-4 mb-8">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
           Trusted By Leading Educational Institutions
         </h2>
-        <p className="text-center text-gray-600 max-w-2xl mx-auto mb-12">
-          Our comprehensive learning platform is used by schools and students worldwide to improve academic performance and test scores.
-        </p>
 
-        <div className="relative max-w-5xl mx-auto">
-          <Carousel
-            opts={{
-              loop: true,
-              align: "start",
-              containScroll: "trimSnaps",
-              dragFree: true,
-              ...(autoPlay && { autoPlay: { delay: 4000, stopOnInteraction: true } })
-            }}
-            className="w-full"
-            onSelectHandler={handleCarouselSelect}
-          >
-            <CarouselContent>
-              {PROMOTIONAL_ITEMS.map((item, index) => (
-                <CarouselItem key={item.id} className="md:basis-1/2 lg:basis-1/2">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <div 
-                        className="h-full p-4 cursor-pointer"
-                        onClick={() => handleItemClick(item)}
-                      >
-                        <div className="bg-white rounded-2xl overflow-hidden h-full transition-all duration-300 
-                          shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-6xl mx-auto">
+          {/* Carousel with full-sized images */}
+          <div className="lg:col-span-7 relative">
+            <Carousel
+              opts={{
+                loop: true,
+                align: "start",
+                containScroll: "trimSnaps",
+                dragFree: true,
+                ...(autoPlay && { autoPlay: { delay: 4000, stopOnInteraction: true } })
+              }}
+              className="w-full"
+              onSelectHandler={handleCarouselSelect}
+            >
+              <CarouselContent>
+                {PROMOTIONAL_ITEMS.map((item, index) => (
+                  <CarouselItem key={item.id} className="md:basis-full">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <div 
+                          className="h-full cursor-pointer"
+                          onClick={() => handleItemClick(item)}
                         >
-                          <div className="relative">
+                          <div className="relative h-[350px] overflow-hidden rounded-xl shadow-sm">
                             <img 
                               src={item.imageUrl} 
                               alt={item.title}
-                              className="w-full h-48 object-cover"
+                              className="w-full h-full object-cover"
                             />
-                            <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/50 to-transparent"></div>
-                            <div className="absolute bottom-0 left-0 right-0 p-3">
-                              <span className={`px-2 py-1 text-xs font-medium rounded-full ${activeIndex === index ? 'bg-green-500 text-white' : 'bg-white/80 text-gray-800'}`}>
-                                {activeIndex === index ? 'Active' : 'View Details'}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                            <div className="absolute bottom-3 right-3">
+                              <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+                                activeIndex === index ? 'bg-green-500 text-white' : 'bg-white/80 text-gray-800'
+                              }`}>
+                                {activeIndex === index ? 'Featured' : 'View'}
                               </span>
                             </div>
                           </div>
-                          <div className="p-5">
-                            <h3 className="font-bold text-lg mb-2">{item.title}</h3>
-                            <p className="text-gray-600 text-sm">{item.description}</p>
+                        </div>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[720px]">
+                        <DialogHeader>
+                          <DialogTitle className="text-2xl font-bold">{item.title}</DialogTitle>
+                        </DialogHeader>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                          <div className="rounded-lg overflow-hidden">
+                            <img 
+                              src={item.imageUrl} 
+                              alt={item.title}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-lg mb-3">{item.description}</h4>
+                            <p className="text-gray-600 mb-6">{item.detailedDescription}</p>
+                            <Button 
+                              className="w-full bg-[#8A0303] hover:bg-[#6a0202] text-white"
+                              onClick={handleDialogClose}
+                            >
+                              Learn More
+                            </Button>
                           </div>
                         </div>
-                      </div>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[720px]">
-                      <DialogHeader>
-                        <DialogTitle className="text-2xl font-bold">{item.title}</DialogTitle>
-                      </DialogHeader>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                        <div className="rounded-lg overflow-hidden">
-                          <img 
-                            src={item.imageUrl} 
-                            alt={item.title}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-lg mb-3">{item.description}</h4>
-                          <p className="text-gray-600 mb-6">{item.detailedDescription}</p>
-                          <Button 
-                            className="w-full bg-[#8A0303] hover:bg-[#6a0202] text-white"
-                            onClick={handleDialogClose}
-                          >
-                            Learn More
-                          </Button>
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
+                      </DialogContent>
+                    </Dialog>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="-left-4 bg-white/70 hover:bg-white" />
+              <CarouselNext className="-right-4 bg-white/70 hover:bg-white" />
+            </Carousel>
 
-          <div className="flex justify-center mt-6 space-x-2">
-            {PROMOTIONAL_ITEMS.map((_, index) => (
-              <button
-                key={index}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  activeIndex === index ? "bg-[#8A0303] w-4" : "bg-gray-300"
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
+            <div className="flex justify-center mt-5 space-x-2">
+              {PROMOTIONAL_ITEMS.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    activeIndex === index ? "bg-[#8A0303] w-4" : "bg-gray-300"
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Text content on the right side */}
+          <div className="lg:col-span-5">
+            <div className="h-full flex flex-col justify-center">
+              <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                {PROMOTIONAL_ITEMS[activeIndex].title}
+              </h3>
+              <p className="text-lg text-gray-600 mb-6">
+                {PROMOTIONAL_ITEMS[activeIndex].description}
+              </p>
+              <div className="prose prose-sm text-gray-500">
+                <p>{PROMOTIONAL_ITEMS[activeIndex].detailedDescription}</p>
+              </div>
+              <Button 
+                className="mt-8 bg-[#8A0303] hover:bg-[#6a0202] text-white w-fit"
+                onClick={() => handleItemClick(PROMOTIONAL_ITEMS[activeIndex])}
+              >
+                Learn More
+              </Button>
+            </div>
           </div>
         </div>
       </div>
