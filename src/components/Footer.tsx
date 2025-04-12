@@ -7,12 +7,6 @@ const footerLinks = [{
   title: "ABOUT US",
   href: "#"
 }, {
-  title: "BAG SIZES",
-  href: "#"
-}, {
-  title: "WEDDINGS AND EVENTS",
-  href: "#"
-}, {
   title: "CONTACT US",
   href: "#"
 }, {
@@ -58,7 +52,7 @@ export const Footer = () => {
         
         <div className="flex flex-col md:flex-row justify-between items-center border-t border-gray-200 pt-6">
           <p className="text-sm mb-4 md:mb-0 text-gray-900">
-            &copy; {new Date().getFullYear()} Rigorion and Papercore. All rights reserved.
+            &copy; {new Date().getFullYear()} Rigorion & Papercore. All rights reserved.
           </p>
           
           <div className="flex items-center space-x-4">
