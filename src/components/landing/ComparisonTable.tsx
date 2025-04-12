@@ -16,7 +16,7 @@ type FeatureType = {
 
 const FEATURES: FeatureType[] = [
   {
-    name: "Platform",
+    name: "Cost",
     competitors: {
       knewt: true,
       canvasa: true,
@@ -27,7 +27,7 @@ const FEATURES: FeatureType[] = [
     }
   },
   {
-    name: "Capture Images",
+    name: "Content Quality",
     competitors: {
       knewt: true,
       canvasa: false,
@@ -38,7 +38,7 @@ const FEATURES: FeatureType[] = [
     }
   },
   {
-    name: "Edit Images",
+    name: "Adaptive Learning",
     competitors: {
       knewt: true,
       canvasa: true,
@@ -49,7 +49,7 @@ const FEATURES: FeatureType[] = [
     }
   },
   {
-    name: "Record Video",
+    name: "Mock Test Realism",
     competitors: {
       knewt: true,
       canvasa: true,
@@ -60,7 +60,7 @@ const FEATURES: FeatureType[] = [
     }
   },
   {
-    name: "Edit Video",
+    name: "Performance Analytics",
     competitors: {
       knewt: true,
       canvasa: false,
@@ -71,7 +71,7 @@ const FEATURES: FeatureType[] = [
     }
   },
   {
-    name: "Media Hosting",
+    name: "Official Test Content",
     competitors: {
       knewt: false,
       canvasa: true,
@@ -82,7 +82,7 @@ const FEATURES: FeatureType[] = [
     }
   },
   {
-    name: "Sharing",
+    name: "Gamification",
     competitors: {
       knewt: false,
       canvasa: true,
@@ -93,7 +93,7 @@ const FEATURES: FeatureType[] = [
     }
   },
   {
-    name: "Import Media with Technical Data",
+    name: "Differntiating Feature #1",
     competitors: {
       knewt: true,
       canvasa: false,
@@ -104,7 +104,7 @@ const FEATURES: FeatureType[] = [
     }
   },
   {
-    name: "Learning",
+    name: "Differntiating Feature #2",
     competitors: {
       knewt: false,
       canvasa: false,
@@ -117,12 +117,12 @@ const FEATURES: FeatureType[] = [
 ];
 
 const COMPETITORS = [
-  { id: "knewt", name: "KNEWT", color: "#0072BB" },
-  { id: "canvasa", name: "CANVASA", color: "#38B04A" },
-  { id: "mojule", name: "MOJULE", color: "#046C76" },
-  { id: "techmarin", name: "TECHMARIN RELAY", color: "#D93232" },
-  { id: "spencecraft", name: "SPENCECRAFT", color: "#FFA734" },
-  { id: "coachseye", name: "COACH'S EYE", color: "#0072BB" }
+  { id: "rigorion", name: "Rigorion", color: "#0072BB" },
+  { id: "scoresmart", name: "ScoreSmart", color: "#38B04A" },
+  { id: "magoosh", name: "Magoosh", color: "#046C76" },
+  { id: "edisonos", name: "Edisonos", color: "#D93232" },
+  { id: "testinnovators", name: "TestInnovators", color: "#FFA734" },
+  { id: "princetonreview", name: "PrincetonReview", color: "#0072BB" }
 ];
 
 export const ComparisonTable = () => {
