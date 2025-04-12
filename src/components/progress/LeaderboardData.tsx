@@ -1,7 +1,7 @@
 
 import { LeaderboardTable } from "./LeaderboardTable";
 import { useQuery } from "@tanstack/react-query";
-import { getLeaderboard } from "@/services/leaderboardService";
+import { getLeaderboard } from "@/services/progressService";
 import { Loader2 } from "lucide-react";
 
 interface LeaderboardDataProps {

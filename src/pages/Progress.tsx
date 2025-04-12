@@ -8,7 +8,7 @@ import { ProgressNavigation } from "@/components/progress/ProgressNavigation";
 import { ProgressControls } from "@/components/progress/ProgressControls";
 import { LeaderboardData } from "@/components/progress/LeaderboardData";
 import { useQuery } from "@tanstack/react-query";
-import { getUserProgressData } from "@/services/userProgressService";
+import { getUserProgressData } from "@/services/progressService";
 import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
