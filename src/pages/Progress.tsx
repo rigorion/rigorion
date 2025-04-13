@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import ProgressDashboard from "@/components/progress/ProgressDashboard";
 import { cn } from "@/lib/utils";
@@ -8,12 +9,14 @@ import { ProgressControls } from "@/components/progress/ProgressControls";
 import { LeaderboardData } from "@/components/progress/LeaderboardData";
 import { useQuery } from "@tanstack/react-query";
 import { getUserProgressData } from "@/services/progressService";
-import { Loader2 } from "lucide-react";
+import { Loader2, BarChart3, Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 const Progress = () => {
   const [period, setPeriod] = useState("weekly");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("performance");
 
   // Use this specific user ID as requested
   const userId = "55fb126c-109d-4c10-96af-18edc09a81c7";
@@ -25,6 +28,7 @@ const Progress = () => {
     queryKey: ['userProgress', userId, period],
     queryFn: () => getUserProgressData(userId)
   });
+
   if (isLoading) {
     return <div className="flex min-h-screen items-center justify-center bg-white">
         <div className="text-center">
@@ -34,6 +38,7 @@ const Progress = () => {
         </div>
       </div>;
   }
+
   if (error) {
     return <div className="flex min-h-screen items-center justify-center bg-white">
         <motion.div initial={{
@@ -52,6 +57,7 @@ const Progress = () => {
         </motion.div>
       </div>;
   }
+
   return <div className="flex min-h-screen w-full bg-[#F1F0FB]">
       {/* Animated Sidebar */}
       <AnimatePresence>
@@ -63,22 +69,55 @@ const Progress = () => {
         {/* Header */}
         <header className="sticky top-0 z-50 w-full bg-white shadow-md">
           <div className="container flex h-16 max-w-screen-2xl items-center justify-between px-6">
-            <ProgressNavigation sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} setPeriod={setPeriod} />
+            <ProgressNavigation 
+              sidebarOpen={sidebarOpen} 
+              setSidebarOpen={setSidebarOpen} 
+              setPeriod={setPeriod} 
+            />
             
             {/* Controls */}
-            <ProgressControls period={period} setPeriod={setPeriod} />
+            <ProgressControls 
+              period={period} 
+              setPeriod={setPeriod} 
+            />
           </div>
         </header>
 
         {/* Main Content */}
         <main className="container mx-auto p-6 md:px-8 py-10 bg-white">
           <Tabs defaultValue="performance" className="w-full">
-            
+            <div className="flex justify-center mb-6">
+              <TabsList className="bg-gray-100 p-1">
+                <TabsTrigger 
+                  value="performance" 
+                  className="data-[state=active]:bg-white data-[state=active]:text-purple-700 data-[state=active]:shadow-sm px-4 py-2"
+                >
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Performance
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="leaderboard" 
+                  className="data-[state=active]:bg-white data-[state=active]:text-purple-700 data-[state=active]:shadow-sm px-4 py-2"
+                >
+                  <Trophy className="h-4 w-4 mr-2" />
+                  Leaderboard
+                </TabsTrigger>
+              </TabsList>
+            </div>
             
             <TabsContent value="performance">
-              <ProgressDashboard period={period} type="performance" userData={userProgress} className={cn(
-            // Use a purple theme for charts
-            "[&_path]:stroke-purple-600", "[&_.recharts-area]:fill-gradient-to-b [&_.recharts-area]:from-purple-100 [&_.recharts-area]:to-purple-50", "[&_.recharts-bar]:fill-gradient-to-b [&_.recharts-bar]:from-purple-400 [&_.recharts-bar]:to-purple-600", "[&_.recharts-line]:stroke-purple-600")} />
+              <ProgressDashboard 
+                period={period} 
+                type="performance" 
+                userData={userProgress} 
+                className={cn(
+                  // Use a purple theme for charts
+                  "[&_path]:stroke-purple-600", 
+                  "[&_.recharts-area]:fill-gradient-to-b [&_.recharts-area]:from-purple-100 [&_.recharts-area]:to-purple-50", 
+                  "[&_.recharts-bar]:fill-gradient-to-b [&_.recharts-bar]:from-purple-400 [&_.recharts-bar]:to-purple-600", 
+                  "[&_.recharts-line]:stroke-purple-600"
+                )} 
+              />
             </TabsContent>
             
             <TabsContent value="leaderboard">
@@ -89,4 +128,5 @@ const Progress = () => {
       </div>
     </div>;
 };
+
 export default Progress;

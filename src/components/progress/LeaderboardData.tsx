@@ -17,7 +17,7 @@ export const LeaderboardData = ({ userId = "55fb126c-109d-4c10-96af-18edc09a81c7
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
         <p className="ml-2">Loading leaderboard data...</p>
       </div>
     );

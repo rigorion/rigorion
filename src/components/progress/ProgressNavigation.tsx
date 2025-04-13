@@ -1,3 +1,4 @@
+
 import { Home, GraduationCap, BookOpen, BrainCircuit, Info, Navigation, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
@@ -6,13 +7,11 @@ interface ProgressNavigationProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
   setPeriod: (period: string) => void;
-  setType: (type: string) => void;
 }
 export const ProgressNavigation = ({
   sidebarOpen,
   setSidebarOpen,
-  setPeriod,
-  setType
+  setPeriod
 }: ProgressNavigationProps) => {
   const navigate = useNavigate();
   return <div className="flex items-center gap-3">
