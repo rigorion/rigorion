@@ -1,4 +1,3 @@
-
 import { supabase } from '@/lib/supabase';
 import { UserProgress } from './types/progressTypes';
 
@@ -104,10 +103,10 @@ export async function getUserProgressData(userId: string): Promise<UserProgress>
     
     console.log('Getting user progress data for:', userId);
     
-    // Since we don't have the correct table types in supabase types,
-    // we'll use a more robust approach with type assertions
     try {
-      // Use a raw query approach to avoid TypeScript errors with missing tables
+      // First attempt to get the actual user data from Supabase
+      console.log('Attempting to fetch user progress from Supabase...');
+      
       const { data: userProgressData, error: userProgressError } = await supabase
         .from('user_progress')
         .select('*')
@@ -120,96 +119,51 @@ export async function getUserProgressData(userId: string): Promise<UserProgress>
       } else if (userProgressData) {
         console.log('Found user progress data in Supabase:', userProgressData);
         
-        // Now fetch the performance graph data
-        const { data: performanceData, error: performanceError } = await supabase
-          .from('performance_graph')
-          .select('*')
-          .eq('user_id', userId)
-          .order('date', { ascending: true });
-          
-        if (performanceError) {
-          console.log('Error fetching performance graph:', performanceError);
-        }
+        // Process the actual data from Supabase
+        // Cast the data to any to avoid TypeScript errors
+        const data = userProgressData as any;
         
-        // Fetch chapter performance data
-        const { data: chapterData, error: chapterError } = await supabase
-          .from('chapter_stats')
-          .select('*')
-          .eq('user_id', userId);
+        const userProgress: UserProgress = {
+          userId,
+          totalProgressPercent: data.total_progress_percent || 0,
+          correctAnswers: data.correct_answers || 0,
+          incorrectAnswers: data.incorrect_answers || 0,
+          unattemptedQuestions: data.unattempted_questions || 0,
+          questionsAnsweredToday: data.questions_answered_today || 0,
+          streak: data.streak_days || 0,
+          averageScore: data.avg_score || 0,
+          rank: data.rank || 0,
+          projectedScore: data.projected_score || 0,
+          speed: data.speed || 0,
+          easyAccuracy: data.easy_accuracy || 0,
+          easyAvgTime: data.easy_avg_time_min || 0,
+          easyCompleted: data.easy_completed || 0,
+          easyTotal: data.easy_total || 0,
+          mediumAccuracy: data.medium_accuracy || 0,
+          mediumAvgTime: data.medium_avg_time_min || 0,
+          mediumCompleted: data.medium_completed || 0,
+          mediumTotal: data.medium_total || 0,
+          hardAccuracy: data.hard_accuracy || 0,
+          hardAvgTime: data.hard_avg_time_min || 0,
+          hardCompleted: data.hard_completed || 0,
+          hardTotal: data.hard_total || 0,
+          goalAchievementPercent: data.goal_achievement_percent || 0,
+          averageTime: data.avg_time_per_question || 0,
+          correctAnswerAvgTime: data.avg_time_correct || 0,
+          incorrectAnswerAvgTime: data.avg_time_incorrect || 0,
+          longestQuestionTime: data.longest_time || 0,
           
-        if (chapterError) {
-          console.log('Error fetching chapter stats:', chapterError);
-        }
+          // For related data, we'll use empty arrays since we don't need to fetch them separately anymore
+          // The actual data is now in the main record
+          performanceGraph: data.performance_graph || [],
+          chapterPerformance: data.chapter_performance || [],
+          goals: data.goals || []
+        };
         
-        // Fetch goals data
-        const { data: goalsData, error: goalsError } = await supabase
-          .from('goals')
-          .select('*')
-          .eq('user_id', userId);
-          
-        if (goalsError) {
-          console.log('Error fetching goals:', goalsError);
-        }
-        
-        // If we have all the data, construct the UserProgress object
-        if (userProgressData && performanceData && chapterData && goalsData) {
-          // Cast the data to any to avoid TypeScript errors
-          const data = userProgressData as any;
-          
-          const userProgress: UserProgress = {
-            userId,
-            totalProgressPercent: data.total_progress_percent || 0,
-            correctAnswers: data.correct_answers || 0,
-            incorrectAnswers: data.incorrect_answers || 0,
-            unattemptedQuestions: data.unattempted_questions || 0,
-            questionsAnsweredToday: data.questions_answered_today || 0,
-            streak: data.streak_days || 0,
-            averageScore: data.avg_score || 0,
-            rank: data.rank || 0,
-            projectedScore: data.projected_score || 0,
-            speed: data.speed || 0,
-            easyAccuracy: data.easy_accuracy || 0,
-            easyAvgTime: data.easy_avg_time_min || 0,
-            easyCompleted: data.easy_completed || 0,
-            easyTotal: data.easy_total || 0,
-            mediumAccuracy: data.medium_accuracy || 0,
-            mediumAvgTime: data.medium_avg_time_min || 0,
-            mediumCompleted: data.medium_completed || 0,
-            mediumTotal: data.medium_total || 0,
-            hardAccuracy: data.hard_accuracy || 0,
-            hardAvgTime: data.hard_avg_time_min || 0,
-            hardCompleted: data.hard_completed || 0,
-            hardTotal: data.hard_total || 0,
-            goalAchievementPercent: data.goal_achievement_percent || 0,
-            averageTime: data.avg_time_per_question || 0,
-            correctAnswerAvgTime: data.avg_time_correct || 0,
-            incorrectAnswerAvgTime: data.avg_time_incorrect || 0,
-            longestQuestionTime: data.longest_time || 0,
-            performanceGraph: performanceData?.map((item: any) => ({
-              date: item.date || '',
-              attempted: item.attempted || 0
-            })) || [],
-            chapterPerformance: chapterData?.map((chapter: any) => ({
-              chapterId: chapter.chapter_id || '',
-              chapterName: chapter.chapter_name || '',
-              correct: chapter.correct || 0,
-              incorrect: chapter.incorrect || 0,
-              unattempted: chapter.unattempted || 0
-            })) || [],
-            goals: goalsData?.map((goal: any) => ({
-              id: goal.id || '',
-              title: goal.title || '',
-              targetValue: goal.target_value || 0,
-              currentValue: goal.current_value || 0,
-              dueDate: goal.due_date || ''
-            })) || []
-          };
-          
-          // Store in cache
-          userProgressCache.set(userId, userProgress);
-          
-          return userProgress;
-        }
+        // Store in cache
+        userProgressCache.set(userId, userProgress);
+        console.log('Returning actual user progress data from Supabase');
+        return userProgress;
       }
     } catch (error) {
       console.error('Supabase query error:', error);

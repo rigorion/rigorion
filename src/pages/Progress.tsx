@@ -12,14 +12,20 @@ import { getUserProgressData } from "@/services/progressService";
 import { Loader2, BarChart3, Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 const Progress = () => {
   const [period, setPeriod] = useState("weekly");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("performance");
-
-  // Use this specific user ID as requested
-  const userId = "55fb126c-109d-4c10-96af-18edc09a81c7";
+  
+  const { session } = useAuth();
+  
+  // Use authenticated user ID if available, otherwise use default
+  const userId = session?.user?.id || "55fb126c-109d-4c10-96af-18edc09a81c7";
+  
+  console.log("Current user ID:", userId);
+  
   const {
     data: userProgress,
     isLoading,
