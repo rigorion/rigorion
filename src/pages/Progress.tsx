@@ -26,28 +26,32 @@ const Progress = () => {
     error
   } = useQuery({
     queryKey: ['userProgress', userId, period],
-    queryFn: () => getUserProgressData(userId)
+    queryFn: () => getUserProgressData(userId),
+    retry: 1,
+    staleTime: 60000 // 1 minute
   });
 
   if (isLoading) {
-    return <div className="flex min-h-screen items-center justify-center bg-white">
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin text-purple-500 mx-auto mb-4" />
           <p className="text-xl font-medium text-gray-700">Loading your progress data...</p>
           <p className="text-gray-500 mt-2">This will just take a moment</p>
         </div>
-      </div>;
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="flex min-h-screen items-center justify-center bg-white">
-        <motion.div initial={{
-        opacity: 0,
-        y: 10
-      }} animate={{
-        opacity: 1,
-        y: 0
-      }} className="rounded-lg border border-red-200 bg-red-50 p-8 text-center max-w-md">
+    console.error("Error loading progress data:", error);
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white">
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          className="rounded-lg border border-red-200 bg-red-50 p-8 text-center max-w-md"
+        >
           <h2 className="mb-3 text-2xl font-semibold text-red-700">Error Loading Progress</h2>
           <p className="text-red-600 mb-4">Something went wrong while fetching your progress data.</p>
           <p className="text-gray-700">Please try refreshing the page or contact support if the problem persists.</p>
@@ -55,10 +59,23 @@ const Progress = () => {
             {error instanceof Error ? error.message : 'Unknown error'}
           </pre>
         </motion.div>
-      </div>;
+      </div>
+    );
   }
 
-  return <div className="flex min-h-screen w-full bg-[#F1F0FB]">
+  if (!userProgress) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white">
+        <div className="text-center">
+          <p className="text-xl font-medium text-gray-700">No progress data available</p>
+          <p className="text-gray-500 mt-2">Start practicing to see your progress!</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-screen w-full bg-[#F1F0FB]">
       {/* Animated Sidebar */}
       <AnimatePresence>
         {sidebarOpen && <Sidebar onClose={() => setSidebarOpen(false)} />}
@@ -111,7 +128,6 @@ const Progress = () => {
                 type="performance" 
                 userData={userProgress} 
                 className={cn(
-                  // Use a purple theme for charts
                   "[&_path]:stroke-purple-600", 
                   "[&_.recharts-area]:fill-gradient-to-b [&_.recharts-area]:from-purple-100 [&_.recharts-area]:to-purple-50", 
                   "[&_.recharts-bar]:fill-gradient-to-b [&_.recharts-bar]:from-purple-400 [&_.recharts-bar]:to-purple-600", 
@@ -126,7 +142,8 @@ const Progress = () => {
           </Tabs>
         </main>
       </div>
-    </div>;
+    </div>
+  );
 };
 
 export default Progress;

@@ -1,4 +1,5 @@
-import { supabase } from '@/integrations/supabase/client';
+
+import { supabase } from '@/lib/supabase';
 import { UserProgress } from './types/progressTypes';
 
 // Cache for user progress data
@@ -108,7 +109,7 @@ export async function getUserProgressData(userId: string): Promise<UserProgress>
     try {
       // Use a raw query approach to avoid TypeScript errors with missing tables
       const { data: userProgressData, error: userProgressError } = await supabase
-        .from('user_progress' as any)
+        .from('user_progress')
         .select('*')
         .eq('user_id', userId)
         .single();
@@ -121,7 +122,7 @@ export async function getUserProgressData(userId: string): Promise<UserProgress>
         
         // Now fetch the performance graph data
         const { data: performanceData, error: performanceError } = await supabase
-          .from('performance_graph' as any)
+          .from('performance_graph')
           .select('*')
           .eq('user_id', userId)
           .order('date', { ascending: true });
@@ -132,7 +133,7 @@ export async function getUserProgressData(userId: string): Promise<UserProgress>
         
         // Fetch chapter performance data
         const { data: chapterData, error: chapterError } = await supabase
-          .from('chapter_stats' as any)
+          .from('chapter_stats')
           .select('*')
           .eq('user_id', userId);
           
@@ -142,7 +143,7 @@ export async function getUserProgressData(userId: string): Promise<UserProgress>
         
         // Fetch goals data
         const { data: goalsData, error: goalsError } = await supabase
-          .from('goals' as any)
+          .from('goals')
           .select('*')
           .eq('user_id', userId);
           

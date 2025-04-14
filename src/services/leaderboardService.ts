@@ -1,5 +1,5 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { LeaderboardEntry } from './types/progressTypes';
 
 // Cache for leaderboard data
@@ -15,7 +15,7 @@ export async function getLeaderboard(limit: number = 10): Promise<LeaderboardEnt
     // Try to fetch from Supabase
     try {
       const { data: leaderboardData, error: leaderboardError } = await supabase
-        .from('leaderboard_entries' as any)
+        .from('leaderboard_entries')
         .select('*')
         .order('rank', { ascending: true })
         .limit(limit);
