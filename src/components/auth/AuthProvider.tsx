@@ -1,12 +1,13 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { User } from "@supabase/supabase-js";
+import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 
 interface AuthContextType {
   user: User | null;
   profile: any | null;
+  session: Session | null; // Add the session property
   loading: boolean;
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
@@ -14,9 +15,11 @@ interface AuthContextType {
   resetPassword: (email: string) => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({
+// Export the AuthContext so it can be imported elsewhere
+export const AuthContext = createContext<AuthContextType>({
   user: null,
   profile: null,
+  session: null, // Initialize the session property
   loading: true,
   signUp: async () => {},
   signIn: async () => {},
@@ -30,17 +33,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState<Session | null>(null); // Add state for session
   const { toast } = useToast();
 
   useEffect(() => {
     const initAuth = async () => {
       try {
         // Get initial session
-        const { data: { session } } = await supabase.auth.getSession();
-        setUser(session?.user ?? null);
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        setUser(currentSession?.user ?? null);
+        setSession(currentSession); // Store the session
         
-        if (session?.user) {
-          await fetchProfile(session.user.id);
+        if (currentSession?.user) {
+          await fetchProfile(currentSession.user.id);
         } else {
           // Important: Make sure to set loading to false when there's no session
           setLoading(false);
@@ -48,10 +53,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         // Set up auth state change listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          async (_event, session) => {
-            setUser(session?.user ?? null);
-            if (session?.user) {
-              await fetchProfile(session.user.id);
+          async (_event, newSession) => {
+            setUser(newSession?.user ?? null);
+            setSession(newSession); // Update session on auth state change
+            if (newSession?.user) {
+              await fetchProfile(newSession.user.id);
             } else {
               setProfile(null);
               setLoading(false);
@@ -190,6 +196,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     <AuthContext.Provider value={{ 
       user, 
       profile, 
+      session, // Add session to context value
       loading, 
       signUp, 
       signIn, 
