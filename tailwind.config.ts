@@ -62,6 +62,14 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        mono: {
+          bg: "#FFFFFF",
+          text: "#1A1A1A",
+          border: "#E5E5E5",
+          hover: "#F5F5F5",
+          muted: "#717171",
+          accent: "#000000",
+        }
       },
       borderRadius: {
         lg: "var(--radius)",

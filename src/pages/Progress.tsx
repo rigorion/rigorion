@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import ProgressDashboard from "@/components/progress/ProgressDashboard";
 import { cn } from "@/lib/utils";
@@ -12,7 +11,7 @@ import { getUserProgressData } from "@/services/progressService";
 import { Loader2, BarChart3, Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useAuth } from "@/hooks/useAuth";
 
 const Progress = () => {
   const [period, setPeriod] = useState("weekly");
@@ -39,11 +38,11 @@ const Progress = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white">
+      <div className="flex min-h-screen items-center justify-center bg-mono-bg">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-purple-500 mx-auto mb-4" />
-          <p className="text-xl font-medium text-gray-700">Loading your progress data...</p>
-          <p className="text-gray-500 mt-2">This will just take a moment</p>
+          <Loader2 className="h-12 w-12 animate-spin text-mono-accent mx-auto mb-4" />
+          <p className="text-xl font-medium text-mono-text">Loading your progress data...</p>
+          <p className="text-mono-muted mt-2">This will just take a moment</p>
         </div>
       </div>
     );
@@ -52,7 +51,7 @@ const Progress = () => {
   if (error) {
     console.error("Error loading progress data:", error);
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white">
+      <div className="flex min-h-screen items-center justify-center bg-mono-bg">
         <motion.div 
           initial={{ opacity: 0, y: 10 }} 
           animate={{ opacity: 1, y: 0 }} 
@@ -71,26 +70,23 @@ const Progress = () => {
 
   if (!userProgress) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white">
+      <div className="flex min-h-screen items-center justify-center bg-mono-bg">
         <div className="text-center">
-          <p className="text-xl font-medium text-gray-700">No progress data available</p>
-          <p className="text-gray-500 mt-2">Start practicing to see your progress!</p>
+          <p className="text-xl font-medium text-mono-text">No progress data available</p>
+          <p className="text-mono-muted mt-2">Start practicing to see your progress!</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen w-full bg-[#F1F0FB]">
-      {/* Animated Sidebar */}
+    <div className="flex min-h-screen w-full bg-mono-bg">
       <AnimatePresence>
         {sidebarOpen && <Sidebar onClose={() => setSidebarOpen(false)} />}
       </AnimatePresence>
       
-      {/* Main Content */}
-      <div className="flex-1 bg-white">
-        {/* Header */}
-        <header className="sticky top-0 z-50 w-full bg-white shadow-md">
+      <div className="flex-1 bg-mono-bg">
+        <header className="sticky top-0 z-50 w-full bg-mono-bg/95 backdrop-blur supports-[backdrop-filter]:bg-mono-bg/60 border-b border-mono-border">
           <div className="container flex h-16 max-w-screen-2xl items-center justify-between px-6">
             <ProgressNavigation 
               sidebarOpen={sidebarOpen} 
@@ -98,7 +94,6 @@ const Progress = () => {
               setPeriod={setPeriod} 
             />
             
-            {/* Controls */}
             <ProgressControls 
               period={period} 
               setPeriod={setPeriod} 
@@ -106,21 +101,20 @@ const Progress = () => {
           </div>
         </header>
 
-        {/* Main Content */}
-        <main className="container mx-auto p-6 md:px-8 py-10 bg-white">
+        <main className="container mx-auto p-6 md:px-8 py-10 bg-mono-bg">
           <Tabs defaultValue="performance" className="w-full">
             <div className="flex justify-center mb-6">
-              <TabsList className="bg-gray-100 p-1">
+              <TabsList className="bg-mono-hover">
                 <TabsTrigger 
                   value="performance" 
-                  className="data-[state=active]:bg-white data-[state=active]:text-purple-700 data-[state=active]:shadow-sm px-4 py-2"
+                  className="data-[state=active]:bg-mono-bg data-[state=active]:text-mono-text data-[state=active]:shadow-sm px-4 py-2"
                 >
                   <BarChart3 className="h-4 w-4 mr-2" />
                   Performance
                 </TabsTrigger>
                 <TabsTrigger 
                   value="leaderboard" 
-                  className="data-[state=active]:bg-white data-[state=active]:text-purple-700 data-[state=active]:shadow-sm px-4 py-2"
+                  className="data-[state=active]:bg-mono-bg data-[state=active]:text-mono-text data-[state=active]:shadow-sm px-4 py-2"
                 >
                   <Trophy className="h-4 w-4 mr-2" />
                   Leaderboard
@@ -134,10 +128,10 @@ const Progress = () => {
                 type="performance" 
                 userData={userProgress} 
                 className={cn(
-                  "[&_path]:stroke-purple-600", 
-                  "[&_.recharts-area]:fill-gradient-to-b [&_.recharts-area]:from-purple-100 [&_.recharts-area]:to-purple-50", 
-                  "[&_.recharts-bar]:fill-gradient-to-b [&_.recharts-bar]:from-purple-400 [&_.recharts-bar]:to-purple-600", 
-                  "[&_.recharts-line]:stroke-purple-600"
+                  "[&_path]:stroke-mono-accent", 
+                  "[&_.recharts-area]:fill-gradient-to-b [&_.recharts-area]:from-mono-hover [&_.recharts-area]:to-mono-bg", 
+                  "[&_.recharts-bar]:fill-gradient-to-b [&_.recharts-bar]:from-mono-text [&_.recharts-bar]:to-mono-accent", 
+                  "[&_.recharts-line]:stroke-mono-accent"
                 )} 
               />
             </TabsContent>
