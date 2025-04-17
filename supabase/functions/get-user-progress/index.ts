@@ -30,14 +30,47 @@ serve(async (req) => {
       )
     }
 
-    const { data: userProgressData, error: userProgressError } = await supabase
+    // Get main user progress
+    const { data: progressData, error: progressError } = await supabase
       .from('user_progress')
       .select('*')
       .eq('user_id', userId)
       .single()
 
-    if (userProgressError) {
-      throw userProgressError
+    if (progressError) throw progressError
+
+    // Get performance graph data
+    const { data: graphData, error: graphError } = await supabase
+      .from('performance_graph')
+      .select('date, attempted')
+      .eq('user_id', userId)
+      .order('date', { ascending: true })
+      .limit(10)
+
+    if (graphError) throw graphError
+
+    // Get chapter performance
+    const { data: chapterData, error: chapterError } = await supabase
+      .from('chapter_performance')
+      .select('*')
+      .eq('user_id', userId)
+
+    if (chapterError) throw chapterError
+
+    // Get user goals
+    const { data: goalsData, error: goalsError } = await supabase
+      .from('user_goals')
+      .select('*')
+      .eq('user_id', userId)
+
+    if (goalsError) throw goalsError
+
+    // Combine all data
+    const userProgressData = {
+      ...progressData,
+      performance_graph: graphData,
+      chapter_performance: chapterData,
+      goals: goalsData
     }
 
     return new Response(
