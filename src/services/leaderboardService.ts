@@ -1,31 +1,25 @@
-
 import { supabase } from '@/lib/supabase';
 import { LeaderboardEntry } from './types/progressTypes';
 
-// Cache for leaderboard data
 let leaderboardCache: LeaderboardEntry[] | null = null;
 
 export async function getLeaderboard(limit: number = 10): Promise<LeaderboardEntry[]> {
   try {
-    // Return cached data if available
     if (leaderboardCache) {
       return leaderboardCache;
     }
 
-    // Try to fetch from Supabase
     try {
-      const { data: leaderboardData, error: leaderboardError } = await supabase
-        .from('leaderboard_entries')
-        .select('*')
-        .order('rank', { ascending: true })
-        .limit(limit);
-        
-      if (leaderboardError) {
-        console.log('Error fetching leaderboard:', leaderboardError);
-        console.log('Falling back to dummy data');
-      } else if (leaderboardData && leaderboardData.length > 0) {
-        console.log('Found leaderboard data in Supabase:', leaderboardData.length, 'entries');
-        
+      const { data: leaderboardData, error } = await supabase.functions.invoke('get-leaderboard', {
+        body: { limit }
+      });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+
+      if (leaderboardData && leaderboardData.length > 0) {
         const formattedData: LeaderboardEntry[] = leaderboardData.map((entry: any) => ({
           rank: entry.rank || 0,
           name: entry.name || 'Unknown',
@@ -35,18 +29,15 @@ export async function getLeaderboard(limit: number = 10): Promise<LeaderboardEnt
           trend: entry.trend_percent_change || 0,
           isCurrentUser: entry.is_current_user || false
         }));
-        
-        // Store in cache
+
         leaderboardCache = formattedData;
-        
         return formattedData;
       }
     } catch (error) {
-      console.error('Supabase leaderboard query error:', error);
-      console.log('Falling back to dummy leaderboard data');
+      console.error('Error fetching from edge function:', error);
     }
-    
-    // Generate dummy leaderboard data if Supabase fetch failed
+
+    // Fallback to dummy data
     const dummyEntries: LeaderboardEntry[] = [
       { rank: 1, name: 'Alex Zhang', problems: 456, accuracy: '94%', score: 98, trend: 3, isCurrentUser: false },
       { rank: 2, name: 'Maria Rodriguez', problems: 421, accuracy: '92%', score: 96, trend: 0, isCurrentUser: false },
@@ -59,18 +50,8 @@ export async function getLeaderboard(limit: number = 10): Promise<LeaderboardEnt
       { rank: 9, name: 'Michael Brown', problems: 298, accuracy: '82%', score: 86, trend: -3, isCurrentUser: false },
       { rank: 10, name: 'Current User', problems: 248, accuracy: '84%', score: 92, isCurrentUser: true, trend: 4 },
     ];
-    
-    // Replace a random entry with the current user, but ensure they're in the list
-    const currentUserEntry = dummyEntries.find(entry => entry.isCurrentUser);
-    if (!currentUserEntry) {
-      const randomIndex = Math.floor(Math.random() * dummyEntries.length);
-      dummyEntries[randomIndex].name = 'Current User';
-      dummyEntries[randomIndex].isCurrentUser = true;
-    }
-    
-    // Store in cache
+
     leaderboardCache = dummyEntries;
-    
     return dummyEntries;
   } catch (error) {
     console.error('Error fetching leaderboard:', error);

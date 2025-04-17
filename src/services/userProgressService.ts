@@ -1,10 +1,8 @@
 import { supabase } from '@/lib/supabase';
 import { UserProgress } from './types/progressTypes';
 
-// Cache for user progress data
 const userProgressCache = new Map<string, UserProgress>();
 
-// Generate dummy data for the specified user
 const generateDummyData = (userId: string): UserProgress => {
   // Generate performance graph data for last 10 days
   const today = new Date();
@@ -96,7 +94,7 @@ const generateDummyData = (userId: string): UserProgress => {
 
 export async function getUserProgressData(userId: string): Promise<UserProgress> {
   try {
-    // Check if we already have data for this user in the cache
+    // Check cache first
     if (userProgressCache.has(userId)) {
       return userProgressCache.get(userId)!;
     }
@@ -104,80 +102,63 @@ export async function getUserProgressData(userId: string): Promise<UserProgress>
     console.log('Getting user progress data for:', userId);
     
     try {
-      // First attempt to get the actual user data from Supabase
-      console.log('Attempting to fetch user progress from Supabase...');
-      
-      const { data: userProgressData, error: userProgressError } = await supabase
-        .from('user_progress')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
-      
-      if (userProgressError) {
-        console.log('Error fetching user_progress:', userProgressError);
-        console.log('Falling back to dummy data');
-      } else if (userProgressData) {
-        console.log('Found user progress data in Supabase:', userProgressData);
-        
-        // Process the actual data from Supabase
-        // Cast the data to any to avoid TypeScript errors
-        const data = userProgressData as any;
-        
-        const userProgress: UserProgress = {
+      // Call the Edge Function
+      const { data: userProgressData, error } = await supabase.functions.invoke('get-user-progress', {
+        body: { userId }
+      });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+
+      if (userProgressData) {
+        const formattedData: UserProgress = {
           userId,
-          totalProgressPercent: data.total_progress_percent || 0,
-          correctAnswers: data.correct_answers || 0,
-          incorrectAnswers: data.incorrect_answers || 0,
-          unattemptedQuestions: data.unattempted_questions || 0,
-          questionsAnsweredToday: data.questions_answered_today || 0,
-          streak: data.streak_days || 0,
-          averageScore: data.avg_score || 0,
-          rank: data.rank || 0,
-          projectedScore: data.projected_score || 0,
-          speed: data.speed || 0,
-          easyAccuracy: data.easy_accuracy || 0,
-          easyAvgTime: data.easy_avg_time_min || 0,
-          easyCompleted: data.easy_completed || 0,
-          easyTotal: data.easy_total || 0,
-          mediumAccuracy: data.medium_accuracy || 0,
-          mediumAvgTime: data.medium_avg_time_min || 0,
-          mediumCompleted: data.medium_completed || 0,
-          mediumTotal: data.medium_total || 0,
-          hardAccuracy: data.hard_accuracy || 0,
-          hardAvgTime: data.hard_avg_time_min || 0,
-          hardCompleted: data.hard_completed || 0,
-          hardTotal: data.hard_total || 0,
-          goalAchievementPercent: data.goal_achievement_percent || 0,
-          averageTime: data.avg_time_per_question || 0,
-          correctAnswerAvgTime: data.avg_time_correct || 0,
-          incorrectAnswerAvgTime: data.avg_time_incorrect || 0,
-          longestQuestionTime: data.longest_time || 0,
-          
-          // For related data, we'll use empty arrays since we don't need to fetch them separately anymore
-          // The actual data is now in the main record
-          performanceGraph: data.performance_graph || [],
-          chapterPerformance: data.chapter_performance || [],
-          goals: data.goals || []
+          totalProgressPercent: userProgressData.total_progress_percent || 0,
+          correctAnswers: userProgressData.correct_answers || 0,
+          incorrectAnswers: userProgressData.incorrect_answers || 0,
+          unattemptedQuestions: userProgressData.unattempted_questions || 0,
+          questionsAnsweredToday: userProgressData.questions_answered_today || 0,
+          streak: userProgressData.streak_days || 0,
+          averageScore: userProgressData.avg_score || 0,
+          rank: userProgressData.rank || 0,
+          projectedScore: userProgressData.projected_score || 0,
+          speed: userProgressData.speed || 0,
+          easyAccuracy: userProgressData.easy_accuracy || 0,
+          easyAvgTime: userProgressData.easy_avg_time_min || 0,
+          easyCompleted: userProgressData.easy_completed || 0,
+          easyTotal: userProgressData.easy_total || 0,
+          mediumAccuracy: userProgressData.medium_accuracy || 0,
+          mediumAvgTime: userProgressData.medium_avg_time_min || 0,
+          mediumCompleted: userProgressData.medium_completed || 0,
+          mediumTotal: userProgressData.medium_total || 0,
+          hardAccuracy: userProgressData.hard_accuracy || 0,
+          hardAvgTime: userProgressData.hard_avg_time_min || 0,
+          hardCompleted: userProgressData.hard_completed || 0,
+          hardTotal: userProgressData.hard_total || 0,
+          goalAchievementPercent: userProgressData.goal_achievement_percent || 0,
+          averageTime: userProgressData.avg_time_per_question || 0,
+          correctAnswerAvgTime: userProgressData.avg_time_correct || 0,
+          incorrectAnswerAvgTime: userProgressData.avg_time_incorrect || 0,
+          longestQuestionTime: userProgressData.longest_time || 0,
+          performanceGraph: userProgressData.performance_graph || [],
+          chapterPerformance: userProgressData.chapter_performance || [],
+          goals: userProgressData.goals || []
         };
-        
+
         // Store in cache
-        userProgressCache.set(userId, userProgress);
-        console.log('Returning actual user progress data from Supabase');
-        return userProgress;
+        userProgressCache.set(userId, formattedData);
+        return formattedData;
       }
     } catch (error) {
-      console.error('Supabase query error:', error);
-      console.log('Falling back to dummy data');
+      console.error('Error fetching from edge function:', error);
     }
 
-    // If we got here, we couldn't fetch from Supabase successfully
-    // Generate dummy data instead
-    console.log('Using dummy data for user progress');
+    // Fallback to dummy data if edge function fails
+    console.log('Using dummy data as fallback');
     const dummyData = generateDummyData(userId);
-    
-    // Store in cache
     userProgressCache.set(userId, dummyData);
-    
     return dummyData;
   } catch (error) {
     console.error('Error fetching user progress:', error);
