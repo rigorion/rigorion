@@ -18,84 +18,98 @@ serve(async (req) => {
   // Get the authorization header
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) {
+    console.error("Authorization header missing");
     return new Response(JSON.stringify({ error: "Authorization header missing" }), { 
       status: 401,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   }
 
-  // Create Supabase client
-  const supabaseClient = createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-    {
-      global: { headers: { Authorization: authHeader } }
-    }
-  );
+  console.log("Auth header received");
 
-  // Parse request body if it exists
-  let userId;
-  let period = "weekly";
-  
   try {
-    const body = await req.json();
-    userId = body.userId;
-    period = body.period || "weekly";
-  } catch (e) {
-    // If request body parsing fails, get from the URL params
-    const url = new URL(req.url);
-    userId = url.searchParams.get("userId");
-    period = url.searchParams.get("period") || "weekly";
-  }
-
-  if (!userId) {
-    // Try to get userId from JWT directly
-    try {
-      const { data: { user }, error } = await supabaseClient.auth.getUser();
-      if (error) throw error;
-      
-      userId = user?.id;
-      
-      if (!userId) {
-        throw new Error("User ID not found in token");
+    // Create Supabase client
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      {
+        global: { headers: { Authorization: authHeader } }
       }
-    } catch (error) {
-      console.error("Error getting user from token:", error);
+    );
+
+    // Get the current user from the JWT token
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+
+    if (userError || !user) {
+      console.error("Error getting user from token:", userError);
       return new Response(
-        JSON.stringify({ error: "User ID is required or valid JWT token" }),
+        JSON.stringify({ error: "Invalid authorization token" }),
         { 
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 400
+          status: 401
         }
       );
     }
-  }
 
-  try {
+    console.log("Authenticated user:", user.id);
+
+    // Get user progress data
     const { data, error } = await supabaseClient
       .from("user_progress")
       .select("total_questions, correct_count, incorrect_count, unattempted_count")
-      .eq("user_id", userId)
-      .single();
+      .eq("user_id", user.id);
 
-    if (error) throw error;
-    if (!data) throw new Error("User progress not found");
+    if (error) {
+      console.error("Database query error:", error);
+      throw error;
+    }
 
-    const responseData = {
-      user_id: userId,
-      ...data,
-      total_progress_percent: Math.round((data.correct_count + data.incorrect_count) / data.total_questions * 100)
-    };
+    // If no data for this user, return an empty array
+    if (!data || data.length === 0) {
+      // Create default progress record for this user
+      const defaultProgress = {
+        total_questions: 100,
+        correct_count: 0,
+        incorrect_count: 0,
+        unattempted_count: 100,
+        user_id: user.id
+      };
+      
+      const { data: insertData, error: insertError } = await supabaseClient
+        .from("user_progress")
+        .insert(defaultProgress)
+        .select();
+      
+      if (insertError) {
+        console.error("Error inserting default progress:", insertError);
+        // Return a graceful fallback
+        return new Response(
+          JSON.stringify([defaultProgress]), 
+          { 
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 200
+          }
+        );
+      }
+      
+      return new Response(
+        JSON.stringify(insertData), 
+        { 
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200
+        }
+      );
+    }
 
     return new Response(
-      JSON.stringify(responseData), 
+      JSON.stringify(data), 
       { 
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200
       }
     );
   } catch (error) {
-    console.error("Error fetching progress data:", error);
+    console.error("Error processing request:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 

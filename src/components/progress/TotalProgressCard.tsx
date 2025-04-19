@@ -37,7 +37,11 @@ export const TotalProgressCard = ({
 
   useEffect(() => {
     const fetchProgress = async () => {
-      if (!session) return;
+      // Only fetch if we have a session
+      if (!session) {
+        console.log("No session available, skipping progress fetch");
+        return;
+      }
       
       setIsLoading(true);
       setError(null);
@@ -47,44 +51,47 @@ export const TotalProgressCard = ({
         const { data: { session: currentSession }, error: tokenError } = await supabase.auth.getSession();
         
         if (tokenError) {
+          console.error("Error getting session:", tokenError);
           throw new Error(`Error refreshing token: ${tokenError.message}`);
         }
         
         if (!currentSession) {
+          console.error("No active session found");
           throw new Error('No active session found');
         }
         
         // Use the access token from the current session
         const accessToken = currentSession.access_token;
+        console.log("Got access token, making request to edge function");
         
         // Make the request to the edge function
         const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-progress", {
-          method: "POST",
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${accessToken}`
-          },
-          body: JSON.stringify({
-            userId: session.user.id,
-            period: "weekly"
-          })
+          }
         });
         
         if (!res.ok) {
+          console.error(`Server returned ${res.status}: ${res.statusText}`);
           throw new Error(`Server returned ${res.status}: ${res.statusText}`);
         }
         
         const data = await res.json();
         console.log("Progress data received:", data);
 
-        if (data) {
+        if (data && Array.isArray(data) && data.length > 0) {
+          // Adjust this depending on your API response structure
+          const userData = data[0]; 
           setLocalProgress({
-            total_questions: data.total_questions,
-            correct_count: data.correct_count,
-            incorrect_count: data.incorrect_count,
-            unattempted_count: data.unattempted_count
+            total_questions: userData.total_questions || 100,
+            correct_count: userData.correct_count || 0,
+            incorrect_count: userData.incorrect_count || 0,
+            unattempted_count: userData.unattempted_count || 100
           });
         } else {
+          console.log("No data in response or empty array, trying direct query");
           // If no data is returned, try direct query as fallback
           try {
             const { data: directData, error: directError } = await supabase
