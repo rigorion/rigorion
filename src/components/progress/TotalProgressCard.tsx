@@ -46,7 +46,7 @@ export const TotalProgressCard = ({
       setError(null);
       
       try {
-        const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-progress", {
+        const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-user-progress", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
