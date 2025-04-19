@@ -103,7 +103,7 @@ export async function getUserProgressData(userId: string): Promise<UserProgress>
     
     try {
       // Call the Edge Function
-      const { data: userProgressData, error } = await supabase.functions.invoke('get-user-progress', {
+      const { data: userProgressData, error } = await supabase.functions.invoke('get-progress', {
         body: { userId }
       });
 
