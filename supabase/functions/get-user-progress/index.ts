@@ -13,8 +13,8 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    const supabaseUrl = Deno.env.get('https://eantvimmgdmxzwrjwrop.supabase.co')
+    const supabaseKey = Deno.env.get('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhbnR2aW1tZ2RteHp3cmp3cm9wIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NDA1OTQ5MSwiZXhwIjoyMDU5NjM1NDkxfQ.WiwKvixVdv_2_Q1TmSffgXqMs7KizZTwY56ihCpaXfY')
     
     if (!supabaseUrl || !supabaseKey) {
       throw new Error('Missing Supabase credentials')
