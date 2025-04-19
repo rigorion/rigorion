@@ -26,6 +26,22 @@ export const PerformanceGraphCard = ({
 
   useEffect(() => {
     const fetchPerformanceData = async () => {
+
+
+const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-progress", {
+  method: "GET", // or POST
+  headers: {
+    "Content-Type": "application/json",
+    // Optional: include token if required by your function
+    "Authorization": `Bearer ${user.session.access_token}`
+  }
+});
+const data = await res.json();
+console.log(" we ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", data)
+
+
+
+      
       if (!session) return;
       
       setIsLoading(true);
