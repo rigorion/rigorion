@@ -1,51 +1,97 @@
+
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import SegmentedProgress from "@/components/SegmentedProgress";
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
+import { toast } from "sonner";
 
 interface ProgressData {
   total_questions: number;
   correct_count: number;
   incorrect_count: number;
   unattempted_count: number;
+  total_progress_percent?: number;
 }
 
 interface TotalProgressCardProps {
+  totalQuestions?: number;
+  correctQuestions?: number;
+  incorrectQuestions?: number;
+  unattemptedQuestions?: number;
   progressData?: ProgressData;
 }
 
-export const TotalProgressCard = ({ progressData }: TotalProgressCardProps) => {
+export const TotalProgressCard = ({ 
+  totalQuestions: propsTotalQuestions,
+  correctQuestions: propsCorrectQuestions,
+  incorrectQuestions: propsIncorrectQuestions,
+  unattemptedQuestions: propsUnattemptedQuestions,
+  progressData: propsProgressData 
+}: TotalProgressCardProps) => {
   const { session } = useAuth();
   const [localProgress, setLocalProgress] = useState<ProgressData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchProgress = async () => {
       if (!session) return;
       
+      setIsLoading(true);
+      setError(null);
+      
       try {
         const { data, error } = await supabase.functions.invoke('get-user-progress', {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`
+          method: 'POST',
+          body: {
+            userId: session.user.id,
+            period: 'weekly'
           }
         });
 
-        if (!error && data) {
-          setLocalProgress(data);
+        if (error) {
+          throw new Error(`Error fetching progress: ${error.message}`);
         }
-      } catch (error) {
-        console.error('Error fetching progress:', error);
+
+        if (data) {
+          setLocalProgress({
+            total_questions: data.total_questions,
+            correct_count: data.correct_count,
+            incorrect_count: data.incorrect_count,
+            unattempted_count: data.unattempted_count
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching progress:', err);
+        setError(err as Error);
+        toast.error("Failed to load progress data. Using fallback data.");
+        
+        // Set fallback data
+        setLocalProgress({
+          total_questions: 130,
+          correct_count: 53,
+          incorrect_count: 21,
+          unattempted_count: 56
+        });
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchProgress();
   }, [session]);
 
-  // Use props if provided, otherwise use local state
-  const displayData = progressData || localProgress;
+  // Use props if provided, otherwise use local state or generate placeholder data
+  const displayData = propsProgressData || {
+    total_questions: propsTotalQuestions || localProgress?.total_questions || 100,
+    correct_count: propsCorrectQuestions || localProgress?.correct_count || 0,
+    incorrect_count: propsIncorrectQuestions || localProgress?.incorrect_count || 0,
+    unattempted_count: propsUnattemptedQuestions || localProgress?.unattempted_count || 100
+  };
 
-  if (!displayData) {
+  if (isLoading) {
     return (
       <Card className="p-6 col-span-1 shadow-md hover:shadow-xl transition-all duration-300 shadow-[0_0_15px_rgba(155,135,245,0.2)] border-0 bg-slate-50 rounded-md py-[15px]">
         <div className="text-center text-gray-500">Loading progress data...</div>
@@ -54,16 +100,16 @@ export const TotalProgressCard = ({ progressData }: TotalProgressCardProps) => {
   }
 
   const { 
-    total_questions: totalQuestions,
-    correct_count: correctQuestions,
-    incorrect_count: incorrectQuestions,
-    unattempted_count: unattemptedQuestions
+    total_questions: totalQuestionsValue,
+    correct_count: correctQuestionsValue,
+    incorrect_count: incorrectQuestionsValue,
+    unattempted_count: unattemptedQuestionsValue
   } = displayData;
 
-  const totalProgress = Math.round((correctQuestions + incorrectQuestions) / totalQuestions * 100);
-  const correctPercentage = Math.round(correctQuestions / totalQuestions * 100);
-  const incorrectPercentage = Math.round(incorrectQuestions / totalQuestions * 100);
-  const unattemptedPercentage = Math.round(unattemptedQuestions / totalQuestions * 100);
+  const totalProgress = Math.round((correctQuestionsValue + incorrectQuestionsValue) / totalQuestionsValue * 100);
+  const correctPercentage = Math.round(correctQuestionsValue / totalQuestionsValue * 100);
+  const incorrectPercentage = Math.round(incorrectQuestionsValue / totalQuestionsValue * 100);
+  const unattemptedPercentage = Math.round(unattemptedQuestionsValue / totalQuestionsValue * 100);
 
   return (
     <Card className="p-6 col-span-1 shadow-md hover:shadow-xl transition-all duration-300 shadow-[0_0_15px_rgba(155,135,245,0.2)] border-0 bg-slate-50 rounded-md py-[15px]">
@@ -73,8 +119,8 @@ export const TotalProgressCard = ({ progressData }: TotalProgressCardProps) => {
           <SegmentedProgress 
             progress={totalProgress} 
             className="w-56 h-56 md:w-60 md:h-60" 
-            total={totalQuestions} 
-            completed={correctQuestions + incorrectQuestions} 
+            total={totalQuestionsValue} 
+            completed={correctQuestionsValue + incorrectQuestionsValue} 
           />
         </div>
         <div className="space-y-4">
