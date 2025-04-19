@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import SegmentedProgress from "@/components/SegmentedProgress";
@@ -59,7 +58,7 @@ export const TotalProgressCard = ({
         console.log("Got access token, making request to edge function");
         
         // Call the edge function with the correct token format
-        const response = await fetch(`${Deno.env.SUPABASE_URL}/functions/v1/get-user-progress`, {
+        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-user-progress`, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${accessToken}`,

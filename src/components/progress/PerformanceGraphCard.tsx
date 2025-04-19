@@ -46,7 +46,7 @@ export const PerformanceGraphCard = ({
         console.log("Got access token for performance data");
         
         // Use the correct URL format for the edge function
-        const response = await fetch(`${Deno.env.SUPABASE_URL}/functions/v1/get-performance`, {
+        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-performance`, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${accessToken}`,
