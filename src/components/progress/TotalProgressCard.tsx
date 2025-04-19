@@ -37,9 +37,9 @@ export const TotalProgressCard = ({
 
   useEffect(() => {
     const fetchProgress = async () => {
-      // Only fetch if we have a session
-      if (!session) {
-        console.log("No session available, skipping progress fetch");
+      // Only fetch if we have a session and no props data
+      if (!session || propsProgressData || (propsTotalQuestions && propsCorrectQuestions && propsIncorrectQuestions)) {
+        console.log("Skipping fetch - using provided data or missing session");
         return;
       }
       
@@ -64,7 +64,7 @@ export const TotalProgressCard = ({
         const accessToken = currentSession.access_token;
         console.log("Got access token, making request to edge function");
         
-        // Make the request to the edge function
+        // Make the request to the edge function with the correct URL and format
         const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-progress", {
           method: "POST",
           headers: {
@@ -81,17 +81,16 @@ export const TotalProgressCard = ({
         const data = await res.json();
         console.log("Progress data received:", data);
 
-        if (data && Array.isArray(data) && data.length > 0) {
-          // Adjust this depending on your API response structure
-          const userData = data[0]; 
+        if (data) {
+          // Format matches the response from your edge function
           setLocalProgress({
-            total_questions: userData.total_questions || 100,
-            correct_count: userData.correct_count || 0,
-            incorrect_count: userData.incorrect_count || 0,
-            unattempted_count: userData.unattempted_count || 100
+            total_questions: data.total_questions || 100,
+            correct_count: data.correct_count || 0,
+            incorrect_count: data.incorrect_count || 0,
+            unattempted_count: data.unattempted_count || 100
           });
         } else {
-          console.log("No data in response or empty array, trying direct query");
+          console.log("No data in response, trying direct query");
           // If no data is returned, try direct query as fallback
           try {
             const { data: directData, error: directError } = await supabase
@@ -133,7 +132,7 @@ export const TotalProgressCard = ({
     };
 
     fetchProgress();
-  }, [session]);
+  }, [session, propsProgressData, propsTotalQuestions, propsCorrectQuestions, propsIncorrectQuestions]);
 
   // Use props if provided, otherwise use local state or generate placeholder data
   const displayData = propsProgressData || {

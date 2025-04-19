@@ -26,7 +26,11 @@ export const PerformanceGraphCard = ({
 
   useEffect(() => {
     const fetchPerformanceData = async () => {
-      if (!session) return;
+      if (!session || (propData && propData.length > 0)) {
+        // Skip fetching if we have props data or no session
+        if (propData) setPerformanceData(propData);
+        return;
+      }
       
       setIsLoading(true);
       
@@ -45,9 +49,9 @@ export const PerformanceGraphCard = ({
         // Use the access token from the current session
         const accessToken = currentSession.access_token;
         
-        // Make the request to the edge function
-        const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-progress", {
-          method: "GET",
+        // Make the request to the edge function - make sure URL is correct
+        const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-performance", {
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${accessToken}`
@@ -55,17 +59,17 @@ export const PerformanceGraphCard = ({
         });
         
         if (!res.ok) {
-          console.error(`Server returned ${res.status}: ${res.statusText}`);
+          console.warn(`Performance data fetch failed with status: ${res.status}`);
           throw new Error(`Error fetching performance data: ${res.statusText}`);
         }
         
         const data = await res.json();
         console.log("Performance data fetched:", data);
 
-        if (data && Array.isArray(data) && data.length > 0) {
-          setPerformanceData(data);
+        if (data && Array.isArray(data.performance_graph) && data.performance_graph.length > 0) {
+          setPerformanceData(data.performance_graph);
         } else {
-          // Fallback dummy data
+          // Generate fallback data
           generateFallbackData();
         }
       } catch (error) {
@@ -97,11 +101,7 @@ export const PerformanceGraphCard = ({
       setPerformanceData(dummyData);
     };
 
-    if (!propData || propData.length === 0) {
-      fetchPerformanceData();
-    } else {
-      setPerformanceData(propData);
-    }
+    fetchPerformanceData();
   }, [session, propData]);
 
   const displayData = propData || performanceData || [];

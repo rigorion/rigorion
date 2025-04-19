@@ -6,27 +6,49 @@ import { FullPageLoader } from "./FullPageLoader";
 import { ErrorDisplay } from "./ErrorDisplay";
 import { Card } from "@/components/ui/card";
 import type { LeaderboardEntry } from "@/types/progress";
+import { toast } from "sonner";
 
 // Function to fetch leaderboard data
 async function getLeaderboard(userId: string): Promise<LeaderboardEntry[]> {
   try {
-    const { data, error } = await supabase.functions.invoke('get-leaderboard', {
-      body: { userId }
+    // First get a fresh access token
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !session) {
+      console.error("Error fetching session:", sessionError);
+      throw new Error("Authentication error");
+    }
+    
+    const accessToken = session.access_token;
+    
+    // Call the edge function with the correct endpoint
+    const response = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-leaderboard", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${accessToken}`
+      },
+      body: JSON.stringify({ userId })
     });
     
-    if (error) throw error;
+    if (!response.ok) {
+      throw new Error(`Failed to fetch leaderboard: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
     
     return data.map((entry: any, index: number) => ({
       rank: index + 1,
       name: entry.name || 'Anonymous',
       problems: entry.problems_solved || 0,
-      accuracy: `${entry.accuracy}%`,
+      accuracy: `${entry.accuracy || 0}%`,
       score: entry.score || 0,
       trend: entry.trend || 0,
       isCurrentUser: entry.user_id === userId
     }));
   } catch (error) {
     console.error("Failed to fetch leaderboard:", error);
+    toast.error("Failed to load leaderboard data. Using sample data.");
     // Return dummy data on error
     return generateDummyLeaderboard(userId);
   }

@@ -15,35 +15,54 @@ serve(async (req) => {
   }
 
   try {
-    const supabase = createClient(
+    // Get the authorization header
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Missing authorization header" }), { 
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    // Create Supabase client
+    const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: { headers: { Authorization: authHeader } }
+      }
     );
 
+    // Get the current user from the JWT token
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+
+    if (userError || !user) {
+      console.error("Error getting user from token:", userError);
+      return new Response(
+        JSON.stringify({ error: "Invalid authorization token" }),
+        { 
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 401
+        }
+      );
+    }
+
+    // Get parameters from request
     let limit = 10;
-    try {
-      const body = await req.json();
-      limit = body.limit || 10;
-    } catch (e) {
-      // If body parsing fails, check URL params
-      const url = new URL(req.url);
-      const limitParam = url.searchParams.get('limit');
-      if (limitParam) {
-        limit = parseInt(limitParam, 10);
+    let userId = user.id;
+
+    if (req.method === "POST") {
+      try {
+        const body = await req.json();
+        limit = body.limit || 10;
+      } catch (e) {
+        console.log("Could not parse JSON body");
       }
     }
 
     // For this demo, we'll generate static leaderboard data
     // In a real app, you would query your database
-    const leaderboardData = Array.from({ length: limit }, (_, i) => ({
-      id: `user-${i+1}`,
-      user_id: `user-${i+1}`,
-      rank: i + 1,
-      name: `User ${i + 1}`,
-      score: Math.floor(1000 - (i * (1000 / limit))),
-      avatar_url: null,
-      questions_completed: Math.floor(150 - (i * (150 / limit))),
-    }));
+    const leaderboardData = generateLeaderboardData(userId, limit);
 
     return new Response(
       JSON.stringify(leaderboardData),
@@ -62,3 +81,28 @@ serve(async (req) => {
     );
   }
 });
+
+function generateLeaderboardData(currentUserId: string, limit = 10) {
+  // Create an array of random users
+  const leaderboard = [];
+  
+  // Randomly insert the current user between ranks 1-10
+  const currentUserRank = Math.floor(Math.random() * 10) + 1;
+  
+  for (let i = 1; i <= limit; i++) {
+    const isCurrentUser = i === currentUserRank;
+    
+    leaderboard.push({
+      user_id: isCurrentUser ? currentUserId : `user-${i}`,
+      name: isCurrentUser ? 'You' : `User ${i}`,
+      problems_solved: Math.floor(150 - (i * (150 / limit))),
+      accuracy: Math.floor(98 - (i * 2)),
+      score: Math.floor(1000 - (i * (1000 / limit))),
+      trend_percent_change: Math.floor(Math.random() * 20) - 10,
+      is_current_user: isCurrentUser
+    });
+  }
+  
+  // Sort by score
+  return leaderboard.sort((a, b) => b.score - a.score);
+}
