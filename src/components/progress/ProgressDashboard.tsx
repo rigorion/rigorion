@@ -21,12 +21,12 @@ interface ProgressDashboardProps {
   userData: UserProgress;
 }
 
-export default function ProgressDashboard({
+export const ProgressDashboard = ({
   period,
   type,
   className,
   userData
-}: ProgressDashboardProps) {
+}: ProgressDashboardProps) => {
   const stats = [{
     title: "Speed",
     value: `${userData.speed}%`,
@@ -137,3 +137,7 @@ export default function ProgressDashboard({
       `}</style>
     </AnimatedContainer>;
 }
+
+// Make sure to properly export the component as default 
+// while also maintaining the named export for backwards compatibility
+export default ProgressDashboard;

@@ -1,6 +1,6 @@
 
-export interface TimePeriod = "daily" | "weekly" | "monthly" | "yearly";
-export interface ProgressTab = "performance" | "leaderboard";
+export type TimePeriod = "daily" | "weekly" | "monthly" | "yearly";
+export type ProgressTab = "performance" | "leaderboard";
 
 export interface UserProgressData {
   userId: string;
