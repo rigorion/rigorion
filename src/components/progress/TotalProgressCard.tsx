@@ -66,7 +66,7 @@ export const TotalProgressCard = ({
         
         // Make the request to the edge function
         const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-progress", {
-          method: "GET",
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${accessToken}`
