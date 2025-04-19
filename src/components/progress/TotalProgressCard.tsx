@@ -7,9 +7,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { toast } from "sonner";
 
-// Remove the code that's causing the error - this was attempting to execute at the module level
-// which isn't allowed in React components. We'll move this logic into the useEffect hook.
-
 interface ProgressData {
   total_questions: number;
   correct_count: number;
@@ -50,7 +47,7 @@ export const TotalProgressCard = ({
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${session.access_token}` // ✅ If your function is protected
+            "Authorization": `Bearer ${session.access_token}`
           }
         });
         
