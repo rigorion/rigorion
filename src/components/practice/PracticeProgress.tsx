@@ -4,6 +4,7 @@ import HintDialog from "./HintDialog";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import PracticeTabSelector from "./PracticeTabSelector";
+
 interface PracticeProgressProps {
   correctAnswers: number;
   incorrectAnswers: number;
@@ -18,12 +19,10 @@ interface PracticeProgressProps {
   setActiveTab: (tab: "problem" | "solution" | "quote") => void;
   currentQuestionIndex: number;
   currentQuestionHint?: string;
-  objective?: {
-    type: "questions" | "time";
-    value: number;
-  } | null;
+  objective?: { type: "questions" | "time", value: number } | null;
   progress?: number;
 }
+
 const PracticeProgress = ({
   correctAnswers,
   incorrectAnswers,
@@ -44,38 +43,39 @@ const PracticeProgress = ({
   const calculateProgress = () => {
     const total = totalQuestions;
     const totalAnswered = correctAnswers + incorrectAnswers;
+    
     return {
-      correct: correctAnswers / total * 100,
-      incorrect: incorrectAnswers / total * 100,
-      unattempted: (total - totalAnswered) / total * 100,
-      totalPercentage: Math.round(totalAnswered / total * 100)
+      correct: (correctAnswers / total) * 100,
+      incorrect: (incorrectAnswers / total) * 100,
+      unattempted: ((total - totalAnswered) / total) * 100,
+      totalPercentage: Math.round((totalAnswered / total) * 100)
     };
   };
-  const {
-    correct,
-    incorrect,
-    unattempted,
-    totalPercentage
-  } = calculateProgress();
-  return <div className="px-3 py-2 border-b bg-white">
+
+  const { correct, incorrect, unattempted, totalPercentage } = calculateProgress();
+
+  return (
+    <div className="px-3 py-2 border-b bg-white">
       <div className="flex items-center justify-between mb-2">
         {/* Progress bar with percentage indicator */}
         <div className="relative h-2.5 bg-gray-100 rounded-full overflow-hidden flex-grow">
           {/* Correct answers - green */}
-          <div className="absolute left-0 top-0 h-full bg-green-500 rounded-l-full transition-all duration-500 ease-out shine-animation" style={{
-          width: `${correct}%`
-        }} />
+          <div 
+            className="absolute left-0 top-0 h-full bg-green-500 rounded-l-full transition-all duration-500 ease-out shine-animation"
+            style={{ width: `${correct}%` }}
+          />
           
           {/* Incorrect answers - red */}
-          <div className="absolute top-0 h-full bg-red-500 transition-all duration-500 ease-out" style={{
-          left: `${correct}%`,
-          width: `${incorrect}%`
-        }} />
+          <div 
+            className="absolute top-0 h-full bg-red-500 transition-all duration-500 ease-out"
+            style={{ left: `${correct}%`, width: `${incorrect}%` }}
+          />
           
           {/* Unattempted - grey */}
-          <div style={{
-          width: `${unattempted}%`
-        }} className="absolute top-0 right-0 h-2 bg-gray-300 rounded-r-full transition-all duration-500 ease-out" />
+          <div 
+            className="absolute top-0 right-0 h-full bg-gray-300 rounded-r-full transition-all duration-500 ease-out"
+            style={{ width: `${unattempted}%` }}
+          />
           
           {/* Progress percentage */}
           <div className="absolute right-0 top-0 -translate-y-1/2 translate-x-full mt-1.5 ml-2 text-xs font-medium text-blue-600">
@@ -109,11 +109,20 @@ const PracticeProgress = ({
           {/* Style button inline */}
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="sm" className="p-1 h-6 rounded-full" aria-label="Text styling options">
+              <Button
+                variant="ghost"
+                size="sm" 
+                className="p-1 h-6 rounded-full"
+                aria-label="Text styling options"
+              >
                 <Sparkles className="h-4 w-4 text-blue-600" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-64 p-4 rounded-xl border border-blue-100 shadow-lg bg-white/90 backdrop-blur-sm transition-all duration-300 animate-in fade-in slide-in" sideOffset={5} align="center">
+            <PopoverContent 
+              className="w-64 p-4 rounded-xl border border-blue-100 shadow-lg bg-white/90 backdrop-blur-sm transition-all duration-300 animate-in fade-in slide-in"
+              sideOffset={5}
+              align="center"
+            >
               {/* Style content remains the same */}
               <div className="space-y-4">
                 <h3 className="text-sm font-medium text-gray-700">Text Styling</h3>
@@ -121,7 +130,11 @@ const PracticeProgress = ({
                 <div className="space-y-3">
                   <div className="flex flex-col gap-2">
                     <label className="text-xs font-medium text-gray-600">Font</label>
-                    <select value="" onChange={() => {}} className="p-1.5 text-sm border rounded-lg bg-gray-50 focus:ring-1 focus:ring-blue-300 outline-none">
+                    <select
+                      value=""
+                      onChange={() => {}}
+                      className="p-1.5 text-sm border rounded-lg bg-gray-50 focus:ring-1 focus:ring-blue-300 outline-none"
+                    >
                       <option value="inter">Inter</option>
                       <option value="times-new-roman">Times New Roman</option>
                       <option value="roboto">Roboto</option>
@@ -135,23 +148,46 @@ const PracticeProgress = ({
                     <div className="flex justify-between items-center">
                       <label className="text-xs font-medium text-gray-600">Size: px</label>
                     </div>
-                    <input type="range" min="10" max="24" step="1" value="14" onChange={() => {}} className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" />
+                    <input
+                      type="range"
+                      min="10"
+                      max="24"
+                      step="1"
+                      value="14"
+                      onChange={() => {}}
+                      className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                    />
                   </div>
                   
                   <div className="grid grid-cols-3 gap-3">
                     <div className="flex flex-col gap-1 items-center">
                       <label className="text-xs font-medium text-gray-600">Text</label>
-                      <input type="color" value="#374151" onChange={() => {}} className="w-8 h-8 p-0 border-none rounded-full" />
+                      <input
+                        type="color"
+                        value="#374151"
+                        onChange={() => {}}
+                        className="w-8 h-8 p-0 border-none rounded-full"
+                      />
                     </div>
                     
                     <div className="flex flex-col gap-1 items-center">
                       <label className="text-xs font-medium text-gray-600">Key</label>
-                      <input type="color" value="#2563eb" onChange={() => {}} className="w-8 h-8 p-0 border-none rounded-full" />
+                      <input
+                        type="color"
+                        value="#2563eb"
+                        onChange={() => {}}
+                        className="w-8 h-8 p-0 border-none rounded-full"
+                      />
                     </div>
                     
                     <div className="flex flex-col gap-1 items-center">
                       <label className="text-xs font-medium text-gray-600">Formula</label>
-                      <input type="color" value="#dc2626" onChange={() => {}} className="w-8 h-8 p-0 border-none rounded-full" />
+                      <input
+                        type="color"
+                        value="#dc2626"
+                        onChange={() => {}}
+                        className="w-8 h-8 p-0 border-none rounded-full"
+                      />
                     </div>
                   </div>
                 </div>
@@ -160,15 +196,26 @@ const PracticeProgress = ({
           </Popover>
           
           {/* Hint button inline */}
-          <HintDialog hint={currentQuestionHint} currentQuestionIndex={currentQuestionIndex} />
+          <HintDialog 
+            hint={currentQuestionHint} 
+            currentQuestionIndex={currentQuestionIndex} 
+          />
 
           {/* Flag icon for "review later" */}
-          <Button variant="ghost" size="sm" className="p-1 h-6 rounded-full">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="p-1 h-6 rounded-full"
+          >
             <Flag className="h-4 w-4 text-blue-600" />
           </Button>
           
           {/* Tab selector */}
-          <PracticeTabSelector activeTab={activeTab} setActiveTab={setActiveTab} className="h-8 min-h-0" />
+          <PracticeTabSelector
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            className="h-8 min-h-0"
+          />
         </div>
 
         {/* Right side - Target Progress and Timer */}
@@ -181,7 +228,17 @@ const PracticeProgress = ({
           {/* Timer */}
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-blue-600" />
-            {timerDuration > 0 ? <CountdownTimer durationInSeconds={timerDuration} onComplete={handleTimerComplete} isActive={isTimerActive} mode={mode} onUpdate={(remaining: string) => setTimeRemaining(remaining)} /> : <span>{timeRemaining}</span>}
+            {timerDuration > 0 ? (
+              <CountdownTimer
+                durationInSeconds={timerDuration}
+                onComplete={handleTimerComplete}
+                isActive={isTimerActive}
+                mode={mode}
+                onUpdate={(remaining: string) => setTimeRemaining(remaining)}
+              />
+            ) : (
+              <span>{timeRemaining}</span>
+            )}
           </div>
         </div>
       </div>
@@ -226,6 +283,8 @@ const PracticeProgress = ({
         }
         `}
       </style>
-    </div>;
+    </div>
+  );
 };
+
 export default PracticeProgress;
