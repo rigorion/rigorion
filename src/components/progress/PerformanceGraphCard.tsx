@@ -1,10 +1,8 @@
-
 import { Card } from "@/components/ui/card";
 import { ProgressChart } from "./ProgressChart";
 import { motion } from "framer-motion";
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
@@ -26,41 +24,20 @@ export const PerformanceGraphCard = ({
 
   useEffect(() => {
     const fetchPerformanceData = async () => {
-
-
-const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-progress", {
-  method: "GET", // or POST
-  headers: {
-    "Content-Type": "application/json",
-    // Optional: include token if required by your function
-    "Authorization": `Bearer ${user.session.access_token}`
-  }
-});
-const data = await res.json();
-console.log(" we ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", data)
-
-
-
-      
       if (!session) return;
       
       setIsLoading(true);
       
       try {
-        const { data, error } = await supabase.functions.invoke('get-progress', {
-          body: {
-            userId: session.user.id,
-            period: 'weekly'
+        const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-progress", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${session.access_token}`
           }
         });
-
-        if (error) {
-          console.error('Edge function error:', error);
-          throw error;
-        }
-        else {
-          console.log('Here is my Data: ', data)
-        }
+        const data = await res.json();
+        console.log("Performance data fetched:", data);
 
         if (data && Array.isArray(data) && data.length > 0) {
           setPerformanceData(data);
