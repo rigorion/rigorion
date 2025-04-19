@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { getUserProgressData } from "@/services/progressService";
@@ -10,6 +10,7 @@ import { FullPageLoader } from "@/components/progress/FullPageLoader";
 import { ErrorDisplay } from "@/components/progress/ErrorDisplay";
 import { EmptyProgressState } from "@/components/progress/EmptyProgressState";
 import type { TimePeriod, ProgressTab, UserProgressData } from "@/types/progress";
+import { toast } from "sonner";
 
 const Progress = () => {
   const { session } = useAuth();
@@ -23,31 +24,38 @@ const Progress = () => {
     data: userProgress, 
     isLoading, 
     error,
-    isError 
+    isError,
+    isFetching 
   } = useQuery<UserProgressData, Error>({
     queryKey: ['userProgress', userId, period],
-    queryFn: () => {
+    queryFn: async () => {
       if (!userId) throw new Error("Authentication required");
-      return getUserProgressData(userId);
+      
+      try {
+        return await getUserProgressData(userId, period);
+      } catch (err) {
+        console.error("Failed to fetch progress data", err);
+        toast.error("Could not load progress data from server. Using cached data instead.");
+        // Re-throw to be handled by error boundary
+        throw err;
+      }
     },
     enabled: isAuthenticated,
     staleTime: 300000, // 5 minutes
     retry: (failureCount, error) => {
-      return error.message !== "Authentication required" && failureCount < 3;
+      // Don't retry authentication errors, but retry other errors up to 2 times
+      return error.message !== "Authentication required" && failureCount < 2;
+    },
+    onError: (error) => {
+      console.error("Progress data query error:", error);
     }
   });
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      console.warn("User not authenticated");
-    }
-  }, [isAuthenticated]);
 
   if (isLoading && isAuthenticated) {
     return <FullPageLoader />;
   }
 
-  if (isError) {
+  if (isError && !userProgress) {
     return <ErrorDisplay error={error} />;
   }
 
@@ -58,7 +66,7 @@ const Progress = () => {
   return (
     <div className="flex min-h-screen w-full bg-mono-bg">
       <main className="flex-1 bg-mono-bg">
-        <Tabs defaultValue={activeTab} className="w-full">
+        <Tabs defaultValue={activeTab} value={activeTab} onValueChange={(value) => setActiveTab(value as ProgressTab)}>
           <div className="container mx-auto p-6">
             <TabsContent value="performance">
               <ProgressDashboard 
