@@ -110,52 +110,57 @@ export async function getUserProgressData(userId: string, period: TimePeriod = "
       });
       
       // Race between the fetch and timeout
-      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as typeof fetchPromise;
+      const result = await Promise.race([fetchPromise, timeoutPromise]);
+      
+      // Now we need to check if the result is from fetchPromise (it will have data property)
+      if ('data' in result) {
+        const { data, error } = result;
+        
+        if (error) {
+          console.error('Edge function error:', error);
+          throw error;
+        }
 
-      if (error) {
-        console.error('Edge function error:', error);
-        throw error;
-      }
+        if (data) {
+          // Format the data to match our UserProgressData interface
+          const formattedData: UserProgressData = {
+            userId,
+            totalProgressPercent: data.total_progress_percent || 0,
+            correctAnswers: data.correct_answers || 0,
+            incorrectAnswers: data.incorrect_answers || 0,
+            unattemptedQuestions: data.unattempted_questions || 0,
+            questionsAnsweredToday: data.questions_answered_today || 0,
+            streak: data.streak || 0,
+            averageScore: data.average_score || 0,
+            rank: data.rank || 0,
+            projectedScore: data.projected_score || 0,
+            speed: data.speed || 0,
+            easyAccuracy: data.easy_accuracy || 0,
+            easyAvgTime: data.easy_avg_time || 0,
+            easyCompleted: data.easy_completed || 0,
+            easyTotal: data.easy_total || 0,
+            mediumAccuracy: data.medium_accuracy || 0,
+            mediumAvgTime: data.medium_avg_time || 0,
+            mediumCompleted: data.medium_completed || 0,
+            mediumTotal: data.medium_total || 0,
+            hardAccuracy: data.hard_accuracy || 0,
+            hardAvgTime: data.hard_avg_time || 0,
+            hardCompleted: data.hard_completed || 0,
+            hardTotal: data.hard_total || 0,
+            goalAchievementPercent: data.goal_achievement_percent || 0,
+            averageTime: data.average_time || 0,
+            correctAnswerAvgTime: data.correct_answer_avg_time || 0,
+            incorrectAnswerAvgTime: data.incorrect_answer_avg_time || 0,
+            longestQuestionTime: data.longest_question_time || 0,
+            performanceGraph: data.performance_graph || [],
+            chapterPerformance: data.chapter_performance || [],
+            goals: data.goals || []
+          };
 
-      if (data) {
-        // Format the data to match our UserProgressData interface
-        const formattedData: UserProgressData = {
-          userId,
-          totalProgressPercent: data.total_progress_percent || 0,
-          correctAnswers: data.correct_answers || 0,
-          incorrectAnswers: data.incorrect_answers || 0,
-          unattemptedQuestions: data.unattempted_questions || 0,
-          questionsAnsweredToday: data.questions_answered_today || 0,
-          streak: data.streak || 0,
-          averageScore: data.average_score || 0,
-          rank: data.rank || 0,
-          projectedScore: data.projected_score || 0,
-          speed: data.speed || 0,
-          easyAccuracy: data.easy_accuracy || 0,
-          easyAvgTime: data.easy_avg_time || 0,
-          easyCompleted: data.easy_completed || 0,
-          easyTotal: data.easy_total || 0,
-          mediumAccuracy: data.medium_accuracy || 0,
-          mediumAvgTime: data.medium_avg_time || 0,
-          mediumCompleted: data.medium_completed || 0,
-          mediumTotal: data.medium_total || 0,
-          hardAccuracy: data.hard_accuracy || 0,
-          hardAvgTime: data.hard_avg_time || 0,
-          hardCompleted: data.hard_completed || 0,
-          hardTotal: data.hard_total || 0,
-          goalAchievementPercent: data.goal_achievement_percent || 0,
-          averageTime: data.average_time || 0,
-          correctAnswerAvgTime: data.correct_answer_avg_time || 0,
-          incorrectAnswerAvgTime: data.incorrect_answer_avg_time || 0,
-          longestQuestionTime: data.longest_question_time || 0,
-          performanceGraph: data.performance_graph || [],
-          chapterPerformance: data.chapter_performance || [],
-          goals: data.goals || []
-        };
-
-        // Store in cache
-        userProgressCache.set(cacheKey, formattedData);
-        return formattedData;
+          // Store in cache
+          userProgressCache.set(cacheKey, formattedData);
+          return formattedData;
+        }
       }
     } catch (error) {
       console.error('Error fetching from edge function:', error);
