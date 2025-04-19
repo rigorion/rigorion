@@ -46,12 +46,19 @@ export const TotalProgressCard = ({
       setError(null);
       
       try {
-        const { data, error } = await supabase.functions.invoke('get-user-progress', {
-          body: {
+        const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-progress", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${session.access_token}` // ✅ If your function is protected
+          },
+          body: JSON.stringify({
             userId: session.user.id,
-            period: 'weekly'
-          }
+            period: "weekly"
+          })
         });
+        
+        const data = await res.json();
 
         if (error) {
           throw new Error(`Error fetching progress: ${error.message}`);
