@@ -48,7 +48,7 @@ const SegmentedProgress = ({
       </svg>
       
       {showLabel && <div className="absolute inset-0 flex flex-col items-center justify-center bg-transparent">
-          <span className="text-3xl font-semibold text-gray-800">
+          <span className="font-semibold text-gray-800 text-2xl text-center">
             {normalizedProgress}%
           </span>
           <span className="text-sm text-gray-600 mt-1">
