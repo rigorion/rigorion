@@ -48,21 +48,20 @@ serve(async (req) => {
     throw new Error("User ID is required");
   }
 
-  // Generate fallback data for this demo
-  // In a real implementation, you would query the database for actual user data
-  const totalQuestions = 130;
-  const correctCount = 53;
-  const incorrectCount = 21;
-  const unattemptedCount = 56;
-  
-  const responseData = {
-    user_id: userId,
-    total_questions: totalQuestions,
-    correct_count: correctCount,
-    incorrect_count: incorrectCount,
-    unattempted_count: unattemptedCount,
-    total_progress_percent: Math.round((correctCount + incorrectCount) / totalQuestions * 100)
-  };
+const { data, error } = await supabaseClient
+  .from("user_progress")
+  .select("total_questions, correct_count, incorrect_count, unattempted_count")
+  .eq("user_id", userId)
+  .single();
+
+if (error || !data) throw new Error("User progress not found");
+
+const responseData = {
+  user_id: userId,
+  ...data,
+  total_progress_percent: Math.round((data.correct_count + data.incorrect_count) / data.total_questions * 100)
+};
+
 
   try {
     return new Response(
