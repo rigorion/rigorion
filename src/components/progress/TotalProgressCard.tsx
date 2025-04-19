@@ -47,15 +47,11 @@ export const TotalProgressCard = ({
       
       try {
         const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-user-progress", {
-          method: "POST",
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${session.access_token}` // ✅ If your function is protected
-          },
-          body: JSON.stringify({
-            userId: session.user.id,
-            period: "weekly"
-          })
+          }
         });
         
         const data = await res.json();
