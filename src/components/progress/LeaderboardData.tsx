@@ -69,7 +69,7 @@ export const LeaderboardData = ({ userId }: { userId: string }) => {
   return (
     <Card className="p-6 bg-white">
       <h2 className="text-2xl font-bold mb-6">Leaderboard</h2>
-      <LeaderboardTable leaderboardData={leaderboard || []} />
+      <LeaderboardTable users={leaderboard || []} />
     </Card>
   );
 };
