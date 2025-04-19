@@ -7,9 +7,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { toast } from "sonner";
 
-// Remove the code that's causing the error - this was attempting to execute at the module level
-// which isn't allowed in React components. We'll move this logic into the useEffect hook.
-
 interface ProgressData {
   total_questions: number;
   correct_count: number;
@@ -46,11 +43,26 @@ export const TotalProgressCard = ({
       setError(null);
       
       try {
+        // First get a fresh access token from Supabase
+        const { data: { session: currentSession }, error: tokenError } = await supabase.auth.getSession();
+        
+        if (tokenError) {
+          throw new Error(`Error refreshing token: ${tokenError.message}`);
+        }
+        
+        if (!currentSession) {
+          throw new Error('No active session found');
+        }
+        
+        // Use the access token from the current session
+        const accessToken = currentSession.access_token;
+        
+        // Make the request to the edge function
         const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-progress", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${session.access_token}` // ✅ If your function is protected
+            "Authorization": `Bearer ${accessToken}`
           },
           body: JSON.stringify({
             userId: session.user.id,
@@ -58,11 +70,12 @@ export const TotalProgressCard = ({
           })
         });
         
-        const data = await res.json();
-
-        if (error) {
-          throw new Error(`Error fetching progress: ${error.message}`);
+        if (!res.ok) {
+          throw new Error(`Server returned ${res.status}: ${res.statusText}`);
         }
+        
+        const data = await res.json();
+        console.log("Progress data received:", data);
 
         if (data) {
           setLocalProgress({

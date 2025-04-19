@@ -6,6 +6,7 @@ import { TrendingDown, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { supabase } from '@/lib/supabase';
 
 interface PerformanceDataPoint {
   date: string;
@@ -30,14 +31,34 @@ export const PerformanceGraphCard = ({
       setIsLoading(true);
       
       try {
-        // Using consistent endpoint URL that matches other project references
-        const res = await fetch("https://evfxcdzwmmiguzxdxktl.supabase.co/functions/v1/get-progress", {
+        // First get a fresh access token from Supabase
+        const { data: { session: currentSession }, error: tokenError } = await supabase.auth.getSession();
+        
+        if (tokenError) {
+          throw new Error(`Error refreshing token: ${tokenError.message}`);
+        }
+        
+        if (!currentSession) {
+          throw new Error('No active session found');
+        }
+        
+        // Use the access token from the current session
+        const accessToken = currentSession.access_token;
+        
+        // Make the request to the edge function
+        const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-progress", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${session.access_token}`
+            "Authorization": `Bearer ${accessToken}`
           }
         });
+        
+        if (!res.ok) {
+          console.error(`Server returned ${res.status}: ${res.statusText}`);
+          throw new Error(`Error fetching performance data: ${res.statusText}`);
+        }
+        
         const data = await res.json();
         console.log("Performance data fetched:", data);
 
@@ -45,45 +66,35 @@ export const PerformanceGraphCard = ({
           setPerformanceData(data);
         } else {
           // Fallback dummy data
-          const today = new Date();
-          const dummyData = [];
-          
-          for (let i = 9; i >= 0; i--) {
-            const date = new Date(today);
-            date.setDate(date.getDate() - i);
-            const formattedDate = date.toISOString().split('T')[0];
-            
-            dummyData.push({
-              date: formattedDate,
-              attempted: Math.floor(Math.random() * 30) + 10,
-            });
-          }
-          
-          setPerformanceData(dummyData);
+          generateFallbackData();
         }
       } catch (error) {
         console.error('Failed to fetch performance data:', error);
         toast.error("Could not load performance data. Using sample data.");
         
         // Fallback to dummy data
-        const today = new Date();
-        const dummyData = [];
-        
-        for (let i = 9; i >= 0; i--) {
-          const date = new Date(today);
-          date.setDate(date.getDate() - i);
-          const formattedDate = date.toISOString().split('T')[0];
-          
-          dummyData.push({
-            date: formattedDate,
-            attempted: Math.floor(Math.random() * 30) + 10,
-          });
-        }
-        
-        setPerformanceData(dummyData);
+        generateFallbackData();
       } finally {
         setIsLoading(false);
       }
+    };
+
+    const generateFallbackData = () => {
+      const today = new Date();
+      const dummyData = [];
+      
+      for (let i = 9; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        const formattedDate = date.toISOString().split('T')[0];
+        
+        dummyData.push({
+          date: formattedDate,
+          attempted: Math.floor(Math.random() * 30) + 10,
+        });
+      }
+      
+      setPerformanceData(dummyData);
     };
 
     if (!propData || propData.length === 0) {

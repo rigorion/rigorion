@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -17,7 +18,10 @@ serve(async (req) => {
   // Get the authorization header
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) {
-    throw new Error("No authorization header");
+    return new Response(JSON.stringify({ error: "Authorization header missing" }), { 
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
   }
 
   // Create Supabase client
@@ -45,25 +49,44 @@ serve(async (req) => {
   }
 
   if (!userId) {
-    throw new Error("User ID is required");
+    // Try to get userId from JWT directly
+    try {
+      const { data: { user }, error } = await supabaseClient.auth.getUser();
+      if (error) throw error;
+      
+      userId = user?.id;
+      
+      if (!userId) {
+        throw new Error("User ID not found in token");
+      }
+    } catch (error) {
+      console.error("Error getting user from token:", error);
+      return new Response(
+        JSON.stringify({ error: "User ID is required or valid JWT token" }),
+        { 
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400
+        }
+      );
+    }
   }
 
-const { data, error } = await supabaseClient
-  .from("user_progress")
-  .select("total_questions, correct_count, incorrect_count, unattempted_count")
-  .eq("user_id", userId)
-  .single();
-
-if (error || !data) throw new Error("User progress not found");
-
-const responseData = {
-  user_id: userId,
-  ...data,
-  total_progress_percent: Math.round((data.correct_count + data.incorrect_count) / data.total_questions * 100)
-};
-
-
   try {
+    const { data, error } = await supabaseClient
+      .from("user_progress")
+      .select("total_questions, correct_count, incorrect_count, unattempted_count")
+      .eq("user_id", userId)
+      .single();
+
+    if (error) throw error;
+    if (!data) throw new Error("User progress not found");
+
+    const responseData = {
+      user_id: userId,
+      ...data,
+      total_progress_percent: Math.round((data.correct_count + data.incorrect_count) / data.total_questions * 100)
+    };
+
     return new Response(
       JSON.stringify(responseData), 
       { 
@@ -72,6 +95,7 @@ const responseData = {
       }
     );
   } catch (error) {
+    console.error("Error fetching progress data:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
