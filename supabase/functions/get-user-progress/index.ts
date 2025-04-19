@@ -1,17 +1,24 @@
 
-import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS'
-}
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
+};
 
 serve(async (req) => {
+  // Handle preflight requests first
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { 
+      headers: {
+        ...corsHeaders,
+        'Access-Control-Max-Age': '86400' // Cache preflight for 24h
+      }
+    });
   }
+
+  // Add CORS headers to all responses
+  const headers = new Headers(corsHeaders);
+  headers.set('Content-Type', 'application/json');
 
   try {
     // Get Supabase client
