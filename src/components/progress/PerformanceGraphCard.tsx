@@ -42,6 +42,9 @@ export const PerformanceGraphCard = ({
           console.error('Edge function error:', error);
           throw error;
         }
+        else {
+          console.log('Here is my Data: ', data)
+        }
 
         if (data && Array.isArray(data) && data.length > 0) {
           setPerformanceData(data);
