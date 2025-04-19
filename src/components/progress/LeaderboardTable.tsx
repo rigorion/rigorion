@@ -9,6 +9,33 @@ import {
   TableCell
 } from "@/components/ui/table";
 
+import { createClient } from '@supabase/supabase-js';
+
+// Create the Supabase client (make sure the env vars are set properly)
+const supabase = createClient(
+ 'https://eantvimmgdmxzwrjwrop.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhbnR2aW1tZ2RteHp3cmp3cm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQwNTk0OTEsImV4cCI6MjA1OTYzNTQ5MX0.A4T0RL_luqzFIPSikCllFpNJtwxcVaLiDm_BCBlRcu8'
+);
+
+// Call the Edge Function
+const { data, error } = await supabase.functions.invoke('get-progress', {
+  body: {
+    userId: '55fb126c-109d-4c10-96af-18edc09a81c7',   // replace this with actual userId
+    period: 'weekly'          // optional if your function supports it
+  }
+});
+
+if (error) {
+  console.error('Edge function error:', error);
+} else {
+  console.log('User progress:', data);
+}
+
+
+
+
+
+
 interface LeaderboardUser {
   rank: number;
   name: string;
