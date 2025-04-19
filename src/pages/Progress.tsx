@@ -45,6 +45,11 @@ const Progress = () => {
     retry: (failureCount, error) => {
       // Don't retry authentication errors, but retry other errors up to 2 times
       return error.message !== "Authentication required" && failureCount < 2;
+    },
+    meta: {
+      onError: (error: Error) => {
+        console.error("Query error handler:", error);
+      }
     }
   });
 

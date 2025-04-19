@@ -1,4 +1,5 @@
-import { serve } from 'https://deno.fresh.dev/server.ts'
+
+import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -13,14 +14,17 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('https://eantvimmgdmxzwrjwrop.supabase.co')
-    const supabaseKey = Deno.env.get('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhbnR2aW1tZ2RteHp3cmp3cm9wIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NDA1OTQ5MSwiZXhwIjoyMDU5NjM1NDkxfQ.WiwKvixVdv_2_Q1TmSffgXqMs7KizZTwY56ihCpaXfY')
+    // Get Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
     
     if (!supabaseUrl || !supabaseKey) {
       throw new Error('Missing Supabase credentials')
     }
     
     const supabase = createClient(supabaseUrl, supabaseKey)
+    
+    // Parse request body
     const { userId, period = 'weekly' } = await req.json()
 
     if (!userId) {
