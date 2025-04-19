@@ -57,52 +57,16 @@ serve(async (req) => {
     const { data, error } = await supabaseClient
       .from("user_progress")
       .select("total_questions, correct_count, incorrect_count, unattempted_count")
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .single();
 
     if (error) {
       console.error("Database query error:", error);
       throw error;
     }
 
-    // If no data for this user, return an empty array
-    if (!data || data.length === 0) {
-      // Create default progress record for this user
-      const defaultProgress = {
-        total_questions: 100,
-        correct_count: 0,
-        incorrect_count: 0,
-        unattempted_count: 100,
-        user_id: user.id
-      };
-      
-      const { data: insertData, error: insertError } = await supabaseClient
-        .from("user_progress")
-        .insert(defaultProgress)
-        .select();
-      
-      if (insertError) {
-        console.error("Error inserting default progress:", insertError);
-        // Return a graceful fallback
-        return new Response(
-          JSON.stringify([defaultProgress]), 
-          { 
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-            status: 200
-          }
-        );
-      }
-      
-      return new Response(
-        JSON.stringify(insertData), 
-        { 
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200
-        }
-      );
-    }
-
     return new Response(
-      JSON.stringify(data), 
+      JSON.stringify(data || {}), 
       { 
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200

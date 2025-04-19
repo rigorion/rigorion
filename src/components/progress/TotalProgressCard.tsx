@@ -47,72 +47,42 @@ export const TotalProgressCard = ({
       setError(null);
       
       try {
-        // First get a fresh access token from Supabase
-        const { data: { session: currentSession }, error: tokenError } = await supabase.auth.getSession();
+        // Get a fresh session with access token
+        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
         
-        if (tokenError) {
-          console.error("Error getting session:", tokenError);
-          throw new Error(`Error refreshing token: ${tokenError.message}`);
+        if (sessionError || !currentSession) {
+          console.error("Error getting session:", sessionError || "No session found");
+          throw new Error(sessionError?.message || "No active session found");
         }
         
-        if (!currentSession) {
-          console.error("No active session found");
-          throw new Error('No active session found');
-        }
-        
-        // Use the access token from the current session
         const accessToken = currentSession.access_token;
         console.log("Got access token, making request to edge function");
         
-        // Make the request to the edge function with the correct URL and format
-        const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-progress", {
-          method: "POST",
+        // Call the edge function with the correct token format
+        const response = await fetch(`${Deno.env.SUPABASE_URL}/functions/v1/get-user-progress`, {
+          method: "GET",
           headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${accessToken}`
+            "Authorization": `Bearer ${accessToken}`,
+            "Content-Type": "application/json"
           }
         });
         
-        if (!res.ok) {
-          console.error(`Server returned ${res.status}: ${res.statusText}`);
-          throw new Error(`Server returned ${res.status}: ${res.statusText}`);
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`Server returned ${response.status}: ${errorText}`);
+          throw new Error(`Server returned ${response.status}: ${response.statusText}`);
         }
         
-        const data = await res.json();
+        const data = await response.json();
         console.log("Progress data received:", data);
-
+        
         if (data) {
-          // Format matches the response from your edge function
           setLocalProgress({
             total_questions: data.total_questions || 100,
             correct_count: data.correct_count || 0,
             incorrect_count: data.incorrect_count || 0,
             unattempted_count: data.unattempted_count || 100
           });
-        } else {
-          console.log("No data in response, trying direct query");
-          // If no data is returned, try direct query as fallback
-          try {
-            const { data: directData, error: directError } = await supabase
-              .from("user_progress")
-              .select("total_questions, correct_count, incorrect_count, unattempted_count")
-              .eq("user_id", session.user.id)
-              .single();
-
-            if (directError) throw directError;
-
-            if (directData) {
-              setLocalProgress({
-                total_questions: directData.total_questions,
-                correct_count: directData.correct_count,
-                incorrect_count: directData.incorrect_count,
-                unattempted_count: directData.unattempted_count
-              });
-            }
-          } catch (fallbackError) {
-            console.error('Fallback query failed:', fallbackError);
-            // Continue to the fallback data below
-          }
         }
       } catch (err) {
         console.error('Error fetching progress:', err);

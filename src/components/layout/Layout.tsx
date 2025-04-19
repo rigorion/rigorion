@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import Header from "./Header";
 import AppSidebar from "./Sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -15,9 +14,13 @@ export const Layout = ({ children }: LayoutProps) => {
         <AppSidebar />
         <div className="flex-1 flex flex-col">
           <Header />
-          {children}
+          <main className="flex-1">
+            {children}
+          </main>
         </div>
       </div>
     </SidebarProvider>
   );
 };
+
+export default Layout;

@@ -21,8 +21,8 @@ async function getLeaderboard(userId: string): Promise<LeaderboardEntry[]> {
     
     const accessToken = session.access_token;
     
-    // Call the edge function with the correct endpoint
-    const response = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-leaderboard", {
+    // Call the edge function with the correct URL format
+    const response = await fetch(`${Deno.env.SUPABASE_URL}/functions/v1/get-leaderboard`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -32,7 +32,9 @@ async function getLeaderboard(userId: string): Promise<LeaderboardEntry[]> {
     });
     
     if (!response.ok) {
-      throw new Error(`Failed to fetch leaderboard: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error(`Failed to fetch leaderboard: ${response.status} - ${errorText}`);
+      throw new Error(`Failed to fetch leaderboard: ${response.status}`);
     }
     
     const data = await response.json();
@@ -74,7 +76,12 @@ function generateDummyLeaderboard(userId: string): LeaderboardEntry[] {
 }
 
 export const LeaderboardData = ({ userId }: { userId: string }) => {
-  const { data: leaderboard, isLoading, error } = useQuery({
+  const { 
+    data: leaderboard, 
+    isLoading, 
+    error,
+    isError 
+  } = useQuery<LeaderboardEntry[], Error>({
     queryKey: ['leaderboard', userId],
     queryFn: () => getLeaderboard(userId),
     staleTime: 300000, // 5 minutes
@@ -84,8 +91,8 @@ export const LeaderboardData = ({ userId }: { userId: string }) => {
     return <FullPageLoader />;
   }
   
-  if (error) {
-    return <ErrorDisplay error={error as Error} />;
+  if (isError) {
+    return <ErrorDisplay error={error} />;
   }
   
   return (

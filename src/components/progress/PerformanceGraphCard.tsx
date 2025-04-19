@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { ProgressChart } from "./ProgressChart";
 import { motion } from "framer-motion";
@@ -38,32 +37,30 @@ export const PerformanceGraphCard = ({
         // First get a fresh access token from Supabase
         const { data: { session: currentSession }, error: tokenError } = await supabase.auth.getSession();
         
-        if (tokenError) {
-          throw new Error(`Error refreshing token: ${tokenError.message}`);
+        if (tokenError || !currentSession) {
+          console.error("Authentication error:", tokenError || "No session found");
+          throw new Error(tokenError?.message || "No active session found");
         }
         
-        if (!currentSession) {
-          throw new Error('No active session found');
-        }
-        
-        // Use the access token from the current session
         const accessToken = currentSession.access_token;
+        console.log("Got access token for performance data");
         
-        // Make the request to the edge function - make sure URL is correct
-        const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-performance", {
-          method: "POST",
+        // Use the correct URL format for the edge function
+        const response = await fetch(`${Deno.env.SUPABASE_URL}/functions/v1/get-performance`, {
+          method: "GET",
           headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${accessToken}`
+            "Authorization": `Bearer ${accessToken}`,
+            "Content-Type": "application/json"
           }
         });
         
-        if (!res.ok) {
-          console.warn(`Performance data fetch failed with status: ${res.status}`);
-          throw new Error(`Error fetching performance data: ${res.statusText}`);
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`Performance data fetch failed: ${response.status} - ${errorText}`);
+          throw new Error(`Error fetching performance data: ${response.status}`);
         }
         
-        const data = await res.json();
+        const data = await response.json();
         console.log("Performance data fetched:", data);
 
         if (data && Array.isArray(data.performance_graph) && data.performance_graph.length > 0) {
