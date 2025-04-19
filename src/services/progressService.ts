@@ -100,16 +100,17 @@ export async function getUserProgressData(userId: string, period: TimePeriod = "
     console.log(`Fetching progress data for user ${userId} with period ${period}`);
     
     try {
-      // Call the Edge Function with timeout and retry logic
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-      
-      const { data, error } = await supabase.functions.invoke('get-user-progress', {
-        body: { userId, period },
-        signal: controller.signal
+      // Call the Edge Function with timeout logic
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout')), 5000);
       });
       
-      clearTimeout(timeoutId);
+      const fetchPromise = supabase.functions.invoke('get-user-progress', {
+        body: { userId, period }
+      });
+      
+      // Race between the fetch and timeout
+      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as typeof fetchPromise;
 
       if (error) {
         console.error('Edge function error:', error);

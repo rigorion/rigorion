@@ -12,13 +12,13 @@ import { TimeManagementCard } from "./TimeManagementCard";
 import { GoalsCard } from "./GoalsCard";
 import { AnimatedContainer, AnimatedItem } from "./AnimationWrappers";
 import { ProjectedScore } from "@/components/stats/ProjectedScore";
-import { UserProgress } from "@/services/types/progressTypes";
+import { UserProgressData } from "@/types/progress";
 
 interface ProgressDashboardProps {
   period: string;
   type: string;
   className?: string;
-  userData: UserProgress;
+  userData: UserProgressData;
 }
 
 export const ProgressDashboard = ({
@@ -136,8 +136,7 @@ export const ProgressDashboard = ({
         }
       `}</style>
     </AnimatedContainer>;
-}
+};
 
-// Make sure to properly export the component as default 
-// while also maintaining the named export for backwards compatibility
+// Export as both named and default export
 export default ProgressDashboard;

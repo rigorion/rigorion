@@ -50,3 +50,13 @@ export interface UserProgressData {
     dueDate: string;
   }>;
 }
+
+export interface LeaderboardEntry {
+  rank: number;
+  name: string;
+  problems: number;
+  accuracy: string;
+  score: number;
+  trend: number;
+  isCurrentUser: boolean;
+}
