@@ -1,4 +1,3 @@
-
 import { serve } from 'https://deno.fresh.dev/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -9,119 +8,102 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  // Handle preflight requests for CORS
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    // Create Supabase client using environment variables
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
     
     if (!supabaseUrl || !supabaseKey) {
-      throw new Error('Missing Supabase environment variables')
+      throw new Error('Missing Supabase credentials')
     }
     
     const supabase = createClient(supabaseUrl, supabaseKey)
-
-    // Parse request body
     const { userId, period = 'weekly' } = await req.json()
-    
+
     if (!userId) {
-      return new Response(
-        JSON.stringify({ error: 'User ID is required' }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 400 
-        }
-      )
+      return new Response(JSON.stringify({ error: 'User ID required' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400
+      })
     }
 
-    // Check if the user exists
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('id')
-      .eq('id', userId)
+    // Fetch core progress data
+    const { data: progress, error: progressError } = await supabase
+      .from('user_progress')
+      .select('*')
+      .eq('user_id', userId)
       .single()
 
-    if (userError || !userData) {
-      return new Response(
-        JSON.stringify({ error: 'User not found', details: userError }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 404 
-        }
-      )
+    if (progressError) throw progressError
+
+    // Fetch related data
+    const [{ data: performance }, { data: chapters }, { data: goals }] = await Promise.all([
+      supabase
+        .from('performance_graph')
+        .select('date, attempted')
+        .eq('user_id', userId)
+        .order('date', { ascending: true })
+        .limit(10),
+      supabase
+        .from('chapter_performance')
+        .select('chapter_id, chapter_name, correct, incorrect, unattempted')
+        .eq('user_id', userId),
+      supabase
+        .from('user_goals')
+        .select('id, title, target_value, current_value, due_date')
+        .eq('user_id', userId)
+    ])
+
+    // Transform data to match your frontend expectations
+    const responseData = {
+      user_id: userId,
+      total_progress_percent: Math.round((progress.correct_count + progress.incorrect_count) / progress.total_questions * 100),
+      correct_answers: progress.correct_count,
+      incorrect_answers: progress.incorrect_count,
+      unattempted_questions: progress.unattempted_count,
+      questions_answered_today: 0, // You'll need to implement daily tracking
+      streak: progress.streak_days,
+      average_score: progress.avg_score,
+      rank: progress.rank,
+      projected_score: progress.projected_score,
+      speed: progress.speed,
+      easy_accuracy: progress.easy.accuracy,
+      easy_avg_time: progress.easy.avg_time,
+      easy_completed: progress.easy.completed,
+      easy_total: progress.easy.total,
+      medium_accuracy: progress.medium.accuracy,
+      medium_avg_time: progress.medium.avg_time,
+      medium_completed: progress.medium.completed,
+      medium_total: progress.medium.total,
+      hard_accuracy: progress.hard.accuracy,
+      hard_avg_time: progress.hard.avg_time,
+      hard_completed: progress.hard.completed,
+      hard_total: progress.hard.total,
+      performance_graph: performance || [],
+      chapter_performance: chapters || [],
+      goals: goals?.map(g => ({
+        ...g,
+        current_value: g.current_value,
+        target_value: g.target_value
+      })) || []
     }
 
-    // Get user progress data - for now, we'll just generate mock data
-    // This would be replaced with actual database queries in production
-    const mockData = {
-      user_id: userId,
-      total_progress_percent: 65,
-      correct_answers: 78,
-      incorrect_answers: 22,
-      unattempted_questions: 30,
-      questions_answered_today: 12,
-      streak: 5,
-      average_score: 88,
-      rank: 134,
-      projected_score: 90,
-      speed: 75,
-      easy_accuracy: 92,
-      easy_avg_time: 2.0,
-      easy_completed: 40,
-      easy_total: 45,
-      medium_accuracy: 75,
-      medium_avg_time: 3.5,
-      medium_completed: 30,
-      medium_total: 45,
-      hard_accuracy: 60,
-      hard_avg_time: 5.0,
-      hard_completed: 18,
-      hard_total: 40,
-      goal_achievement_percent: 68,
-      average_time: 3.2,
-      correct_answer_avg_time: 2.8,
-      incorrect_answer_avg_time: 4.5,
-      longest_question_time: 9.5,
-      performance_graph: Array.from({ length: 10 }, (_, i) => ({
-        date: new Date(Date.now() - (9-i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        attempted: Math.floor(Math.random() * 20) + 5
-      })),
-      chapter_performance: [
-        { chapter_id: '1', chapter_name: 'Introduction', correct: 15, incorrect: 5, unattempted: 5 },
-        { chapter_id: '2', chapter_name: 'Fundamentals', correct: 12, incorrect: 3, unattempted: 10 },
-        { chapter_id: '3', chapter_name: 'Advanced Topics', correct: 8, incorrect: 7, unattempted: 15 }
-      ],
-      goals: [
-        { id: '1', title: 'Complete 100 questions', target_value: 100, current_value: 68, due_date: '2024-06-01' },
-        { id: '2', title: 'Reach 90% accuracy', target_value: 90, current_value: 78, due_date: '2024-06-15' }
-      ]
-    };
+    return new Response(JSON.stringify(responseData), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200
+    })
 
-    // Return the mock data
-    return new Response(
-      JSON.stringify(mockData),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200 
-      }
-    )
   } catch (error) {
-    console.error('Edge function error:', error);
-    
-    return new Response(
-      JSON.stringify({ 
-        error: 'Internal server error', 
-        message: error.message,
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined 
-      }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500 
-      }
-    )
+    console.error('Error:', error)
+    return new Response(JSON.stringify({ 
+      error: 'Failed to fetch progress',
+      message: error.message
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 500
+    })
   }
 })
