@@ -7,6 +7,26 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { toast } from "sonner";
 
+const { data, error } = await supabaseClient
+  .from("user_progress")
+  .select("total_questions, correct_count, incorrect_count, unattempted_count")
+  .eq("user_id", userId)
+  .single();
+
+if (error || !data) throw new Error("User progress not found");
+
+const responseData = {
+  user_id: userId,
+  ...data,
+  total_progress_percent: Math.round((data.correct_count + data.incorrect_count) / data.total_questions * 100)
+};
+
+console.log(responseData)
+
+
+
+
+
 interface ProgressData {
   total_questions: number;
   correct_count: number;
