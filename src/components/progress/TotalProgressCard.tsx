@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import SegmentedProgress from "@/components/SegmentedProgress";
@@ -5,6 +6,9 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { toast } from "sonner";
+
+// Remove the code that's causing the error - this was attempting to execute at the module level
+// which isn't allowed in React components. We'll move this logic into the useEffect hook.
 
 interface ProgressData {
   total_questions: number;
@@ -36,52 +40,60 @@ export const TotalProgressCard = ({
 
   useEffect(() => {
     const fetchProgress = async () => {
-      // Only fetch if we have a session and no props data
-      if (!session || propsProgressData || (propsTotalQuestions && propsCorrectQuestions && propsIncorrectQuestions)) {
-        console.log("Skipping fetch - using provided data or missing session");
-        return;
-      }
+      if (!session) return;
       
       setIsLoading(true);
       setError(null);
       
       try {
-        // Get a fresh session with access token
-        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError || !currentSession) {
-          console.error("Error getting session:", sessionError || "No session found");
-          throw new Error(sessionError?.message || "No active session found");
-        }
-        
-        const accessToken = currentSession.access_token;
-        console.log("Got access token, making request to edge function");
-        
-        // Call the edge function with the correct token format
-        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-user-progress`, {
-          method: "GET",
+        const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-progress", {
+          method: "POST",
           headers: {
-            "Authorization": `Bearer ${accessToken}`,
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${session.access_token}` // ✅ If your function is protected
+          },
+          body: JSON.stringify({
+            userId: session.user.id,
+            period: "weekly"
+          })
         });
         
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error(`Server returned ${response.status}: ${errorText}`);
-          throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        const data = await res.json();
+
+        if (error) {
+          throw new Error(`Error fetching progress: ${error.message}`);
         }
-        
-        const data = await response.json();
-        console.log("Progress data received:", data);
-        
+
         if (data) {
           setLocalProgress({
-            total_questions: data.total_questions || 100,
-            correct_count: data.correct_count || 0,
-            incorrect_count: data.incorrect_count || 0,
-            unattempted_count: data.unattempted_count || 100
+            total_questions: data.total_questions,
+            correct_count: data.correct_count,
+            incorrect_count: data.incorrect_count,
+            unattempted_count: data.unattempted_count
           });
+        } else {
+          // If no data is returned, try direct query as fallback
+          try {
+            const { data: directData, error: directError } = await supabase
+              .from("user_progress")
+              .select("total_questions, correct_count, incorrect_count, unattempted_count")
+              .eq("user_id", session.user.id)
+              .single();
+
+            if (directError) throw directError;
+
+            if (directData) {
+              setLocalProgress({
+                total_questions: directData.total_questions,
+                correct_count: directData.correct_count,
+                incorrect_count: directData.incorrect_count,
+                unattempted_count: directData.unattempted_count
+              });
+            }
+          } catch (fallbackError) {
+            console.error('Fallback query failed:', fallbackError);
+            // Continue to the fallback data below
+          }
         }
       } catch (err) {
         console.error('Error fetching progress:', err);
@@ -101,7 +113,7 @@ export const TotalProgressCard = ({
     };
 
     fetchProgress();
-  }, [session, propsProgressData, propsTotalQuestions, propsCorrectQuestions, propsIncorrectQuestions]);
+  }, [session]);
 
   // Use props if provided, otherwise use local state or generate placeholder data
   const displayData = propsProgressData || {
