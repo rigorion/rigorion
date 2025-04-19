@@ -7,25 +7,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { toast } from "sonner";
 
-const { data, error } = await supabaseClient
-  .from("user_progress")
-  .select("total_questions, correct_count, incorrect_count, unattempted_count")
-  .eq("user_id", userId)
-  .single();
-
-if (error || !data) throw new Error("User progress not found");
-
-const responseData = {
-  user_id: userId,
-  ...data,
-  total_progress_percent: Math.round((data.correct_count + data.incorrect_count) / data.total_questions * 100)
-};
-
-console.log(responseData)
-
-
-
-
+// Remove the code that's causing the error - this was attempting to execute at the module level
+// which isn't allowed in React components. We'll move this logic into the useEffect hook.
 
 interface ProgressData {
   total_questions: number;
@@ -64,7 +47,6 @@ export const TotalProgressCard = ({
       
       try {
         const { data, error } = await supabase.functions.invoke('get-user-progress', {
-          method: 'POST',
           body: {
             userId: session.user.id,
             period: 'weekly'
@@ -82,6 +64,29 @@ export const TotalProgressCard = ({
             incorrect_count: data.incorrect_count,
             unattempted_count: data.unattempted_count
           });
+        } else {
+          // If no data is returned, try direct query as fallback
+          try {
+            const { data: directData, error: directError } = await supabase
+              .from("user_progress")
+              .select("total_questions, correct_count, incorrect_count, unattempted_count")
+              .eq("user_id", session.user.id)
+              .single();
+
+            if (directError) throw directError;
+
+            if (directData) {
+              setLocalProgress({
+                total_questions: directData.total_questions,
+                correct_count: directData.correct_count,
+                incorrect_count: directData.incorrect_count,
+                unattempted_count: directData.unattempted_count
+              });
+            }
+          } catch (fallbackError) {
+            console.error('Fallback query failed:', fallbackError);
+            // Continue to the fallback data below
+          }
         }
       } catch (err) {
         console.error('Error fetching progress:', err);
