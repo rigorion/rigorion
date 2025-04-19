@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { ProgressChart } from "./ProgressChart";
 import { motion } from "framer-motion";
@@ -29,7 +30,8 @@ export const PerformanceGraphCard = ({
       setIsLoading(true);
       
       try {
-        const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-progress", {
+        // Using consistent endpoint URL that matches other project references
+        const res = await fetch("https://evfxcdzwmmiguzxdxktl.supabase.co/functions/v1/get-progress", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
