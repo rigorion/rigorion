@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import SegmentedProgress from "@/components/SegmentedProgress";
@@ -37,63 +36,45 @@ export const TotalProgressCard = ({
 
   useEffect(() => {
     const fetchProgress = async () => {
-      if (!session) return;
+      if (!session?.access_token) return;
       
       setIsLoading(true);
       setError(null);
       
       try {
-        const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-user-progress", {
+        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError || !currentSession?.access_token) {
+          throw new Error('Authentication required');
+        }
+
+        const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-user-progress`, {
           method: "GET",
           headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${session.access_token}`
+            "Authorization": `Bearer ${currentSession.access_token}`,
+            "Content-Type": "application/json"
           }
         });
         
-        const data = await res.json();
-
-        if (error) {
-          throw new Error(`Error fetching progress: ${error.message}`);
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
         }
+        
+        const data = await res.json();
 
         if (data) {
           setLocalProgress({
-            total_questions: data.total_questions,
-            correct_count: data.correct_count,
-            incorrect_count: data.incorrect_count,
-            unattempted_count: data.unattempted_count
+            total_questions: data.total_questions || 0,
+            correct_count: data.correct_count || 0,
+            incorrect_count: data.incorrect_count || 0,
+            unattempted_count: data.unattempted_count || 0
           });
-        } else {
-          // If no data is returned, try direct query as fallback
-          try {
-            const { data: directData, error: directError } = await supabase
-              .from("user_progress")
-              .select("total_questions, correct_count, incorrect_count, unattempted_count")
-              .eq("user_id", session.user.id)
-              .single();
-
-            if (directError) throw directError;
-
-            if (directData) {
-              setLocalProgress({
-                total_questions: directData.total_questions,
-                correct_count: directData.correct_count,
-                incorrect_count: directData.incorrect_count,
-                unattempted_count: directData.unattempted_count
-              });
-            }
-          } catch (fallbackError) {
-            console.error('Fallback query failed:', fallbackError);
-            // Continue to the fallback data below
-          }
         }
       } catch (err) {
         console.error('Error fetching progress:', err);
         setError(err as Error);
         toast.error("Failed to load progress data. Using fallback data.");
         
-        // Set fallback data
         setLocalProgress({
           total_questions: 130,
           correct_count: 53,
@@ -137,53 +118,55 @@ export const TotalProgressCard = ({
   const unattemptedPercentage = Math.round(unattemptedQuestionsValue / totalQuestionsValue * 100);
 
   return (
-    <Card className="p-6 col-span-1 shadow-md hover:shadow-xl transition-all duration-300 shadow-[0_0_15px_rgba(155,135,245,0.2)] border-0 bg-slate-50 rounded-md py-[15px]">
-      <h3 className="text-lg font-semibold mb-6 text-center text-indigo-950">Total Progress</h3>
+    <Card className="p-6 col-span-1 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-100">
+      <h3 className="text-lg font-semibold mb-6 text-center bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+        Total Progress
+      </h3>
       <div className="space-y-8">
         <div className="flex justify-center">
           <SegmentedProgress 
             progress={totalProgress} 
-            className="w-56 h-56 md:w-60 md:h-60" 
+            className="w-64 h-64 md:w-72 md:h-72" 
             total={totalQuestionsValue} 
             completed={correctQuestionsValue + incorrectQuestionsValue} 
           />
         </div>
         <div className="space-y-4">
-          <div className="flex gap-1 h-3 rounded-full overflow-hidden bg-gray-100">
+          <div className="flex gap-1.5 h-4 rounded-full overflow-hidden bg-slate-100">
             <motion.div 
-              className="bg-emerald-500" 
+              className="bg-gradient-to-r from-emerald-400 to-emerald-500" 
               style={{ width: `${correctPercentage}%` }}
               initial={{ width: 0 }}
               animate={{ width: `${correctPercentage}%` }}
               transition={{ duration: 1, ease: "easeOut" }}
             />
             <motion.div 
-              className="bg-rose-500" 
+              className="bg-gradient-to-r from-rose-400 to-rose-500" 
               style={{ width: `${incorrectPercentage}%` }}
               initial={{ width: 0 }}
               animate={{ width: `${incorrectPercentage}%` }}
               transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
             />
             <motion.div 
-              className="bg-amber-500" 
+              className="bg-gradient-to-r from-amber-400 to-amber-500" 
               style={{ width: `${unattemptedPercentage}%` }}
               initial={{ width: 0 }}
               animate={{ width: `${unattemptedPercentage}%` }}
               transition={{ duration: 1, ease: "easeOut", delay: 0.4 }}
             />
           </div>
-          <div className="flex justify-between text-sm text-gray-600">
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
-              <span>{correctPercentage}%</span>
+          <div className="flex justify-between text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500"></div>
+              <span className="text-slate-700 font-medium">{correctPercentage}% Correct</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-rose-500"></div>
-              <span>{incorrectPercentage}%</span>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-gradient-to-r from-rose-400 to-rose-500"></div>
+              <span className="text-slate-700 font-medium">{incorrectPercentage}% Incorrect</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
-              <span>{unattemptedPercentage}%</span>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-gradient-to-r from-amber-400 to-amber-500"></div>
+              <span className="text-slate-700 font-medium">{unattemptedPercentage}% Pending</span>
             </div>
           </div>
         </div>
