@@ -44,6 +44,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(currentSession?.user ?? null);
         setSession(currentSession); // Store the session
         
+        // Log the JWT token to console
+        if (currentSession?.access_token) {
+          console.log('JWT Token:', currentSession.access_token);
+        }
+        
         if (currentSession?.user) {
           await fetchProfile(currentSession.user.id);
         } else {
@@ -56,6 +61,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           async (_event, newSession) => {
             setUser(newSession?.user ?? null);
             setSession(newSession); // Update session on auth state change
+            
+            // Log the JWT token to console when it changes
+            if (newSession?.access_token) {
+              console.log('JWT Token (on auth state change):', newSession.access_token);
+            }
+            
             if (newSession?.user) {
               await fetchProfile(newSession.user.id);
             } else {
