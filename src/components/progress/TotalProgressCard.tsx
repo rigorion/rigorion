@@ -47,8 +47,7 @@ export const TotalProgressCard = ({
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            // "Authorization": `Bearer ${session.access_token}`
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhbnR2aW1tZ2RteHp3cmp3cm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQwNTk0OTEsImV4cCI6MjA1OTYzNTQ5MX0.A4T0RL_luqzFIPSikCllFpNJtwxcVaLiDm_BCBlRcu8'
+            "Authorization": `Bearer ${session.access_token}`
           }
         });
         
