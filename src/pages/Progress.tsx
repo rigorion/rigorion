@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,6 +13,7 @@ import type { TimePeriod, ProgressTab, UserProgressData } from "@/types/progress
 import { toast } from "sonner";
 import { TrendingUp, Trophy } from "lucide-react";
 import { ProgressNavigation } from "@/components/progress/ProgressNavigation";
+import { supabase } from "@/lib/supabase";
 
 const Progress = () => {
   const { session } = useAuth();
@@ -36,10 +36,34 @@ const Progress = () => {
       if (!userId) throw new Error("Authentication required");
       
       try {
-        return await getUserProgressData(userId, period);
+        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError || !currentSession?.access_token) {
+          throw new Error('Authentication required');
+        }
+
+        const res = await fetch(`https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-user-progress`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${currentSession.access_token}`,
+            "Content-Type": "application/json"
+          }
+        });
+        
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        
+        const data = await res.json();
+        console.log('Progress data received:', data);
+        
+        if (data) {
+          return await getUserProgressData(userId, period);
+        }
+        
+        throw new Error('No data received from progress endpoint');
       } catch (err) {
-        console.error("Failed to fetch progress data", err);
-        toast.error("Could not load progress data from server. Using cached data instead.");
+        console.error("Failed to fetch progress data:", err);
         // Re-throw to be handled by error boundary
         throw err;
       }
