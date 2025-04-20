@@ -49,7 +49,7 @@ export const TotalProgressCard = ({
           throw new Error('Authentication required');
         }
 
-        const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-user-progress`, {
+        const res = await fetch(`https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-user-progress`, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${currentSession.access_token}`,
