@@ -13,7 +13,7 @@ interface SegmentedProgressProps {
 
 const SegmentedProgress = ({
   progress,
-  segments = 36,
+  segments = 48,
   showLabel = true,
   className,
   total = 100,
@@ -21,9 +21,8 @@ const SegmentedProgress = ({
 }: SegmentedProgressProps) => {
   const normalizedProgress = Math.min(Math.max(progress, 0), 100);
   const radius = 90;
-  const strokeWidth = 12;
-  const circumference = 2 * Math.PI * radius;
-  const gap = 1;
+  const strokeWidth = 10;
+  const gap = 0.8;
   const segmentAngle = (360 - segments * gap) / segments;
   
   const createSegments = () => {
@@ -53,7 +52,7 @@ const SegmentedProgress = ({
   const glowFilter = `progressGlow-${Math.random().toString(36).substring(2, 9)}`;
 
   return (
-    <div className={cn("relative transition-transform duration-300 hover:scale-105", className)}>
+    <div className={cn("relative transition-all duration-300 hover:scale-105", className)}>
       <svg className="w-full h-full -rotate-90">
         <defs>
           <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
@@ -62,9 +61,11 @@ const SegmentedProgress = ({
           </linearGradient>
           
           <filter id={glowFilter}>
-            <feGaussianBlur stdDeviation="2" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            <feDropShadow dx="0" dy="0" stdDeviation="2" floodColor="#818cf8" floodOpacity="0.3" />
+            <feGaussianBlur stdDeviation="2.5" result="coloredBlur" />
+            <feMerge>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
           </filter>
         </defs>
 
@@ -76,7 +77,7 @@ const SegmentedProgress = ({
           fill="none" 
           stroke="#f1f5f9" 
           strokeWidth={strokeWidth} 
-          strokeDasharray="4,1"
+          strokeDasharray="3,1.5"
         />
         
         {createSegments().map((segment, index) => (
@@ -119,4 +120,3 @@ const SegmentedProgress = ({
 };
 
 export default SegmentedProgress;
-
