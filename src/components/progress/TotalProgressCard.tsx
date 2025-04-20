@@ -43,7 +43,7 @@ export const TotalProgressCard = ({
       setError(null);
       
       try {
-        const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-user-progress", {
+        const res = await fetch("https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-apijson", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
