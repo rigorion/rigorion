@@ -15,9 +15,9 @@ interface ProgressChartProps {
 const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white/90 backdrop-blur-sm p-3 border border-indigo-100/50 shadow-xl rounded-lg">
-        <p className="font-medium text-indigo-900">{`Date: ${label}`}</p>
-        <p className="text-indigo-600 font-semibold">{`Questions: ${payload[0].value}`}</p>
+      <div className="bg-white/95 backdrop-blur-sm p-3 border border-purple-200 shadow-lg rounded-lg">
+        <p className="font-medium text-purple-900">{`Date: ${label}`}</p>
+        <p className="text-purple-600 font-semibold">{`Questions: ${payload[0].value}`}</p>
       </div>
     );
   }
@@ -35,7 +35,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
       <BarChart
         data={formattedData}
         margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
-        barSize={32}
+        barSize={30}
       >
         <CartesianGrid 
           strokeDasharray="3 3" 
@@ -48,28 +48,28 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
           axisLine={false}
           tickLine={false}
           dy={10}
-          tick={{ fill: '#4B5563', fontSize: 12 }}
+          tick={{ fill: '#6B7280', fontSize: 12 }}
         />
         <YAxis 
           axisLine={false}
           tickLine={false}
           dx={-10}
-          tick={{ fill: '#4B5563', fontSize: 12 }}
+          tick={{ fill: '#6B7280', fontSize: 12 }}
           label={{ 
             value: 'Questions Attempted', 
             angle: -90, 
             position: 'insideLeft',
-            style: { textAnchor: 'middle', fill: '#4B5563', fontSize: 13 }
+            style: { textAnchor: 'middle', fill: '#6B7280', fontSize: 13 }
           }}
         />
         <Tooltip content={<CustomTooltip />} />
         <defs>
           <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#818cf8" stopOpacity={0.95}/>
-            <stop offset="95%" stopColor="#6366f1" stopOpacity={0.85}/>
+            <stop offset="0%" stopColor="#9b87f5" stopOpacity={0.95}/>
+            <stop offset="95%" stopColor="#7E69AB" stopOpacity={0.85}/>
           </linearGradient>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <filter id="barGlow">
+            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
             <feMerge>
               <feMergeNode in="coloredBlur"/>
               <feMergeNode in="SourceGraphic"/>
@@ -79,10 +79,11 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
         <Bar
           dataKey="questions"
           fill="url(#barGradient)"
-          radius={[6, 6, 0, 0]}
-          filter="url(#glow)"
+          radius={[4, 4, 0, 0]}
+          filter="url(#barGlow)"
           animationDuration={1500}
           animationEasing="ease-out"
+          className="drop-shadow-md"
         />
       </BarChart>
     </ResponsiveContainer>

@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import SegmentedProgress from "@/components/SegmentedProgress";
@@ -36,7 +37,7 @@ export const TotalProgressCard = ({
 
   useEffect(() => {
     const fetchProgress = async () => {
-      if (!session?.access_token) return;
+      if (!session?.user?.id) return;
       
       setIsLoading(true);
       setError(null);
@@ -75,6 +76,7 @@ export const TotalProgressCard = ({
         setError(err as Error);
         toast.error("Failed to load progress data. Using fallback data.");
         
+        // Set fallback values that match the design
         setLocalProgress({
           total_questions: 130,
           correct_count: 53,
@@ -91,10 +93,10 @@ export const TotalProgressCard = ({
 
   // Use props if provided, otherwise use local state or generate placeholder data
   const displayData = propsProgressData || {
-    total_questions: propsTotalQuestions || localProgress?.total_questions || 100,
-    correct_count: propsCorrectQuestions || localProgress?.correct_count || 0,
-    incorrect_count: propsIncorrectQuestions || localProgress?.incorrect_count || 0,
-    unattempted_count: propsUnattemptedQuestions || localProgress?.unattempted_count || 100
+    total_questions: propsTotalQuestions || localProgress?.total_questions || 130,
+    correct_count: propsCorrectQuestions || localProgress?.correct_count || 53,
+    incorrect_count: propsIncorrectQuestions || localProgress?.incorrect_count || 21,
+    unattempted_count: propsUnattemptedQuestions || localProgress?.unattempted_count || 56
   };
 
   if (isLoading) {
@@ -119,10 +121,10 @@ export const TotalProgressCard = ({
 
   return (
     <Card className="p-6 col-span-1 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-100">
-      <h3 className="text-lg font-semibold mb-6 text-center bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+      <h3 className="text-lg font-semibold mb-6 text-center text-purple-600">
         Total Progress
       </h3>
-      <div className="space-y-8">
+      <div className="space-y-4">
         <div className="flex justify-center">
           <SegmentedProgress 
             progress={totalProgress} 
@@ -130,45 +132,6 @@ export const TotalProgressCard = ({
             total={totalQuestionsValue} 
             completed={correctQuestionsValue + incorrectQuestionsValue} 
           />
-        </div>
-        <div className="space-y-4">
-          <div className="flex gap-1.5 h-4 rounded-full overflow-hidden bg-slate-100">
-            <motion.div 
-              className="bg-gradient-to-r from-emerald-400 to-emerald-500" 
-              style={{ width: `${correctPercentage}%` }}
-              initial={{ width: 0 }}
-              animate={{ width: `${correctPercentage}%` }}
-              transition={{ duration: 1, ease: "easeOut" }}
-            />
-            <motion.div 
-              className="bg-gradient-to-r from-rose-400 to-rose-500" 
-              style={{ width: `${incorrectPercentage}%` }}
-              initial={{ width: 0 }}
-              animate={{ width: `${incorrectPercentage}%` }}
-              transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-            />
-            <motion.div 
-              className="bg-gradient-to-r from-amber-400 to-amber-500" 
-              style={{ width: `${unattemptedPercentage}%` }}
-              initial={{ width: 0 }}
-              animate={{ width: `${unattemptedPercentage}%` }}
-              transition={{ duration: 1, ease: "easeOut", delay: 0.4 }}
-            />
-          </div>
-          <div className="flex justify-between text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500"></div>
-              <span className="text-slate-700 font-medium">{correctPercentage}% Correct</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-gradient-to-r from-rose-400 to-rose-500"></div>
-              <span className="text-slate-700 font-medium">{incorrectPercentage}% Incorrect</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-gradient-to-r from-amber-400 to-amber-500"></div>
-              <span className="text-slate-700 font-medium">{unattemptedPercentage}% Pending</span>
-            </div>
-          </div>
         </div>
       </div>
     </Card>

@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 
 interface SegmentedProgressProps {
   progress: number;
-  segments?: number;
   showLabel?: boolean;
   className?: string;
   total?: number;
@@ -13,108 +12,100 @@ interface SegmentedProgressProps {
 
 const SegmentedProgress = ({
   progress,
-  segments = 48,
   showLabel = true,
   className,
-  total = 100,
-  completed = 20
+  total = 130,
+  completed = 74
 }: SegmentedProgressProps) => {
   const normalizedProgress = Math.min(Math.max(progress, 0), 100);
-  const radius = 90;
-  const strokeWidth = 10;
-  const gap = 0.8;
-  const segmentAngle = (360 - segments * gap) / segments;
   
-  const createSegments = () => {
-    const segments_array = [];
-    for (let i = 0; i < segments; i++) {
-      const startAngle = i * (segmentAngle + gap) - 90;
-      const endAngle = startAngle + segmentAngle;
-      const segmentProgress = (i + 1) * (100 / segments);
-      const isActive = normalizedProgress >= segmentProgress - (100 / segments);
-      
-      segments_array.push({
-        path: `
-          M ${120 + radius * Math.cos(startAngle * Math.PI / 180)}
-          ${120 + radius * Math.sin(startAngle * Math.PI / 180)}
-          A ${radius} ${radius} 0 0 1
-          ${120 + radius * Math.cos(endAngle * Math.PI / 180)}
-          ${120 + radius * Math.sin(endAngle * Math.PI / 180)}
-        `,
-        isActive,
-        progress: Math.min(100, Math.max(0, (normalizedProgress - (segmentProgress - (100 / segments))) * segments))
-      });
-    }
-    return segments_array;
-  };
-
-  const gradientId = `progressGradient-${Math.random().toString(36).substring(2, 9)}`;
-  const glowFilter = `progressGlow-${Math.random().toString(36).substring(2, 9)}`;
-
+  // Calculate percentages for the color bars below
+  const correctPercentage = 41;
+  const incorrectPercentage = 16;
+  const unattemptedPercentage = 43;
+  
   return (
-    <div className={cn("relative transition-all duration-300 hover:scale-105", className)}>
-      <svg className="w-full h-full -rotate-90">
-        <defs>
-          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#818cf8" />
-            <stop offset="100%" stopColor="#6366f1" />
-          </linearGradient>
-          
-          <filter id={glowFilter}>
-            <feGaussianBlur stdDeviation="2.5" result="coloredBlur" />
-            <feMerge>
-              <feMergeNode in="coloredBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-
-        {/* Background segments */}
-        <circle 
-          cx="120" 
-          cy="120" 
-          r={radius} 
-          fill="none" 
-          stroke="#f1f5f9" 
-          strokeWidth={strokeWidth} 
-          strokeDasharray="3,1.5"
-        />
-        
-        {createSegments().map((segment, index) => (
-          <path 
-            key={index} 
-            d={segment.path} 
-            className={cn(
-              "transition-all duration-500",
-              segment.isActive ? "filter drop-shadow-lg" : "stroke-slate-200"
-            )}
-            stroke={segment.isActive ? `url(#${gradientId})` : "#e2e8f0"}
-            strokeWidth={strokeWidth}
+    <div className={cn("relative transition-all duration-300", className)}>
+      {/* Simple circle progress with stroke */}
+      <div className="relative w-full aspect-square">
+        <svg className="w-full h-full" viewBox="0 0 100 100">
+          {/* Background circle */}
+          <circle 
+            cx="50" 
+            cy="50" 
+            r="45" 
+            fill="none" 
+            stroke="#eeeeee" 
+            strokeWidth="2"
             strokeLinecap="round"
-            fill="none"
-            style={{
-              filter: segment.isActive ? `url(#${glowFilter})` : 'none',
-              transition: 'all 0.5s ease-out'
-            }}
           />
-        ))}
-      </svg>
-      
-      {showLabel && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
-            {normalizedProgress}%
-          </span>
-          <div className="flex items-center gap-1 mt-2">
-            <span className="text-sm font-medium text-indigo-600">{completed}</span>
-            <span className="text-sm text-slate-400">/</span>
-            <span className="text-sm text-slate-600">{total}</span>
+          
+          {/* Progress arc */}
+          {normalizedProgress > 0 && (
+            <circle
+              cx="50"
+              cy="50"
+              r="45"
+              fill="none"
+              stroke="black"
+              strokeWidth="4"
+              strokeLinecap="round"
+              strokeDasharray={`${normalizedProgress * 2.83} 283`}
+              strokeDashoffset="70.75" // Offset to start at the top (283 * 0.25)
+              transform="rotate(-90 50 50)"
+            />
+          )}
+        </svg>
+        
+        {showLabel && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+            <span className="text-4xl font-bold text-purple-600">
+              {normalizedProgress}%
+            </span>
+            <div className="flex items-center gap-1 mt-1">
+              <span className="text-sm font-medium text-purple-600">{completed}</span>
+              <span className="text-sm text-slate-400">/</span>
+              <span className="text-sm text-slate-600">{total}</span>
+            </div>
+            <span className="text-xs text-slate-500 mt-1">
+              completed
+            </span>
           </div>
-          <span className="text-xs text-slate-500 mt-1">
-            completed
-          </span>
+        )}
+      </div>
+      
+      {/* Color bars at the bottom */}
+      <div className="mt-4">
+        <div className="flex h-2 rounded-full overflow-hidden">
+          <div 
+            className="bg-emerald-400" 
+            style={{ width: `${correctPercentage}%` }}
+          />
+          <div 
+            className="bg-red-400" 
+            style={{ width: `${incorrectPercentage}%` }}
+          />
+          <div 
+            className="bg-amber-400" 
+            style={{ width: `${unattemptedPercentage}%` }}
+          />
         </div>
-      )}
+        
+        <div className="flex justify-between text-xs mt-2 text-slate-600">
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+            <span>{correctPercentage}%</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded-full bg-red-400"></div>
+            <span>{incorrectPercentage}%</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded-full bg-amber-400"></div>
+            <span>{unattemptedPercentage}%</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

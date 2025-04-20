@@ -13,11 +13,13 @@ import { Layout } from "@/components/layout/Layout";
 import type { TimePeriod, ProgressTab, UserProgressData } from "@/types/progress";
 import { toast } from "sonner";
 import { TrendingUp, Trophy } from "lucide-react";
+import { ProgressNavigation } from "@/components/progress/ProgressNavigation";
 
 const Progress = () => {
   const { session } = useAuth();
   const [period, setPeriod] = useState<TimePeriod>("weekly");
   const [activeTab, setActiveTab] = useState<ProgressTab>("performance");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const userId = session?.user?.id;
   const isAuthenticated = !!userId;
@@ -68,42 +70,48 @@ const Progress = () => {
   }
 
   return (
-    <Layout>
-      <div className="flex min-h-screen w-full bg-mono-bg">
-        <main className="flex-1 bg-mono-bg">
-          <Tabs defaultValue={activeTab} value={activeTab} onValueChange={(value) => setActiveTab(value as ProgressTab)} className="w-full">
-            <div className="container mx-auto p-6">
-              <div className="mb-6 flex justify-between items-center">
-                <h1 className="text-3xl font-bold">Progress Dashboard</h1>
-                <TabsList>
-                  <TabsTrigger value="performance" className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4" />
-                    <span>Performance</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="leaderboard" className="flex items-center gap-2">
-                    <Trophy className="h-4 w-4" />
-                    <span>Leaderboard</span>
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-              
-              <TabsContent value="performance">
-                <ProgressDashboard 
-                  period={period}
-                  type="performance" 
-                  userData={userProgress!}
-                  className="[&_path]:stroke-mono-accent [&_.recharts-area]:fill-gradient-to-b [&_.recharts-area]:from-mono-hover [&_.recharts-area]:to-mono-bg [&_.recharts-bar]:fill-gradient-to-b [&_.recharts-bar]:from-mono-text [&_.recharts-bar]:to-mono-accent [&_.recharts-line]:stroke-mono-accent"
-                />
-              </TabsContent>
-              
-              <TabsContent value="leaderboard">
-                <LeaderboardData userId={userId!} />
-              </TabsContent>
+    <div className="flex min-h-screen w-full bg-mono-bg">
+      <main className="flex-1 bg-mono-bg">
+        <header className="sticky top-0 z-50 bg-white border-b px-4 py-3">
+          <ProgressNavigation 
+            sidebarOpen={sidebarOpen} 
+            setSidebarOpen={setSidebarOpen}
+            setPeriod={setPeriod}
+          />
+        </header>
+
+        <Tabs defaultValue={activeTab} value={activeTab} onValueChange={(value) => setActiveTab(value as ProgressTab)} className="w-full">
+          <div className="container mx-auto p-6">
+            <div className="mb-6 flex justify-between items-center">
+              <h1 className="text-3xl font-bold">Progress Dashboard</h1>
+              <TabsList>
+                <TabsTrigger value="performance" className="flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4" />
+                  <span>Performance</span>
+                </TabsTrigger>
+                <TabsTrigger value="leaderboard" className="flex items-center gap-2">
+                  <Trophy className="h-4 w-4" />
+                  <span>Leaderboard</span>
+                </TabsTrigger>
+              </TabsList>
             </div>
-          </Tabs>
-        </main>
-      </div>
-    </Layout>
+            
+            <TabsContent value="performance">
+              <ProgressDashboard 
+                period={period}
+                type="performance" 
+                userData={userProgress!}
+                className="[&_path]:stroke-mono-accent [&_.recharts-area]:fill-gradient-to-b [&_.recharts-area]:from-mono-hover [&_.recharts-area]:to-mono-bg [&_.recharts-bar]:fill-gradient-to-b [&_.recharts-bar]:from-mono-text [&_.recharts-bar]:to-mono-accent [&_.recharts-line]:stroke-mono-accent"
+              />
+            </TabsContent>
+            
+            <TabsContent value="leaderboard">
+              <LeaderboardData userId={userId!} />
+            </TabsContent>
+          </div>
+        </Tabs>
+      </main>
+    </div>
   );
 };
 
