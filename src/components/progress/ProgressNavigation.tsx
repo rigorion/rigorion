@@ -1,92 +1,65 @@
 
-import { Home, GraduationCap, BookOpen, BrainCircuit, Info, Navigation, ChevronRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
-import { Link } from "react-router-dom";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerTrigger
-} from "@/components/ui/drawer";
+import React from "react";
 import { Button } from "@/components/ui/button";
+import { Menu, Calendar, Settings } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { TimePeriod } from "@/types/progress";
 
 interface ProgressNavigationProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
-  setPeriod: (period: string) => void;
+  setPeriod: (period: TimePeriod) => void;
 }
 
-export const ProgressNavigation = ({
+export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
   sidebarOpen,
   setSidebarOpen,
   setPeriod
-}: ProgressNavigationProps) => {
-  const navigate = useNavigate();
-  
-  const navigationItems = [
-    { icon: Home, label: "Home", path: "/" },
-    { icon: BookOpen, label: "Practice", path: "/practice" },
-    { icon: BrainCircuit, label: "Chat", path: "/chat" },
-    { icon: Info, label: "About", path: "/about" },
-  ];
-  
-  const handleNavigation = (path: string) => {
-    navigate(path);
-    setSidebarOpen(false);
-  };
-  
+}) => {
   return (
-    <div className="flex items-center gap-3">
-      {/* Navigation Drawer */}
-      <Drawer open={sidebarOpen} onOpenChange={setSidebarOpen}>
-        <DrawerTrigger className="rounded-lg p-2 hover:bg-gray-100 transition-colors">
-          <Navigation className="h-5 w-5 text-blue-500" />
-        </DrawerTrigger>
-        <DrawerContent className="h-[60vh] bg-white">
-          <nav className="flex flex-col gap-4 p-6">
-            {navigationItems.map((item) => (
-              <Button
-                key={item.path}
-                variant="ghost"
-                className="w-full justify-start text-lg font-medium transition-colors hover:bg-slate-100"
-                onClick={() => handleNavigation(item.path)}
-              >
-                <item.icon className="mr-2 h-4 w-4" />
-                {item.label}
-              </Button>
-            ))}
-          </nav>
-        </DrawerContent>
-      </Drawer>
-      
-      <h1 className="text-2xl font-bold text-gray-800" style={{
-        fontFamily: '"Dancing Script", cursive'
-      }}>
-        Academic Arc
-      </h1>
-      
-      {/* Navigation Menu */}
-      <NavigationMenu className="ml-6 hidden md:flex">
-        <NavigationMenuList>
-          <NavigationMenuItem>
-            <NavigationMenuTrigger className="bg-transparent hover:bg-gray-100">Navigate</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <ul className="grid gap-3 p-4 w-[200px]">
-                {navigationItems.map((item) => (
-                  <li key={item.path}>
-                    <NavigationMenuLink asChild>
-                      <Link to={item.path} className={navigationMenuTriggerStyle() + " justify-start cursor-pointer"}>
-                        <item.icon className="mr-2 h-4 w-4" />
-                        <span>{item.label}</span>
-                      </Link>
-                    </NavigationMenuLink>
-                  </li>
-                ))}
-              </ul>
-            </NavigationMenuContent>
-          </NavigationMenuItem>
-        </NavigationMenuList>
-      </NavigationMenu>
+    <div className="flex items-center justify-between">
+      <div className="flex items-center space-x-4">
+        <Button 
+          variant="ghost" 
+          size="icon"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="lg:hidden"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+        <span className="font-medium text-lg hidden md:inline-block">Progress</span>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Calendar className="h-4 w-4" />
+              <span>Time Period</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setPeriod("daily")}>
+              Daily
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setPeriod("weekly")}>
+              Weekly
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setPeriod("monthly")}>
+              Monthly
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setPeriod("yearly")}>
+              Yearly
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <Button variant="ghost" size="icon">
+          <Settings className="h-5 w-5" />
+        </Button>
+      </div>
     </div>
   );
 };
+
+export default ProgressNavigation;

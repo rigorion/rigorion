@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
@@ -41,8 +42,16 @@ const Progress = () => {
         if (sessionError || !currentSession?.access_token) {
           throw new Error('Authentication required');
         }
+        
+        // Use the URL from the supabase client to ensure we're using the correct project
+        const supabaseUrl = supabase.supabaseUrl;
+        const projectRef = supabaseUrl.match(/https:\/\/([^.]+)/)?.[1];
+        
+        if (!projectRef) {
+          throw new Error('Could not determine Supabase project reference');
+        }
 
-        const res = await fetch(`https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-user-progress`, {
+        const res = await fetch(`https://${projectRef}.supabase.co/functions/v1/get-user-progress`, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${currentSession.access_token}`,
@@ -100,7 +109,7 @@ const Progress = () => {
           <ProgressNavigation 
             sidebarOpen={sidebarOpen} 
             setSidebarOpen={setSidebarOpen}
-            setPeriod={setPeriod}
+            setPeriod={(value: TimePeriod) => setPeriod(value)}
           />
         </header>
 
