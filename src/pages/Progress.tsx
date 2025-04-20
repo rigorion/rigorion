@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
@@ -43,8 +42,10 @@ const Progress = () => {
           throw new Error('Authentication required');
         }
         
-        // Use the URL from the supabase client to ensure we're using the correct project
-        const supabaseUrl = supabase.supabaseUrl;
+        // Get the Supabase URL from environment or from the client config
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://evfxcdzwmmiguzxdxktl.supabase.co";
+        
+        // Extract project reference from the URL
         const projectRef = supabaseUrl.match(/https:\/\/([^.]+)/)?.[1];
         
         if (!projectRef) {
@@ -60,6 +61,7 @@ const Progress = () => {
         });
         
         if (!res.ok) {
+          console.error(`Failed to fetch progress data: HTTP error! status: ${res.status}`);
           throw new Error(`HTTP error! status: ${res.status}`);
         }
         
