@@ -1,6 +1,7 @@
 
 import { supabase } from '@/lib/supabase';
 import type { UserProgressData, TimePeriod } from '@/types/progress';
+import { toast } from 'sonner';
 
 const userProgressCache = new Map<string, UserProgressData>();
 
@@ -100,16 +101,35 @@ export async function getUserProgressData(userId: string, period: TimePeriod = "
     console.log(`Fetching progress data for user ${userId} with period ${period}`);
     
     try {
-      // Call the Edge Function
-      const { data, error } = await supabase.functions.invoke('get-user-progress', {
-        body: { userId, period }
-      });
-
-      if (error) {
-        console.error('Edge function error:', error);
-        throw error;
+      // Get the current session for the fresh token
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        console.error('Session error:', sessionError);
+        throw new Error('Authentication required');
       }
-
+      
+      // Get the Supabase URL from environment
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://eantvimmgdmxzwrjwrop.supabase.co";
+      
+      // Use direct fetch with proper authentication
+      const response = await fetch(`${supabaseUrl}/functions/v1/get-user-progress`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        }
+      });
+      
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        console.error('Edge function error response:', response.status, errorMessage);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Received user progress data:', data);
+      
       if (data) {
         // Format the data to match our UserProgressData interface
         const formattedData: UserProgressData = {
@@ -152,6 +172,7 @@ export async function getUserProgressData(userId: string, period: TimePeriod = "
       }
     } catch (error) {
       console.error('Error fetching from edge function:', error);
+      toast.error("Could not load progress data. Using sample data.");
     }
 
     // If we reach here, the edge function failed - use fallback data

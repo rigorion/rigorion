@@ -21,6 +21,14 @@ const Progress = () => {
   const [period, setPeriod] = useState<TimePeriod>("weekly");
   const [activeTab, setActiveTab] = useState<ProgressTab>("performance");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [visibleSections, setVisibleSections] = useState({
+    totalProgress: true, // Always visible
+    performanceGraph: true,
+    difficultyStats: true,
+    chapterProgress: true,
+    timeManagement: true,
+    goals: true
+  });
 
   const userId = session?.user?.id;
   const isAuthenticated = !!userId;
@@ -37,6 +45,7 @@ const Progress = () => {
       if (!userId) throw new Error("Authentication required");
       
       try {
+        // Get a fresh session to ensure we have the latest token
         const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError || !currentSession?.access_token) {
@@ -45,6 +54,9 @@ const Progress = () => {
         
         // Use environment variable for Supabase URL
         const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://eantvimmgdmxzwrjwrop.supabase.co";
+        
+        // Log token for debugging
+        console.log("JWT Token:", currentSession.access_token);
         
         // Call the edge function with the proper JWT token
         const res = await fetch(`${supabaseUrl}/functions/v1/get-user-progress`, {
@@ -79,6 +91,7 @@ const Progress = () => {
     meta: {
       onError: (error: Error) => {
         console.error("Query error handler:", error);
+        toast.error("Could not load progress data. Using sample data.");
       }
     }
   });
@@ -103,6 +116,8 @@ const Progress = () => {
             sidebarOpen={sidebarOpen} 
             setSidebarOpen={setSidebarOpen}
             setPeriod={(value: TimePeriod) => setPeriod(value)}
+            visibleSections={visibleSections}
+            setVisibleSections={setVisibleSections}
           />
         </header>
 
@@ -128,6 +143,7 @@ const Progress = () => {
                 type="performance" 
                 userData={userProgress!}
                 className="[&_path]:stroke-mono-accent [&_.recharts-area]:fill-gradient-to-b [&_.recharts-area]:from-mono-hover [&_.recharts-area]:to-mono-bg [&_.recharts-bar]:fill-gradient-to-b [&_.recharts-bar]:from-mono-text [&_.recharts-bar]:to-mono-accent [&_.recharts-line]:stroke-mono-accent"
+                visibleSections={visibleSections}
               />
             </TabsContent>
             

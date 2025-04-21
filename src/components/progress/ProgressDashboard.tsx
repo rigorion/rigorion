@@ -13,30 +13,30 @@ import { GoalsCard } from "./GoalsCard";
 import { AnimatedContainer, AnimatedItem } from "./AnimationWrappers";
 import { ProjectedScore } from "@/components/stats/ProjectedScore";
 import { UserProgressData } from "@/types/progress";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface ProgressDashboardProps {
   period: string;
   type: string;
   className?: string;
   userData: UserProgressData;
+  visibleSections?: Record<string, boolean>;
 }
 
 export const ProgressDashboard = ({
   period,
   type,
   className,
-  userData
-}: ProgressDashboardProps) => {
-  const [visibleSections, setVisibleSections] = useState({
+  userData,
+  visibleSections = {
     totalProgress: true, // Always visible
     performanceGraph: true,
     difficultyStats: true,
     chapterProgress: true,
     timeManagement: true,
     goals: true
-  });
-
+  }
+}: ProgressDashboardProps) => {
   const stats = [{
     title: "Speed",
     value: `${userData.speed}%`,
