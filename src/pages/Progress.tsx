@@ -89,6 +89,14 @@ const Progress = () => {
   const userId = session?.user?.id;
   const isAuthenticated = !!userId;
 
+  // Create a handler that matches the expected type
+  const handleSetVisibleSections = (sections: Record<string, boolean>) => {
+    setVisibleSections(prev => ({
+      ...prev,
+      ...sections
+    }));
+  };
+
   const { 
     data: userProgress, 
     isLoading, 
@@ -99,32 +107,7 @@ const Progress = () => {
     queryKey: ['userProgress', userId, period],
     queryFn: async () => {
       if (!userId) throw new Error("Authentication required");
-      try {
-        // Get a fresh session to ensure we have the latest token
-        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError || !currentSession?.access_token) {
-          throw new Error('Authentication required');
-        }
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://eantvimmgdmxzwrjwrop.supabase.co";
-        console.log("JWT Token:", currentSession.access_token);
-        const res = await fetch(`${supabaseUrl}/functions/v1/get-user-progress`, {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${currentSession.access_token}`,
-            "Content-Type": "application/json"
-          }
-        });
-        if (!res.ok) {
-          console.error(`Failed to fetch progress data: HTTP error! status: ${res.status}`);
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        const data = await res.json();
-        console.log('Progress data received:', data);
-        return await getUserProgressData(userId, period);
-      } catch (err) {
-        console.error("Failed to fetch progress data:", err);
-        throw err;
-      }
+      return await getUserProgressData(userId, period);
     },
     enabled: isAuthenticated,
     staleTime: 300000, // 5 minutes
@@ -139,36 +122,11 @@ const Progress = () => {
     }
   });
 
-  // Fix: handler signature must match (sections: Record<string, boolean>) => void
-  const handleSetVisibleSections = (sections: Record<string, boolean>) => {
-    setVisibleSections(prev => ({
-      ...prev,
-      ...sections
-    }));
-  };
+  // Always return DUMMY_PROGRESS if there's any issue
+  const displayData = userProgress || DUMMY_PROGRESS;
 
   if (isLoading && isAuthenticated) {
     return <FullPageLoader />;
-  }
-
-  if (isError && !userProgress) {
-    // Provide dummy fallback on error
-    return <ProgressDashboard 
-      period={period}
-      type={activeTab}
-      userData={DUMMY_PROGRESS}
-      visibleSections={visibleSections}
-    />;
-  }
-
-  if ((!userProgress || Object.keys(userProgress).length === 0) && isAuthenticated) {
-    // Show dummy on empty
-    return <ProgressDashboard 
-      period={period}
-      type={activeTab}
-      userData={DUMMY_PROGRESS}
-      visibleSections={visibleSections}
-    />;
   }
 
   return (
@@ -180,7 +138,7 @@ const Progress = () => {
             setSidebarOpen={setSidebarOpen}
             setPeriod={(value: TimePeriod) => setPeriod(value)}
             visibleSections={visibleSections}
-            setVisibleSections={handleSetVisibleSections} // <-- fixed prop type here
+            setVisibleSections={handleSetVisibleSections}
           />
         </header>
 
@@ -204,7 +162,7 @@ const Progress = () => {
               <ProgressDashboard 
                 period={period}
                 type="performance" 
-                userData={userProgress || DUMMY_PROGRESS}
+                userData={displayData}
                 className="[&_path]:stroke-mono-accent [&_.recharts-area]:fill-gradient-to-b [&_.recharts-area]:from-mono-hover [&_.recharts-area]:to-mono-bg [&_.recharts-bar]:fill-gradient-to-b [&_.recharts-bar]:from-mono-text [&_.recharts-bar]:to-mono-accent [&_.recharts-line]:stroke-mono-accent"
                 visibleSections={visibleSections}
               />

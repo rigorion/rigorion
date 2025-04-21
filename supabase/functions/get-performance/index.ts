@@ -2,7 +2,7 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-// Set up CORS headers to allow all origins
+// Set up CORS headers to match the get-user-progress function
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -12,32 +12,32 @@ const corsHeaders = {
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response("ok", { headers: corsHeaders, status: 200 });
   }
 
   // Get the authorization header
   const authHeader = req.headers.get("Authorization");
-  if (!authHeader) {
-    console.error("Authorization header missing");
-    return new Response(JSON.stringify({ error: "Authorization header missing" }), { 
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.error("Invalid or missing Bearer token");
+    return new Response(JSON.stringify({ error: "Invalid authorization header" }), { 
       status: 401,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   }
 
-  console.log("Auth header received");
+  const token = authHeader.split(' ')[1];
 
   try {
-    // Create Supabase client
+    // Create Supabase client with the token
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
       {
-        global: { headers: { Authorization: authHeader } }
+        global: { headers: { Authorization: `Bearer ${token}` } }
       }
     );
 
-    // Get the current user from the JWT token
+    // Verify the token
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
     if (userError || !user) {

@@ -101,7 +101,7 @@ export async function getUserProgressData(userId: string, period: TimePeriod = "
     console.log(`Fetching progress data for user ${userId} with period ${period}`);
     
     try {
-      // Get the current session for the fresh token
+      // Get the current session to refresh the token
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError || !session) {
@@ -109,10 +109,10 @@ export async function getUserProgressData(userId: string, period: TimePeriod = "
         throw new Error('Authentication required');
       }
       
-      // Get the Supabase URL from environment
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://eantvimmgdmxzwrjwrop.supabase.co";
+      // Use the correct Supabase URL from environment or fallback
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://evfxcdzwmmiguzxdxktl.supabase.co";
       
-      // Use direct fetch with proper authentication
+      // Call the edge function with proper headers
       const response = await fetch(`${supabaseUrl}/functions/v1/get-user-progress`, {
         method: "GET",
         headers: {
@@ -130,60 +130,56 @@ export async function getUserProgressData(userId: string, period: TimePeriod = "
       const data = await response.json();
       console.log('Received user progress data:', data);
       
-      if (data) {
-        // Format the data to match our UserProgressData interface
-        const formattedData: UserProgressData = {
-          userId,
-          totalProgressPercent: data.total_progress_percent || 0,
-          correctAnswers: data.correct_answers || 0,
-          incorrectAnswers: data.incorrect_answers || 0,
-          unattemptedQuestions: data.unattempted_questions || 0,
-          questionsAnsweredToday: data.questions_answered_today || 0,
-          streak: data.streak || 0,
-          averageScore: data.average_score || 0,
-          rank: data.rank || 0,
-          projectedScore: data.projected_score || 0,
-          speed: data.speed || 0,
-          easyAccuracy: data.easy_accuracy || 0,
-          easyAvgTime: data.easy_avg_time || 0,
-          easyCompleted: data.easy_completed || 0,
-          easyTotal: data.easy_total || 0,
-          mediumAccuracy: data.medium_accuracy || 0,
-          mediumAvgTime: data.medium_avg_time || 0,
-          mediumCompleted: data.medium_completed || 0,
-          mediumTotal: data.medium_total || 0,
-          hardAccuracy: data.hard_accuracy || 0,
-          hardAvgTime: data.hard_avg_time || 0,
-          hardCompleted: data.hard_completed || 0,
-          hardTotal: data.hard_total || 0,
-          goalAchievementPercent: data.goal_achievement_percent || 0,
-          averageTime: data.average_time || 0,
-          correctAnswerAvgTime: data.correct_answer_avg_time || 0,
-          incorrectAnswerAvgTime: data.incorrect_answer_avg_time || 0,
-          longestQuestionTime: data.longest_question_time || 0,
-          performanceGraph: data.performance_graph || [],
-          chapterPerformance: data.chapter_performance || [],
-          goals: data.goals || []
-        };
+      // Format the data to match our UserProgressData interface
+      const formattedData: UserProgressData = {
+        userId,
+        totalProgressPercent: data.total_progress_percent || 0,
+        correctAnswers: data.correct_answers || 0,
+        incorrectAnswers: data.incorrect_answers || 0,
+        unattemptedQuestions: data.unattempted_questions || 0,
+        questionsAnsweredToday: data.questions_answered_today || 0,
+        streak: data.streak || 0,
+        averageScore: data.average_score || 0,
+        rank: data.rank || 0,
+        projectedScore: data.projected_score || 0,
+        speed: data.speed || 0,
+        easyAccuracy: data.easy_accuracy || 0,
+        easyAvgTime: data.easy_avg_time || 0,
+        easyCompleted: data.easy_completed || 0,
+        easyTotal: data.easy_total || 0,
+        mediumAccuracy: data.medium_accuracy || 0,
+        mediumAvgTime: data.medium_avg_time || 0,
+        mediumCompleted: data.medium_completed || 0,
+        mediumTotal: data.medium_total || 0,
+        hardAccuracy: data.hard_accuracy || 0,
+        hardAvgTime: data.hard_avg_time || 0,
+        hardCompleted: data.hard_completed || 0,
+        hardTotal: data.hard_total || 0,
+        goalAchievementPercent: data.goal_achievement_percent || 0,
+        averageTime: data.average_time || 0,
+        correctAnswerAvgTime: data.correct_answer_avg_time || 0,
+        incorrectAnswerAvgTime: data.incorrect_answer_avg_time || 0,
+        longestQuestionTime: data.longest_question_time || 0,
+        performanceGraph: data.performance_graph || [],
+        chapterPerformance: data.chapter_performance || [],
+        goals: data.goals || []
+      };
 
-        // Store in cache
-        userProgressCache.set(cacheKey, formattedData);
-        return formattedData;
-      }
+      // Store in cache
+      userProgressCache.set(cacheKey, formattedData);
+      return formattedData;
     } catch (error) {
       console.error('Error fetching from edge function:', error);
       toast.error("Could not load progress data. Using sample data.");
+      
+      // If any error, use fallback data
+      const fallbackData = generateFallbackData(userId);
+      userProgressCache.set(cacheKey, fallbackData);
+      return fallbackData;
     }
-
-    // If we reach here, the edge function failed - use fallback data
-    console.log('Using fallback data for user progress');
-    const fallbackData = generateFallbackData(userId);
-    userProgressCache.set(`${userId}-${period}`, fallbackData);
-    return fallbackData;
   } catch (error) {
     console.error('Error in getUserProgressData:', error);
-    // Still return fallback data even if there was an unexpected error
-    const fallbackData = generateFallbackData(userId);
-    return fallbackData;
+    // Return fallback data for any unexpected errors
+    return generateFallbackData(userId);
   }
 }
