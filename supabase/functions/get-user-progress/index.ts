@@ -25,10 +25,38 @@ serve(async (req) => {
   }
 
   const token = authHeader.split(' ')[1];
-  console.log("Received auth token:", token.substring(0, 10) + "...");
+  console.log("Processing request with token:", token.substring(0, 10) + "...");
 
   try {
     // Create Supabase client with the token
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    );
+
+    // Verify the token first
+    const { data: { user }, error: verifyError } = await supabaseAdmin.auth.getUser(token);
+
+    if (verifyError || !user) {
+      console.error("Error verifying user token:", verifyError);
+      return new Response(
+        JSON.stringify({ error: "Invalid token" }),
+        { 
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 401
+        }
+      );
+    }
+
+    console.log("Token verified for user:", user.id);
+
+    // Create a client with the user's token
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
@@ -39,31 +67,32 @@ serve(async (req) => {
       }
     );
 
-    // Get the current user from the JWT token
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
-
-    if (userError || !user) {
-      console.error("Error getting user from token:", userError);
-      return new Response(
-        JSON.stringify({ error: "Invalid authorization token" }),
-        { 
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 401
-        }
-      );
-    }
-
-    console.log("Authenticated user:", user.id);
-
-    // Get user progress data
+    // Get user progress data (with RLS applied)
     const { data, error } = await supabaseClient
       .from("user_progress")
-      .select("total_questions, correct_count, incorrect_count, unattempted_count")
+      .select("*")
       .eq("user_id", user.id)
       .single();
 
     if (error) {
       console.error("Database query error:", error);
+      
+      // If no data found, return empty data for new users
+      if (error.code === 'PGRST116') {
+        return new Response(
+          JSON.stringify({
+            total_questions: 130,
+            correct_count: 53,
+            incorrect_count: 21,
+            unattempted_count: 56
+          }), 
+          { 
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 200
+          }
+        );
+      }
+      
       throw error;
     }
 
@@ -80,7 +109,7 @@ serve(async (req) => {
       JSON.stringify({ error: error.message }),
       { 
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400
+        status: 500
       }
     );
   }

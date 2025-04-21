@@ -21,6 +21,7 @@ interface TotalProgressCardProps {
   incorrectQuestions?: number;
   unattemptedQuestions?: number;
   progressData?: ProgressData;
+  alwaysVisible?: boolean;
 }
 
 export const TotalProgressCard = ({ 
@@ -28,7 +29,8 @@ export const TotalProgressCard = ({
   correctQuestions: propsCorrectQuestions,
   incorrectQuestions: propsIncorrectQuestions,
   unattemptedQuestions: propsUnattemptedQuestions,
-  progressData: propsProgressData 
+  progressData: propsProgressData,
+  alwaysVisible = true
 }: TotalProgressCardProps) => {
   const { session } = useAuth();
   const [localProgress, setLocalProgress] = useState<ProgressData | null>(null);
@@ -49,7 +51,10 @@ export const TotalProgressCard = ({
           throw new Error('Authentication required');
         }
 
-        const res = await fetch(`https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-apijson`, {
+        // Use environment variable for Supabase URL
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://eantvimmgdmxzwrjwrop.supabase.co";
+        
+        const res = await fetch(`${supabaseUrl}/functions/v1/get-user-progress`, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${currentSession.access_token}`,
@@ -132,6 +137,20 @@ export const TotalProgressCard = ({
             total={totalQuestionsValue} 
             completed={correctQuestionsValue + incorrectQuestionsValue} 
           />
+        </div>
+        <div className="mt-6 grid grid-cols-3 gap-2 text-center">
+          <div className="bg-emerald-50 p-2 rounded-md">
+            <div className="text-emerald-600 font-semibold">{correctQuestionsValue}</div>
+            <div className="text-xs text-gray-500">Correct</div>
+          </div>
+          <div className="bg-amber-50 p-2 rounded-md">
+            <div className="text-amber-600 font-semibold">{incorrectQuestionsValue}</div>
+            <div className="text-xs text-gray-500">Incorrect</div>
+          </div>
+          <div className="bg-slate-50 p-2 rounded-md">
+            <div className="text-slate-600 font-semibold">{unattemptedQuestionsValue}</div>
+            <div className="text-xs text-gray-500">Unattempted</div>
+          </div>
         </div>
       </div>
     </Card>

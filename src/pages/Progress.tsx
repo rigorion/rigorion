@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
@@ -42,17 +43,11 @@ const Progress = () => {
           throw new Error('Authentication required');
         }
         
-        // Get the Supabase URL from environment or from the client config
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://evfxcdzwmmiguzxdxktl.supabase.co";
+        // Use environment variable for Supabase URL
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://eantvimmgdmxzwrjwrop.supabase.co";
         
-        // Extract project reference from the URL
-        const projectRef = supabaseUrl.match(/https:\/\/([^.]+)/)?.[1];
-        
-        if (!projectRef) {
-          throw new Error('Could not determine Supabase project reference');
-        }
-
-        const res = await fetch(`https://${projectRef}.supabase.co/functions/v1/get-user-progress`, {
+        // Call the edge function with the proper JWT token
+        const res = await fetch(`${supabaseUrl}/functions/v1/get-user-progress`, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${currentSession.access_token}`,
@@ -68,14 +63,10 @@ const Progress = () => {
         const data = await res.json();
         console.log('Progress data received:', data);
         
-        if (data) {
-          return await getUserProgressData(userId, period);
-        }
-        
-        throw new Error('No data received from progress endpoint');
+        // Return the user progress data from the service
+        return await getUserProgressData(userId, period);
       } catch (err) {
         console.error("Failed to fetch progress data:", err);
-        // Re-throw to be handled by error boundary
         throw err;
       }
     },

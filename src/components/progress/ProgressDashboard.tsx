@@ -13,6 +13,7 @@ import { GoalsCard } from "./GoalsCard";
 import { AnimatedContainer, AnimatedItem } from "./AnimationWrappers";
 import { ProjectedScore } from "@/components/stats/ProjectedScore";
 import { UserProgressData } from "@/types/progress";
+import { useState, useEffect } from "react";
 
 interface ProgressDashboardProps {
   period: string;
@@ -27,6 +28,15 @@ export const ProgressDashboard = ({
   className,
   userData
 }: ProgressDashboardProps) => {
+  const [visibleSections, setVisibleSections] = useState({
+    totalProgress: true, // Always visible
+    performanceGraph: true,
+    difficultyStats: true,
+    chapterProgress: true,
+    timeManagement: true,
+    goals: true
+  });
+
   const stats = [{
     title: "Speed",
     value: `${userData.speed}%`,
@@ -72,13 +82,13 @@ export const ProgressDashboard = ({
     correct: userData.mediumCompleted,
     total: userData.mediumTotal,
     avgTime: `${userData.mediumAvgTime} min`,
-    color: "bg-emerald-500" // Changed from amber-500 to emerald-500
+    color: "bg-emerald-500"
   }, {
     title: "Hard Questions",
     correct: userData.hardCompleted,
     total: userData.hardTotal,
     avgTime: `${userData.hardAvgTime} min`,
-    color: "bg-amber-500" // Changed from rose-500 to amber-500
+    color: "bg-amber-500"
   }];
   
   const timeManagementStats = {
@@ -88,7 +98,8 @@ export const ProgressDashboard = ({
     longestQuestion: `${userData.longestQuestionTime} min`
   };
   
-  return <AnimatedContainer className={cn("space-y-8", className)}>
+  return (
+    <AnimatedContainer className={cn("space-y-8", className)}>
       {/* Stats Row - Horizontal with small width containers */}
       <div className="flex justify-center">
         <div className="max-w-4xl w-full">
@@ -97,29 +108,51 @@ export const ProgressDashboard = ({
       </div>
       
       <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Total Progress Card - Always visible */}
         <AnimatedItem>
-          <TotalProgressCard totalQuestions={userData.correctAnswers + userData.incorrectAnswers + userData.unattemptedQuestions} correctQuestions={userData.correctAnswers} incorrectQuestions={userData.incorrectAnswers} unattemptedQuestions={userData.unattemptedQuestions} />
+          <TotalProgressCard 
+            totalQuestions={userData.correctAnswers + userData.incorrectAnswers + userData.unattemptedQuestions} 
+            correctQuestions={userData.correctAnswers} 
+            incorrectQuestions={userData.incorrectAnswers} 
+            unattemptedQuestions={userData.unattemptedQuestions} 
+            alwaysVisible={true}
+          />
         </AnimatedItem>
 
-        <AnimatedItem className="lg:col-span-2">
-          <PerformanceGraphCard data={userData.performanceGraph} />
-        </AnimatedItem>
+        {/* Performance Graph - Optional visibility */}
+        {visibleSections.performanceGraph && (
+          <AnimatedItem className="lg:col-span-2">
+            <PerformanceGraphCard data={userData.performanceGraph} />
+          </AnimatedItem>
+        )}
       </AnimatedContainer>
 
-      <DifficultyStatsGrid stats={difficultyStats} />
+      {/* Difficulty Stats - Optional visibility */}
+      {visibleSections.difficultyStats && (
+        <DifficultyStatsGrid stats={difficultyStats} />
+      )}
 
       <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left column: Chapter Progress */}
-        <AnimatedItem>
-          <Card className="p-6 hover:shadow-lg transition-all duration-300 bg-white h-full">
-            <ChapterProgress chapters={userData.chapterPerformance} />
-          </Card>
-        </AnimatedItem>
+        {/* Chapter Progress - Optional visibility */}
+        {visibleSections.chapterProgress && (
+          <AnimatedItem>
+            <Card className="p-6 hover:shadow-lg transition-all duration-300 bg-white h-full">
+              <ChapterProgress chapters={userData.chapterPerformance} />
+            </Card>
+          </AnimatedItem>
+        )}
 
         {/* Right column: Time Management and Goals stacked */}
         <AnimatedContainer className="space-y-6">
-          <TimeManagementCard timeManagementStats={timeManagementStats} />
-          <GoalsCard goals={userData.goals} />
+          {/* Time Management - Optional visibility */}
+          {visibleSections.timeManagement && (
+            <TimeManagementCard timeManagementStats={timeManagementStats} />
+          )}
+          
+          {/* Goals - Optional visibility */}
+          {visibleSections.goals && (
+            <GoalsCard goals={userData.goals} />
+          )}
         </AnimatedContainer>
       </AnimatedContainer>
 
@@ -135,7 +168,8 @@ export const ProgressDashboard = ({
           }
         }
       `}</style>
-    </AnimatedContainer>;
+    </AnimatedContainer>
+  );
 };
 
 // Export as both named and default export
