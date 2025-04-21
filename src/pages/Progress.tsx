@@ -16,12 +16,22 @@ import { TrendingUp, Trophy } from "lucide-react";
 import { ProgressNavigation } from "@/components/progress/ProgressNavigation";
 import { supabase } from "@/lib/supabase";
 
+// Define the VisibleSections type to match the structure
+type VisibleSections = {
+  totalProgress: boolean;
+  performanceGraph: boolean;
+  difficultyStats: boolean;
+  chapterProgress: boolean;
+  timeManagement: boolean;
+  goals: boolean;
+};
+
 const Progress = () => {
   const { session } = useAuth();
   const [period, setPeriod] = useState<TimePeriod>("weekly");
   const [activeTab, setActiveTab] = useState<ProgressTab>("performance");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [visibleSections, setVisibleSections] = useState({
+  const [visibleSections, setVisibleSections] = useState<VisibleSections>({
     totalProgress: true, // Always visible
     performanceGraph: true,
     difficultyStats: true,
@@ -96,6 +106,15 @@ const Progress = () => {
     }
   });
 
+  // Create a handler function to update visibleSections that matches the expected prop type
+  const handleSetVisibleSections = (sections: Record<string, boolean>) => {
+    // Ensure we preserve any fields in visibleSections that aren't in sections
+    setVisibleSections(prevSections => ({
+      ...prevSections,
+      ...sections
+    }));
+  };
+
   if (isLoading && isAuthenticated) {
     return <FullPageLoader />;
   }
@@ -117,7 +136,7 @@ const Progress = () => {
             setSidebarOpen={setSidebarOpen}
             setPeriod={(value: TimePeriod) => setPeriod(value)}
             visibleSections={visibleSections}
-            setVisibleSections={setVisibleSections}
+            setVisibleSections={handleSetVisibleSections}
           />
         </header>
 

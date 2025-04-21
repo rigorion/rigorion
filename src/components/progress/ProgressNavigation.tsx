@@ -5,27 +5,29 @@ import { Menu, Calendar, Settings, ChevronDown, BarChart3, Clock, Gauge, Target 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
 import { TimePeriod } from "@/types/progress";
 
+type VisibleSections = {
+  totalProgress: boolean;
+  performanceGraph: boolean;
+  difficultyStats: boolean;
+  chapterProgress: boolean;
+  timeManagement: boolean;
+  goals: boolean;
+};
+
 interface ProgressNavigationProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
   setPeriod: (period: TimePeriod) => void;
-  visibleSections?: Record<string, boolean>;
-  setVisibleSections?: (sections: Record<string, boolean>) => void;
+  visibleSections: VisibleSections;
+  setVisibleSections: (sections: Record<string, boolean>) => void;
 }
 
 export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
   sidebarOpen,
   setSidebarOpen,
   setPeriod,
-  visibleSections = {
-    totalProgress: true,
-    performanceGraph: true,
-    difficultyStats: true,
-    chapterProgress: true,
-    timeManagement: true,
-    goals: true
-  },
-  setVisibleSections = () => {}
+  visibleSections,
+  setVisibleSections
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -65,7 +67,7 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
             
             <DropdownMenuCheckboxItem
               checked={visibleSections.performanceGraph}
-              onCheckedChange={(checked) => setVisibleSections({...visibleSections, performanceGraph: checked})}
+              onCheckedChange={(checked) => setVisibleSections({performanceGraph: checked})}
             >
               <BarChart3 className="mr-2 h-4 w-4" />
               Performance Graph
@@ -73,7 +75,7 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
             
             <DropdownMenuCheckboxItem
               checked={visibleSections.difficultyStats}
-              onCheckedChange={(checked) => setVisibleSections({...visibleSections, difficultyStats: checked})}
+              onCheckedChange={(checked) => setVisibleSections({difficultyStats: checked})}
             >
               <Target className="mr-2 h-4 w-4" />
               Difficulty Stats
@@ -81,7 +83,7 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
             
             <DropdownMenuCheckboxItem
               checked={visibleSections.chapterProgress}
-              onCheckedChange={(checked) => setVisibleSections({...visibleSections, chapterProgress: checked})}
+              onCheckedChange={(checked) => setVisibleSections({chapterProgress: checked})}
             >
               <BarChart3 className="mr-2 h-4 w-4" />
               Chapter Progress
@@ -89,7 +91,7 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
             
             <DropdownMenuCheckboxItem
               checked={visibleSections.timeManagement}
-              onCheckedChange={(checked) => setVisibleSections({...visibleSections, timeManagement: checked})}
+              onCheckedChange={(checked) => setVisibleSections({timeManagement: checked})}
             >
               <Clock className="mr-2 h-4 w-4" />
               Time Management
@@ -97,7 +99,7 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
             
             <DropdownMenuCheckboxItem
               checked={visibleSections.goals}
-              onCheckedChange={(checked) => setVisibleSections({...visibleSections, goals: checked})}
+              onCheckedChange={(checked) => setVisibleSections({goals: checked})}
             >
               <Target className="mr-2 h-4 w-4" />
               Goals
