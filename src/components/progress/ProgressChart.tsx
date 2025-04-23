@@ -1,6 +1,7 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, TooltipProps, Bar, BarChart, Cell, ReferenceLine } from 'recharts';
 import { format } from 'date-fns';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+import { motion } from 'framer-motion';
 
 interface PerformanceDataPoint {
   date: string;
@@ -51,13 +52,18 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
 
   const minQuestions = Math.min(...enrichedData.map(d => d.questions));
   const minYAxis = Math.min(minQuestions * 0.8, 0);
+  const avgQuestions = Math.round(lastFifteenData.reduce((acc, curr) => acc + curr.attempted, 0) / lastFifteenData.length);
 
   return (
-    <div className="w-full">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">Daily Performance Chart</h3>
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="w-full"
+    >
+      <div className="flex justify-end items-center mb-4">
         <span className="text-sm font-medium text-gray-600">
-          Avg: {Math.round(lastFifteenData.reduce((acc, curr) => acc + curr.attempted, 0) / lastFifteenData.length)} questions/day
+          Avg: {avgQuestions} questions/day
         </span>
       </div>
 
@@ -110,7 +116,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={enrichedData}
-              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
               barCategoryGap={2}
             >
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E5E5" opacity={0.4} />
@@ -135,13 +141,25 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
                 }}
               />
               <Tooltip content={<CustomTooltip />} />
-              <Legend verticalAlign="top" height={36} />
               <ReferenceLine y={0} stroke="#D1D5DB" strokeDasharray="3 3" />
               <Bar
                 dataKey="momentum"
                 barSize={5}
                 name="Momentum"
                 radius={[2, 2, 0, 0]}
+                label={({x, y, value}) => {
+                  return (
+                    <text
+                      x={x}
+                      y={y - 10}
+                      fill={value >= 0 ? "#22c55e" : "#ef4444"}
+                      textAnchor="middle"
+                      fontSize="11"
+                    >
+                      {`${Math.abs(Number(value)).toFixed(1)}%`}
+                    </text>
+                  );
+                }}
               >
                 {enrichedData.map((entry, index) => (
                   <Cell 
@@ -155,6 +173,6 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
           </ResponsiveContainer>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
