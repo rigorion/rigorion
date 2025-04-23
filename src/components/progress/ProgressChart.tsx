@@ -1,5 +1,5 @@
 
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, TooltipProps, Bar, ComposedChart } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, TooltipProps, Bar, ComposedChart, Cell } from 'recharts';
 import { format } from 'date-fns';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
@@ -127,8 +127,11 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
               dataKey="momentum"
               barSize={2}
               name="Momentum"
-              fill={(data: any) => data.momentum >= 0 ? '#22c55e' : '#ef4444'}
-            />
+            >
+              {enrichedData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.momentum >= 0 ? '#22c55e' : '#ef4444'} />
+              ))}
+            </Bar>
           </ComposedChart>
         </ResponsiveContainer>
       </div>
