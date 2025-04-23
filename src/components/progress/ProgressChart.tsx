@@ -129,6 +129,8 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
               barSize={4}
               name="Momentum"
               strokeWidth={0}  // Remove border for the bars
+              // Offset bars to prevent touching line chart
+              offset={10}
             >
               {enrichedData.map((entry, index) => (
                 <Cell 
