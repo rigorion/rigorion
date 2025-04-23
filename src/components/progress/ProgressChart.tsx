@@ -1,3 +1,4 @@
+
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, TooltipProps, Bar, ComposedChart, Cell, ReferenceLine } from 'recharts';
 import { format } from 'date-fns';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
@@ -33,7 +34,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 };
 
 export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
-  // Take only the last 12 data points if more exist
+  // Take exactly 12 data points if more exist
   const lastTwelveData = data.slice(-12);
   
   // Calculate momentum (percent change from previous day)
@@ -42,17 +43,20 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
     const momentum = prevAttempted === 0 ? 0 : 
       ((item.attempted - prevAttempted) / prevAttempted * 100);
     
+    // Cap momentum values to stay within -2 to 2 range
+    const cappedMomentum = Math.max(Math.min(Number(momentum.toFixed(1)), 2), -2);
+    
     return {
       date: format(new Date(item.date), 'MMM dd'),
       questions: item.attempted,
-      momentum: Number(momentum.toFixed(1))
+      momentum: cappedMomentum
     };
   });
 
   // Calculate the minimum questions value to set bar scale
   const minQuestions = Math.min(...enrichedData.map(d => d.questions));
-  // Fix the maximum momentum to 2 units
-  const maxMomentum = 2;
+  // Set minimum to 80% of the lowest value or 0, whichever is smaller
+  const minYAxis = Math.min(minQuestions * 0.8, 0);
 
   return (
     <div className="w-full">
@@ -83,7 +87,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
               tickLine={false}
               dx={-10}
               tick={{ fill: '#6B7280', fontSize: 12 }}
-              domain={[minQuestions * 0.8, 'auto']}
+              domain={[minYAxis, 'auto']}
               label={{
                 value: 'Questions',
                 angle: -90,
@@ -97,7 +101,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
               axisLine={{ stroke: '#E5E5E5' }}
               tickLine={false}
               dx={10}
-              domain={[-maxMomentum, maxMomentum]}
+              domain={[-2, 2]}
               tick={{ fill: '#6B7280', fontSize: 12 }}
               label={{
                 value: 'Momentum (%)',
@@ -134,10 +138,10 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
             <Bar
               yAxisId="momentum"
               dataKey="momentum"
-              barSize={8} // Increased bar size for better visibility
+              barSize={6}
               name="Momentum"
               strokeWidth={0}
-              offset={20} // Increased offset to prevent touching line chart
+              offset={30} // Increased offset to ensure more space between charts
             >
               {enrichedData.map((entry, index) => (
                 <Cell 
