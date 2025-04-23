@@ -34,9 +34,12 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 };
 
 export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
+  // Take only the last 12 data points if more exist
+  const lastTwelveData = data.slice(-12);
+  
   // Calculate momentum (percent change from previous day)
-  const enrichedData = data.map((item, index) => {
-    const prevAttempted = index > 0 ? data[index - 1].attempted : item.attempted;
+  const enrichedData = lastTwelveData.map((item, index) => {
+    const prevAttempted = index > 0 ? lastTwelveData[index - 1].attempted : item.attempted;
     const momentum = prevAttempted === 0 ? 0 : 
       ((item.attempted - prevAttempted) / prevAttempted * 100);
     
@@ -47,12 +50,16 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
     };
   });
 
+  // Calculate the minimum questions value to set bar scale
+  const minQuestions = Math.min(...enrichedData.map(d => d.questions));
+  const maxMomentum = 25; // Limit momentum bars to 25% of the chart height
+
   return (
     <div className="w-full">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-800">Daily Performance Chart</h3>
         <span className="text-sm font-medium text-gray-600">
-          Avg: {Math.round(data.reduce((acc, curr) => acc + curr.attempted, 0) / data.length)} questions/day
+          Avg: {Math.round(lastTwelveData.reduce((acc, curr) => acc + curr.attempted, 0) / lastTwelveData.length)} questions/day
         </span>
       </div>
 
@@ -76,6 +83,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
               tickLine={false}
               dx={-10}
               tick={{ fill: '#6B7280', fontSize: 12 }}
+              domain={[minQuestions * 0.8, 'auto']}
               label={{
                 value: 'Questions',
                 angle: -90,
@@ -89,6 +97,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
               axisLine={false}
               tickLine={false}
               dx={10}
+              domain={[-maxMomentum, maxMomentum]}
               tick={{ fill: '#6B7280', fontSize: 12 }}
               label={{
                 value: 'Momentum (%)',
@@ -118,7 +127,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
               dataKey="momentum"
               barSize={2}
               name="Momentum"
-              fill={(data) => (data.momentum >= 0 ? '#22c55e' : '#ef4444')}
+              fill={(data: any) => data.momentum >= 0 ? '#22c55e' : '#ef4444'}
             />
           </ComposedChart>
         </ResponsiveContainer>
