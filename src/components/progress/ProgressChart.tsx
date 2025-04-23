@@ -1,5 +1,5 @@
 
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, TooltipProps } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, TooltipProps, Bar, ComposedChart } from 'recharts';
 import { format } from 'date-fns';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
@@ -33,23 +33,6 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
   return null;
 };
 
-// Custom dot component for momentum line that changes color based on value
-const CustomizedDot = (props: any) => {
-  const { cx, cy, value } = props;
-  const color = value >= 0 ? '#22c55e' : '#ef4444';
-  
-  return (
-    <circle 
-      cx={cx} 
-      cy={cy} 
-      r={3} 
-      fill={color}
-      stroke="white"
-      strokeWidth={1}
-    />
-  );
-};
-
 export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
   // Calculate momentum (percent change from previous day)
   const enrichedData = data.map((item, index) => {
@@ -73,12 +56,11 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
         </span>
       </div>
 
-      {/* Questions Chart */}
-      <div className="mb-4">
-        <ResponsiveContainer width="100%" height={200}>
-          <LineChart
+      <div className="w-full h-[400px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart
             data={enrichedData}
-            margin={{ top: 10, right: 30, left: 20, bottom: 5 }}
+            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E5E5" opacity={0.4} />
             <XAxis
@@ -89,6 +71,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
               tick={{ fill: '#6B7280', fontSize: 12 }}
             />
             <YAxis
+              yAxisId="questions"
               axisLine={false}
               tickLine={false}
               dx={-10}
@@ -100,65 +83,46 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
                 style: { textAnchor: 'middle', fill: '#6B7280', fontSize: 13 }
               }}
             />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend verticalAlign="top" height={36} iconType="circle" iconSize={8} />
-            <Line
-              type="linear"
-              dataKey="questions"
-              stroke="#1e40af"
-              strokeWidth={1.5}
-              dot={{ fill: '#1e40af', strokeWidth: 1, r: 3 }}
-              activeDot={{ r: 5, strokeWidth: 0 }}
-              name="Questions"
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Momentum Chart */}
-      <div>
-        <ResponsiveContainer width="100%" height={150}>
-          <LineChart
-            data={enrichedData}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E5E5" opacity={0.4} />
-            <XAxis
-              dataKey="date"
-              axisLine={false}
-              tickLine={false}
-              dy={10}
-              tick={{ fill: '#6B7280', fontSize: 12 }}
-            />
             <YAxis
+              yAxisId="momentum"
+              orientation="right"
               axisLine={false}
               tickLine={false}
-              dx={-10}
+              dx={10}
               tick={{ fill: '#6B7280', fontSize: 12 }}
               label={{
                 value: 'Momentum (%)',
-                angle: -90,
-                position: 'insideLeft',
+                angle: 90,
+                position: 'insideRight',
                 style: { textAnchor: 'middle', fill: '#6B7280', fontSize: 13 }
               }}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Legend verticalAlign="top" height={36} iconType="circle" iconSize={8} />
+            <Legend verticalAlign="top" height={36} />
+            
+            {/* Questions Line */}
             <Line
+              yAxisId="questions"
               type="linear"
-              dataKey="momentum"
-              stroke="#4B5563"
+              dataKey="questions"
+              stroke="#1e40af"
               strokeWidth={1}
-              strokeDasharray="5 5"
-              dot={<CustomizedDot />}
+              dot={{ fill: '#1e40af', strokeWidth: 1, r: 3 }}
               activeDot={{ r: 5, strokeWidth: 0 }}
-              name="Momentum"
-              connectNulls
+              name="Questions"
             />
-          </LineChart>
+            
+            {/* Momentum Bars */}
+            <Bar
+              yAxisId="momentum"
+              dataKey="momentum"
+              barSize={2}
+              name="Momentum"
+              fill={(data) => (data.momentum >= 0 ? '#22c55e' : '#ef4444')}
+            />
+          </ComposedChart>
         </ResponsiveContainer>
       </div>
     </div>
   );
 };
-
