@@ -43,8 +43,8 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
     const momentum = prevAttempted === 0 ? 0 : 
       ((item.attempted - prevAttempted) / prevAttempted * 100);
     
-    // Cap momentum values to stay within -2 to 2 range
-    const cappedMomentum = Math.max(Math.min(Number(momentum.toFixed(1)), 2), -2);
+    // Cap momentum values to stay within -1.5 to 1.5 range (reduced from -2 to 2)
+    const cappedMomentum = Math.max(Math.min(Number(momentum.toFixed(1)), 1.5), -1.5);
     
     return {
       date: format(new Date(item.date), 'MMM dd'),
@@ -72,6 +72,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
           <ComposedChart
             data={enrichedData}
             margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            barCategoryGap={1} // Minimum gap between bar categories
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E5E5" opacity={0.4} />
             <XAxis
@@ -101,7 +102,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
               axisLine={{ stroke: '#E5E5E5' }}
               tickLine={false}
               dx={10}
-              domain={[-2, 2]}
+              domain={[-1.5, 1.5]} // Reduced range to prevent overlap
               tick={{ fill: '#6B7280', fontSize: 12 }}
               label={{
                 value: 'Momentum (%)',
@@ -134,14 +135,15 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
               name="Questions"
             />
             
-            {/* Momentum Bars */}
+            {/* Momentum Bars with increased separation */}
             <Bar
               yAxisId="momentum"
               dataKey="momentum"
-              barSize={6}
+              barSize={5} // Reduced bar size to minimize overlap potential
               name="Momentum"
               strokeWidth={0}
-              offset={30} // Increased offset to ensure more space between charts
+              offset={45} // Significantly increased offset to ensure complete separation
+              radius={[2, 2, 0, 0]} // Slightly rounded top corners
             >
               {enrichedData.map((entry, index) => (
                 <Cell 
