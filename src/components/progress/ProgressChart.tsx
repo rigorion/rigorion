@@ -1,5 +1,4 @@
-
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, TooltipProps, Bar, ComposedChart, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, TooltipProps, Bar, ComposedChart, Cell, ReferenceLine } from 'recharts';
 import { format } from 'date-fns';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
@@ -107,8 +106,17 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
                 style: { textAnchor: 'middle', fill: '#6B7280', fontSize: 13 }
               }}
             />
+            
             <Tooltip content={<CustomTooltip />} />
             <Legend verticalAlign="top" height={36} />
+            
+            {/* Zero Reference Line */}
+            <ReferenceLine 
+              y={0} 
+              stroke="#D1D5DB" 
+              strokeDasharray="3 3" 
+              yAxisId="momentum" 
+            />
             
             {/* Questions Line */}
             <Line
@@ -126,11 +134,10 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
             <Bar
               yAxisId="momentum"
               dataKey="momentum"
-              barSize={4}
+              barSize={8} // Increased bar size for better visibility
               name="Momentum"
-              strokeWidth={0}  // Remove border for the bars
-              // Offset bars to prevent touching line chart
-              offset={10}
+              strokeWidth={0}
+              offset={20} // Increased offset to prevent touching line chart
             >
               {enrichedData.map((entry, index) => (
                 <Cell 
