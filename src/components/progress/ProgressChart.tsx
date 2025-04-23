@@ -120,13 +120,6 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
               barCategoryGap={2}
             >
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E5E5" opacity={0.4} />
-              <XAxis
-                dataKey="date"
-                axisLine={false}
-                tickLine={false}
-                dy={10}
-                tick={{ fill: '#6B7280', fontSize: 12 }}
-              />
               <YAxis
                 axisLine={{ stroke: '#E5E5E5' }}
                 tickLine={false}
@@ -148,17 +141,20 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
                 name="Momentum"
                 radius={[2, 2, 0, 0]}
                 label={({x, y, value}) => {
-                  return (
-                    <text
-                      x={x}
-                      y={y - 10}
-                      fill={value >= 0 ? "#22c55e" : "#ef4444"}
-                      textAnchor="middle"
-                      fontSize="11"
-                    >
-                      {`${Math.abs(Number(value)).toFixed(1)}%`}
-                    </text>
-                  );
+                  if (value >= 0) {
+                    return (
+                      <text
+                        x={x}
+                        y={y - 10}
+                        fill="#22c55e"
+                        textAnchor="middle"
+                        fontSize="11"
+                      >
+                        {`${Math.abs(Number(value)).toFixed(1)}%`}
+                      </text>
+                    );
+                  }
+                  return null;
                 }}
               >
                 {enrichedData.map((entry, index) => (
