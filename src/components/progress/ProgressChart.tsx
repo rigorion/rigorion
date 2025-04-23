@@ -1,5 +1,5 @@
 
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, TooltipProps, Bar, ComposedChart, Cell, ReferenceLine } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, TooltipProps, Bar, BarChart, Cell, ReferenceLine } from 'recharts';
 import { format } from 'date-fns';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
@@ -34,16 +34,13 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 };
 
 export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
-  // Take exactly 12 data points if more exist
   const lastTwelveData = data.slice(-12);
   
-  // Calculate momentum (percent change from previous day)
   const enrichedData = lastTwelveData.map((item, index) => {
     const prevAttempted = index > 0 ? lastTwelveData[index - 1].attempted : item.attempted;
     const momentum = prevAttempted === 0 ? 0 : 
       ((item.attempted - prevAttempted) / prevAttempted * 100);
     
-    // Cap momentum values to stay within -1.5 to 1.5 range (reduced from -2 to 2)
     const cappedMomentum = Math.max(Math.min(Number(momentum.toFixed(1)), 1.5), -1.5);
     
     return {
@@ -53,9 +50,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
     };
   });
 
-  // Calculate the minimum questions value to set bar scale
   const minQuestions = Math.min(...enrichedData.map(d => d.questions));
-  // Set minimum to 80% of the lowest value or 0, whichever is smaller
   const minYAxis = Math.min(minQuestions * 0.8, 0);
 
   return (
@@ -67,93 +62,98 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
         </span>
       </div>
 
-      <div className="w-full h-[400px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart
-            data={enrichedData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-            barCategoryGap={1} // Minimum gap between bar categories
-          >
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E5E5" opacity={0.4} />
-            <XAxis
-              dataKey="date"
-              axisLine={false}
-              tickLine={false}
-              dy={10}
-              tick={{ fill: '#6B7280', fontSize: 12 }}
-            />
-            <YAxis
-              yAxisId="questions"
-              axisLine={false}
-              tickLine={false}
-              dx={-10}
-              tick={{ fill: '#6B7280', fontSize: 12 }}
-              domain={[minYAxis, 'auto']}
-              label={{
-                value: 'Questions',
-                angle: -90,
-                position: 'insideLeft',
-                style: { textAnchor: 'middle', fill: '#6B7280', fontSize: 13 }
-              }}
-            />
-            <YAxis
-              yAxisId="momentum"
-              orientation="right"
-              axisLine={{ stroke: '#E5E5E5' }}
-              tickLine={false}
-              dx={10}
-              domain={[-1.5, 1.5]} // Reduced range to prevent overlap
-              tick={{ fill: '#6B7280', fontSize: 12 }}
-              label={{
-                value: 'Momentum (%)',
-                angle: 90,
-                position: 'insideRight',
-                style: { textAnchor: 'middle', fill: '#6B7280', fontSize: 13 }
-              }}
-            />
-            
-            <Tooltip content={<CustomTooltip />} />
-            <Legend verticalAlign="top" height={36} />
-            
-            {/* Zero Reference Line */}
-            <ReferenceLine 
-              y={0} 
-              stroke="#D1D5DB" 
-              strokeDasharray="3 3" 
-              yAxisId="momentum" 
-            />
-            
-            {/* Questions Line */}
-            <Line
-              yAxisId="questions"
-              type="linear"
-              dataKey="questions"
-              stroke="#1e40af"
-              strokeWidth={1}
-              dot={{ fill: '#1e40af', strokeWidth: 1, r: 3 }}
-              activeDot={{ r: 5, strokeWidth: 0 }}
-              name="Questions"
-            />
-            
-            {/* Momentum Bars with increased separation */}
-            <Bar
-              yAxisId="momentum"
-              dataKey="momentum"
-              barSize={5} // Reduced bar size to minimize overlap potential
-              name="Momentum"
-              strokeWidth={0}
-              offset={45} // Significantly increased offset to ensure complete separation
-              radius={[2, 2, 0, 0]} // Slightly rounded top corners
+      <div className="w-full space-y-4">
+        {/* Questions Chart - 70% of height */}
+        <div className="w-full h-[280px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={enrichedData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
             >
-              {enrichedData.map((entry, index) => (
-                <Cell 
-                  key={`cell-${index}`} 
-                  fill={entry.momentum >= 0 ? '#22c55e' : '#ef4444'} 
-                />
-              ))}
-            </Bar>
-          </ComposedChart>
-        </ResponsiveContainer>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E5E5" opacity={0.4} />
+              <XAxis
+                dataKey="date"
+                axisLine={false}
+                tickLine={false}
+                dy={10}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                dx={-10}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+                domain={[minYAxis, 'auto']}
+                label={{
+                  value: 'Questions',
+                  angle: -90,
+                  position: 'insideLeft',
+                  style: { textAnchor: 'middle', fill: '#6B7280', fontSize: 13 }
+                }}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend verticalAlign="top" height={36} />
+              <Line
+                type="linear"
+                dataKey="questions"
+                stroke="#1e40af"
+                strokeWidth={2}
+                dot={{ fill: '#1e40af', strokeWidth: 1, r: 3 }}
+                activeDot={{ r: 5, strokeWidth: 0 }}
+                name="Questions"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Momentum Chart - 30% of height */}
+        <div className="w-full h-[120px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={enrichedData}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              barCategoryGap={2}
+            >
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E5E5" opacity={0.4} />
+              <XAxis
+                dataKey="date"
+                axisLine={false}
+                tickLine={false}
+                dy={10}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+              />
+              <YAxis
+                axisLine={{ stroke: '#E5E5E5' }}
+                tickLine={false}
+                dx={10}
+                domain={[-1.5, 1.5]}
+                tick={{ fill: '#6B7280', fontSize: 12 }}
+                label={{
+                  value: 'Momentum (%)',
+                  angle: -90,
+                  position: 'insideLeft',
+                  style: { textAnchor: 'middle', fill: '#6B7280', fontSize: 13 }
+                }}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend verticalAlign="top" height={36} />
+              <ReferenceLine y={0} stroke="#D1D5DB" strokeDasharray="3 3" />
+              <Bar
+                dataKey="momentum"
+                barSize={8}
+                name="Momentum"
+                radius={[2, 2, 0, 0]}
+              >
+                {enrichedData.map((entry, index) => (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={entry.momentum >= 0 ? '#22c55e' : '#ef4444'} 
+                  />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </div>
   );
