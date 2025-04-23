@@ -1,4 +1,3 @@
-
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, TooltipProps, Bar, BarChart, Cell, ReferenceLine } from 'recharts';
 import { format } from 'date-fns';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
@@ -34,10 +33,10 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 };
 
 export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
-  const lastTwelveData = data.slice(-12);
+  const lastFifteenData = data.slice(-15);
   
-  const enrichedData = lastTwelveData.map((item, index) => {
-    const prevAttempted = index > 0 ? lastTwelveData[index - 1].attempted : item.attempted;
+  const enrichedData = lastFifteenData.map((item, index) => {
+    const prevAttempted = index > 0 ? lastFifteenData[index - 1].attempted : item.attempted;
     const momentum = prevAttempted === 0 ? 0 : 
       ((item.attempted - prevAttempted) / prevAttempted * 100);
     
@@ -58,7 +57,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-800">Daily Performance Chart</h3>
         <span className="text-sm font-medium text-gray-600">
-          Avg: {Math.round(lastTwelveData.reduce((acc, curr) => acc + curr.attempted, 0) / lastTwelveData.length)} questions/day
+          Avg: {Math.round(lastFifteenData.reduce((acc, curr) => acc + curr.attempted, 0) / lastFifteenData.length)} questions/day
         </span>
       </div>
 
@@ -140,14 +139,15 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
               <ReferenceLine y={0} stroke="#D1D5DB" strokeDasharray="3 3" />
               <Bar
                 dataKey="momentum"
-                barSize={8}
+                barSize={5}
                 name="Momentum"
                 radius={[2, 2, 0, 0]}
               >
                 {enrichedData.map((entry, index) => (
                   <Cell 
                     key={`cell-${index}`} 
-                    fill={entry.momentum >= 0 ? '#22c55e' : '#ef4444'} 
+                    fill={entry.momentum >= 0 ? '#22c55e' : '#ef4444'}
+                    strokeWidth={0}
                   />
                 ))}
               </Bar>

@@ -1,8 +1,7 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, Calendar, Settings, ChevronDown, BarChart3, Clock, Gauge, Target } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
 import { TimePeriod } from "@/types/progress";
 
 type VisibleSections = {
@@ -44,9 +43,9 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
           variant="ghost" 
           size="icon"
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden"
+          className="lg:hidden hover:bg-white/10 transition-colors"
         >
-          <Menu className="h-5 w-5" />
+          <Menu className="h-5 w-5 text-gray-600" />
         </Button>
         <span className="font-medium text-lg hidden md:inline-block">Progress</span>
       </div>
@@ -54,13 +53,13 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
       <div className="flex items-center space-x-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button variant="outline" size="sm" className="gap-2 bg-white hover:bg-gray-50 transition-all shadow-sm">
               <BarChart3 className="h-4 w-4" />
               <span className="hidden sm:inline">Sections</span>
-              <ChevronDown className="h-3 w-3" />
+              <ChevronDown className="h-3 w-3 text-gray-500" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 bg-white" align="end">
+          <DropdownMenuContent className="w-56 bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg" align="end">
             <DropdownMenuCheckboxItem
               checked={visibleSections.totalProgress}
               disabled={true} // Always visible
@@ -115,13 +114,13 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
 
         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button variant="outline" size="sm" className="gap-2 bg-white hover:bg-gray-50 transition-all shadow-sm">
               <Calendar className="h-4 w-4" />
               <span>Time Period</span>
-              <ChevronDown className="h-3 w-3" />
+              <ChevronDown className="h-3 w-3 text-gray-500" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-white">
+          <DropdownMenuContent align="end" className="bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg">
             <DropdownMenuItem onClick={() => setPeriod("daily")}>
               Daily
             </DropdownMenuItem>
@@ -137,8 +136,12 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Button variant="ghost" size="icon">
-          <Settings className="h-5 w-5" />
+        <Button 
+          variant="ghost" 
+          size="icon"
+          className="hover:bg-gray-50 transition-colors"
+        >
+          <Settings className="h-5 w-5 text-gray-600" />
         </Button>
       </div>
     </div>
