@@ -52,7 +52,8 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
 
   // Calculate the minimum questions value to set bar scale
   const minQuestions = Math.min(...enrichedData.map(d => d.questions));
-  const maxMomentum = 25; // Limit momentum bars to 25% of the chart height
+  // Fix the maximum momentum to 2 units
+  const maxMomentum = 2;
 
   return (
     <div className="w-full">
@@ -94,7 +95,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
             <YAxis
               yAxisId="momentum"
               orientation="right"
-              axisLine={false}
+              axisLine={{ stroke: '#E5E5E5' }}
               tickLine={false}
               dx={10}
               domain={[-maxMomentum, maxMomentum]}
@@ -125,11 +126,15 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
             <Bar
               yAxisId="momentum"
               dataKey="momentum"
-              barSize={2}
+              barSize={4}
               name="Momentum"
+              strokeWidth={0}  // Remove border for the bars
             >
               {enrichedData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.momentum >= 0 ? '#22c55e' : '#ef4444'} />
+                <Cell 
+                  key={`cell-${index}`} 
+                  fill={entry.momentum >= 0 ? '#22c55e' : '#ef4444'} 
+                />
               ))}
             </Bar>
           </ComposedChart>
