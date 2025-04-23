@@ -15,7 +15,7 @@ interface ProgressChartProps {
 const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white/95 backdrop-blur-sm p-4 border border-purple-200 shadow-lg rounded-lg">
+      <div className="bg-white/95 backdrop-blur-sm p-4 border border-gray-200 shadow-lg rounded-lg">
         <p className="font-medium text-gray-600 mb-2">{`Date: ${label}`}</p>
         {payload.map((entry, index) => (
           <p 
@@ -31,6 +31,23 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
     );
   }
   return null;
+};
+
+// Custom dot component for momentum line that changes color based on value
+const CustomizedDot = (props: any) => {
+  const { cx, cy, value } = props;
+  const color = value >= 0 ? '#22c55e' : '#ef4444';
+  
+  return (
+    <circle 
+      cx={cx} 
+      cy={cy} 
+      r={4} 
+      fill={color}
+      stroke="white"
+      strokeWidth={2}
+    />
+  );
 };
 
 export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
@@ -49,22 +66,17 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
 
   return (
     <div className="w-full">
-      <h3 className="text-lg font-semibold mb-4 text-gray-800">Daily Performance Chart</h3>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold text-gray-800">Daily Performance Chart</h3>
+        <span className="text-sm font-medium text-gray-600">
+          Avg: {Math.round(data.reduce((acc, curr) => acc + curr.attempted, 0) / data.length)} questions/day
+        </span>
+      </div>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart
           data={enrichedData}
           margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
         >
-          <defs>
-            <linearGradient id="colorQuestions" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#9b87f5" stopOpacity={0.8}/>
-              <stop offset="95%" stopColor="#9b87f5" stopOpacity={0}/>
-            </linearGradient>
-            <linearGradient id="colorMomentum" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#7E69AB" stopOpacity={0.8}/>
-              <stop offset="95%" stopColor="#7E69AB" stopOpacity={0}/>
-            </linearGradient>
-          </defs>
           <CartesianGrid 
             strokeDasharray="3 3" 
             vertical={false} 
@@ -114,23 +126,24 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
           />
           <Line
             yAxisId="questions"
-            type="monotone"
+            type="linear"
             dataKey="questions"
-            stroke="#9b87f5"
+            stroke="#1e40af"
             strokeWidth={2}
-            dot={{ fill: '#9b87f5', strokeWidth: 2 }}
+            dot={{ fill: '#1e40af', strokeWidth: 2 }}
             activeDot={{ r: 6, strokeWidth: 0 }}
             name="Questions"
           />
           <Line
             yAxisId="momentum"
-            type="monotone"
+            type="linear"
             dataKey="momentum"
-            stroke="#7E69AB"
+            stroke="#22c55e"
             strokeWidth={2}
-            dot={{ fill: '#7E69AB', strokeWidth: 2 }}
+            dot={<CustomizedDot />}
             activeDot={{ r: 6, strokeWidth: 0 }}
             name="Momentum"
+            connectNulls
           />
         </LineChart>
       </ResponsiveContainer>
