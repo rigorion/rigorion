@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { ProgressChart } from "./ProgressChart";
 import { motion } from "framer-motion";
@@ -132,7 +133,7 @@ export const PerformanceGraphCard = ({
   // Update the loading state UI
   if (isLoading) {
     return (
-      <Card className="p-6 hover:shadow-lg transition-all duration-300">
+      <Card className="p-6 hover:shadow-lg transition-all duration-300 h-[480px]">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-semibold text-gray-800">Performance Analysis</h3>
         </div>
@@ -155,8 +156,9 @@ export const PerformanceGraphCard = ({
       }}
       initial="hidden"
       animate="visible"
+      className="h-[480px]" // Match height with TotalProgressCard
     >
-      <Card className="p-6 hover:shadow-lg transition-all duration-300 bg-white/50 backdrop-blur-sm">
+      <Card className="p-6 hover:shadow-lg transition-all duration-300 bg-white/50 backdrop-blur-sm h-full">
         <div className="flex justify-between items-center mb-4">
           <div className="text-sm font-medium text-gray-600">
             Avg: {averageQuestions} questions/day

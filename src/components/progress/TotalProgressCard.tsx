@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { useEffect, useState } from 'react';
@@ -113,26 +114,29 @@ export const TotalProgressCard = ({
   const incorrectPercentage = Math.round(incorrectQuestionsValue / totalQuestionsValue * 100);
   const unattemptedPercentage = Math.round(unattemptedQuestionsValue / totalQuestionsValue * 100);
 
-  const circumference = 2 * Math.PI * 45;
+  const radius = 45;
+  const circumference = 2 * Math.PI * radius;
   const correctOffset = circumference * (1 - correctQuestionsValue / totalQuestionsValue);
   const incorrectOffset = circumference * (1 - incorrectQuestionsValue / totalQuestionsValue);
   const unattemptedOffset = circumference * (1 - unattemptedQuestionsValue / totalQuestionsValue);
 
   return (
-    <Card className="p-6 col-span-1 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-slate-50 via-white to-blue-50 rounded-xl border border-slate-100">
+    <Card className="p-6 col-span-1 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-slate-50 via-white to-blue-50 rounded-xl border border-slate-100 h-[480px]">
       <h3 className="text-lg font-semibold mb-6 text-center font-dancing-script bg-gradient-to-r from-blue-900 via-blue-600 to-slate-800 bg-clip-text text-transparent">
         Total Progress
       </h3>
-      <div className="flex justify-between items-start space-x-8">
-        <div className="relative w-96 h-96">
+      <div className="flex justify-between items-center space-x-8">
+        {/* Fixed circular progress container */}
+        <div className="relative flex items-center justify-center" style={{ width: '260px', height: '260px' }}>
           <motion.svg 
-            className="w-full h-full -rotate-90 transform"
+            className="absolute inset-0 w-full h-full"
+            viewBox="0 0 100 100"
             animate={{ 
-              rotate: [-91, -89, -91],
-              scale: [1, 1.02, 1]
+              rotate: [-2, 2, -2],
+              scale: [0.99, 1.01, 0.99]
             }}
             transition={{ 
-              duration: 1.5,
+              duration: 3,
               repeat: Infinity,
               ease: "easeInOut"
             }}
@@ -141,7 +145,7 @@ export const TotalProgressCard = ({
             <circle 
               cx="50" 
               cy="50" 
-              r="45" 
+              r={radius} 
               fill="none" 
               stroke="#f1f5f9" 
               strokeWidth="2"
@@ -151,10 +155,10 @@ export const TotalProgressCard = ({
             <circle
               cx="50"
               cy="50"
-              r="45"
+              r={radius}
               fill="none"
               stroke="#22c55e"
-              strokeWidth="4"
+              strokeWidth="5"
               strokeDasharray={circumference}
               strokeDashoffset={correctOffset}
               strokeLinecap="round"
@@ -163,10 +167,10 @@ export const TotalProgressCard = ({
             <circle
               cx="50"
               cy="50"
-              r="45"
+              r={radius}
               fill="none"
               stroke="#ef4444"
-              strokeWidth="4"
+              strokeWidth="5"
               strokeDasharray={circumference}
               strokeDashoffset={incorrectOffset}
               strokeLinecap="round"
@@ -175,10 +179,10 @@ export const TotalProgressCard = ({
             <circle
               cx="50"
               cy="50"
-              r="45"
+              r={radius}
               fill="none"
               stroke="url(#triColorGradient)"
-              strokeWidth="4"
+              strokeWidth="5"
               strokeDasharray={circumference}
               strokeDashoffset={unattemptedOffset}
               strokeLinecap="round"
@@ -194,7 +198,9 @@ export const TotalProgressCard = ({
               </linearGradient>
             </defs>
           </motion.svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+          
+          {/* Centered text */}
+          <div className="flex flex-col items-center justify-center text-center z-10">
             <span className="text-5xl font-bold bg-gradient-to-r from-blue-900 via-blue-600 to-slate-800 bg-clip-text text-transparent">
               {totalProgress}%
             </span>

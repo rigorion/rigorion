@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { LucideIcon } from "lucide-react";
@@ -57,7 +58,7 @@ export const StatsCard = ({
     <Card className="p-4 hover:shadow-xl transition-all duration-300 border-0 overflow-hidden rounded-xl">
       <div className="flex items-center gap-3">
         <motion.div 
-          className={`bg-white ${shadowColor} p-2 rounded-lg border-2 relative before:absolute before:inset-0 before:rounded-lg before:opacity-50 before:animate-pulse-subtle`}
+          className={`bg-white ${shadowColor} p-2 rounded-lg border-2 relative before:absolute before:inset-0 before:rounded-lg before:opacity-50 before:animate-pulse-subtle flex items-center justify-center w-10 h-10`}
           style={{
             borderImage: `linear-gradient(to right, ${color.replace('bg-', '')}, transparent) 1`,
           }}
