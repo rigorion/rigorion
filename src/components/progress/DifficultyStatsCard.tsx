@@ -48,15 +48,21 @@ export const DifficultyStatCard = ({
               transition={{ duration: 1, ease: "easeOut" }} 
               style={{ originX: 0 }}
             >
-              <Progress 
-                value={correct / total * 100} 
-                className={`h-2 bg-gray-100`}
-                // Apply the color dynamically with inline style for better control
-                style={{
-                  "--progress-color": color === "bg-emerald-500" ? "#10b981" : 
-                                    color === "bg-amber-500" ? "#f59e0b" : "#ef4444"
-                } as React.CSSProperties}
-              />
+              <div className="relative h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className={`absolute top-0 left-0 h-full transition-all duration-500 rounded-full animate-pulse-subtle`}
+                  style={{
+                    width: `${accuracy}%`,
+                    background: `linear-gradient(90deg, ${
+                      color === "bg-emerald-500" ? 
+                        "rgb(16, 185, 129), rgb(52, 211, 153)" : 
+                        color === "bg-amber-500" ? 
+                          "rgb(245, 158, 11), rgb(251, 191, 36)" :
+                          "rgb(239, 68, 68), rgb(248, 113, 113)"
+                    })`
+                  }}
+                />
+              </div>
             </motion.div>
           </div>
           
