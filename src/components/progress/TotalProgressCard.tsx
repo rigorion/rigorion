@@ -1,7 +1,5 @@
-
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import SegmentedProgress from "@/components/SegmentedProgress";
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
@@ -96,21 +94,12 @@ export const TotalProgressCard = ({
     fetchProgress();
   }, [session]);
 
-  // Use props if provided, otherwise use local state or generate placeholder data
   const displayData = propsProgressData || {
     total_questions: propsTotalQuestions || localProgress?.total_questions || 130,
     correct_count: propsCorrectQuestions || localProgress?.correct_count || 53,
     incorrect_count: propsIncorrectQuestions || localProgress?.incorrect_count || 21,
     unattempted_count: propsUnattemptedQuestions || localProgress?.unattempted_count || 56
   };
-
-  if (isLoading) {
-    return (
-      <Card className="p-6 col-span-1 shadow-md hover:shadow-xl transition-all duration-300 shadow-[0_0_15px_rgba(155,135,245,0.2)] border-0 bg-slate-50 rounded-md py-[15px]">
-        <div className="text-center text-gray-500">Loading progress data...</div>
-      </Card>
-    );
-  }
 
   const { 
     total_questions: totalQuestionsValue,
@@ -124,32 +113,130 @@ export const TotalProgressCard = ({
   const incorrectPercentage = Math.round(incorrectQuestionsValue / totalQuestionsValue * 100);
   const unattemptedPercentage = Math.round(unattemptedQuestionsValue / totalQuestionsValue * 100);
 
+  const circumference = 2 * Math.PI * 45; // radius is 45
+  const correctOffset = circumference * (1 - correctQuestionsValue / totalQuestionsValue);
+  const incorrectOffset = circumference * (1 - incorrectQuestionsValue / totalQuestionsValue);
+  const unattemptedOffset = circumference * (1 - unattemptedQuestionsValue / totalQuestionsValue);
+
   return (
-    <Card className="p-6 col-span-1 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-100">
-      <h3 className="text-lg font-semibold mb-6 text-center text-purple-600">
+    <Card className="p-6 col-span-1 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-slate-50 via-white to-blue-50 rounded-xl border border-slate-100">
+      <h3 className="text-lg font-semibold mb-6 text-center bg-gradient-to-r from-blue-900 via-blue-600 to-slate-800 bg-clip-text text-transparent">
         Total Progress
       </h3>
-      <div className="space-y-4">
-        <div className="flex justify-center">
-          <SegmentedProgress 
-            progress={totalProgress} 
-            className="w-64 h-64 md:w-72 md:h-72" 
-            total={totalQuestionsValue} 
-            completed={correctQuestionsValue + incorrectQuestionsValue} 
-          />
+      <div className="flex justify-between items-start space-x-8">
+        <div className="relative w-64 h-64">
+          <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
+            {/* Background circle */}
+            <circle 
+              cx="50" 
+              cy="50" 
+              r="45" 
+              fill="none" 
+              stroke="#f1f5f9" 
+              strokeWidth="2"
+            />
+            
+            {/* Correct questions - Green */}
+            <circle
+              cx="50"
+              cy="50"
+              r="45"
+              fill="none"
+              stroke="#22c55e"
+              strokeWidth="4"
+              strokeDasharray={circumference}
+              strokeDashoffset={correctOffset}
+              strokeLinecap="round"
+              className="transition-all duration-1000 drop-shadow-[0_0_2px_rgba(34,197,94,0.5)]"
+            />
+            
+            {/* Incorrect questions - Red */}
+            <circle
+              cx="50"
+              cy="50"
+              r="45"
+              fill="none"
+              stroke="#ef4444"
+              strokeWidth="4"
+              strokeDasharray={circumference}
+              strokeDashoffset={incorrectOffset}
+              strokeLinecap="round"
+              className="transition-all duration-1000 drop-shadow-[0_0_2px_rgba(239,68,68,0.5)]"
+            />
+            
+            {/* Unattempted questions - Orange */}
+            <circle
+              cx="50"
+              cy="50"
+              r="45"
+              fill="none"
+              stroke="#f97316"
+              strokeWidth="4"
+              strokeDasharray={circumference}
+              strokeDashoffset={unattemptedOffset}
+              strokeLinecap="round"
+              className="transition-all duration-1000 drop-shadow-[0_0_2px_rgba(249,115,22,0.5)]"
+            />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+            <span className="text-4xl font-bold bg-gradient-to-r from-blue-900 via-blue-600 to-slate-800 bg-clip-text text-transparent">
+              {totalProgress}%
+            </span>
+            <div className="flex items-center gap-1 mt-1">
+              <span className="text-sm font-medium text-blue-800">
+                {correctQuestionsValue + incorrectQuestionsValue}
+              </span>
+              <span className="text-sm text-slate-400">/</span>
+              <span className="text-sm text-slate-600">{totalQuestionsValue}</span>
+            </div>
+            <span className="text-xs text-slate-500 mt-1">completed</span>
+          </div>
         </div>
-        <div className="mt-6 grid grid-cols-3 gap-2 text-center">
-          <div className="bg-emerald-50 p-2 rounded-md">
-            <div className="text-emerald-600 font-semibold">{correctQuestionsValue}</div>
-            <div className="text-xs text-gray-500">Correct</div>
+        
+        <div className="flex-1 space-y-4 pt-4">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+              <span className="text-sm text-slate-600">Correct:</span>
+              <span className="text-sm font-semibold bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent">
+                {correctQuestionsValue}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+              <span className="text-sm text-slate-600">Incorrect:</span>
+              <span className="text-sm font-semibold bg-gradient-to-r from-red-600 to-red-400 bg-clip-text text-transparent">
+                {incorrectQuestionsValue}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
+              <span className="text-sm text-slate-600">Unattempted:</span>
+              <span className="text-sm font-semibold bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">
+                {unattemptedQuestionsValue}
+              </span>
+            </div>
           </div>
-          <div className="bg-amber-50 p-2 rounded-md">
-            <div className="text-amber-600 font-semibold">{incorrectQuestionsValue}</div>
-            <div className="text-xs text-gray-500">Incorrect</div>
-          </div>
-          <div className="bg-slate-50 p-2 rounded-md">
-            <div className="text-slate-600 font-semibold">{unattemptedQuestionsValue}</div>
-            <div className="text-xs text-gray-500">Unattempted</div>
+          
+          <div className="pt-4 space-y-2 border-t border-slate-100">
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-slate-500">Avg Score:</span>
+              <span className="text-sm font-medium text-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.3)]">
+                92%
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-slate-500">Avg Speed:</span>
+              <span className="text-sm font-medium text-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.3)]">
+                2.5 min
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-slate-500">Success Rate:</span>
+              <span className="text-sm font-medium text-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.3)]">
+                85%
+              </span>
+            </div>
           </div>
         </div>
       </div>
