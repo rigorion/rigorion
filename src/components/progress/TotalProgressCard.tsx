@@ -113,7 +113,7 @@ export const TotalProgressCard = ({
   const incorrectPercentage = Math.round(incorrectQuestionsValue / totalQuestionsValue * 100);
   const unattemptedPercentage = Math.round(unattemptedQuestionsValue / totalQuestionsValue * 100);
 
-  const circumference = 2 * Math.PI * 45; // radius is 45
+  const circumference = 2 * Math.PI * 45;
   const correctOffset = circumference * (1 - correctQuestionsValue / totalQuestionsValue);
   const incorrectOffset = circumference * (1 - incorrectQuestionsValue / totalQuestionsValue);
   const unattemptedOffset = circumference * (1 - unattemptedQuestionsValue / totalQuestionsValue);
@@ -124,8 +124,17 @@ export const TotalProgressCard = ({
         Total Progress
       </h3>
       <div className="flex justify-between items-start space-x-8">
-        <div className="relative w-64 h-64">
-          <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
+        <div className="relative w-72 h-72">
+          <motion.svg 
+            className="w-full h-full -rotate-90 transform"
+            viewBox="0 0 100 100"
+            animate={{ rotate: [-91, -89, -91] }}
+            transition={{ 
+              duration: 1.5,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
             {/* Background circle */}
             <circle 
               cx="50" 
@@ -136,7 +145,7 @@ export const TotalProgressCard = ({
               strokeWidth="2"
             />
             
-            {/* Correct questions - Green */}
+            {/* Progress segments */}
             <circle
               cx="50"
               cy="50"
@@ -147,10 +156,8 @@ export const TotalProgressCard = ({
               strokeDasharray={circumference}
               strokeDashoffset={correctOffset}
               strokeLinecap="round"
-              className="transition-all duration-1000 drop-shadow-[0_0_2px_rgba(34,197,94,0.5)]"
+              className="transition-all duration-1000 drop-shadow-[0_0_4px_rgba(34,197,94,0.6)]"
             />
-            
-            {/* Incorrect questions - Red */}
             <circle
               cx="50"
               cy="50"
@@ -161,25 +168,32 @@ export const TotalProgressCard = ({
               strokeDasharray={circumference}
               strokeDashoffset={incorrectOffset}
               strokeLinecap="round"
-              className="transition-all duration-1000 drop-shadow-[0_0_2px_rgba(239,68,68,0.5)]"
+              className="transition-all duration-1000 drop-shadow-[0_0_4px_rgba(239,68,68,0.6)]"
             />
-            
-            {/* Unattempted questions - Orange */}
             <circle
               cx="50"
               cy="50"
               r="45"
               fill="none"
-              stroke="#f97316"
+              stroke="url(#orangeGradient)"
               strokeWidth="4"
               strokeDasharray={circumference}
               strokeDashoffset={unattemptedOffset}
               strokeLinecap="round"
-              className="transition-all duration-1000 drop-shadow-[0_0_2px_rgba(249,115,22,0.5)]"
+              className="transition-all duration-1000 drop-shadow-[0_0_4px_rgba(249,115,22,0.6)]"
             />
-          </svg>
+            
+            {/* Gradient definition */}
+            <defs>
+              <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style={{ stopColor: '#22c55e', stopOpacity: 0.3 }} />
+                <stop offset="50%" style={{ stopColor: '#ef4444', stopOpacity: 0.3 }} />
+                <stop offset="100%" style={{ stopColor: '#f97316', stopOpacity: 0.3 }} />
+              </linearGradient>
+            </defs>
+          </motion.svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <span className="text-4xl font-bold bg-gradient-to-r from-blue-900 via-blue-600 to-slate-800 bg-clip-text text-transparent">
+            <span className="text-5xl font-bold bg-gradient-to-r from-blue-900 via-blue-600 to-slate-800 bg-clip-text text-transparent">
               {totalProgress}%
             </span>
             <div className="flex items-center gap-1 mt-1">
@@ -194,52 +208,63 @@ export const TotalProgressCard = ({
         </div>
         
         <div className="flex-1 space-y-4 pt-4">
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
               <span className="text-sm text-slate-600">Correct:</span>
-              <span className="text-sm font-semibold bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent">
+              <span className="text-sm font-semibold bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent glow-text-emerald">
                 {correctQuestionsValue}
               </span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
               <span className="text-sm text-slate-600">Incorrect:</span>
-              <span className="text-sm font-semibold bg-gradient-to-r from-red-600 to-red-400 bg-clip-text text-transparent">
+              <span className="text-sm font-semibold bg-gradient-to-r from-red-600 to-red-400 bg-clip-text text-transparent glow-text-red">
                 {incorrectQuestionsValue}
               </span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
               <span className="text-sm text-slate-600">Unattempted:</span>
-              <span className="text-sm font-semibold bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">
+              <span className="text-sm font-semibold bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent glow-text-orange">
                 {unattemptedQuestionsValue}
               </span>
             </div>
           </div>
           
-          <div className="pt-4 space-y-2 border-t border-slate-100">
+          <div className="pt-4 space-y-3 border-t border-slate-100">
             <div className="flex justify-between items-center">
               <span className="text-xs text-slate-500">Avg Score:</span>
-              <span className="text-sm font-medium text-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.3)]">
-                92%
-              </span>
+              <span className="text-sm font-medium text-blue-600 glow-text-blue">92%</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-xs text-slate-500">Avg Speed:</span>
-              <span className="text-sm font-medium text-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.3)]">
-                2.5 min
-              </span>
+              <span className="text-sm font-medium text-blue-600 glow-text-blue">2.5 min</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-xs text-slate-500">Success Rate:</span>
-              <span className="text-sm font-medium text-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.3)]">
-                85%
-              </span>
+              <span className="text-sm font-medium text-blue-600 glow-text-blue">85%</span>
             </div>
           </div>
         </div>
       </div>
+      
+      <style>
+        {`
+        .glow-text-emerald {
+          text-shadow: 0 0 8px rgba(34,197,94,0.3);
+        }
+        .glow-text-red {
+          text-shadow: 0 0 8px rgba(239,68,68,0.3);
+        }
+        .glow-text-orange {
+          text-shadow: 0 0 8px rgba(249,115,22,0.3);
+        }
+        .glow-text-blue {
+          text-shadow: 0 0 8px rgba(37,99,235,0.3);
+        }
+        `}
+      </style>
     </Card>
   );
 };
