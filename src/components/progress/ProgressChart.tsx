@@ -1,4 +1,3 @@
-
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, TooltipProps, Bar, BarChart } from 'recharts';
 import { format } from 'date-fns';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
@@ -143,7 +142,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
           dataKey="questions"
           fill="url(#barGradient)"
           radius={[4, 4, 0, 0]}
-          maxBarSize={40}
+          maxBarSize={20} // Thinner bars
         />
         <defs>
           <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
@@ -179,7 +178,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
         </div>
       </div>
 
-      <div className="w-full h-[400px]">
+      <div className="w-full h-[300px]"> {/* Reduced height by 25% */}
         <ResponsiveContainer width="100%" height="100%">
           {renderChart()}
         </ResponsiveContainer>

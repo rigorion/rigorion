@@ -120,15 +120,17 @@ export const TotalProgressCard = ({
 
   return (
     <Card className="p-6 col-span-1 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-slate-50 via-white to-blue-50 rounded-xl border border-slate-100">
-      <h3 className="text-lg font-semibold mb-6 text-center bg-gradient-to-r from-blue-900 via-blue-600 to-slate-800 bg-clip-text text-transparent">
+      <h3 className="text-lg font-semibold mb-6 text-center font-dancing-script bg-gradient-to-r from-blue-900 via-blue-600 to-slate-800 bg-clip-text text-transparent">
         Total Progress
       </h3>
       <div className="flex justify-between items-start space-x-8">
-        <div className="relative w-72 h-72">
+        <div className="relative w-96 h-96">
           <motion.svg 
             className="w-full h-full -rotate-90 transform"
-            viewBox="0 0 100 100"
-            animate={{ rotate: [-91, -89, -91] }}
+            animate={{ 
+              rotate: [-91, -89, -91],
+              scale: [1, 1.02, 1]
+            }}
             transition={{ 
               duration: 1.5,
               repeat: Infinity,
@@ -145,7 +147,7 @@ export const TotalProgressCard = ({
               strokeWidth="2"
             />
             
-            {/* Progress segments */}
+            {/* Progress segments with vivid colors */}
             <circle
               cx="50"
               cy="50"
@@ -156,7 +158,7 @@ export const TotalProgressCard = ({
               strokeDasharray={circumference}
               strokeDashoffset={correctOffset}
               strokeLinecap="round"
-              className="transition-all duration-1000 drop-shadow-[0_0_4px_rgba(34,197,94,0.6)]"
+              className="transition-all duration-1000 drop-shadow-[0_0_8px_rgba(34,197,94,0.8)]"
             />
             <circle
               cx="50"
@@ -168,27 +170,27 @@ export const TotalProgressCard = ({
               strokeDasharray={circumference}
               strokeDashoffset={incorrectOffset}
               strokeLinecap="round"
-              className="transition-all duration-1000 drop-shadow-[0_0_4px_rgba(239,68,68,0.6)]"
+              className="transition-all duration-1000 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]"
             />
             <circle
               cx="50"
               cy="50"
               r="45"
               fill="none"
-              stroke="url(#orangeGradient)"
+              stroke="url(#triColorGradient)"
               strokeWidth="4"
               strokeDasharray={circumference}
               strokeDashoffset={unattemptedOffset}
               strokeLinecap="round"
-              className="transition-all duration-1000 drop-shadow-[0_0_4px_rgba(249,115,22,0.6)]"
+              className="transition-all duration-1000"
             />
             
-            {/* Gradient definition */}
+            {/* Updated gradient definition */}
             <defs>
-              <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" style={{ stopColor: '#22c55e', stopOpacity: 0.3 }} />
-                <stop offset="50%" style={{ stopColor: '#ef4444', stopOpacity: 0.3 }} />
-                <stop offset="100%" style={{ stopColor: '#f97316', stopOpacity: 0.3 }} />
+              <linearGradient id="triColorGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#22c55e" />
+                <stop offset="50%" stopColor="#ef4444" />
+                <stop offset="100%" stopColor="#f97316" />
               </linearGradient>
             </defs>
           </motion.svg>
@@ -248,23 +250,6 @@ export const TotalProgressCard = ({
           </div>
         </div>
       </div>
-      
-      <style>
-        {`
-        .glow-text-emerald {
-          text-shadow: 0 0 8px rgba(34,197,94,0.3);
-        }
-        .glow-text-red {
-          text-shadow: 0 0 8px rgba(239,68,68,0.3);
-        }
-        .glow-text-orange {
-          text-shadow: 0 0 8px rgba(249,115,22,0.3);
-        }
-        .glow-text-blue {
-          text-shadow: 0 0 8px rgba(37,99,235,0.3);
-        }
-        `}
-      </style>
     </Card>
   );
 };

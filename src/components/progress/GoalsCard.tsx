@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
@@ -30,7 +29,7 @@ export const GoalsCard = ({ goals }: { goals: GoalProps[] }) => {
     >
       <Card className="p-6 shadow-md hover:shadow-lg transition-all duration-300 border-0">
         <h3 className="text-lg font-semibold mb-6">Goals</h3>
-        <div className="space-y-6">
+        <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
           {goals.map((goal, index) => {
             const progress = (goal.currentValue / goal.targetValue) * 100;
             const isComplete = progress >= 100;
@@ -42,7 +41,7 @@ export const GoalsCard = ({ goals }: { goals: GoalProps[] }) => {
             });
             
             return (
-              <div key={goal.id || index} className="space-y-3">
+              <div key={goal.id || index} className="space-y-2">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-2">
                     {isComplete ? (
@@ -56,7 +55,7 @@ export const GoalsCard = ({ goals }: { goals: GoalProps[] }) => {
                   </div>
                   <span className="text-xs font-medium px-2 py-1 rounded-full bg-gray-100">Due: {formattedDate}</span>
                 </div>
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   <motion.div
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: 1 }}
@@ -66,9 +65,9 @@ export const GoalsCard = ({ goals }: { goals: GoalProps[] }) => {
                     <Progress 
                       value={Math.min(progress, 100)} 
                       className={cn(
-                        "h-2", 
-                        isComplete ? "bg-gray-100" : "bg-gray-100",
-                        isComplete ? "[&>div]:bg-emerald-500" : "[&>div]:bg-purple-500"
+                        "h-1.5", // Thinner bars
+                        "bg-gradient-to-r from-blue-900 to-slate-800",
+                        "[&>div]:bg-gradient-to-r [&>div]:from-blue-600 [&>div]:to-blue-900"
                       )} 
                     />
                   </motion.div>
