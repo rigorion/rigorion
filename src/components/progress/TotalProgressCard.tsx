@@ -29,32 +29,21 @@ export const TotalProgressCard = ({
   progressData: propsProgressData,
   alwaysVisible = true
 }: TotalProgressCardProps) => {
-  const { session } = useAuth();
   const [localProgress, setLocalProgress] = useState<ProgressData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchProgress = async () => {
-      if (!session?.user?.id) return;
-      
       setIsLoading(true);
       setError(null);
       
       try {
-        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError || !currentSession?.access_token) {
-          throw new Error('Authentication required');
-        }
-
-        // Use environment variable for Supabase URL
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://evfxcdzwmmiguzxdxktl.supabase.co";
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
         
         const res = await fetch(`${supabaseUrl}/functions/v1/get-user-progress`, {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${currentSession.access_token}`,
             "Content-Type": "application/json"
           }
         });
@@ -78,7 +67,7 @@ export const TotalProgressCard = ({
         setError(err as Error);
         toast.error("Failed to load progress data. Using fallback data.");
         
-        // Set fallback values that match the design
+        // Set fallback values
         setLocalProgress({
           total_questions: 130,
           correct_count: 53,
@@ -91,7 +80,7 @@ export const TotalProgressCard = ({
     };
 
     fetchProgress();
-  }, [session]);
+  }, []);
 
   const displayData = propsProgressData || {
     total_questions: propsTotalQuestions || localProgress?.total_questions || 130,

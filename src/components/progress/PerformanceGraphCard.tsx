@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { ProgressChart } from "./ProgressChart";
 import { motion } from "framer-motion";
@@ -20,61 +19,43 @@ interface PerformanceGraphCardProps {
 export const PerformanceGraphCard = ({
   data: propData
 }: PerformanceGraphCardProps) => {
-  const { session } = useAuth();
   const [performanceData, setPerformanceData] = useState<PerformanceDataPoint[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchPerformanceData = async () => {
-      if (!session || (propData && propData.length > 0)) {
-        // Skip fetching if we have props data or no session
-        if (propData) setPerformanceData(propData);
+      if (propData && propData.length > 0) {
+        setPerformanceData(propData);
         return;
       }
       
       setIsLoading(true);
       
       try {
-        // First get a fresh access token from Supabase
-        const { data: { session: currentSession }, error: tokenError } = await supabase.auth.getSession();
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
         
-        if (tokenError || !currentSession) {
-          console.error("Authentication error:", tokenError || "No session found");
-          throw new Error(tokenError?.message || "No active session found");
-        }
-        
-        const accessToken = currentSession.access_token;
-        console.log("Got access token for performance data");
-        
-        // Use the correct URL format for the edge function with correct Authorization header format
-        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-performance`, {
+        const response = await fetch(`${supabaseUrl}/functions/v1/get-performance`, {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${accessToken}`,
             "Content-Type": "application/json"
           }
         });
         
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error(`Performance data fetch failed: ${response.status} - ${errorText}`);
           throw new Error(`Error fetching performance data: ${response.status}`);
         }
         
         const data = await response.json();
         console.log("Performance data fetched:", data);
 
-        if (data && Array.isArray(data.performance_graph) && data.performance_graph.length > 0) {
+        if (data && Array.isArray(data.performance_graph)) {
           setPerformanceData(data.performance_graph);
         } else {
-          // Generate fallback data
           generateFallbackData();
         }
       } catch (error) {
         console.error('Failed to fetch performance data:', error);
         toast.error("Could not load performance data. Using sample data.");
-        
-        // Fallback to dummy data
         generateFallbackData();
       } finally {
         setIsLoading(false);
@@ -100,7 +81,7 @@ export const PerformanceGraphCard = ({
     };
 
     fetchPerformanceData();
-  }, [session, propData]);
+  }, [propData]);
 
   const displayData = propData || performanceData || [];
 
