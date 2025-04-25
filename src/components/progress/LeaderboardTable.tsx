@@ -1,5 +1,5 @@
 
-import { Trophy, ChevronRight, Star } from "lucide-react";
+import { ChevronRight, Star } from "lucide-react";
 import { 
   Table,
   TableHeader,
@@ -17,6 +17,7 @@ interface LeaderboardUser {
   score: number;
   isCurrentUser?: boolean;
   trend: number;
+  streak?: number;
 }
 
 interface LeaderboardTableProps {
@@ -25,29 +26,29 @@ interface LeaderboardTableProps {
 
 export const LeaderboardTable = ({ users }: LeaderboardTableProps) => {
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-md p-6 overflow-hidden">
-      <h2 className="text-2xl font-bold mb-6 text-blue-800">Leaderboard</h2>
+    <div className="bg-white rounded-xl p-6">
       <div className="overflow-x-auto">
         <Table>
-          <TableHeader className="bg-blue-50">
+          <TableHeader className="bg-gray-50">
             <TableRow>
-              <TableHead className="px-4 py-3 text-left text-sm font-medium text-blue-800">Rank</TableHead>
-              <TableHead className="px-4 py-3 text-left text-sm font-medium text-blue-800">User</TableHead>
-              <TableHead className="px-4 py-3 text-left text-sm font-medium text-blue-800">Problems</TableHead>
-              <TableHead className="px-4 py-3 text-left text-sm font-medium text-blue-800">Accuracy</TableHead>
-              <TableHead className="px-4 py-3 text-left text-sm font-medium text-blue-800">Projected Score</TableHead>
-              <TableHead className="px-4 py-3 text-left text-sm font-medium text-blue-800">Trend</TableHead>
+              <TableHead className="px-4 py-3 text-left text-sm font-medium text-gray-600">Rank</TableHead>
+              <TableHead className="px-4 py-3 text-left text-sm font-medium text-gray-600">User</TableHead>
+              <TableHead className="px-4 py-3 text-left text-sm font-medium text-gray-600">Problems</TableHead>
+              <TableHead className="px-4 py-3 text-left text-sm font-medium text-gray-600">Accuracy</TableHead>
+              <TableHead className="px-4 py-3 text-left text-sm font-medium text-gray-600">Streak</TableHead>
+              <TableHead className="px-4 py-3 text-left text-sm font-medium text-gray-600">Projected Score</TableHead>
+              <TableHead className="px-4 py-3 text-left text-sm font-medium text-gray-600">Trend</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {users.map((user, index) => (
               <TableRow 
                 key={index} 
-                className={`transition-colors hover:bg-blue-50/50 ${
-                  user.isCurrentUser ? "bg-blue-100/50 font-medium" : ""
+                className={`transition-colors hover:bg-gray-50 ${
+                  user.isCurrentUser ? "bg-blue-50/50 font-medium" : ""
                 }`}
               >
-                <TableCell className="border-t px-4 py-3">
+                <TableCell className="border-t border-gray-100 px-4 py-3">
                   <div className="flex items-center">
                     <span className={`font-bold ${
                       user.rank === 1 ? "text-amber-500" :
@@ -57,7 +58,7 @@ export const LeaderboardTable = ({ users }: LeaderboardTableProps) => {
                       {user.rank}
                     </span>
                     {user.rank <= 3 && (
-                      <Trophy className={`ml-2 h-4 w-4 ${
+                      <Star className={`ml-2 h-4 w-4 ${
                         user.rank === 1 ? "text-amber-500 fill-amber-500" :
                         user.rank === 2 ? "text-gray-500 fill-gray-500" :
                         user.rank === 3 ? "text-amber-700 fill-amber-700" : ""
@@ -65,10 +66,13 @@ export const LeaderboardTable = ({ users }: LeaderboardTableProps) => {
                     )}
                   </div>
                 </TableCell>
-                <TableCell className="border-t px-4 py-3">{user.name}</TableCell>
-                <TableCell className="border-t px-4 py-3">{user.problems}</TableCell>
-                <TableCell className="border-t px-4 py-3">{user.accuracy}</TableCell>
-                <TableCell className="border-t px-4 py-3">
+                <TableCell className="border-t border-gray-100 px-4 py-3">{user.name}</TableCell>
+                <TableCell className="border-t border-gray-100 px-4 py-3">{user.problems}</TableCell>
+                <TableCell className="border-t border-gray-100 px-4 py-3">{user.accuracy}</TableCell>
+                <TableCell className="border-t border-gray-100 px-4 py-3">
+                  {user.streak || 0} days
+                </TableCell>
+                <TableCell className="border-t border-gray-100 px-4 py-3">
                   <div className="flex items-center">
                     {user.score}
                     {user.rank <= 3 && (
@@ -76,7 +80,7 @@ export const LeaderboardTable = ({ users }: LeaderboardTableProps) => {
                     )}
                   </div>
                 </TableCell>
-                <TableCell className="border-t px-4 py-3">
+                <TableCell className="border-t border-gray-100 px-4 py-3">
                   <div className={`flex items-center ${
                     user.trend > 0 ? "text-emerald-500" : 
                     user.trend < 0 ? "text-rose-500" : "text-gray-500"

@@ -9,7 +9,7 @@ interface StatProps {
   value: string;
   icon: LucideIcon;
   color: string;
-  shadowColor: string;
+  backgroundColor?: string;
   transparent?: boolean;
   fill?: boolean;
 }
@@ -50,30 +50,16 @@ export const StatsCard = ({
     value,
     icon: Icon,
     color,
-    shadowColor,
+    backgroundColor = "bg-white",
     fill = false
   } = stat;
 
   return (
-    <Card className="p-4 hover:shadow-xl transition-all duration-300 border-0 overflow-hidden rounded-xl">
+    <Card className="p-4 hover:shadow-sm transition-all duration-300 border border-gray-50 overflow-hidden rounded-xl bg-white">
       <div className="flex items-center gap-3">
-        <motion.div 
-          className={`bg-white ${shadowColor} p-2 rounded-lg border-2 relative before:absolute before:inset-0 before:rounded-lg before:opacity-50 before:animate-pulse-subtle flex items-center justify-center w-10 h-10`}
-          style={{
-            borderImage: `linear-gradient(to right, ${color.replace('bg-', '')}, transparent) 1`,
-          }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          initial={{ rotate: 0 }}
-          animate={{ rotate: 360 }}
-          transition={{
-            duration: 0.5,
-            ease: "easeInOut",
-            repeat: 0
-          }}
-        >
-          <Icon className="h-6 w-6 text-gray-700" strokeWidth={1.5} />
-        </motion.div>
+        <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${backgroundColor}`}>
+          <Icon className={`h-6 w-6 ${color}`} strokeWidth={1.5} />
+        </div>
         <div>
           <p className="text-sm text-gray-500">{title}</p>
           <p className="text-lg font-semibold">{value}</p>

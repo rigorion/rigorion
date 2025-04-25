@@ -1,6 +1,6 @@
 
 import { Card } from "@/components/ui/card";
-import { Clock, Zap, Trophy, Target, Brain } from 'lucide-react';
+import { Calendar, Zap, Trophy, Target, Clock } from 'lucide-react';
 import { ChapterProgress } from "./ChapterProgress";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -10,6 +10,7 @@ import { PerformanceGraphCard } from "./PerformanceGraphCard";
 import { DifficultyStatsGrid } from "./DifficultyStatsCard";
 import { TimeManagementCard } from "./TimeManagementCard";
 import { GoalsCard } from "./GoalsCard";
+import { TestMocksList } from "./TestMocksList";
 import { AnimatedContainer, AnimatedItem } from "./AnimationWrappers";
 import { ProjectedScore } from "@/components/stats/ProjectedScore";
 import { UserProgressData } from "@/types/progress";
@@ -29,7 +30,7 @@ export const ProgressDashboard = ({
   className,
   userData,
   visibleSections = {
-    totalProgress: true, // Always visible
+    totalProgress: true,
     performanceGraph: true,
     difficultyStats: true,
     chapterProgress: true,
@@ -37,36 +38,46 @@ export const ProgressDashboard = ({
     goals: true
   }
 }: ProgressDashboardProps) => {
+  const [examDate, setExamDate] = useState<Date | null>(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)); // 30 days from now
+  
+  const daysToExam = examDate ? 
+    Math.ceil((examDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 
+    30;
+
+  // Mock tests data
+  const mockTests = [
+    { id: '1', name: 'Mock Test 1', status: 'completed', score: 92, date: '2024-03-15' },
+    { id: '2', name: 'Mock Test 2', status: 'completed', score: 87, date: '2024-03-20' },
+    { id: '3', name: 'Mock Test 3', status: 'in-progress' },
+    { id: '4', name: 'Mock Test 4', status: 'incomplete' },
+    { id: '5', name: 'Mock Test 5', status: 'incomplete' }
+  ] as const;
+
+  // Stats data with colorful icons
   const stats = [{
-    title: "Speed",
-    value: `${userData.speed}%`,
-    icon: Clock,
-    color: "bg-purple-500",
-    shadowColor: "shadow-purple-200",
-    transparent: true
+    title: "Days to Exam",
+    value: `${daysToExam} days`,
+    icon: Calendar,
+    color: "text-purple-500",
+    backgroundColor: "bg-purple-50",
   }, {
     title: "Streak",
     value: `${userData.streak} days`,
     icon: Zap,
-    color: "bg-amber-500",
-    shadowColor: "shadow-amber-200",
-    transparent: true,
-    fill: true
+    color: "text-amber-500",
+    backgroundColor: "bg-amber-50",
   }, {
     title: "Avg Score",
     value: `${userData.averageScore}`,
     icon: Target,
-    color: "bg-emerald-500",
-    shadowColor: "shadow-emerald-200",
-    transparent: true
+    color: "text-emerald-500",
+    backgroundColor: "bg-emerald-50",
   }, {
     title: "Rank",
     value: `#${userData.rank}`,
     icon: Trophy,
-    color: "bg-blue-500",
-    shadowColor: "shadow-blue-200",
-    transparent: true,
-    fill: true
+    color: "text-blue-500",
+    backgroundColor: "bg-blue-50",
   }, {
     component: () => <ProjectedScore score={userData.projectedScore} />
   }];
@@ -136,7 +147,7 @@ export const ProgressDashboard = ({
         {/* Chapter Progress - Optional visibility */}
         {visibleSections.chapterProgress && (
           <AnimatedItem>
-            <Card className="p-6 hover:shadow-lg transition-all duration-300 bg-white h-full">
+            <Card className="p-6 hover:shadow-sm transition-all duration-300 bg-white h-full border border-gray-50">
               <ChapterProgress chapters={userData.chapterPerformance} />
             </Card>
           </AnimatedItem>
@@ -156,18 +167,10 @@ export const ProgressDashboard = ({
         </AnimatedContainer>
       </AnimatedContainer>
 
-      <style>{`
-        @keyframes pulse {
-          0%, 100% {
-            opacity: 0.8;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 1;
-            transform: scale(1.05);
-          }
-        }
-      `}</style>
+      {/* Test Mocks List */}
+      <AnimatedItem>
+        <TestMocksList tests={mockTests} />
+      </AnimatedItem>
     </AnimatedContainer>
   );
 };

@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -119,7 +120,7 @@ export const TotalProgressCard = ({
   const unattemptedOffset = circumference * (1 - unattemptedQuestionsValue / totalQuestionsValue);
 
   return (
-    <Card className="p-6 col-span-1 bg-white shadow-sm hover:shadow-md transition-all duration-300 rounded-xl border border-gray-100 h-[480px]">
+    <Card className="p-6 col-span-1 bg-white hover:shadow-sm transition-all duration-300 rounded-xl border border-gray-50 h-[480px]">
       <h3 className="text-lg font-semibold mb-6 text-center text-gray-800">
         Exam Performance
       </h3>
@@ -153,7 +154,6 @@ export const TotalProgressCard = ({
               strokeDasharray={circumference}
               strokeDashoffset={correctOffset}
               strokeLinecap="round"
-              className="transition-all duration-300"
             />
             <circle
               cx="50"
@@ -165,7 +165,6 @@ export const TotalProgressCard = ({
               strokeDasharray={circumference}
               strokeDashoffset={incorrectOffset}
               strokeLinecap="round"
-              className="transition-all duration-300"
             />
             <circle
               cx="50"
@@ -177,7 +176,6 @@ export const TotalProgressCard = ({
               strokeDasharray={circumference}
               strokeDashoffset={unattemptedOffset}
               strokeLinecap="round"
-              className="transition-all duration-300"
             />
           </svg>
           
@@ -200,35 +198,33 @@ export const TotalProgressCard = ({
         {/* Two column layout for statistics */}
         <div className="grid grid-cols-2 gap-8 w-full">
           {/* Left column - Progress Breakdown */}
-          <div className="space-y-4">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                  <span className="text-sm text-gray-600">Correct</span>
-                </div>
-                <span className="text-sm font-medium text-gray-800">
-                  {correctQuestionsValue} ({correctPercentage}%)
-                </span>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                <span className="text-sm text-gray-600">Correct</span>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500" />
-                  <span className="text-sm text-gray-600">Incorrect</span>
-                </div>
-                <span className="text-sm font-medium text-gray-800">
-                  {incorrectQuestionsValue} ({incorrectPercentage}%)
-                </span>
+              <span className="text-sm font-medium text-gray-800">
+                {correctQuestionsValue} ({correctPercentage}%)
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500" />
+                <span className="text-sm text-gray-600">Incorrect</span>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-orange-500" />
-                  <span className="text-sm text-gray-600">Unattempted</span>
-                </div>
-                <span className="text-sm font-medium text-gray-800">
-                  {unattemptedQuestionsValue} ({unattemptedPercentage}%)
-                </span>
+              <span className="text-sm font-medium text-gray-800">
+                {incorrectQuestionsValue} ({incorrectPercentage}%)
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-orange-500" />
+                <span className="text-sm text-gray-600">Unattempted</span>
               </div>
+              <span className="text-sm font-medium text-gray-800">
+                {unattemptedQuestionsValue} ({unattemptedPercentage}%)
+              </span>
             </div>
           </div>
           

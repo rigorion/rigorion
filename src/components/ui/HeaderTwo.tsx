@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Navigation } from 'lucide-react';
 import SearchBar from './SearchBar';
 import FilterButton from './FilterButton';
 import { cn } from '@/lib/utils';
@@ -11,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Menu } from "lucide-react";
 
 interface HeaderProps {
   onSearch: (query: string) => void;
@@ -43,22 +43,22 @@ const Header: React.FC<HeaderProps> = ({
           <div className="relative flex items-center gap-4">
             <DropdownMenu open={isNavOpen} onOpenChange={setIsNavOpen}>
               <DropdownMenuTrigger className="rounded-lg p-2 hover:bg-gray-100 transition-colors">
-                <Navigation className="h-5 w-5 text-blue-500" />
+                <Menu className="h-5 w-5 text-blue-500" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-48">
-                <DropdownMenuItem onSelect={() => navigateToPage('/')}>
+              <DropdownMenuContent align="start" className="w-48 bg-white border border-gray-100 shadow-sm">
+                <DropdownMenuItem onSelect={() => navigateToPage('/')} className="hover:bg-gray-50 cursor-pointer">
                   Home
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => navigateToPage('/practice')}>
+                <DropdownMenuItem onSelect={() => navigateToPage('/practice')} className="hover:bg-gray-50 cursor-pointer">
                   Practice
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => navigateToPage('/progress')}>
+                <DropdownMenuItem onSelect={() => navigateToPage('/progress')} className="hover:bg-gray-50 cursor-pointer">
                   Progress
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => navigateToPage('/chat')}>
+                <DropdownMenuItem onSelect={() => navigateToPage('/chat')} className="hover:bg-gray-50 cursor-pointer">
                   Chat
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => navigateToPage('/about')}>
+                <DropdownMenuItem onSelect={() => navigateToPage('/about')} className="hover:bg-gray-50 cursor-pointer">
                   About
                 </DropdownMenuItem>
               </DropdownMenuContent>

@@ -1,12 +1,11 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, Calendar, Settings, ChevronDown, BarChart3, Clock, Gauge, Target } from "lucide-react";
+import { Menu, Calendar, Settings, ChevronDown } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuCheckboxItem,
+  DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { TimePeriod } from "@/types/progress";
@@ -37,12 +36,6 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Fixed toggle handler for sections
-  const handleSectionToggle = (section: keyof VisibleSections, checked: boolean) => {
-    const update = { [section]: checked };
-    setVisibleSections(update);
-  };
-
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center space-x-4">
@@ -58,86 +51,25 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
       </div>
 
       <div className="flex items-center space-x-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2 bg-white hover:bg-gray-50 transition-all shadow-sm">
-              <BarChart3 className="h-4 w-4" />
-              <span className="hidden sm:inline">Sections</span>
-              <ChevronDown className="h-3 w-3 text-gray-500" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg" align="end">
-            <DropdownMenuCheckboxItem
-              checked={visibleSections.totalProgress}
-              disabled={true} // Always visible
-              onCheckedChange={() => {}} // No-op
-              className="opacity-50 cursor-not-allowed"
-            >
-              <Gauge className="mr-2 h-4 w-4" />
-              Total Progress
-            </DropdownMenuCheckboxItem>
-            
-            <DropdownMenuCheckboxItem
-              checked={visibleSections.performanceGraph}
-              onCheckedChange={(checked) => handleSectionToggle('performanceGraph', checked)}
-            >
-              <BarChart3 className="mr-2 h-4 w-4" />
-              Performance Graph
-            </DropdownMenuCheckboxItem>
-            
-            <DropdownMenuCheckboxItem
-              checked={visibleSections.difficultyStats}
-              onCheckedChange={(checked) => handleSectionToggle('difficultyStats', checked)}
-            >
-              <Target className="mr-2 h-4 w-4" />
-              Difficulty Stats
-            </DropdownMenuCheckboxItem>
-            
-            <DropdownMenuCheckboxItem
-              checked={visibleSections.chapterProgress}
-              onCheckedChange={(checked) => handleSectionToggle('chapterProgress', checked)}
-            >
-              <BarChart3 className="mr-2 h-4 w-4" />
-              Chapter Progress
-            </DropdownMenuCheckboxItem>
-            
-            <DropdownMenuCheckboxItem
-              checked={visibleSections.timeManagement}
-              onCheckedChange={(checked) => handleSectionToggle('timeManagement', checked)}
-            >
-              <Clock className="mr-2 h-4 w-4" />
-              Time Management
-            </DropdownMenuCheckboxItem>
-            
-            <DropdownMenuCheckboxItem
-              checked={visibleSections.goals}
-              onCheckedChange={(checked) => handleSectionToggle('goals', checked)}
-            >
-              <Target className="mr-2 h-4 w-4" />
-              Goals
-            </DropdownMenuCheckboxItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2 bg-white hover:bg-gray-50 transition-all shadow-sm">
-              <Calendar className="h-4 w-4" />
+            <Button variant="outline" size="sm" className="gap-2 bg-white hover:bg-gray-50 transition-all shadow-sm border-gray-100">
+              <Calendar className="h-4 w-4 text-blue-500" />
               <span>Time Period</span>
               <ChevronDown className="h-3 w-3 text-gray-500" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg">
-            <DropdownMenuItem onClick={() => setPeriod("daily")}>
+          <DropdownMenuContent align="end" className="bg-white border border-gray-100 shadow-sm">
+            <DropdownMenuItem onClick={() => setPeriod("daily")} className="text-gray-700 hover:text-blue-600 hover:bg-blue-50">
               Daily
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setPeriod("weekly")}>
+            <DropdownMenuItem onClick={() => setPeriod("weekly")} className="text-gray-700 hover:text-blue-600 hover:bg-blue-50">
               Weekly
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setPeriod("monthly")}>
+            <DropdownMenuItem onClick={() => setPeriod("monthly")} className="text-gray-700 hover:text-blue-600 hover:bg-blue-50">
               Monthly
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setPeriod("yearly")}>
+            <DropdownMenuItem onClick={() => setPeriod("yearly")} className="text-gray-700 hover:text-blue-600 hover:bg-blue-50">
               Yearly
             </DropdownMenuItem>
           </DropdownMenuContent>
