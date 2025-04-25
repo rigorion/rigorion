@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Calendar, Zap, Trophy, Target } from 'lucide-react';
 import { ChapterProgress } from "./ChapterProgress";
