@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -120,27 +119,18 @@ export const TotalProgressCard = ({
   const unattemptedOffset = circumference * (1 - unattemptedQuestionsValue / totalQuestionsValue);
 
   return (
-    <Card className="p-6 col-span-1 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-slate-50 via-white to-blue-50 rounded-xl border border-slate-100 h-[480px]">
-      <h3 className="text-lg font-semibold mb-6 text-center font-dancing-script bg-gradient-to-r from-blue-900 via-blue-600 to-slate-800 bg-clip-text text-transparent">
-        Total Progress
+    <Card className="p-6 col-span-1 bg-white shadow-sm hover:shadow-md transition-all duration-300 rounded-xl border border-gray-100 h-[480px]">
+      <h3 className="text-lg font-semibold mb-6 text-center text-gray-800">
+        Exam Performance
       </h3>
       
       {/* Center the circular progress */}
       <div className="flex flex-col items-center">
         {/* Fixed circular progress container */}
-        <div className="relative flex items-center justify-center mb-8" style={{ width: '260px', height: '260px' }}>
-          <motion.svg 
-            className="absolute inset-0 w-full h-full"
+        <div className="relative flex items-center justify-center mb-8 w-[260px] h-[260px]">
+          <svg 
+            className="absolute inset-0 w-full h-full -rotate-90"
             viewBox="0 0 100 100"
-            animate={{ 
-              rotate: [-2, 2, -2],
-              scale: [0.99, 1.01, 0.99]
-            }}
-            transition={{ 
-              duration: 3,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
           >
             {/* Background circle */}
             <circle 
@@ -152,7 +142,7 @@ export const TotalProgressCard = ({
               strokeWidth="2"
             />
             
-            {/* Progress segments with vivid colors */}
+            {/* Progress segments with specific colors */}
             <circle
               cx="50"
               cy="50"
@@ -163,7 +153,7 @@ export const TotalProgressCard = ({
               strokeDasharray={circumference}
               strokeDashoffset={correctOffset}
               strokeLinecap="round"
-              className="transition-all duration-1000 drop-shadow-[0_0_8px_rgba(34,197,94,0.8)]"
+              className="transition-all duration-300"
             />
             <circle
               cx="50"
@@ -175,44 +165,35 @@ export const TotalProgressCard = ({
               strokeDasharray={circumference}
               strokeDashoffset={incorrectOffset}
               strokeLinecap="round"
-              className="transition-all duration-1000 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]"
+              className="transition-all duration-300"
             />
             <circle
               cx="50"
               cy="50"
               r={radius}
               fill="none"
-              stroke="url(#triColorGradient)"
+              stroke="#f97316"
               strokeWidth="5"
               strokeDasharray={circumference}
               strokeDashoffset={unattemptedOffset}
               strokeLinecap="round"
-              className="transition-all duration-1000"
+              className="transition-all duration-300"
             />
-            
-            {/* Updated gradient definition */}
-            <defs>
-              <linearGradient id="triColorGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#22c55e" />
-                <stop offset="50%" stopColor="#ef4444" />
-                <stop offset="100%" stopColor="#f97316" />
-              </linearGradient>
-            </defs>
-          </motion.svg>
+          </svg>
           
           {/* Centered text */}
           <div className="flex flex-col items-center justify-center text-center z-10">
-            <span className="text-5xl font-bold bg-gradient-to-r from-blue-900 via-blue-600 to-slate-800 bg-clip-text text-transparent">
+            <span className="text-5xl font-bold text-gray-800">
               {totalProgress}%
             </span>
             <div className="flex items-center gap-1 mt-1">
-              <span className="text-sm font-medium text-blue-800">
+              <span className="text-sm font-medium text-gray-700">
                 {correctQuestionsValue + incorrectQuestionsValue}
               </span>
-              <span className="text-sm text-slate-400">/</span>
-              <span className="text-sm text-slate-600">{totalQuestionsValue}</span>
+              <span className="text-sm text-gray-400">/</span>
+              <span className="text-sm text-gray-600">{totalQuestionsValue}</span>
             </div>
-            <span className="text-xs text-slate-500 mt-1">completed</span>
+            <span className="text-xs text-gray-500 mt-1">completed</span>
           </div>
         </div>
 
@@ -220,25 +201,31 @@ export const TotalProgressCard = ({
         <div className="grid grid-cols-2 gap-8 w-full">
           {/* Left column - Progress Breakdown */}
           <div className="space-y-4">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
-                <span className="text-sm text-slate-600">Correct:</span>
-                <span className="text-sm font-semibold bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent glow-text-emerald">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                  <span className="text-sm text-gray-600">Correct</span>
+                </div>
+                <span className="text-sm font-medium text-gray-800">
                   {correctQuestionsValue} ({correctPercentage}%)
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
-                <span className="text-sm text-slate-600">Incorrect:</span>
-                <span className="text-sm font-semibold bg-gradient-to-r from-red-600 to-red-400 bg-clip-text text-transparent glow-text-red">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500" />
+                  <span className="text-sm text-gray-600">Incorrect</span>
+                </div>
+                <span className="text-sm font-medium text-gray-800">
                   {incorrectQuestionsValue} ({incorrectPercentage}%)
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
-                <span className="text-sm text-slate-600">Unattempted:</span>
-                <span className="text-sm font-semibold bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent glow-text-orange">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-orange-500" />
+                  <span className="text-sm text-gray-600">Unattempted</span>
+                </div>
+                <span className="text-sm font-medium text-gray-800">
                   {unattemptedQuestionsValue} ({unattemptedPercentage}%)
                 </span>
               </div>
@@ -248,24 +235,16 @@ export const TotalProgressCard = ({
           {/* Right column - Additional Stats */}
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-xs text-slate-500">Avg Score:</span>
-              <span className="text-sm font-medium text-blue-600 glow-text-blue">92%</span>
+              <span className="text-sm text-gray-600">Avg Score:</span>
+              <span className="text-sm font-medium text-gray-800">92%</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs text-slate-500">Avg Speed:</span>
-              <span className="text-sm font-medium text-blue-600 glow-text-blue">2.5 min</span>
+              <span className="text-sm text-gray-600">Success Rate:</span>
+              <span className="text-sm font-medium text-gray-800">85%</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs text-slate-500">Success Rate:</span>
-              <span className="text-sm font-medium text-blue-600 glow-text-blue">85%</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-slate-500">Accuracy:</span>
-              <span className="text-sm font-medium text-blue-600 glow-text-blue">88%</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-slate-500">Consistency:</span>
-              <span className="text-sm font-medium text-blue-600 glow-text-blue">90%</span>
+              <span className="text-sm text-gray-600">Accuracy:</span>
+              <span className="text-sm font-medium text-gray-800">88%</span>
             </div>
           </div>
         </div>
