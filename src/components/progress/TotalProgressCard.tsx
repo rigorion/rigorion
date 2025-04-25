@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { useEffect, useState } from 'react';
@@ -125,9 +124,11 @@ export const TotalProgressCard = ({
       <h3 className="text-lg font-semibold mb-6 text-center font-dancing-script bg-gradient-to-r from-blue-900 via-blue-600 to-slate-800 bg-clip-text text-transparent">
         Total Progress
       </h3>
-      <div className="flex justify-between items-center space-x-8">
+      
+      {/* Center the circular progress */}
+      <div className="flex flex-col items-center">
         {/* Fixed circular progress container */}
-        <div className="relative flex items-center justify-center" style={{ width: '260px', height: '260px' }}>
+        <div className="relative flex items-center justify-center mb-8" style={{ width: '260px', height: '260px' }}>
           <motion.svg 
             className="absolute inset-0 w-full h-full"
             viewBox="0 0 100 100"
@@ -214,33 +215,38 @@ export const TotalProgressCard = ({
             <span className="text-xs text-slate-500 mt-1">completed</span>
           </div>
         </div>
-        
-        <div className="flex-1 space-y-4 pt-4">
+
+        {/* Two column layout for statistics */}
+        <div className="grid grid-cols-2 gap-8 w-full">
+          {/* Left column - Progress Breakdown */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
-              <span className="text-sm text-slate-600">Correct:</span>
-              <span className="text-sm font-semibold bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent glow-text-emerald">
-                {correctQuestionsValue}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
-              <span className="text-sm text-slate-600">Incorrect:</span>
-              <span className="text-sm font-semibold bg-gradient-to-r from-red-600 to-red-400 bg-clip-text text-transparent glow-text-red">
-                {incorrectQuestionsValue}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
-              <span className="text-sm text-slate-600">Unattempted:</span>
-              <span className="text-sm font-semibold bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent glow-text-orange">
-                {unattemptedQuestionsValue}
-              </span>
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+                <span className="text-sm text-slate-600">Correct:</span>
+                <span className="text-sm font-semibold bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent glow-text-emerald">
+                  {correctQuestionsValue} ({correctPercentage}%)
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+                <span className="text-sm text-slate-600">Incorrect:</span>
+                <span className="text-sm font-semibold bg-gradient-to-r from-red-600 to-red-400 bg-clip-text text-transparent glow-text-red">
+                  {incorrectQuestionsValue} ({incorrectPercentage}%)
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
+                <span className="text-sm text-slate-600">Unattempted:</span>
+                <span className="text-sm font-semibold bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent glow-text-orange">
+                  {unattemptedQuestionsValue} ({unattemptedPercentage}%)
+                </span>
+              </div>
             </div>
           </div>
           
-          <div className="pt-4 space-y-3 border-t border-slate-100">
+          {/* Right column - Additional Stats */}
+          <div className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-xs text-slate-500">Avg Score:</span>
               <span className="text-sm font-medium text-blue-600 glow-text-blue">92%</span>
@@ -252,6 +258,14 @@ export const TotalProgressCard = ({
             <div className="flex justify-between items-center">
               <span className="text-xs text-slate-500">Success Rate:</span>
               <span className="text-sm font-medium text-blue-600 glow-text-blue">85%</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-slate-500">Accuracy:</span>
+              <span className="text-sm font-medium text-blue-600 glow-text-blue">88%</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-slate-500">Consistency:</span>
+              <span className="text-sm font-medium text-blue-600 glow-text-blue">90%</span>
             </div>
           </div>
         </div>
