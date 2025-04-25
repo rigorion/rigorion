@@ -12,7 +12,7 @@ interface TestMockData {
 }
 
 interface TestMocksListProps {
-  tests: TestMockData[];
+  tests: ReadonlyArray<TestMockData>;
 }
 
 export const TestMocksList = ({ tests }: TestMocksListProps) => {

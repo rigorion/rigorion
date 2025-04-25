@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Calendar, Zap, Trophy, Target, Clock } from 'lucide-react';
 import { ChapterProgress } from "./ChapterProgress";
@@ -44,14 +43,14 @@ export const ProgressDashboard = ({
     Math.ceil((examDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 
     30;
 
-  // Mock tests data
+  // Mock tests data - now using a regular array instead of a const assertion
   const mockTests = [
-    { id: '1', name: 'Mock Test 1', status: 'completed', score: 92, date: '2024-03-15' },
-    { id: '2', name: 'Mock Test 2', status: 'completed', score: 87, date: '2024-03-20' },
-    { id: '3', name: 'Mock Test 3', status: 'in-progress' },
-    { id: '4', name: 'Mock Test 4', status: 'incomplete' },
-    { id: '5', name: 'Mock Test 5', status: 'incomplete' }
-  ] as const;
+    { id: '1', name: 'Mock Test 1', status: 'completed' as const, score: 92, date: '2024-03-15' },
+    { id: '2', name: 'Mock Test 2', status: 'completed' as const, score: 87, date: '2024-03-20' },
+    { id: '3', name: 'Mock Test 3', status: 'in-progress' as const },
+    { id: '4', name: 'Mock Test 4', status: 'incomplete' as const },
+    { id: '5', name: 'Mock Test 5', status: 'incomplete' as const }
+  ];
 
   // Stats data with colorful icons
   const stats = [{
@@ -139,9 +138,7 @@ export const ProgressDashboard = ({
       </AnimatedContainer>
 
       {/* Difficulty Stats - Optional visibility */}
-      {visibleSections.difficultyStats && (
-        <DifficultyStatsGrid stats={difficultyStats} />
-      )}
+      <DifficultyStatsGrid stats={difficultyStats} />
 
       <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Chapter Progress - Optional visibility */}
