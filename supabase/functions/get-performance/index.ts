@@ -28,17 +28,29 @@ serve(async (req) => {
   const token = authHeader.split(' ')[1];
 
   try {
-    // Create Supabase client with the token
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+    // Get environment variables
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    
+    if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceKey) {
+      throw new Error("Missing required environment variables");
+    }
+
+    // First verify the token with the admin client
+    const supabaseAdmin = createClient(
+      supabaseUrl,
+      supabaseServiceKey,
       {
-        global: { headers: { Authorization: `Bearer ${token}` } }
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
       }
     );
-
+    
     // Verify the token
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
 
     if (userError || !user) {
       console.error("Error getting user from token:", userError);

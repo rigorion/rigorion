@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { LeaderboardTable } from "./LeaderboardTable";
@@ -20,7 +21,7 @@ async function getLeaderboard(userId: string): Promise<LeaderboardEntry[]> {
     
     const accessToken = session.access_token;
     
-    // Call the edge function with the correct URL format
+    // Call the edge function with the correct URL format and Bearer token
     const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-leaderboard`, {
       method: "POST",
       headers: {

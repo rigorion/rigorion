@@ -112,7 +112,7 @@ export async function getUserProgressData(userId: string, period: TimePeriod = "
       // Use the correct Supabase URL from environment or fallback
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://evfxcdzwmmiguzxdxktl.supabase.co";
       
-      // Call the edge function with proper headers
+      // Call the edge function with proper authorization header - make sure to use Bearer format
       const response = await fetch(`${supabaseUrl}/functions/v1/get-user-progress`, {
         method: "GET",
         headers: {

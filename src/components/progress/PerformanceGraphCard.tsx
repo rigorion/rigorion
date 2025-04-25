@@ -46,7 +46,7 @@ export const PerformanceGraphCard = ({
         const accessToken = currentSession.access_token;
         console.log("Got access token for performance data");
         
-        // Use the correct URL format for the edge function
+        // Use the correct URL format for the edge function with correct Authorization header format
         const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-performance`, {
           method: "GET",
           headers: {

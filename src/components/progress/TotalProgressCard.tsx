@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -50,7 +49,7 @@ export const TotalProgressCard = ({
         }
 
         // Use environment variable for Supabase URL
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://eantvimmgdmxzwrjwrop.supabase.co";
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://evfxcdzwmmiguzxdxktl.supabase.co";
         
         const res = await fetch(`${supabaseUrl}/functions/v1/get-user-progress`, {
           method: "GET",
