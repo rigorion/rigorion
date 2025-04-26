@@ -1,11 +1,12 @@
+
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  import.meta.env.VITE_SUPABASE_URL!,
+  import.meta.env.VITE_SUPABASE_ANON_KEY!
 );
 
 interface TestMockData {
@@ -31,12 +32,19 @@ const defaultTests: TestMockData[] = [
   // Add more dummy entries as needed
 ];
 
-export const TestMocksList = () => {
+export const TestMocksList = ({ tests: propTests }: { tests?: TestMockData[] }) => {
   const [tests, setTests] = useState<TestMockData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // If tests were passed as props, use those instead of fetching
+    if (propTests && propTests.length > 0) {
+      setTests(propTests);
+      setLoading(false);
+      return;
+    }
+    
     const fetchTests = async () => {
       try {
         const { data, error } = await supabase.functions.invoke('get-user-progress', {
@@ -55,7 +63,7 @@ export const TestMocksList = () => {
     };
 
     fetchTests();
-  }, []);
+  }, [propTests]);
 
   const getStatusStyles = (status: string, score?: number) => {
     if (status === 'completed' && score) {
