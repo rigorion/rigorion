@@ -1,6 +1,12 @@
-
+import { useEffect, useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 interface TestMockData {
   id: string;
@@ -9,11 +15,48 @@ interface TestMockData {
   score?: number;
 }
 
-interface TestMocksListProps {
-  tests: ReadonlyArray<TestMockData>;
-}
+const defaultTests: TestMockData[] = [
+  // Add your default dummy data here
+  {
+    id: '1',
+    name: 'Mock Test 1',
+    status: 'completed',
+    score: 85
+  },
+  {
+    id: '2',
+    name: 'Mock Test 2',
+    status: 'in-progress'
+  },
+  // Add more dummy entries as needed
+];
 
-export const TestMocksList = ({ tests }: TestMocksListProps) => {
+export const TestMocksList = () => {
+  const [tests, setTests] = useState<TestMockData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTests = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('get-user-progress', {
+          body: { name: 'Functions' },
+        });
+
+        if (error) throw error;
+        setTests(data || []);
+      } catch (err) {
+        console.error('Error fetching tests:', err);
+        setError('Failed to load test data');
+        setTests(defaultTests);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTests();
+  }, []);
+
   const getStatusStyles = (status: string, score?: number) => {
     if (status === 'completed' && score) {
       return 'text-green-600 font-medium';
@@ -46,9 +89,9 @@ export const TestMocksList = ({ tests }: TestMocksListProps) => {
     }
   };
 
-  // Ensure we always show 10 rows by padding with unattempted tests
-  const fullTestList = [...tests];
-  while (fullTestList.length < 10) {
+  // Combine fetched tests with fallback data and limit to 100 entries
+  const fullTestList = [...tests.slice(0, 100)];
+  while (fullTestList.length < 100) {
     fullTestList.push({
       id: `empty-${fullTestList.length}`,
       name: `Mock Test ${fullTestList.length + 1}`,
@@ -56,27 +99,37 @@ export const TestMocksList = ({ tests }: TestMocksListProps) => {
     });
   }
 
+  if (loading) {
+    return <div>Loading mock tests...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
+
   return (
     <div className="bg-white rounded-lg p-6 border border-gray-100">
       <h3 className="text-lg font-semibold mb-4">Mock Exams</h3>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Test Name</TableHead>
-            <TableHead>Status</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {fullTestList.map((test) => (
-            <TableRow key={test.id}>
-              <TableCell className="font-medium">{test.name}</TableCell>
-              <TableCell className={cn(getStatusStyles(test.status, test.score))}>
-                {getStatusText(test.status, test.score)}
-              </TableCell>
+      <div className="overflow-auto max-h-[600px]">
+        <Table>
+          <TableHeader className="sticky top-0 bg-white shadow-sm">
+            <TableRow>
+              <TableHead>Test Name</TableHead>
+              <TableHead>Status</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {fullTestList.map((test) => (
+              <TableRow key={test.id}>
+                <TableCell className="font-medium">{test.name}</TableCell>
+                <TableCell className={cn(getStatusStyles(test.status, test.score))}>
+                  {getStatusText(test.status, test.score)}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 };
