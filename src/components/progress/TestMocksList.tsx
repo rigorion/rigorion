@@ -8,6 +8,7 @@ const supabase = createClient('https://eantvimmgdmxzwrjwrop.supabase.co', 'eyJhb
 const { data, error } = await supabase.functions.invoke('get-user-progress', {
   body: { name: 'Functions' },
 })
+console.log('We did it: ', data)
 
 interface TestMockData {
   id: string;
@@ -36,7 +37,7 @@ export const TestMocksList = ({ tests: propTests }: { tests?: TestMockData[] }) 
   const [tests, setTests] = useState<TestMockData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+console.log('We did it: ', data)
   useEffect(() => {
     // If tests were passed as props, use those instead of fetching
     if (propTests && propTests.length > 0) {
