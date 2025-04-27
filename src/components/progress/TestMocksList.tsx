@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
@@ -41,9 +42,14 @@ export const TestMocksList = ({ tests: propTests }: { tests?: TestMockData[] }) 
     
     const fetchTests = async () => {
       try {
+        console.log('Fetching mock tests from endpoint...');
         const response = await fetch('https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/mock');
+        console.log('Response status:', response.status);
+        
         if (!response.ok) throw new Error('Failed to fetch mock tests');
+        
         const data = await response.json();
+        console.log('Mock tests data received:', data);
         setTests(data);
       } catch (err) {
         console.error('Error fetching tests:', err);
