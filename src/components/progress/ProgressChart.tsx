@@ -86,7 +86,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
             type="monotone"
             dataKey="questions"
             strokeWidth={2}
-            stroke="#9CA3AF"
+            stroke="#3b82f6"
             dot={(props) => {
               const momentum = props.payload.momentum;
               return (

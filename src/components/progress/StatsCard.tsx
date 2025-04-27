@@ -64,7 +64,7 @@ export const StatsCard = ({
 
   if (isCalendar) {
     return (
-      <Card className="p-4 hover:bg-gray-50/50 transition-all duration-300 border-none shadow-none">
+      <Card className="p-4 transition-all duration-300 border-none shadow-none">
         <div className="flex items-center gap-3">
           <Popover>
             <PopoverTrigger asChild>
@@ -94,9 +94,9 @@ export const StatsCard = ({
   }
 
   return (
-    <Card className="p-4 hover:bg-gray-50/50 transition-all duration-300 border-none shadow-none">
+    <Card className="p-4 transition-all duration-300 border-none shadow-none">
       <div className="flex items-center gap-3">
-        <Icon className={`h-6 w-6 ${color}`} strokeWidth={1.5} />
+        <Icon className="h-6 w-6 text-blue-500" strokeWidth={1.5} />
         <div>
           <p className="text-sm text-gray-500">{title}</p>
           <p className="text-lg font-semibold">{value}</p>

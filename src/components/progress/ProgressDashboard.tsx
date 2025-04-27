@@ -126,24 +126,24 @@ export const ProgressDashboard = ({
           <TotalProgressCard totalQuestions={userData.correctAnswers + userData.incorrectAnswers + userData.unattemptedQuestions} correctQuestions={userData.correctAnswers} incorrectQuestions={userData.incorrectAnswers} unattemptedQuestions={userData.unattemptedQuestions} alwaysVisible={true} />
         </AnimatedItem>
 
-        {visibleSections.performanceGraph && <AnimatedItem className="lg:col-span-2">
-            <PerformanceGraphCard data={userData.performanceGraph} />
-          </AnimatedItem>}
-      </AnimatedContainer>
-
-      <DifficultyStatsGrid stats={difficultyStats} />
-
-      <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {visibleSections.chapterProgress && <AnimatedItem>
-            <Card className="p-6 bg-white border border-gray-50">
+        {visibleSections.chapterProgress && <AnimatedItem className="lg:col-span-2">
+            <Card className="p-6 bg-white border border-gray-50 h-[480px] overflow-auto">
               <ChapterProgress chapters={userData.chapterPerformance} />
             </Card>
           </AnimatedItem>}
+      </AnimatedContainer>
 
-        <AnimatedItem>
+      <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {visibleSections.performanceGraph && <AnimatedItem className="lg:col-span-8">
+            <PerformanceGraphCard data={userData.performanceGraph} />
+          </AnimatedItem>}
+
+        <AnimatedItem className="lg:col-span-4">
           <TestMocksList tests={mockTests} />
         </AnimatedItem>
       </AnimatedContainer>
+
+      <DifficultyStatsGrid stats={difficultyStats} />
 
       {visibleSections.goals && <AnimatedItem>
           <GoalsCard goals={userData.goals} />
