@@ -1,8 +1,4 @@
 import { Card } from "@/components/ui/card";
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/lib/supabase';
-import { toast } from "sonner";
 
 interface ProgressData {
   total_questions: number;
@@ -22,71 +18,18 @@ interface TotalProgressCardProps {
 }
 
 export const TotalProgressCard = ({ 
-  totalQuestions: propsTotalQuestions,
-  correctQuestions: propsCorrectQuestions,
-  incorrectQuestions: propsIncorrectQuestions,
-  unattemptedQuestions: propsUnattemptedQuestions,
+  totalQuestions: propsTotalQuestions = 130,
+  correctQuestions: propsCorrectQuestions = 53,
+  incorrectQuestions: propsIncorrectQuestions = 21,
+  unattemptedQuestions: propsUnattemptedQuestions = 56,
   progressData: propsProgressData,
   alwaysVisible = true
 }: TotalProgressCardProps) => {
-  const [localProgress, setLocalProgress] = useState<ProgressData | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    const fetchProgress = async () => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-        
-        const res = await fetch(`${supabaseUrl}/functions/v1/get-user-progress`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json"
-          }
-        });
-        
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        
-        const data = await res.json();
-
-        if (data) {
-          setLocalProgress({
-            total_questions: data.total_questions || 0,
-            correct_count: data.correct_count || 0,
-            incorrect_count: data.incorrect_count || 0,
-            unattempted_count: data.unattempted_count || 0
-          });
-        }
-      } catch (err) {
-        console.error('Error fetching progress:', err);
-        setError(err as Error);
-        toast.error("Failed to load progress data. Using fallback data.");
-        
-        // Set fallback values
-        setLocalProgress({
-          total_questions: 130,
-          correct_count: 53,
-          incorrect_count: 21,
-          unattempted_count: 56
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchProgress();
-  }, []);
-
   const displayData = propsProgressData || {
-    total_questions: propsTotalQuestions || localProgress?.total_questions || 130,
-    correct_count: propsCorrectQuestions || localProgress?.correct_count || 53,
-    incorrect_count: propsIncorrectQuestions || localProgress?.incorrect_count || 21,
-    unattempted_count: propsUnattemptedQuestions || localProgress?.unattempted_count || 56
+    total_questions: propsTotalQuestions,
+    correct_count: propsCorrectQuestions,
+    incorrect_count: propsIncorrectQuestions,
+    unattempted_count: propsUnattemptedQuestions
   };
 
   const { 
