@@ -12,7 +12,6 @@ interface TestMockData {
 }
 
 const defaultTests: TestMockData[] = [
-  // Add your default dummy data here
   {
     id: '1',
     name: 'Mock Test 1',
@@ -44,7 +43,8 @@ export const TestMocksList = ({ tests: propTests }: { tests?: TestMockData[] }) 
       try {
         console.log('⭐ Attempting to fetch mock tests from endpoint...');
         
-        const supabaseUrl = 'https://eantvimmgdmxzwrjwrop.supabase.co';
+        // Use the environment variable for the Supabase URL
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
         const url = `${supabaseUrl}/functions/v1/mock`;
         
         console.log('⭐ Fetch URL:', url);
@@ -58,7 +58,8 @@ export const TestMocksList = ({ tests: propTests }: { tests?: TestMockData[] }) 
           headers: {
             'Content-Type': 'application/json'
           },
-          signal: controller.signal
+          signal: controller.signal,
+          credentials: 'omit' // Explicitly avoid sending credentials
         });
         
         clearTimeout(timeoutId);
@@ -68,12 +69,20 @@ export const TestMocksList = ({ tests: propTests }: { tests?: TestMockData[] }) 
         
         if (!response.ok) {
           console.error('Response not OK:', response.status, response.statusText);
+          const responseText = await response.text();
+          console.error('Error response body:', responseText);
           throw new Error(`Failed to fetch mock tests: ${response.status} ${response.statusText}`);
         }
         
         const data = await response.json();
         console.log('⭐ Mock tests data received:', data);
-        setTests(data);
+        
+        if (Array.isArray(data)) {
+          setTests(data);
+        } else {
+          console.error('Received non-array data:', data);
+          throw new Error('Received invalid data format');
+        }
       } catch (err) {
         console.error('⭐ Error fetching tests:', err);
         setError('Failed to load test data');
@@ -121,8 +130,8 @@ export const TestMocksList = ({ tests: propTests }: { tests?: TestMockData[] }) 
   };
 
   // Combine fetched tests with fallback data and limit to 100 entries
-  const fullTestList = [...tests.slice(0, 100)];
-  while (fullTestList.length < 100) {
+  const fullTestList = tests.length > 0 ? [...tests.slice(0, 100)] : [...defaultTests];
+  while (fullTestList.length < 10) { // Reduced to 10 entries for better performance
     fullTestList.push({
       id: `empty-${fullTestList.length}`,
       name: `Mock Test ${fullTestList.length + 1}`,
