@@ -2,14 +2,17 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 serve(async (req) => {
+  console.log("Mock function endpoint called:", req.method, req.url);
+  
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
+    console.log("Handling OPTIONS preflight request");
     return new Response(null, {
       status: 204,
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization"
       }
     });
   }
@@ -31,6 +34,8 @@ serve(async (req) => {
     { id: '14', name: 'Mock Test 14', status: 'in-progress' },
     { id: '15', name: 'Mock Test 15', status: 'completed', score: 87 },
   ];
+
+  console.log("Returning mock tests data");
 
   return new Response(
     JSON.stringify(mockTests),

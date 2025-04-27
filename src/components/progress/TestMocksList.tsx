@@ -42,17 +42,40 @@ export const TestMocksList = ({ tests: propTests }: { tests?: TestMockData[] }) 
     
     const fetchTests = async () => {
       try {
-        console.log('Fetching mock tests from endpoint...');
-        const response = await fetch('https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/mock');
-        console.log('Response status:', response.status);
+        console.log('⭐ Attempting to fetch mock tests from endpoint...');
         
-        if (!response.ok) throw new Error('Failed to fetch mock tests');
+        const supabaseUrl = 'https://eantvimmgdmxzwrjwrop.supabase.co';
+        const url = `${supabaseUrl}/functions/v1/mock`;
+        
+        console.log('⭐ Fetch URL:', url);
+        
+        // Add timeout to ensure the request doesn't hang
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        console.log('⭐ Response status:', response.status);
+        console.log('⭐ Response headers:', Object.fromEntries([...response.headers.entries()]));
+        
+        if (!response.ok) {
+          console.error('Response not OK:', response.status, response.statusText);
+          throw new Error(`Failed to fetch mock tests: ${response.status} ${response.statusText}`);
+        }
         
         const data = await response.json();
-        console.log('Mock tests data received:', data);
+        console.log('⭐ Mock tests data received:', data);
         setTests(data);
       } catch (err) {
-        console.error('Error fetching tests:', err);
+        console.error('⭐ Error fetching tests:', err);
         setError('Failed to load test data');
         setTests(defaultTests);
         toast.error("Could not load mock tests. Using sample data.");
@@ -61,6 +84,7 @@ export const TestMocksList = ({ tests: propTests }: { tests?: TestMockData[] }) 
       }
     };
 
+    console.log('⭐ Starting fetch tests effect...');
     fetchTests();
   }, [propTests]);
 
