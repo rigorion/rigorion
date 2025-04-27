@@ -83,7 +83,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
           />
           <Tooltip content={<CustomTooltip />} />
           <Line
-            type="linear"
+            type="monotone"
             dataKey="questions"
             strokeWidth={2}
             stroke="#3b82f6"
@@ -94,7 +94,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
                   cx={props.cx}
                   cy={props.cy}
                   r={4}
-                  fill={momentum >= 0 ? '#3b82f6' : '#3b82f6'}
+                  fill={momentum >= 0 ? '#22c55e' : '#ef4444'}
                   stroke="white"
                   strokeWidth={1}
                 />
@@ -107,7 +107,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
                   cx={props.cx}
                   cy={props.cy}
                   r={6}
-                  fill="#3b82f6"
+                  fill={momentum >= 0 ? '#22c55e' : '#ef4444'}
                   stroke="white"
                   strokeWidth={2}
                 />

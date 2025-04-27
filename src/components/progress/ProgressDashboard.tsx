@@ -114,8 +114,7 @@ export const ProgressDashboard = ({
     color: "bg-blue-300"
   }];
 
-  return (
-    <AnimatedContainer className={cn("space-y-8", className)}>
+  return <AnimatedContainer className={cn("space-y-8", className)}>
       <div className="flex justify-center">
         <div className="max-w-4xl w-full">
           <StatsCardGrid stats={stats} />
@@ -126,28 +125,22 @@ export const ProgressDashboard = ({
         <AnimatedItem>
           <TotalProgressCard totalQuestions={userData.correctAnswers + userData.incorrectAnswers + userData.unattemptedQuestions} correctQuestions={userData.correctAnswers} incorrectQuestions={userData.incorrectAnswers} unattemptedQuestions={userData.unattemptedQuestions} alwaysVisible={true} />
         </AnimatedItem>
+
+        {visibleSections.chapterProgress && <AnimatedItem className="lg:col-span-2">
+            <Card className="p-6 bg-white border border-gray-50 h-[480px] overflow-auto">
+              <ChapterProgress chapters={userData.chapterPerformance} />
+            </Card>
+          </AnimatedItem>}
       </AnimatedContainer>
 
       <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <AnimatedItem className="lg:col-span-8">
-          <Card className="p-6 bg-white border border-gray-50 h-[480px] overflow-auto">
-            <ChapterProgress chapters={userData.chapterPerformance} />
-          </Card>
-        </AnimatedItem>
+        {visibleSections.performanceGraph && <AnimatedItem className="lg:col-span-8">
+            <PerformanceGraphCard data={userData.performanceGraph} />
+          </AnimatedItem>}
 
         <AnimatedItem className="lg:col-span-4">
           <TestMocksList tests={mockTests} />
         </AnimatedItem>
-      </AnimatedContainer>
-
-      <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {visibleSections.performanceGraph && (
-          <AnimatedItem className="lg:col-span-8">
-            <PerformanceGraphCard data={userData.performanceGraph} />
-          </AnimatedItem>
-        )}
-
-        
       </AnimatedContainer>
 
       <DifficultyStatsGrid stats={difficultyStats} />
@@ -157,7 +150,6 @@ export const ProgressDashboard = ({
         </AnimatedItem>}
 
       <Footer />
-    </AnimatedContainer>
-  );
+    </AnimatedContainer>;
 };
 export default ProgressDashboard;
