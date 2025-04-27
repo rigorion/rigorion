@@ -2,6 +2,19 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Max-Age": "86400",
+      }
+    });
+  }
+
   const mockTests = [
     { id: '1', name: 'Mock Test 1', status: 'completed', score: 85 },
     { id: '2', name: 'Mock Test 2', status: 'in-progress' },
@@ -25,7 +38,9 @@ serve(async (req) => {
     { 
       headers: { 
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*" // Handle CORS
+        "Access-Control-Allow-Origin": "*", 
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization"
       } 
     }
   );
