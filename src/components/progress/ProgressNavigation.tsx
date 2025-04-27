@@ -1,15 +1,8 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, Calendar, Settings, ChevronDown } from "lucide-react";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { TimePeriod } from "@/types/progress";
-
 type VisibleSections = {
   totalProgress: boolean;
   performanceGraph: boolean;
@@ -18,7 +11,6 @@ type VisibleSections = {
   timeManagement: boolean;
   goals: boolean;
 };
-
 interface ProgressNavigationProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
@@ -26,7 +18,6 @@ interface ProgressNavigationProps {
   visibleSections: VisibleSections;
   setVisibleSections: (sections: Record<string, boolean>) => void;
 }
-
 export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
   sidebarOpen,
   setSidebarOpen,
@@ -35,16 +26,9 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
   setVisibleSections
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  return (
-    <div className="flex items-center justify-between">
+  return <div className="flex items-center justify-between">
       <div className="flex items-center space-x-4">
-        <Button 
-          variant="ghost" 
-          size="icon"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden hover:bg-white/10 transition-colors"
-        >
+        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="lg:hidden hover:bg-white/10 transition-colors">
           <Menu className="h-5 w-5 text-gray-600" />
         </Button>
         <span className="font-medium text-lg hidden md:inline-block">Progress</span>
@@ -75,16 +59,8 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Button 
-          variant="ghost" 
-          size="icon"
-          className="hover:bg-gray-50 transition-colors"
-        >
-          <Settings className="h-5 w-5 text-gray-600" />
-        </Button>
+        
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default ProgressNavigation;
