@@ -1,13 +1,7 @@
 import { useEffect, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-
-const supabase = createClient('https://eantvimmgdmxzwrjwrop.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhbnR2aW1tZ2RteHp3cmp3cm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU2MTA5MjQsImV4cCI6MjA2MTE4NjkyNH0.ba6UMchrXuMqmkWXzoC2Dd91y-HJm_cB1NMmwNRly-k')
-const { data, error } = await supabase.functions.invoke('get-user-progress', {
-  body: { name: 'Functions' },
-})
-console.log('We did it: ', data)
+import { toast } from "sonner";
 
 interface TestMockData {
   id: string;
@@ -36,7 +30,7 @@ export const TestMocksList = ({ tests: propTests }: { tests?: TestMockData[] }) 
   const [tests, setTests] = useState<TestMockData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-console.log('We did it: ', data)
+
   useEffect(() => {
     // If tests were passed as props, use those instead of fetching
     if (propTests && propTests.length > 0) {
@@ -47,16 +41,15 @@ console.log('We did it: ', data)
     
     const fetchTests = async () => {
       try {
-        const { data, error } = await supabase.functions.invoke('get-user-progress', {
-          body: { name: 'Functions' },
-        });
-
-        if (error) throw error;
-        setTests(data || []);
+        const response = await fetch('https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/mock');
+        if (!response.ok) throw new Error('Failed to fetch mock tests');
+        const data = await response.json();
+        setTests(data);
       } catch (err) {
         console.error('Error fetching tests:', err);
         setError('Failed to load test data');
         setTests(defaultTests);
+        toast.error("Could not load mock tests. Using sample data.");
       } finally {
         setLoading(false);
       }
