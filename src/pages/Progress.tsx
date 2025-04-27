@@ -11,8 +11,9 @@ import { EmptyProgressState } from "@/components/progress/EmptyProgressState";
 import { Layout } from "@/components/layout/Layout";
 import type { TimePeriod, ProgressTab, UserProgressData } from "@/types/progress";
 import { toast } from "sonner";
-import { TrendingUp, Trophy } from "lucide-react";
+import { TrendingUp, Trophy, BookOpen } from "lucide-react";
 import { ProgressNavigation } from "@/components/progress/ProgressNavigation";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/lib/supabase";
 
 // Define the VisibleSections type to match the structure
@@ -182,12 +183,13 @@ const DUMMY_PROGRESS = {
   }]
 };
 const Progress = () => {
-  const {
-    session
-  } = useAuth();
+  const { session } = useAuth();
   const [period, setPeriod] = useState<TimePeriod>("weekly");
   const [activeTab, setActiveTab] = useState<ProgressTab>("performance");
+  const [selectedExam, setSelectedExam] = useState("exam1");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Define the VisibleSections type to match the structure
   const [visibleSections, setVisibleSections] = useState<VisibleSections>({
     totalProgress: true,
     // Always visible
@@ -238,10 +240,32 @@ const Progress = () => {
   if (isLoading && isAuthenticated) {
     return <FullPageLoader />;
   }
-  return <div className="flex min-h-screen w-full bg-mono-bg">
+  return (
+    <div className="flex min-h-screen w-full bg-mono-bg">
       <main className="flex-1 bg-mono-bg">
         <header className="sticky top-0 z-50 bg-white border-b px-4 py-3">
-          <ProgressNavigation sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} setPeriod={(value: TimePeriod) => setPeriod(value)} visibleSections={visibleSections} setVisibleSections={handleSetVisibleSections} />
+          <div className="flex items-center gap-4 mb-4">
+            <Select value={selectedExam} onValueChange={setSelectedExam}>
+              <SelectTrigger className="w-[180px]">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4" />
+                  <SelectValue placeholder="Select Exam" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="exam1">Mock Exam 1</SelectItem>
+                <SelectItem value="exam2">Mock Exam 2</SelectItem>
+                <SelectItem value="exam3">Mock Exam 3</SelectItem>
+              </SelectContent>
+            </Select>
+            <ProgressNavigation
+              sidebarOpen={sidebarOpen}
+              setSidebarOpen={setSidebarOpen}
+              setPeriod={setPeriod}
+              visibleSections={visibleSections}
+              setVisibleSections={handleSetVisibleSections}
+            />
+          </div>
         </header>
 
         <Tabs defaultValue={activeTab} value={activeTab} onValueChange={value => setActiveTab(value as ProgressTab)} className="w-full">
@@ -270,6 +294,8 @@ const Progress = () => {
           </div>
         </Tabs>
       </main>
-    </div>;
+    </div>
+  );
 };
+
 export default Progress;

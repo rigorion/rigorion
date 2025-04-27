@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Clock, CheckCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
@@ -33,7 +34,7 @@ export const DifficultyStatCard = ({
         visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
       }}
     >
-      <Card className="p-6 shadow-md hover:shadow-lg transition-all duration-300 border-0">
+      <Card className="p-6 hover:shadow-none transition-all duration-300 border-0 rounded-2xl">
         <h3 className="text-lg font-semibold mb-4">{title}</h3>
         <div className="space-y-6">
           <div>
@@ -49,7 +50,7 @@ export const DifficultyStatCard = ({
             >
               <div className="relative h-1.5 bg-gray-100 rounded-full overflow-hidden">
                 <div
-                  className="absolute top-0 left-0 h-full transition-all duration-500 rounded-full animate-pulse-subtle"
+                  className="absolute top-0 left-0 h-full transition-all duration-500 rounded-full"
                   style={{
                     width: `${accuracy}%`,
                     backgroundColor: title.toLowerCase().includes('easy') || title.toLowerCase().includes('medium') 
@@ -62,7 +63,7 @@ export const DifficultyStatCard = ({
           </div>
           
           <div className="grid grid-cols-2 gap-4">
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg py-3">
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
               <Clock className="h-5 w-5 text-gray-500" />
               <div>
                 <p className="text-xs text-gray-500">Avg Time</p>
@@ -70,7 +71,7 @@ export const DifficultyStatCard = ({
               </div>
             </div>
             
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
               <CheckCircle className="h-5 w-5 text-gray-500" />
               <div>
                 <p className="text-xs text-gray-500">Completed</p>
