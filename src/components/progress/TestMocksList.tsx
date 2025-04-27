@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
@@ -109,19 +108,19 @@ console.log('We did it: ', data)
   }
 
   if (loading) {
-    return <div>Loading mock tests...</div>;
+    return <div className="h-[480px] flex items-center justify-center">Loading mock tests...</div>;
   }
 
   if (error) {
-    return <div className="text-red-500">{error}</div>;
+    return <div className="h-[480px] flex items-center justify-center text-red-500">{error}</div>;
   }
 
   return (
-    <div className="bg-white rounded-lg p-6 border border-gray-100">
+    <div className="bg-white rounded-lg p-6 border border-gray-100 h-[480px]">
       <h3 className="text-lg font-semibold mb-4">Mock Exams</h3>
-      <div className="overflow-auto max-h-[600px]">
+      <div className="overflow-auto" style={{ height: 'calc(100% - 48px)' }}>
         <Table>
-          <TableHeader className="sticky top-0 bg-white shadow-sm">
+          <TableHeader className="sticky top-0 bg-white shadow-sm z-10">
             <TableRow>
               <TableHead>Test Name</TableHead>
               <TableHead>Status</TableHead>
