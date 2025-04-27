@@ -65,64 +65,55 @@ export const ProgressDashboard = ({
     status: 'unattempted' as const
   }];
 
-  // Stats data with exam date selector
+  // Stats data with updated styling and content
   const stats = [{
     title: "Days to Exam",
     value: `${daysToExam} days`,
     icon: Calendar,
-    color: "text-purple-500",
-    backgroundColor: "bg-purple-50",
-    component: () => <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="ghost" className="w-full justify-between rounded-full text-base font-normal">
-            <Calendar className="text-purple-500 mr-2" />
-            <span>{daysToExam} days</span>
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <DatePicker mode="single" selected={examDate} onSelect={setExamDate} disabled={date => date < new Date()} />
-        </PopoverContent>
-      </Popover>
+    color: "text-blue-500",
+    isCalendar: true,
+    onSelect: setExamDate,
+    selectedDate: examDate
   }, {
     title: "Streak",
     value: `${userData.streak} days`,
     icon: Zap,
-    color: "text-amber-500",
-    backgroundColor: "bg-amber-50"
+    color: "text-blue-500"
   }, {
-    title: "Avg Score",
-    value: `${userData.averageScore}`,
+    title: "Recommended Problems/Day",
+    value: "25",
     icon: Target,
-    color: "text-emerald-500",
-    backgroundColor: "bg-emerald-50"
+    color: "text-blue-500"
   }, {
     title: "Rank",
     value: `#${userData.rank}`,
     icon: Trophy,
-    color: "text-blue-500",
-    backgroundColor: "bg-blue-50"
+    color: "text-blue-500"
   }, {
     component: () => <ProjectedScore score={userData.projectedScore} />
   }];
+
+  // Update the difficulty stats colors to use light blue instead of orange
   const difficultyStats = [{
     title: "Easy Questions",
     correct: userData.easyCompleted,
     total: userData.easyTotal,
     avgTime: `${userData.easyAvgTime} min`,
-    color: "bg-emerald-500"
+    color: "bg-blue-100"
   }, {
     title: "Medium Questions",
     correct: userData.mediumCompleted,
     total: userData.mediumTotal,
     avgTime: `${userData.mediumAvgTime} min`,
-    color: "bg-emerald-500"
+    color: "bg-blue-200"
   }, {
     title: "Hard Questions",
     correct: userData.hardCompleted,
     total: userData.hardTotal,
     avgTime: `${userData.hardAvgTime} min`,
-    color: "bg-amber-500"
+    color: "bg-blue-300"
   }];
+
   return <AnimatedContainer className={cn("space-y-8", className)}>
       <div className="flex justify-center">
         <div className="max-w-4xl w-full">
