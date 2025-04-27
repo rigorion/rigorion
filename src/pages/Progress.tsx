@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { TrendingUp, Trophy } from "lucide-react";
 import { ProgressNavigation } from "@/components/progress/ProgressNavigation";
 import { supabase } from "@/lib/supabase";
+import { TestMocksList } from "@/components/progress/TestMocksList";
 
 // Define the VisibleSections type to match the structure
 type VisibleSections = {
@@ -262,6 +263,11 @@ const Progress = () => {
             
             <TabsContent value="performance">
               <ProgressDashboard period={period} type="performance" userData={displayData} className="[&_path]:stroke-mono-accent [&_.recharts-area]:fill-gradient-to-b [&_.recharts-area]:from-mono-hover [&_.recharts-area]:to-mono-bg [&_.recharts-bar]:fill-gradient-to-b [&_.recharts-bar]:from-mono-text [&_.recharts-bar]:to-mono-accent [&_.recharts-line]:stroke-mono-accent" visibleSections={visibleSections} />
+              
+              {/* Add TestMocksList here */}
+              <div className="mt-6">
+                <TestMocksList />
+              </div>
             </TabsContent>
             
             <TabsContent value="leaderboard">
