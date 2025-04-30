@@ -182,8 +182,9 @@ export const ProgressDashboard = ({
 
       <Footer />
       
-      {/* Add responsive styles */}
-      <style jsx global>{`
+      {/* Add responsive styles - Fix TypeScript error by using a standard style tag without jsx and global props */}
+      <style>
+        {`
         @media (max-width: 640px) {
           .recharts-responsive-container {
             height: 250px !important;
@@ -211,7 +212,8 @@ export const ProgressDashboard = ({
             overflow: visible;
           }
         }
-      `}</style>
+        `}
+      </style>
     </AnimatedContainer>
   );
 };
