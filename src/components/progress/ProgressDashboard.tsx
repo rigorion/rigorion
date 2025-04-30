@@ -173,16 +173,17 @@ export const ProgressDashboard = ({
       {/* Difficulty Stats */}
       <DifficultyStatsGrid stats={difficultyStats} />
 
-      {/* Goals */}
+      {/* Goals and Global Analysis side by side */}
       {visibleSections.goals && (
-        <AnimatedItem>
-          <GoalsCard goals={userData.goals} />
-        </AnimatedItem>
+        <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          <AnimatedItem>
+            <GoalsCard goals={userData.goals} />
+          </AnimatedItem>
+        </AnimatedContainer>
       )}
 
       <Footer />
       
-      {/* Add responsive styles - Fix TypeScript error by using a standard style tag without jsx and global props */}
       <style>
         {`
         @media (max-width: 640px) {

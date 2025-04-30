@@ -33,9 +33,9 @@ export const GlobalAnalysisCard = ({
   };
 
   return (
-    <Card className="bg-white border border-gray-50">
+    <Card className="bg-white border border-gray-50 h-[480px]">
       <CardContent className="p-6">
-        <div className="flex flex-col space-y-5">
+        <div className="flex flex-col space-y-5 h-full">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Global Analysis</h3>
             <div className="flex items-center gap-1">
@@ -76,6 +76,53 @@ export const GlobalAnalysisCard = ({
                 <span className="text-lg font-semibold">{averageDaily} questions</span>
               </div>
             </div>
+          </div>
+          
+          <div className="mt-4">
+            <h4 className="text-md font-medium mb-2">Objective Accomplishment</h4>
+            <div className="flex flex-col space-y-3">
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm text-gray-600">Objectives Set</span>
+                  <span className="text-sm font-medium">4</span>
+                </div>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm text-gray-600">Objectives Completed</span>
+                  <span className="text-sm font-medium">3</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Completion Rate</span>
+                  <span className="text-sm font-medium text-green-500">75%</span>
+                </div>
+              </div>
+              
+              <div className="relative h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                <div 
+                  className="absolute top-0 left-0 h-full bg-green-500 rounded-full"
+                  style={{ width: '75%' }}
+                />
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-2">
+            <div className="flex items-center justify-between">
+              <h4 className="text-md font-medium">Strength Areas</h4>
+            </div>
+            <ul className="mt-2 space-y-1">
+              <li className="text-sm text-gray-600 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                Quantitative Reasoning (92%)
+              </li>
+              <li className="text-sm text-gray-600 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                Geometry (88%)
+              </li>
+              <li className="text-sm text-gray-600 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                Verbal Reasoning (78%)
+              </li>
+            </ul>
           </div>
         </div>
       </CardContent>

@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -159,7 +160,7 @@ export const TotalProgressCard = ({
               cy="50"
               r={radius}
               fill="none"
-              stroke="#93c5fd"  // Changed from orange to light blue
+              stroke="#93c5fd" 
               strokeWidth="5"
               strokeDasharray={circumference}
               strokeDashoffset={unattemptedOffset}
@@ -192,7 +193,7 @@ export const TotalProgressCard = ({
                 <div className="w-3 h-3 rounded-full bg-emerald-500" />
                 <span className="text-sm text-gray-600">Correct</span>
               </div>
-              <span className="text-sm font-medium text-gray-800">
+              <span className="text-sm font-medium text-emerald-600">
                 {correctQuestionsValue} ({correctPercentage}%)
               </span>
             </div>
@@ -201,16 +202,16 @@ export const TotalProgressCard = ({
                 <div className="w-3 h-3 rounded-full bg-red-500" />
                 <span className="text-sm text-gray-600">Incorrect</span>
               </div>
-              <span className="text-sm font-medium text-gray-800">
+              <span className="text-sm font-medium text-red-600">
                 {incorrectQuestionsValue} ({incorrectPercentage}%)
               </span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-orange-500" />
+                <div className="w-3 h-3 rounded-full bg-blue-400" />
                 <span className="text-sm text-gray-600">Unattempted</span>
               </div>
-              <span className="text-sm font-medium text-gray-800">
+              <span className="text-sm font-medium text-blue-600">
                 {unattemptedQuestionsValue} ({unattemptedPercentage}%)
               </span>
             </div>
