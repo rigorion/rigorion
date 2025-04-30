@@ -78,7 +78,7 @@ export const StatsCard = ({
                 </div>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
+            <PopoverContent className="w-auto p-0 border bg-white shadow-lg" align="start">
               <DatePicker 
                 mode="single" 
                 selected={selectedDate} 
@@ -125,7 +125,7 @@ export const StatsCardGrid = ({
           }
         }
       }}
-      className="grid grid-cols-5 gap-4 max-w-[95%] mx-auto"
+      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 max-w-[95%] mx-auto"
     >
       {stats.map((stat, index) => (
         <motion.div 

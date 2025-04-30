@@ -1,3 +1,4 @@
+
 import { supabase } from '@/lib/supabase';
 import type { UserProgressData } from '@/types/progress';
 import { toast } from "sonner";
@@ -6,10 +7,31 @@ export async function getUserProgressData(userId: string, period: string = "week
   try {
     console.log(`Fetching progress data for user ${userId} with period ${period}`);
     
-    // Using the fallback dummy data since the get-user-progress endpoint seems to be having issues
+    // Try to get data from Supabase edge function
+    try {
+      // Call the Edge Function
+      const { data, error } = await supabase.functions.invoke('get-user-progress', {
+        body: { userId, period }
+      });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+
+      if (data) {
+        console.log('Successfully retrieved user progress data from API');
+        // Transform API data to match our UserProgressData type
+        return data as UserProgressData;
+      }
+    } catch (apiError) {
+      console.error('Error fetching from edge function:', apiError);
+      // Continue to fallback data
+    }
+    
     console.log('Using dummy data for progress');
     
-    // Return dummy data for now
+    // Return dummy data as fallback
     return {
       userId,
       totalProgressPercent: 75,

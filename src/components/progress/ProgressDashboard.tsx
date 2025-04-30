@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Calendar, Zap, Trophy, Target } from 'lucide-react';
 import { ChapterProgress } from "./ChapterProgress";
@@ -14,9 +15,8 @@ import { ProjectedScore } from "@/components/stats/ProjectedScore";
 import { UserProgressData } from "@/types/progress";
 import { useState } from "react";
 import { Footer } from "@/components/Footer";
-import { DatePicker } from "@/components/ui/date-picker";
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { GlobalAnalysisCard } from "./GlobalAnalysisCard";
+
 interface ProgressDashboardProps {
   period: string;
   type: string;
@@ -24,6 +24,7 @@ interface ProgressDashboardProps {
   userData: UserProgressData;
   visibleSections?: Record<string, boolean>;
 }
+
 export const ProgressDashboard = ({
   period,
   type,
@@ -39,6 +40,8 @@ export const ProgressDashboard = ({
 }: ProgressDashboardProps) => {
   const [examDate, setExamDate] = useState<Date | null>(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000));
   const daysToExam = examDate ? Math.ceil((examDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 30;
+  
+  // Mock tests data
   const mockTests = [{
     id: '1',
     name: 'Mock Test 1',
@@ -114,42 +117,103 @@ export const ProgressDashboard = ({
     color: "bg-blue-300"
   }];
 
-  return <AnimatedContainer className={cn("space-y-8", className)}>
+  return (
+    <AnimatedContainer className={cn("space-y-6 px-2 sm:px-4 md:px-6", className)}>
+      {/* Stats Cards */}
       <div className="flex justify-center">
-        <div className="max-w-4xl w-full">
+        <div className="w-full">
           <StatsCardGrid stats={stats} />
         </div>
       </div>
       
-      <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Total Progress + Global Analysis Grid */}
+      <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <AnimatedItem>
-          <TotalProgressCard totalQuestions={userData.correctAnswers + userData.incorrectAnswers + userData.unattemptedQuestions} correctQuestions={userData.correctAnswers} incorrectQuestions={userData.incorrectAnswers} unattemptedQuestions={userData.unattemptedQuestions} alwaysVisible={true} />
+          <TotalProgressCard 
+            totalQuestions={userData.correctAnswers + userData.incorrectAnswers + userData.unattemptedQuestions} 
+            correctQuestions={userData.correctAnswers} 
+            incorrectQuestions={userData.incorrectAnswers} 
+            unattemptedQuestions={userData.unattemptedQuestions} 
+            alwaysVisible={true}
+          />
         </AnimatedItem>
 
-        {visibleSections.chapterProgress && <AnimatedItem className="lg:col-span-2">
-            <Card className="p-6 bg-white border border-gray-50 h-[480px] overflow-auto">
-              <ChapterProgress chapters={userData.chapterPerformance} />
-            </Card>
-          </AnimatedItem>}
+        <AnimatedItem>
+          <GlobalAnalysisCard 
+            percentile={85}
+            averageDaily={15}
+            yourDaily={25}
+            totalUsersCount={5280}
+          />
+        </AnimatedItem>
       </AnimatedContainer>
+      
+      {/* Chapter Progress */}
+      {visibleSections.chapterProgress && (
+        <AnimatedItem>
+          <Card className="p-6 bg-white border border-gray-50 h-[480px] overflow-auto">
+            <ChapterProgress chapters={userData.chapterPerformance} />
+          </Card>
+        </AnimatedItem>
+      )}
 
-      <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {visibleSections.performanceGraph && <AnimatedItem className="lg:col-span-8">
+      {/* Performance Graph + Test Mocks Grid */}
+      <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+        {visibleSections.performanceGraph && (
+          <AnimatedItem className="lg:col-span-8">
             <PerformanceGraphCard data={userData.performanceGraph} />
-          </AnimatedItem>}
+          </AnimatedItem>
+        )}
 
         <AnimatedItem className="lg:col-span-4">
           <TestMocksList tests={mockTests} />
         </AnimatedItem>
       </AnimatedContainer>
 
+      {/* Difficulty Stats */}
       <DifficultyStatsGrid stats={difficultyStats} />
 
-      {visibleSections.goals && <AnimatedItem>
+      {/* Goals */}
+      {visibleSections.goals && (
+        <AnimatedItem>
           <GoalsCard goals={userData.goals} />
-        </AnimatedItem>}
+        </AnimatedItem>
+      )}
 
       <Footer />
-    </AnimatedContainer>;
+      
+      {/* Add responsive styles */}
+      <style jsx global>{`
+        @media (max-width: 640px) {
+          .recharts-responsive-container {
+            height: 250px !important;
+          }
+          
+          .recharts-text {
+            font-size: 10px;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .recharts-responsive-container {
+            height: 200px !important;
+          }
+          
+          h3 {
+            font-size: 16px;
+          }
+          
+          table {
+            font-size: 12px;
+          }
+          
+          .recharts-surface {
+            overflow: visible;
+          }
+        }
+      `}</style>
+    </AnimatedContainer>
+  );
 };
+
 export default ProgressDashboard;
