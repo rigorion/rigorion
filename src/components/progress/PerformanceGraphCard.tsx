@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { ProgressChart } from "./ProgressChart";
 import { motion } from "framer-motion";
@@ -21,38 +22,79 @@ export const PerformanceGraphCard = ({
 }: PerformanceGraphCardProps) => {
   const [performanceData, setPerformanceData] = useState<PerformanceDataPoint[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { session } = useAuth();
 
   useEffect(() => {
+    // If we have data passed as prop, use that
+    if (propData && propData.length > 0) {
+      setPerformanceData(propData);
+      return;
+    }
+    
     const fetchPerformanceData = async () => {
-      if (propData && propData.length > 0) {
-        setPerformanceData(propData);
-        return;
-      }
-      
       setIsLoading(true);
       
       try {
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://eantvimmgdmxzwrjwrop.supabase.co";
+        const authToken = session?.access_token;
         
-        const response = await fetch(`${supabaseUrl}/functions/v1/get-performance`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json"
+        // First attempt: Direct fetch with CORS headers
+        try {
+          console.log("Attempting direct fetch for performance data");
+          
+          const headers: Record<string, string> = {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          };
+          
+          if (authToken) {
+            headers.Authorization = `Bearer ${authToken}`;
           }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Error fetching performance data: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log("Performance data fetched:", data);
+          
+          const response = await fetch(`${supabaseUrl}/functions/v1/get-performance`, {
+            method: "GET",
+            headers,
+            credentials: "omit",
+            mode: "cors"
+          });
+          
+          if (!response.ok) {
+            throw new Error(`Error fetching performance data: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          console.log("Performance data fetched:", data);
 
-        if (data && Array.isArray(data.performance_graph)) {
-          setPerformanceData(data.performance_graph);
-        } else {
-          generateFallbackData();
+          if (data && Array.isArray(data.performance_graph)) {
+            setPerformanceData(data.performance_graph);
+            return;
+          }
+        } catch (directError) {
+          console.warn("Direct fetch for performance data failed:", directError);
+          
+          // Second attempt: Use invoke method
+          try {
+            console.log("Attempting invoke for performance data");
+            
+            const { data, error } = await supabase.functions.invoke('get-performance', {
+              headers: authToken ? { Authorization: `Bearer ${authToken}` } : {}
+            });
+            
+            if (error) {
+              throw error;
+            }
+            
+            if (data && Array.isArray(data.performance_graph)) {
+              setPerformanceData(data.performance_graph);
+              return;
+            }
+          } catch (invokeError) {
+            console.error("Invoke method for performance data failed:", invokeError);
+          }
         }
+        
+        // If both methods fail, use fallback data
+        generateFallbackData();
       } catch (error) {
         console.error('Failed to fetch performance data:', error);
         toast.error("Could not load performance data. Using sample data.");
@@ -66,14 +108,29 @@ export const PerformanceGraphCard = ({
       const today = new Date();
       const dummyData = [];
       
-      for (let i = 9; i >= 0; i--) {
+      // Generate last 15 days with a realistic pattern
+      for (let i = 14; i >= 0; i--) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
         const formattedDate = date.toISOString().split('T')[0];
         
+        // Create a pattern with more realistic data
+        let attempted = 0;
+        
+        if (i % 7 === 0 || i % 7 === 1) {
+          // Weekend days have more activity
+          attempted = Math.floor(Math.random() * 20) + 15;
+        } else if (i % 7 === 3) {
+          // Mid-week dip
+          attempted = Math.floor(Math.random() * 10) + 5;
+        } else {
+          // Regular days
+          attempted = Math.floor(Math.random() * 15) + 10;
+        }
+        
         dummyData.push({
           date: formattedDate,
-          attempted: Math.floor(Math.random() * 30) + 10,
+          attempted,
         });
       }
       
@@ -81,7 +138,7 @@ export const PerformanceGraphCard = ({
     };
 
     fetchPerformanceData();
-  }, [propData]);
+  }, [propData, session]);
 
   const displayData = propData || performanceData || [];
 
@@ -119,7 +176,10 @@ export const PerformanceGraphCard = ({
           <h3 className="text-lg font-semibold text-gray-800">Performance Analysis</h3>
         </div>
         <div className="h-64 flex items-center justify-center">
-          <p className="text-gray-500">Loading performance data...</p>
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-gray-500">Loading performance data...</p>
+          </div>
         </div>
       </Card>
     );

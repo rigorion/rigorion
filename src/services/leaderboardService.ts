@@ -1,103 +1,139 @@
 
 import { supabase } from '@/lib/supabase';
 import { LeaderboardEntry } from './types/progressTypes';
+import { toast } from 'sonner';
 
 let leaderboardCache: LeaderboardEntry[] | null = null;
+const SUPABASE_URL = "https://eantvimmgdmxzwrjwrop.supabase.co";
 
 export async function getLeaderboard(limit: number = 10): Promise<LeaderboardEntry[]> {
   try {
+    // Use cache if available
     if (leaderboardCache) {
       return leaderboardCache;
     }
 
-    // Try fetching from edge function
+    // Get auth token for all requests
+    const { data: { session } } = await supabase.auth.getSession();
+    const authToken = session?.access_token;
+    
+    // First attempt: direct fetch with CORS headers
     try {
-      // First, try using direct fetch which is known to work for some endpoints
-      const supabaseUrl = "https://eantvimmgdmxzwrjwrop.supabase.co";
-      const response = await fetch(`${supabaseUrl}/functions/v1/get-leaderboard`, {
+      console.log("Attempting direct fetch for leaderboard data");
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      };
+      
+      if (authToken) {
+        headers.Authorization = `Bearer ${authToken}`;
+      }
+      
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/get-leaderboard`, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        headers,
+        credentials: 'omit',
+        mode: 'cors'
       });
       
       if (response.ok) {
         const leaderboardData = await response.json();
         
         if (leaderboardData && leaderboardData.length > 0) {
-          const formattedData: LeaderboardEntry[] = leaderboardData.map((entry: any, index: number) => ({
-            rank: entry.rank || index + 1,
-            name: entry.name || 'Unknown',
-            problems: entry.problems_solved || 0,
-            accuracy: `${entry.accuracy || 0}%`,
-            score: entry.projected_score || 0,
-            trend: entry.trend_percent_change || 0,
-            isCurrentUser: entry.is_current_user || false
-          }));
-
+          const formattedData = formatLeaderboardData(leaderboardData);
           leaderboardCache = formattedData;
           return formattedData;
         }
       } else {
-        console.warn("Direct fetch failed, trying invoke...");
+        console.warn("Direct fetch for leaderboard failed:", response.status, response.statusText);
         throw new Error("Direct fetch failed");
       }
     } catch (directFetchError) {
-      // If direct fetch fails, try with supabase invoke
+      console.warn("Direct fetch method failed:", directFetchError);
+      
+      // Second attempt: Use supabase.functions.invoke method
       try {
-        // Add auth header to avoid 401 errors
-        const { data: { session } } = await supabase.auth.getSession();
-        const authHeader = session?.access_token ? `Bearer ${session.access_token}` : '';
-
+        console.log("Attempting invoke method for leaderboard");
         const { data: leaderboardData, error } = await supabase.functions.invoke('get-leaderboard', {
           body: { limit },
-          headers: {
-            Authorization: authHeader
-          }
+          headers: authToken ? { Authorization: `Bearer ${authToken}` } : {}
         });
 
         if (error) {
-          console.error('Edge function error:', error);
+          console.error('Edge function invoke error:', error);
           throw error;
         }
 
         if (leaderboardData && leaderboardData.length > 0) {
-          const formattedData: LeaderboardEntry[] = leaderboardData.map((entry: any, index: number) => ({
-            rank: entry.rank || index + 1,
-            name: entry.name || 'Unknown',
-            problems: entry.problems_solved || 0,
-            accuracy: `${entry.accuracy || 0}%`,
-            score: entry.projected_score || 0,
-            trend: entry.trend_percent_change || 0,
-            isCurrentUser: entry.is_current_user || false
-          }));
-
+          const formattedData = formatLeaderboardData(leaderboardData);
           leaderboardCache = formattedData;
           return formattedData;
+        } else {
+          throw new Error("No leaderboard data returned from invoke");
         }
-      } catch (error) {
-        console.error('Error fetching from edge function:', error);
+      } catch (invokeError) {
+        console.error('All fetch methods failed for leaderboard:', invokeError);
+        toast.error("Couldn't load leaderboard data. Using sample data.");
       }
     }
 
-    // Fallback to dummy data
-    const dummyEntries: LeaderboardEntry[] = [
-      { rank: 1, name: 'Alex Zhang', problems: 456, accuracy: '94%', score: 98, trend: 3, isCurrentUser: false },
-      { rank: 2, name: 'Maria Rodriguez', problems: 421, accuracy: '92%', score: 96, trend: 0, isCurrentUser: false },
-      { rank: 3, name: 'David Kim', problems: 398, accuracy: '91%', score: 95, trend: 1, isCurrentUser: false },
-      { rank: 4, name: 'Jessica Taylor', problems: 387, accuracy: '89%', score: 93, trend: -2, isCurrentUser: false },
-      { rank: 5, name: 'Raj Patel', problems: 365, accuracy: '88%', score: 91, trend: 5, isCurrentUser: false },
-      { rank: 6, name: 'Sophie Chen', problems: 342, accuracy: '87%', score: 90, trend: -1, isCurrentUser: false },
-      { rank: 7, name: 'James Wilson', problems: 321, accuracy: '85%', score: 89, trend: 0, isCurrentUser: false },
-      { rank: 8, name: 'Emma Johnson', problems: 310, accuracy: '84%', score: 88, trend: 2, isCurrentUser: false },
-      { rank: 9, name: 'Michael Brown', problems: 298, accuracy: '82%', score: 86, trend: -3, isCurrentUser: false },
-      { rank: 10, name: 'Current User', problems: 248, accuracy: '84%', score: 92, isCurrentUser: true, trend: 4 },
-    ];
-
-    leaderboardCache = dummyEntries;
-    return dummyEntries;
+    // Fallback: Generate more realistic dummy data
+    return generateFallbackLeaderboardData(limit);
   } catch (error) {
-    console.error('Error fetching leaderboard:', error);
-    throw error;
+    console.error('Error in leaderboard service:', error);
+    toast.error("Error loading leaderboard. Using sample data.");
+    return generateFallbackLeaderboardData(limit);
   }
+}
+
+// Helper function to format leaderboard data consistently
+function formatLeaderboardData(data: any[]): LeaderboardEntry[] {
+  return data.map((entry: any, index: number) => ({
+    rank: entry.rank || index + 1,
+    name: entry.name || entry.user_name || 'Unknown',
+    problems: entry.problems_solved || entry.problems || 0,
+    accuracy: typeof entry.accuracy === 'string' ? entry.accuracy : `${entry.accuracy || 0}%`,
+    score: entry.projected_score || entry.score || 0,
+    trend: entry.trend_percent_change || entry.trend || 0,
+    streak: entry.streak_days || entry.streak || 0,
+    isCurrentUser: entry.is_current_user || false
+  }));
+}
+
+// Generate fallback leaderboard data
+function generateFallbackLeaderboardData(limit: number): LeaderboardEntry[] {
+  console.log("Generating fallback leaderboard data");
+  
+  const dummyNames = [
+    'Alex Zhang', 'Maria Rodriguez', 'David Kim', 'Jessica Taylor', 
+    'Raj Patel', 'Sophie Chen', 'James Wilson', 'Emma Johnson', 
+    'Michael Brown', 'Omar Hassan', 'Priya Sharma', 'Kenji Tanaka',
+    'Sarah Miller', 'Carlos Gomez', 'Aisha Abdullah', 'Ryan Park',
+    'Fatima Al-Farsi', 'Diego Hernandez', 'Wei Li', 'Hannah Smith'
+  ];
+  
+  // Determine where to place the current user
+  const currentUserRank = Math.floor(Math.random() * Math.min(10, limit)) + 1;
+  
+  const entries: LeaderboardEntry[] = [];
+  
+  for (let i = 1; i <= limit; i++) {
+    const isCurrentUser = i === currentUserRank;
+    const baseScore = 1000 - ((i-1) * (900/limit));
+    
+    entries.push({
+      rank: i,
+      name: isCurrentUser ? 'You' : dummyNames[i % dummyNames.length],
+      problems: Math.floor(baseScore / 10) + Math.floor(Math.random() * 20),
+      accuracy: `${Math.floor(98 - ((i-1) * (15/limit)))}%`,
+      score: Math.floor(baseScore),
+      trend: Math.floor(Math.random() * 20) - (i > limit/2 ? 10 : 5), // Higher ranks tend to have positive trends
+      streak: Math.floor(Math.random() * 15) + (i <= 3 ? 10 : 0), // Top 3 have higher streaks
+      isCurrentUser
+    });
+  }
+  
+  // Sort by score to ensure proper ranking
+  leaderboardCache = entries.sort((a, b) => b.score - a.score);
+  return leaderboardCache;
 }
