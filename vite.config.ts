@@ -21,6 +21,6 @@ export default defineConfig(({ mode }: ConfigEnv) => ({
     },
   },
   worker: {
-    format: "es" as const
+    format: "es"
   }
 }));
