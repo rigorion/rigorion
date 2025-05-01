@@ -1,211 +1,72 @@
-
-import { supabase } from '@/lib/supabase';
-import { toast } from "sonner";
+const SUPABASE_URL = "https://eantvimmgdmxzwrjwrop.supabase.co";
+const API_VERSION = "v1";
 
 /**
- * Fetch data from multiple Supabase edge functions
+ * Try a direct HTTP GET to your edge function, 
+ * then fall back to supabase.functions.invoke()
  */
-export async function fetchProgressEndpoints() {
-  const endpoints = {
-    userProgress: 'get-user-progress',
-    progress: 'get-progress',
-    leaderboard: 'get-leaders-board',
-    satMath: 'get-sat-math-questions',
-    satModel: 'get-sat-model-question',
-    interactions: 'log-interaction'
+async function fetchWithInvokeFallback(
+  endpoint: string,
+  authToken?: string
+): Promise<any> {
+  const url = `${SUPABASE_URL}/functions/${API_VERSION}/${endpoint}`;
+  const headers: Record<string,string> = {
+    "Content-Type": "application/json",
+    ...(authToken && { Authorization: `Bearer ${authToken}` }),
   };
-  
-  const results: Record<string, any> = {};
-  let hasErrors = false;
-  
-  // Helper function to fetch from an endpoint with error handling
-  const fetchEndpoint = async (name: string, endpoint: string) => {
-    try {
-      console.log(`Fetching from ${endpoint}...`);
-      
-      // For get-user-progress, use direct fetch which is known to work
-      if (endpoint === 'get-user-progress') {
-        const supabaseUrl = "https://eantvimmgdmxzwrjwrop.supabase.co";
-        const response = await fetch(`${supabaseUrl}/functions/v1/${endpoint}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        console.log(`Successfully fetched ${name} data:`, data);
-        return data;
-      } else {
-        // For other endpoints, try to use supabase.functions.invoke with auth session
-        try {
-          // Get auth session if available
-          const { data: { session } } = await supabase.auth.getSession();
-          const authHeader = session?.access_token ? `Bearer ${session.access_token}` : '';
-          
-          // Use supabase.functions.invoke to avoid CORS issues
-          const { data, error } = await supabase.functions.invoke(endpoint, {
-            headers: { Authorization: authHeader }
-          });
-          
-          if (error) {
-            console.error(`Error invoking ${endpoint}:`, error);
-            throw error;
-          }
-          
-          console.log(`Successfully fetched ${name} data:`, data);
-          return data;
-        } catch (error) {
-          // If invoke fails, fall back to direct fetch for other endpoints too
-          console.warn(`Falling back to direct fetch for ${endpoint}`);
-          const supabaseUrl = "https://eantvimmgdmxzwrjwrop.supabase.co";
-          const response = await fetch(`${supabaseUrl}/functions/v1/${endpoint}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          });
-          
-          if (!response.ok) {
-            throw new Error(`Error ${response.status}: ${response.statusText}`);
-          }
-          
-          const data = await response.json();
-          console.log(`Successfully fetched ${name} data:`, data);
-          return data;
-        }
-      }
-    } catch (error) {
-      console.error(`Error fetching ${name}:`, error);
-      hasErrors = true;
-      return null;
+
+  // 1️⃣ Primary: direct fetch
+  try {
+    const res = await fetch(url, { method: "GET", headers });
+    if (!res.ok) {
+      throw new Error(`Fetch failed ${res.status}: ${res.statusText}`);
     }
-  };
-  
-  // Fetch from all endpoints concurrently
-  const promises = Object.entries(endpoints).map(
-    ([name, endpoint]) => fetchEndpoint(name, endpoint).then(data => {
-      results[name] = data;
-    })
-  );
-  
-  await Promise.all(promises);
-  
-  if (hasErrors) {
-    toast.error("Some progress data could not be loaded");
+    return await res.json();
+  } catch (fetchErr) {
+    console.warn(`Direct fetch failed for ${endpoint}:`, fetchErr);
+
+    // 2️⃣ Fallback: supabase.functions.invoke
+    const invokeOpts = { headers: authToken ? { Authorization: `Bearer ${authToken}` } : {} };
+    const { data, error } = await supabase.functions.invoke(endpoint, invokeOpts);
+    if (error) {
+      console.error(`Invoke fallback also failed for ${endpoint}:`, error);
+      throw error;
+    }
+    return data;
   }
-  
-  return results;
 }
 
-/**
- * Process the fetched data to match the format expected by the progress dashboard
- */
-export function processProgressData(data: Record<string, any>) {
-  const userProgressData = data.userProgress?.[0] || {};
-  const progressData = data.progress || [];
-  const leaderboardData = data.leaderboard || [];
-  const satMathData = data.satMath || [];
-  const satModelData = data.satModel || [];
-  const interactionsData = data.interactions || [];
-  
-  // Extract chapter performance from user progress data or create from other sources
-  const chapterPerformance = userProgressData.chapter_stats ? 
-    Object.entries(userProgressData.chapter_stats).map(([key, value]: [string, any]) => ({
-      chapterId: key,
-      chapterName: `${key.charAt(0).toUpperCase()}${key.slice(1).replace('_', ' ')}`,
-      correct: value.correct || 0,
-      incorrect: value.incorrect || 0,
-      unattempted: value.unattempted || 0
-    })) : [];
-  
-  // Extract performance graph data for the last 15 days
-  let performanceGraph = userProgressData.performance_graph || [];
-  
-  // Ensure we have 15 days of data points
-  if (performanceGraph.length < 15) {
-    const today = new Date();
-    const completeGraph = [];
-    
-    for (let i = 14; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      const formattedDate = date.toISOString().split('T')[0];
-      
-      // Try to find this date in the existing data
-      const existingEntry = performanceGraph.find(entry => entry.date === formattedDate);
-      
-      if (existingEntry) {
-        completeGraph.push(existingEntry);
-      } else {
-        // Create entry with zero attempts if no data exists
-        completeGraph.push({
-          date: formattedDate,
-          attempted: 0
-        });
-      }
-    }
-    
-    performanceGraph = completeGraph;
-  } else if (performanceGraph.length > 15) {
-    // Only keep the most recent 15 days
-    performanceGraph = performanceGraph.slice(-15);
-  }
-  
-  // Calculate additional metrics
-  const correctAnswers = userProgressData.correct_count || 0;
-  const incorrectAnswers = userProgressData.incorrect_count || 0;
-  const unattemptedQuestions = userProgressData.unattempted_count || 0;
-  const totalQuestions = correctAnswers + incorrectAnswers + unattemptedQuestions;
-  
-  // Merge all the data into the format expected by the progress components
-  return {
-    userId: userProgressData.user_id || "unknown",
-    totalProgressPercent: userProgressData.total_progress_percent || 
-      Math.round(((correctAnswers + incorrectAnswers) / (totalQuestions || 1)) * 100),
-    correctAnswers,
-    incorrectAnswers,
-    unattemptedQuestions,
-    questionsAnsweredToday: userProgressData.questions_answered_today || 0,
-    streak: userProgressData.streak_days || 0,
-    averageScore: userProgressData.avg_score || 0,
-    rank: userProgressData.rank || 0,
-    projectedScore: userProgressData.projected_score || 0,
-    speed: userProgressData.speed || 0,
-    easyAccuracy: (userProgressData.easy?.accuracy * 100) || 0,
-    easyAvgTime: (userProgressData.easy?.avg_time / 60) || 0,
-    easyCompleted: userProgressData.easy?.completed || 0,
-    easyTotal: userProgressData.easy?.total || 0,
-    mediumAccuracy: (userProgressData.medium?.accuracy * 100) || 0,
-    mediumAvgTime: (userProgressData.medium?.avg_time / 60) || 0,
-    mediumCompleted: userProgressData.medium?.completed || 0, 
-    mediumTotal: userProgressData.medium?.total || 0,
-    hardAccuracy: (userProgressData.hard?.accuracy * 100) || 0,
-    hardAvgTime: (userProgressData.hard?.avg_time / 60) || 0,
-    hardCompleted: userProgressData.hard?.completed || 0,
-    hardTotal: userProgressData.hard?.total || 0,
-    goalAchievementPercent: userProgressData.goal_achievement_percent || 0,
-    averageTime: (userProgressData.avg_time_per_question / 60) || 0,
-    correctAnswerAvgTime: (userProgressData.avg_time_correct / 60) || 0,
-    incorrectAnswerAvgTime: (userProgressData.avg_time_incorrect / 60) || 0,
-    longestQuestionTime: (userProgressData.longest_time / 60) || 0,
-    performanceGraph,
-    chapterPerformance,
-    goals: (userProgressData.goals || []).map((goal: any) => ({
-      id: String(goal.id || Math.random()),
-      title: goal.title || '',
-      targetValue: goal.target || 100,
-      currentValue: goal.completed || 0,
-      dueDate: goal.due_date || '2024-05-01'
-    })),
-    // Additional data from other endpoints
-    satMathData,
-    satModelData,
-    interactionsData,
-    progressData
+export async function fetchProgressEndpoints() {
+  const endpoints = {
+    userProgress: "get-user-progress",
+    progress:     "get-progress",
+    leaderboard:  "get-leaders-board",
+    satMath:      "get-sat-math-questions",
+    satModel:     "get-sat-model-question",
+    interactions: "log-interaction",
   };
+
+  const results: Record<string, any> = {};
+  const failed: string[] = [];
+
+  // Grab session token once
+  const { data: { session } } = await supabase.auth.getSession();
+  const authToken = session?.access_token;
+
+  await Promise.all(
+    Object.entries(endpoints).map(async ([key, endpoint]) => {
+      try {
+        results[key] = await fetchWithInvokeFallback(endpoint, authToken);
+      } catch {
+        failed.push(key);
+        results[key] = null;
+      }
+    })
+  );
+
+  if (failed.length) {
+    toast.error(`Failed to load: ${failed.join(", ")}`);
+  }
+
+  return results;
 }
