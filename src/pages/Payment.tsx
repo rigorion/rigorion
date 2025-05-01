@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useAuth } from "@/hooks/useAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -62,7 +63,7 @@ const Payment = () => {
                   <CardDescription>Expires {card.details.expiry}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p>Cardholder: {session?.user?.name || 'Guest'}</p>
+                  <p>Cardholder: {session?.user?.email || 'Guest'}</p>
                 </CardContent>
                 <CardFooter>
                   <Button onClick={handlePayment}>Pay with this Card</Button>
@@ -106,7 +107,11 @@ const Payment = () => {
               </div>
             </div>
             <div className="flex items-center mt-2">
-              <Checkbox id="save-card" checked={saveCard} onCheckedChange={setSaveCard} />
+              <Checkbox 
+                id="save-card" 
+                checked={saveCard} 
+                onCheckedChange={(checked) => setSaveCard(checked === true)}
+              />
               <Label htmlFor="save-card" className="ml-2">Save this card</Label>
             </div>
             <Button className="mt-4" onClick={handleAddCard}>Add Card</Button>
