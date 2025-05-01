@@ -21,6 +21,6 @@ export default defineConfig(({ mode }: ConfigEnv) => ({
     },
   },
   worker: {
-    format: "es"
+    format: "es" as "es" | "iife"
   }
 }));
