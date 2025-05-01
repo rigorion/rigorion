@@ -10,7 +10,7 @@ import { ErrorDisplay } from "@/components/progress/ErrorDisplay";
 import { Layout } from "@/components/layout/Layout";
 import type { TimePeriod, ProgressTab, UserProgressData } from "@/types/progress";
 import { toast } from "sonner";
-import { TrendingUp, Trophy, BookOpen } from "lucide-react";
+import { TrendingUp, Trophy } from "lucide-react";
 import { ProgressNavigation } from "@/components/progress/ProgressNavigation";
 import { supabase } from "@/lib/supabase";
 import { TestMocksList } from "@/components/progress/TestMocksList";
@@ -273,39 +273,12 @@ const Progress = () => {
         <Tabs defaultValue={activeTab} value={activeTab} onValueChange={value => setActiveTab(value as ProgressTab)} className="w-full">
           <div className="container mx-auto p-6">
             <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-              <h1 className="font-bold text-lg text-center">Progress Dashboard</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="font-bold text-lg">Progress Dashboard</h1>
+                <h2 className="font-cursive text-xl sm:text-2xl text-red-dark font-semibold italic ml-2">Rigorion</h2>
+              </div>
               
-              <div className="flex items-center gap-4">
-                <div className="w-56">
-                  <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-                    <SelectTrigger className="w-full">
-                      <div className="flex items-center gap-2">
-                        <BookOpen className="h-4 w-4" />
-                        <SelectValue placeholder="Select a course" />
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {courses.map((course) => (
-                        <SelectItem key={course.id} value={course.id}>
-                          <div className="flex items-center justify-between w-full">
-                            <span>{course.name}</span>
-                            {course.status === 'active' && (
-                              <span className="text-xs px-2 py-1 rounded bg-green-100 text-green-600">
-                                Active: {course.expiresIn} days
-                              </span>
-                            )}
-                            {course.status === 'expired' && (
-                              <span className="text-xs px-2 py-1 rounded bg-red-100 text-red-600">
-                                Expired
-                              </span>
-                            )}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
+              <div className="flex items-center">
                 <TabsList>
                   <TabsTrigger value="performance" className="flex items-center gap-2">
                     <TrendingUp className="h-4 w-4" />

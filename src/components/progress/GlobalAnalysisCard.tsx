@@ -52,7 +52,7 @@ export const GlobalAnalysisCard = ({
             
             <div className="relative h-2 w-full bg-gray-100 rounded-full overflow-hidden">
               <div 
-                className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full"
+                className="absolute top-0 left-0 h-full bg-gradient-to-r from-gray-200 to-blue-300 rounded-full"
                 style={{ width: `${percentile}%` }}
               />
             </div>
