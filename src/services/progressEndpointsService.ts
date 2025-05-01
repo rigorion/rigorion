@@ -6,36 +6,36 @@ import { toast } from "sonner";
  */
 export async function fetchProgressEndpoints() {
   const endpoints = {
-    userProgress: '/functions/v1/get-user-progress',
-    progress: '/functions/v1/get-progress',
-    leaderboard: '/functions/v1/get-leaders-board',
-    satMath: '/functions/v1/get-sat-math-questions',
-    satModel: '/functions/v1/get-sat-model-question',
-    interactions: '/functions/v1/log-interaction'
+    userProgress: 'get-user-progress',
+    progress: 'get-progress',
+    leaderboard: 'get-leaders-board',
+    satMath: 'get-sat-math-questions',
+    satModel: 'get-sat-model-question',
+    interactions: 'log-interaction'
   };
   
   const results: Record<string, any> = {};
   let hasErrors = false;
   
-  // Get base URL for Supabase
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://eantvimmgdmxzwrjwrop.supabase.co';
-  
   // Helper function to fetch from an endpoint with error handling
   const fetchEndpoint = async (name: string, endpoint: string) => {
     try {
       console.log(`Fetching from ${endpoint}...`);
-      const response = await fetch(`${supabaseUrl}${endpoint}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
+      
+      // Get auth session if available
+      const { data: { session } } = await supabase.auth.getSession();
+      const authHeader = session?.access_token ? `Bearer ${session.access_token}` : '';
+      
+      // Use supabase.functions.invoke to avoid CORS issues
+      const { data, error } = await supabase.functions.invoke(endpoint, {
+        headers: { Authorization: authHeader }
       });
       
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      if (error) {
+        console.error(`Error invoking ${endpoint}:`, error);
+        throw error;
       }
       
-      const data = await response.json();
       console.log(`Successfully fetched ${name} data:`, data);
       return data;
     } catch (error) {

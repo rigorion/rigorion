@@ -22,7 +22,7 @@ export const ChapterProgress = ({
   };
 
   return (
-    <div className="space-y-4 h-full flex flex-col">
+    <div className="space-y-4 h-[480px] flex flex-col">
       <h3 className="text-lg font-semibold mb-4 text-center text-gray-800">Chapter Performance</h3>
       
       <div className="flex justify-center gap-8 mb-2">

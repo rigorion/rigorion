@@ -1,3 +1,4 @@
+
 import { supabase } from '@/lib/supabase';
 import { LeaderboardEntry } from './types/progressTypes';
 
@@ -9,9 +10,17 @@ export async function getLeaderboard(limit: number = 10): Promise<LeaderboardEnt
       return leaderboardCache;
     }
 
+    // Try fetching from edge function
     try {
+      // Add auth header to avoid 401 errors
+      const { data: { session } } = await supabase.auth.getSession();
+      const authHeader = session?.access_token ? `Bearer ${session.access_token}` : '';
+
       const { data: leaderboardData, error } = await supabase.functions.invoke('get-leaderboard', {
-        body: { limit }
+        body: { limit },
+        headers: {
+          Authorization: authHeader
+        }
       });
 
       if (error) {
@@ -20,8 +29,8 @@ export async function getLeaderboard(limit: number = 10): Promise<LeaderboardEnt
       }
 
       if (leaderboardData && leaderboardData.length > 0) {
-        const formattedData: LeaderboardEntry[] = leaderboardData.map((entry: any) => ({
-          rank: entry.rank || 0,
+        const formattedData: LeaderboardEntry[] = leaderboardData.map((entry: any, index: number) => ({
+          rank: entry.rank || index + 1,
           name: entry.name || 'Unknown',
           problems: entry.problems_solved || 0,
           accuracy: `${entry.accuracy || 0}%`,

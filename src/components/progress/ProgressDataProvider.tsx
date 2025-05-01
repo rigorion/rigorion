@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { fetchProgressEndpoints, processProgressData } from "@/services/progressEndpointsService";
 import { UserProgressData } from "@/types/progress";
 import { toast } from "sonner";
+import { ErrorDisplay } from "./ErrorDisplay";
 
 interface ProgressDataProviderProps {
   children: (data: UserProgressData) => React.ReactNode;
@@ -41,6 +42,11 @@ export const ProgressDataProvider = ({
     
     loadData();
   }, []);
+  
+  // If there's a critical error, show the error display
+  if (error && !data) {
+    return <ErrorDisplay error={error} />;
+  }
   
   // Merge fallback data with any available data from API
   const displayData = data || fallbackData;
