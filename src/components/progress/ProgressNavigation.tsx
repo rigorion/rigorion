@@ -67,7 +67,7 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
       </div>
 
       <div className="flex items-center gap-2 flex-wrap">
-        {/* Course Selection Dropdown with Expiry Badge */}
+        {/* Course Selection Dropdown with Expiry Badge - Updated Styling */}
         {courses.length > 0 && setSelectedCourse && (
           <div className="relative">
             <Select value={selectedCourse} onValueChange={setSelectedCourse}>
@@ -84,7 +84,7 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
             </Select>
             {/* Green Badge for Active Course Expiry */}
             {courses.find(c => c.id === selectedCourse)?.status === 'active' && (
-              <Badge className="absolute -top-2 -right-2 bg-green-100 text-green-800 text-xs px-2 py-0.5">
+              <Badge className="absolute -top-2 -right-2 course-expiry-badge">
                 {courses.find(c => c.id === selectedCourse)?.expiresIn} days
               </Badge>
             )}

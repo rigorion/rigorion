@@ -124,41 +124,40 @@ export const ProgressDashboard = ({
         </div>
       </div>
       
-      {/* Total Progress Card */}
-      <AnimatedItem>
-        <TotalProgressCard 
-          totalQuestions={userData.correctAnswers + userData.incorrectAnswers + userData.unattemptedQuestions} 
-          correctQuestions={userData.correctAnswers} 
-          incorrectQuestions={userData.incorrectAnswers} 
-          unattemptedQuestions={userData.unattemptedQuestions} 
-          alwaysVisible={true}
-        />
-      </AnimatedItem>
-
-      {/* Chapter Progress and Performance Graph side by side with the same height */}
+      {/* Layout change: Total Progress and Chapter Progress side by side */}
       <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        {/* Chapter Progress */}
+        {/* Total Progress Card */}
+        <AnimatedItem>
+          <TotalProgressCard 
+            totalQuestions={userData.correctAnswers + userData.incorrectAnswers + userData.unattemptedQuestions} 
+            correctQuestions={userData.correctAnswers} 
+            incorrectQuestions={userData.incorrectAnswers} 
+            unattemptedQuestions={userData.unattemptedQuestions} 
+            alwaysVisible={true}
+          />
+        </AnimatedItem>
+        
+        {/* Chapter Progress - now placed beside the total progress */}
         {visibleSections.chapterProgress && (
           <AnimatedItem>
-            <Card className="p-6 bg-white border border-gray-50 h-[480px] overflow-auto">
+            <Card className="p-6 bg-white border border-gray-50 h-full overflow-auto">
               <ChapterProgress chapters={userData.chapterPerformance} />
             </Card>
           </AnimatedItem>
         )}
-        
-        {/* Performance Graph */}
-        <AnimatedItem>
-          <PerformanceGraphCard data={userData.performanceGraph} />
-        </AnimatedItem>
       </AnimatedContainer>
 
-      {/* Mock Tests and Test Analysis side by side */}
+      {/* Performance Graph - Full width */}
+      <AnimatedItem>
+        <PerformanceGraphCard data={userData.performanceGraph} />
+      </AnimatedItem>
+
+      {/* Mock Tests and Global Analysis side by side */}
       <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <AnimatedItem>
           <TestMocksList tests={mockTests} />
         </AnimatedItem>
         
-        {/* Global Analysis - Placed beside mock tests */}
         <AnimatedItem>
           <GlobalAnalysisCard 
             percentile={85}
