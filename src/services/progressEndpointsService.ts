@@ -144,7 +144,7 @@ export function processProgressData(endpointsData: Record<string, any>): UserPro
     totalProgressPercent = total > 0 ? Math.round((attempted / total) * 100) : 0;
   }
   
-  // Generate the final processed data
+  // Generate the final processed data - Remove the properties that don't exist in UserProgressData type
   return {
     userId: userProgressData?.user_id || "unknown",
     totalProgressPercent,
@@ -178,10 +178,6 @@ export function processProgressData(endpointsData: Record<string, any>): UserPro
     longestQuestionTime: userProgressData?.longest_time ? userProgressData.longest_time / 60 : 0,
     performanceGraph,
     chapterPerformance,
-    goals,
-    satMathData: endpointsData.satMath || [],
-    satModelData: endpointsData.satModel || [],
-    interactionsData: endpointsData.interactions || [],
-    progressData: endpointsData.progress || []
+    goals
   };
 }
