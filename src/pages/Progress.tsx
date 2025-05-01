@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
@@ -267,6 +268,9 @@ const Progress = () => {
             setPeriod={(value: TimePeriod) => setPeriod(value)}
             visibleSections={visibleSections}
             setVisibleSections={handleSetVisibleSections}
+            selectedCourse={selectedCourse}
+            setSelectedCourse={setSelectedCourse}
+            courses={courses}
           />
         </header>
 

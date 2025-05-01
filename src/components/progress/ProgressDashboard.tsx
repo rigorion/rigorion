@@ -124,24 +124,18 @@ export const ProgressDashboard = ({
         </div>
       </div>
       
-      {/* Total Progress + Performance Graph Grid */}
-      <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        <AnimatedItem>
-          <TotalProgressCard 
-            totalQuestions={userData.correctAnswers + userData.incorrectAnswers + userData.unattemptedQuestions} 
-            correctQuestions={userData.correctAnswers} 
-            incorrectQuestions={userData.incorrectAnswers} 
-            unattemptedQuestions={userData.unattemptedQuestions} 
-            alwaysVisible={true}
-          />
-        </AnimatedItem>
+      {/* Total Progress Card */}
+      <AnimatedItem>
+        <TotalProgressCard 
+          totalQuestions={userData.correctAnswers + userData.incorrectAnswers + userData.unattemptedQuestions} 
+          correctQuestions={userData.correctAnswers} 
+          incorrectQuestions={userData.incorrectAnswers} 
+          unattemptedQuestions={userData.unattemptedQuestions} 
+          alwaysVisible={true}
+        />
+      </AnimatedItem>
 
-        <AnimatedItem>
-          <PerformanceGraphCard data={userData.performanceGraph} />
-        </AnimatedItem>
-      </AnimatedContainer>
-      
-      {/* Chapter Progress */}
+      {/* Chapter Progress - Moved above performance graph */}
       {visibleSections.chapterProgress && (
         <AnimatedItem>
           <Card className="p-6 bg-white border border-gray-50 h-[480px] overflow-auto">
@@ -150,10 +144,16 @@ export const ProgressDashboard = ({
         </AnimatedItem>
       )}
 
-      {/* Test Mocks List */}
-      <AnimatedItem>
-        <TestMocksList tests={mockTests} />
-      </AnimatedItem>
+      {/* Mock Tests and Performance Graph side by side */}
+      <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <AnimatedItem>
+          <TestMocksList tests={mockTests} />
+        </AnimatedItem>
+        
+        <AnimatedItem>
+          <PerformanceGraphCard data={userData.performanceGraph} />
+        </AnimatedItem>
+      </AnimatedContainer>
 
       {/* Difficulty Stats */}
       <DifficultyStatsGrid stats={difficultyStats} />

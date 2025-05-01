@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Settings, ChevronDown } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { TimePeriod } from "@/types/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type VisibleSections = {
   totalProgress: boolean;
@@ -20,6 +21,9 @@ interface ProgressNavigationProps {
   setPeriod: (period: TimePeriod) => void;
   visibleSections: VisibleSections;
   setVisibleSections: (sections: Record<string, boolean>) => void;
+  selectedCourse?: string;
+  setSelectedCourse?: (courseId: string) => void;
+  courses?: Array<{ id: string; name: string }>;
 }
 
 export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
@@ -27,7 +31,10 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
   setSidebarOpen,
   setPeriod,
   visibleSections,
-  setVisibleSections
+  setVisibleSections,
+  selectedCourse,
+  setSelectedCourse,
+  courses = []
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   
@@ -59,6 +66,22 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
       </div>
 
       <div className="flex items-center gap-2 flex-wrap">
+        {/* Course Selection Dropdown */}
+        {courses.length > 0 && setSelectedCourse && (
+          <Select value={selectedCourse} onValueChange={setSelectedCourse}>
+            <SelectTrigger className="w-[180px] bg-white hover:bg-gray-50 shadow-sm border-gray-100">
+              <SelectValue placeholder="Select Course" />
+            </SelectTrigger>
+            <SelectContent>
+              {courses.map((course) => (
+                <SelectItem key={course.id} value={course.id}>
+                  {course.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+        
         {/* Time Period Dropdown */}
         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
           <DropdownMenuTrigger asChild>
