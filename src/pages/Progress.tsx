@@ -275,7 +275,6 @@ const Progress = () => {
             <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
               <div className="flex items-center gap-2">
                 <h1 className="font-bold text-lg">Progress Dashboard</h1>
-                <h2 className="font-cursive text-xl sm:text-2xl text-red-dark font-semibold italic ml-2">Rigorion</h2>
               </div>
               
               <div className="flex items-center">

@@ -8,6 +8,16 @@
     box-shadow: 0 0 5px rgba(239, 68, 68, 0.4), 0 0 10px rgba(239, 68, 68, 0.2);
     animation: glow 2s infinite ease-in-out;
   }
+  
+  .font-cursive {
+    font-family: 'Dancing Script', cursive;
+  }
+  
+  .smooth-icon {
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: all 0.3s ease;
+  }
 }
 
 @keyframes pulse-subtle {

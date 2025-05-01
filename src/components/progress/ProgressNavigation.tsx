@@ -30,7 +30,6 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
   setVisibleSections
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isCourseDropdownOpen, setIsCourseDropdownOpen] = useState(false);
   
   return (
     <div className="flex items-center justify-between flex-wrap gap-2">
@@ -39,7 +38,7 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
           variant="ghost" 
           size="icon" 
           onClick={() => setSidebarOpen(!sidebarOpen)} 
-          className="lg:hidden hover:bg-gray-100 transition-colors bg-white text-blue-500 rounded-full shadow-sm"
+          className="hover:bg-gray-100 transition-colors bg-white text-blue-500 rounded-full shadow-sm"
         >
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
@@ -56,6 +55,7 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
             <path d="M3 7h18M3 12h18M3 17h18" />
           </svg>
         </Button>
+        <h2 className="font-cursive text-xl sm:text-2xl text-red-dark font-semibold italic">Rigorion</h2>
       </div>
 
       <div className="flex items-center gap-2 flex-wrap">
