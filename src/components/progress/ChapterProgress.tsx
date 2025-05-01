@@ -51,7 +51,7 @@ export const ChapterProgress = ({
               <th className="text-right py-2 px-3 font-medium text-gray-600">Progress</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-gray-100">
             {chapters.map((chapter, index) => {
               const totalQuestions = chapter.correct + chapter.incorrect + chapter.unattempted;
               const coveredQuestions = chapter.correct + chapter.incorrect;
@@ -63,7 +63,6 @@ export const ChapterProgress = ({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
-                  className="border-t border-gray-100"
                 >
                   <td className="py-2 px-3 font-medium">{chapter.chapterName}</td>
                   <td className="py-2 px-3 text-center text-emerald-600">{chapter.correct}</td>
