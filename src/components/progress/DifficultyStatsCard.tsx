@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Clock, CheckCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
@@ -52,9 +53,11 @@ export const DifficultyStatCard = ({
                   className="absolute top-0 left-0 h-full transition-all duration-500 rounded-full animate-pulse-subtle"
                   style={{
                     width: `${accuracy}%`,
-                    backgroundColor: title.toLowerCase().includes('easy') || title.toLowerCase().includes('medium') 
-                      ? '#8B5CF6' 
-                      : '#3b82f6'
+                    backgroundColor: title.toLowerCase().includes('easy') 
+                      ? '#93c5fd' // light blue
+                      : title.toLowerCase().includes('medium')
+                        ? '#60a5fa' // medium blue
+                        : '#3b82f6' // darker blue
                   }}
                 />
               </div>

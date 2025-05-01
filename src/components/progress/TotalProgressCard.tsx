@@ -34,7 +34,11 @@ export const TotalProgressCard = ({
   const [localProgress, setLocalProgress] = useState<ProgressData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const [rippleEffect, setRippleEffect] = useState(false);
+  const [rippleEffects, setRippleEffects] = useState<Array<{id: number, active: boolean}>>([
+    {id: 1, active: false},
+    {id: 2, active: false},
+    {id: 3, active: false}
+  ]);
 
   useEffect(() => {
     const fetchProgress = async () => {
@@ -84,13 +88,31 @@ export const TotalProgressCard = ({
 
     fetchProgress();
 
-    // Add ripple effect animation every 3 seconds
-    const interval = setInterval(() => {
-      setRippleEffect(true);
-      setTimeout(() => setRippleEffect(false), 1500);
-    }, 3000);
+    // Enhanced multi-wave ripple effect
+    const rippleInterval = setInterval(() => {
+      // Start ripples in sequence with slight delay between each
+      setRippleEffects(prev => {
+        const newEffects = [...prev];
+        const nextIndex = newEffects.findIndex(e => !e.active);
+        
+        if (nextIndex !== -1) {
+          newEffects[nextIndex].active = true;
+          
+          // Reset this ripple after animation completes
+          setTimeout(() => {
+            setRippleEffects(current => {
+              const resetEffects = [...current];
+              resetEffects[nextIndex].active = false;
+              return resetEffects;
+            });
+          }, 2000);
+        }
+        
+        return newEffects;
+      });
+    }, 800);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(rippleInterval);
   }, []);
 
   const displayData = propsProgressData || {
@@ -118,6 +140,13 @@ export const TotalProgressCard = ({
   const incorrectOffset = circumference * (1 - incorrectQuestionsValue / totalQuestionsValue);
   const unattemptedOffset = circumference * (1 - unattemptedQuestionsValue / totalQuestionsValue);
 
+  // Colors for the ripple effects
+  const rippleColors = [
+    'rgba(59, 130, 246, 0.5)', // Blue
+    'rgba(16, 185, 129, 0.5)', // Green
+    'rgba(99, 102, 241, 0.5)'  // Indigo
+  ];
+
   return (
     <Card className="p-6 col-span-1 bg-white hover:shadow-sm transition-all duration-300 rounded-xl border border-gray-50 h-[480px]">
       <h3 className="text-lg font-semibold mb-6 text-center text-gray-800">
@@ -128,19 +157,28 @@ export const TotalProgressCard = ({
       <div className="flex flex-col items-center">
         {/* Fixed circular progress container */}
         <div className="relative flex items-center justify-center mb-8 w-[260px] h-[260px]">
-          <motion.div 
-            className="absolute inset-0 rounded-full"
-            animate={{
-              boxShadow: rippleEffect 
-                ? [
-                    '0 0 0 0px rgba(59, 130, 246, 0.5)',
-                    '0 0 0 10px rgba(59, 130, 246, 0)',
-                    '0 0 0 20px rgba(59, 130, 246, 0)'
-                  ]
-                : '0 0 0 0px rgba(59, 130, 246, 0)'
-            }}
-            transition={{ duration: 1.5, ease: 'easeOut' }}
-          />
+          {/* Multiple ripple effects */}
+          {rippleEffects.map((effect, idx) => (
+            <motion.div 
+              key={effect.id}
+              className="absolute inset-0 rounded-full"
+              initial={{ boxShadow: '0 0 0 0px rgba(0,0,0,0)' }}
+              animate={effect.active ? {
+                boxShadow: [
+                  `0 0 0 0px ${rippleColors[idx % rippleColors.length]}`,
+                  `0 0 0 4px ${rippleColors[idx % rippleColors.length].replace('0.5', '0.3')}`,
+                  `0 0 0 10px ${rippleColors[idx % rippleColors.length].replace('0.5', '0.2')}`,
+                  `0 0 0 18px ${rippleColors[idx % rippleColors.length].replace('0.5', '0.1')}`,
+                  `0 0 0 26px ${rippleColors[idx % rippleColors.length].replace('0.5', '0')}`
+                ]
+              } : {}}
+              transition={{ 
+                duration: 2,
+                ease: 'linear',
+                times: [0, 0.2, 0.5, 0.8, 1]
+              }}
+            />
+          ))}
           
           <svg 
             className="absolute inset-0 w-full h-full -rotate-90"

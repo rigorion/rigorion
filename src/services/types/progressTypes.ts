@@ -1,7 +1,8 @@
 
-// Common interfaces for progress services
+export type TimePeriod = "daily" | "weekly" | "monthly" | "yearly";
+export type ProgressTab = "performance" | "leaderboard";
 
-export interface UserProgress {
+export interface UserProgressData {
   userId: string;
   totalProgressPercent: number;
   correctAnswers: number;
@@ -30,24 +31,24 @@ export interface UserProgress {
   correctAnswerAvgTime: number;
   incorrectAnswerAvgTime: number;
   longestQuestionTime: number;
-  performanceGraph: {
+  performanceGraph: Array<{
     date: string;
     attempted: number;
-  }[];
-  chapterPerformance: {
+  }>;
+  chapterPerformance: Array<{
     chapterId: string;
     chapterName: string;
     correct: number;
     incorrect: number;
     unattempted: number;
-  }[];
-  goals: {
+  }>;
+  goals: Array<{
     id: string;
     title: string;
     targetValue: number;
     currentValue: number;
     dueDate: string;
-  }[];
+  }>;
 }
 
 export interface LeaderboardEntry {
@@ -58,4 +59,5 @@ export interface LeaderboardEntry {
   score: number;
   trend: number;
   isCurrentUser: boolean;
+  streak?: number;
 }

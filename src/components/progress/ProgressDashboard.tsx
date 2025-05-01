@@ -199,6 +199,23 @@ export const ProgressDashboard = ({
             overflow: visible;
           }
         }
+        
+        /* Add animation for the ripple effect */
+        @keyframes pulse-subtle {
+          0% {
+            opacity: 0.8;
+          }
+          50% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0.8;
+          }
+        }
+        
+        .animate-pulse-subtle {
+          animation: pulse-subtle 3s infinite ease-in-out;
+        }
         `}
       </style>
     </AnimatedContainer>
