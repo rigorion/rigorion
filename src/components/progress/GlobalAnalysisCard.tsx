@@ -78,51 +78,54 @@ export const GlobalAnalysisCard = ({
             </div>
           </div>
           
-          <div className="mt-4">
-            <h4 className="text-md font-medium mb-2">Objective Accomplishment</h4>
-            <div className="flex flex-col space-y-3">
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm text-gray-600">Objectives Set</span>
-                  <span className="text-sm font-medium">4</span>
+          {/* Side by side layout for Objective Accomplishment and Strength Areas */}
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            {/* Objective Accomplishment */}
+            <div>
+              <h4 className="text-md font-medium mb-2">Objective Accomplishment</h4>
+              <div className="flex flex-col space-y-3">
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-sm text-gray-600">Objectives Set</span>
+                    <span className="text-sm font-medium">4</span>
+                  </div>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-sm text-gray-600">Objectives Completed</span>
+                    <span className="text-sm font-medium">3</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Completion Rate</span>
+                    <span className="text-sm font-medium text-green-500">75%</span>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm text-gray-600">Objectives Completed</span>
-                  <span className="text-sm font-medium">3</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Completion Rate</span>
-                  <span className="text-sm font-medium text-green-500">75%</span>
+                
+                <div className="relative h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                  <div 
+                    className="absolute top-0 left-0 h-full bg-green-500 rounded-full"
+                    style={{ width: '75%' }}
+                  />
                 </div>
               </div>
-              
-              <div className="relative h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-                <div 
-                  className="absolute top-0 left-0 h-full bg-green-500 rounded-full"
-                  style={{ width: '75%' }}
-                />
-              </div>
             </div>
-          </div>
-          
-          <div className="mt-2">
-            <div className="flex items-center justify-between">
-              <h4 className="text-md font-medium">Strength Areas</h4>
+            
+            {/* Strength Areas */}
+            <div>
+              <h4 className="text-md font-medium mb-2">Strength Areas</h4>
+              <ul className="space-y-1">
+                <li className="text-sm text-gray-600 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                  Quantitative Reasoning (92%)
+                </li>
+                <li className="text-sm text-gray-600 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                  Geometry (88%)
+                </li>
+                <li className="text-sm text-gray-600 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                  Verbal Reasoning (78%)
+                </li>
+              </ul>
             </div>
-            <ul className="mt-2 space-y-1">
-              <li className="text-sm text-gray-600 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                Quantitative Reasoning (92%)
-              </li>
-              <li className="text-sm text-gray-600 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                Geometry (88%)
-              </li>
-              <li className="text-sm text-gray-600 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                Verbal Reasoning (78%)
-              </li>
-            </ul>
           </div>
         </div>
       </CardContent>

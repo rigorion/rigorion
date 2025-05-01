@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -37,7 +36,9 @@ export const TotalProgressCard = ({
   const [rippleEffects, setRippleEffects] = useState<Array<{id: number, active: boolean}>>([
     {id: 1, active: false},
     {id: 2, active: false},
-    {id: 3, active: false}
+    {id: 3, active: false},
+    {id: 4, active: false},
+    {id: 5, active: false}
   ]);
 
   useEffect(() => {
@@ -88,7 +89,7 @@ export const TotalProgressCard = ({
 
     fetchProgress();
 
-    // Enhanced multi-wave ripple effect
+    // Enhanced multi-wave ripple effect with light grey and light blue colors
     const rippleInterval = setInterval(() => {
       // Start ripples in sequence with slight delay between each
       setRippleEffects(prev => {
@@ -105,12 +106,12 @@ export const TotalProgressCard = ({
               resetEffects[nextIndex].active = false;
               return resetEffects;
             });
-          }, 2000);
+          }, 1800);
         }
         
         return newEffects;
       });
-    }, 800);
+    }, 600);
 
     return () => clearInterval(rippleInterval);
   }, []);
@@ -140,11 +141,13 @@ export const TotalProgressCard = ({
   const incorrectOffset = circumference * (1 - incorrectQuestionsValue / totalQuestionsValue);
   const unattemptedOffset = circumference * (1 - unattemptedQuestionsValue / totalQuestionsValue);
 
-  // Colors for the ripple effects
+  // Colors for the ripple effects - updated to light grey and light blue only
   const rippleColors = [
-    'rgba(59, 130, 246, 0.5)', // Blue
-    'rgba(16, 185, 129, 0.5)', // Green
-    'rgba(99, 102, 241, 0.5)'  // Indigo
+    'rgba(200, 200, 201, 0.3)', // Light Grey
+    'rgba(211, 228, 253, 0.35)', // Light Blue
+    'rgba(200, 200, 201, 0.25)', // Light Grey (slightly different opacity)
+    'rgba(211, 228, 253, 0.3)', // Light Blue (slightly different opacity)
+    'rgba(200, 200, 201, 0.2)', // Light Grey (another opacity)
   ];
 
   return (
@@ -157,7 +160,7 @@ export const TotalProgressCard = ({
       <div className="flex flex-col items-center">
         {/* Fixed circular progress container */}
         <div className="relative flex items-center justify-center mb-8 w-[260px] h-[260px]">
-          {/* Multiple ripple effects */}
+          {/* Multiple ripple effects - thinner waves */}
           {rippleEffects.map((effect, idx) => (
             <motion.div 
               key={effect.id}
@@ -166,16 +169,17 @@ export const TotalProgressCard = ({
               animate={effect.active ? {
                 boxShadow: [
                   `0 0 0 0px ${rippleColors[idx % rippleColors.length]}`,
-                  `0 0 0 4px ${rippleColors[idx % rippleColors.length].replace('0.5', '0.3')}`,
-                  `0 0 0 10px ${rippleColors[idx % rippleColors.length].replace('0.5', '0.2')}`,
-                  `0 0 0 18px ${rippleColors[idx % rippleColors.length].replace('0.5', '0.1')}`,
-                  `0 0 0 26px ${rippleColors[idx % rippleColors.length].replace('0.5', '0')}`
+                  `0 0 0 3px ${rippleColors[idx % rippleColors.length].replace(/[^,]+\)/, '0.25)')}`,
+                  `0 0 0 6px ${rippleColors[idx % rippleColors.length].replace(/[^,]+\)/, '0.15)')}`,
+                  `0 0 0 12px ${rippleColors[idx % rippleColors.length].replace(/[^,]+\)/, '0.08)')}`,
+                  `0 0 0 18px ${rippleColors[idx % rippleColors.length].replace(/[^,]+\)/, '0.03)')}`,
+                  `0 0 0 24px ${rippleColors[idx % rippleColors.length].replace(/[^,]+\)/, '0)')}`,
                 ]
               } : {}}
               transition={{ 
                 duration: 2,
                 ease: 'linear',
-                times: [0, 0.2, 0.5, 0.8, 1]
+                times: [0, 0.2, 0.4, 0.6, 0.8, 1]
               }}
             />
           ))}
