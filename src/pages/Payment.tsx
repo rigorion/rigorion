@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, CreditCard, Shield, Lock, ArrowLeft } from "lucide-react";
+import { Check, CreditCard, Shield, Lock, ArrowLeft, Bitcoin } from "lucide-react";
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/lib/supabase';
 import { toast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 // Payment method icons
 const PaymentIcons = () => (
@@ -30,11 +31,29 @@ const PaymentIcons = () => (
   </div>
 );
 
+const CryptoIcons = () => (
+  <div className="flex items-center justify-center gap-3 mb-4">
+    <div className="bg-white p-2 rounded-full shadow-sm flex items-center justify-center">
+      <Bitcoin className="h-5 w-5 text-amber-500" />
+    </div>
+    <div className="bg-white p-1.5 rounded-full shadow-sm">
+      <img src="https://cryptologos.cc/logos/ethereum-eth-logo.svg?v=023" alt="Ethereum" className="h-6 w-auto" />
+    </div>
+    <div className="bg-white p-1.5 rounded-full shadow-sm">
+      <img src="https://cryptologos.cc/logos/litecoin-ltc-logo.svg?v=023" alt="Litecoin" className="h-6 w-auto" />
+    </div>
+    <div className="bg-white p-1.5 rounded-full shadow-sm">
+      <img src="https://cryptologos.cc/logos/dogecoin-doge-logo.svg?v=023" alt="Dogecoin" className="h-6 w-auto" />
+    </div>
+  </div>
+);
+
 const PaymentPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('card');
   
   // Card details state
   const [cardNumber, setCardNumber] = useState('');
@@ -42,6 +61,9 @@ const PaymentPage = () => {
   const [expiry, setExpiry] = useState('');
   const [cvc, setCvc] = useState('');
   const [formErrors, setFormErrors] = useState<{[key: string]: string}>({});
+  
+  // Crypto payment state
+  const [selectedCrypto, setSelectedCrypto] = useState('btc');
   
   // Get module details from location state or use defaults
   const moduleDetails = location.state?.module || {
@@ -51,7 +73,7 @@ const PaymentPage = () => {
     imageUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3',
   };
 
-  const validateForm = () => {
+  const validateCardForm = () => {
     const errors: {[key: string]: string} = {};
     
     if (!cardNumber.trim() || cardNumber.replace(/\s/g, '').length !== 16) {
@@ -74,10 +96,10 @@ const PaymentPage = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handlePayment = async (e: React.FormEvent) => {
+  const handleCardPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) {
+    if (!validateCardForm()) {
       return;
     }
     
@@ -104,6 +126,45 @@ const PaymentPage = () => {
       toast({
         title: "Payment error",
         description: error.message || "Could not process your payment request",
+        variant: "destructive",
+      });
+      setLoading(false);
+    }
+  };
+
+  const handleCryptoPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to continue with your purchase",
+        variant: "destructive",
+      });
+      navigate("/signin");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // In a real implementation, this would create a NOWPayments invoice
+      // For this demo, we'll simulate a successful payment redirection
+      
+      toast({
+        title: "Redirecting to crypto payment",
+        description: "You'll be redirected to complete your payment",
+        variant: "default",
+      });
+      
+      setTimeout(() => {
+        // In a real implementation, this would redirect to NOWPayments checkout page
+        navigate("/payment-success");
+      }, 2000);
+      
+    } catch (error: any) {
+      toast({
+        title: "Payment error",
+        description: error.message || "Could not process your crypto payment request",
         variant: "destructive",
       });
       setLoading(false);
@@ -144,14 +205,18 @@ const PaymentPage = () => {
           Back
         </Button>
 
-        {/* Inspirational Header */}
+        {/* Promotional Header with Crypto Focus */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
             Invest in Your Future
           </h1>
           <p className="text-slate-600 max-w-xl mx-auto">
-            Knowledge is the greatest investment you can make. Access premium educational content that will help you reach your goals.
+            Knowledge is the greatest investment you can make. Pay with card or cryptocurrency for maximum flexibility.
           </p>
+          <div className="mt-4 inline-flex items-center gap-2 bg-amber-50 text-amber-700 px-3 py-2 rounded-full text-sm font-medium">
+            <Bitcoin size={16} className="text-amber-500" />
+            New! Pay with crypto and get 5% discount!
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -259,122 +324,216 @@ const PaymentPage = () => {
               <div className="p-6 border-b border-gray-100">
                 <h2 className="text-2xl font-semibold mb-1">Monthly Subscription</h2>
                 <p className="text-gray-500">€4.99 per month, cancel anytime</p>
-              </div>
-              
-              <form onSubmit={handlePayment} className="p-6 space-y-4">
-                <PaymentIcons />
                 
-                {/* Card Number */}
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">Card Number</label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={cardNumber}
-                      onChange={handleCardNumberChange}
-                      placeholder="1234 5678 9012 3456"
-                      className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                        formErrors.cardNumber ? "border-red-500" : "border-gray-300"
-                      }`}
-                    />
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                      <CreditCard className="h-5 w-5 text-gray-400" />
-                    </div>
-                  </div>
-                  {formErrors.cardNumber && (
-                    <p className="mt-1 text-xs text-red-500">{formErrors.cardNumber}</p>
-                  )}
-                </div>
-                
-                {/* Card Holder */}
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">Cardholder Name</label>
-                  <input
-                    type="text"
-                    value={cardName}
-                    onChange={(e) => setCardName(e.target.value)}
-                    placeholder="John Doe"
-                    className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                      formErrors.cardName ? "border-red-500" : "border-gray-300"
-                    }`}
-                  />
-                  {formErrors.cardName && (
-                    <p className="mt-1 text-xs text-red-500">{formErrors.cardName}</p>
-                  )}
-                </div>
-                
-                {/* Expiry and CVC */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="block text-sm font-medium text-gray-700">Expiry Date</label>
-                    <input
-                      type="text"
-                      value={expiry}
-                      onChange={handleExpiryChange}
-                      placeholder="MM/YY"
-                      className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                        formErrors.expiry ? "border-red-500" : "border-gray-300"
-                      }`}
-                    />
-                    {formErrors.expiry && (
-                      <p className="mt-1 text-xs text-red-500">{formErrors.expiry}</p>
-                    )}
-                  </div>
+                <Tabs defaultValue="card" className="mt-6" onValueChange={(value) => setPaymentMethod(value)}>
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="card" className="flex items-center gap-2">
+                      <CreditCard className="h-4 w-4" />
+                      Card
+                    </TabsTrigger>
+                    <TabsTrigger value="crypto" className="flex items-center gap-2">
+                      <Bitcoin className="h-4 w-4" />
+                      Crypto
+                    </TabsTrigger>
+                  </TabsList>
                   
-                  <div className="space-y-1">
-                    <label className="block text-sm font-medium text-gray-700">CVC</label>
-                    <input
-                      type="text"
-                      value={cvc}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, '');
-                        if (value.length <= 3) setCvc(value);
-                      }}
-                      placeholder="123"
-                      maxLength={3}
-                      className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                        formErrors.cvc ? "border-red-500" : "border-gray-300"
-                      }`}
-                    />
-                    {formErrors.cvc && (
-                      <p className="mt-1 text-xs text-red-500">{formErrors.cvc}</p>
-                    )}
-                  </div>
-                </div>
+                  <TabsContent value="card" className="pt-4">
+                    <form onSubmit={handleCardPayment} className="space-y-4">
+                      <PaymentIcons />
+                      
+                      {/* Card Number */}
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-gray-700">Card Number</label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={cardNumber}
+                            onChange={handleCardNumberChange}
+                            placeholder="1234 5678 9012 3456"
+                            className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                              formErrors.cardNumber ? "border-red-500" : "border-gray-300"
+                            }`}
+                          />
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <CreditCard className="h-5 w-5 text-gray-400" />
+                          </div>
+                        </div>
+                        {formErrors.cardNumber && (
+                          <p className="mt-1 text-xs text-red-500">{formErrors.cardNumber}</p>
+                        )}
+                      </div>
+                      
+                      {/* Card Holder */}
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-gray-700">Cardholder Name</label>
+                        <input
+                          type="text"
+                          value={cardName}
+                          onChange={(e) => setCardName(e.target.value)}
+                          placeholder="John Doe"
+                          className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                            formErrors.cardName ? "border-red-500" : "border-gray-300"
+                          }`}
+                        />
+                        {formErrors.cardName && (
+                          <p className="mt-1 text-xs text-red-500">{formErrors.cardName}</p>
+                        )}
+                      </div>
+                      
+                      {/* Expiry and CVC */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <label className="block text-sm font-medium text-gray-700">Expiry Date</label>
+                          <input
+                            type="text"
+                            value={expiry}
+                            onChange={handleExpiryChange}
+                            placeholder="MM/YY"
+                            className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                              formErrors.expiry ? "border-red-500" : "border-gray-300"
+                            }`}
+                          />
+                          {formErrors.expiry && (
+                            <p className="mt-1 text-xs text-red-500">{formErrors.expiry}</p>
+                          )}
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <label className="block text-sm font-medium text-gray-700">CVC</label>
+                          <input
+                            type="text"
+                            value={cvc}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/\D/g, '');
+                              if (value.length <= 3) setCvc(value);
+                            }}
+                            placeholder="123"
+                            maxLength={3}
+                            className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                              formErrors.cvc ? "border-red-500" : "border-gray-300"
+                            }`}
+                          />
+                          {formErrors.cvc && (
+                            <p className="mt-1 text-xs text-red-500">{formErrors.cvc}</p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="pt-4 mt-6">
+                        <div className="flex justify-between text-gray-600 mb-4">
+                          <span>Monthly subscription</span>
+                          <span>€4.99</span>
+                        </div>
+                        <div className="flex justify-between font-medium">
+                          <span>Total billed monthly</span>
+                          <span className="font-bold">€4.99</span>
+                        </div>
+                      </div>
+                      
+                      <Button 
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
+                      >
+                        {loading ? (
+                          <span className="flex items-center gap-2">
+                            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-2">
+                            <CreditCard size={18} />
+                            Subscribe Now
+                          </span>
+                        )}
+                      </Button>
+                    </form>
+                  </TabsContent>
+                  
+                  <TabsContent value="crypto" className="pt-4">
+                    <form onSubmit={handleCryptoPayment} className="space-y-4">
+                      <CryptoIcons />
+                      
+                      <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
+                        <h4 className="flex items-center gap-2 text-amber-700 font-medium">
+                          <Bitcoin size={18} />
+                          Crypto Payment Benefits
+                        </h4>
+                        <ul className="mt-2 space-y-2 text-sm text-amber-800">
+                          <li className="flex items-start gap-2">
+                            <Check size={16} className="mt-0.5 flex-shrink-0" />
+                            <span>5% discount on all subscriptions</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <Check size={16} className="mt-0.5 flex-shrink-0" />
+                            <span>Support multiple cryptocurrencies</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <Check size={16} className="mt-0.5 flex-shrink-0" />
+                            <span>Fast and secure transactions</span>
+                          </li>
+                        </ul>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">Select Cryptocurrency</label>
+                        <select 
+                          value={selectedCrypto}
+                          onChange={(e) => setSelectedCrypto(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        >
+                          <option value="btc">Bitcoin (BTC)</option>
+                          <option value="eth">Ethereum (ETH)</option>
+                          <option value="ltc">Litecoin (LTC)</option>
+                          <option value="doge">Dogecoin (DOGE)</option>
+                          <option value="usdt">Tether (USDT)</option>
+                        </select>
+                      </div>
+                      
+                      <div className="pt-4 mt-6">
+                        <div className="flex justify-between text-gray-600 mb-2">
+                          <span>Monthly subscription</span>
+                          <span>€4.99</span>
+                        </div>
+                        <div className="flex justify-between text-green-600 text-sm mb-4">
+                          <span>Crypto discount (5%)</span>
+                          <span>-€0.25</span>
+                        </div>
+                        <div className="flex justify-between font-medium">
+                          <span>Total billed monthly</span>
+                          <span className="font-bold">€4.74</span>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">*Crypto amount will be calculated at the current exchange rate</p>
+                      </div>
+                      
+                      <Button 
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white"
+                      >
+                        {loading ? (
+                          <span className="flex items-center gap-2">
+                            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-2">
+                            <Bitcoin size={18} />
+                            Pay with Crypto
+                          </span>
+                        )}
+                      </Button>
+                    </form>
+                  </TabsContent>
+                </Tabs>
                 
-                <div className="pt-4 mt-6">
-                  <div className="flex justify-between text-gray-600 mb-4">
-                    <span>Monthly subscription</span>
-                    <span>€4.99</span>
-                  </div>
-                  <div className="flex justify-between font-medium">
-                    <span>Total billed monthly</span>
-                    <span className="font-bold">€4.99</span>
-                  </div>
-                </div>
-                
-                <Button 
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
-                >
-                  {loading ? (
-                    <span className="flex items-center gap-2">
-                      <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Processing
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-2">
-                      <CreditCard size={18} />
-                      Subscribe Now
-                    </span>
-                  )}
-                </Button>
-                
-                <div className="flex items-center justify-center gap-3 text-sm text-gray-500">
+                <div className="flex items-center justify-center gap-3 text-sm text-gray-500 mt-6">
                   <div className="flex items-center gap-1">
                     <Lock size={14} />
                     <span>Secure payment</span>
@@ -384,7 +543,7 @@ const PaymentPage = () => {
                     <span>Cancel anytime</span>
                   </div>
                 </div>
-              </form>
+              </div>
             </div>
           </div>
         </div>

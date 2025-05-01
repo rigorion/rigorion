@@ -39,7 +39,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 
 export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
   const [isLineChart, setIsLineChart] = useState(true);
-  const lastFifteenData = data.slice(-15);
+  const lastFifteenData = data.slice(-15); // Always show exactly 15 days of data
   
   const enrichedData = lastFifteenData.map((item, index) => {
     const prevAttempted = index > 0 ? lastFifteenData[index - 1].attempted : item.attempted;
@@ -179,7 +179,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
         </div>
       </div>
 
-      <div className="w-full h-[225px]"> {/* Reduced height by 25% from 300px */}
+      <div className="w-full h-[300px]"> {/* Increased height from 225px for better visualization */}
         <ResponsiveContainer width="100%" height="100%">
           {renderChart()}
         </ResponsiveContainer>

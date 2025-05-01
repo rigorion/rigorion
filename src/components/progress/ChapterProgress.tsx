@@ -22,7 +22,7 @@ export const ChapterProgress = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 h-full flex flex-col">
       <h3 className="text-lg font-semibold mb-4 text-center">Chapter Performance</h3>
       
       <div className="flex justify-center gap-8 mb-2">
@@ -40,9 +40,9 @@ export const ChapterProgress = ({
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-y-auto flex-grow">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 sticky top-0 z-10">
             <tr>
               <th className="text-left py-2 px-3 font-medium text-gray-600">Chapter</th>
               <th className="text-center py-2 px-3 font-medium text-gray-600">Correct</th>
