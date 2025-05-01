@@ -12,38 +12,72 @@ export async function getLeaderboard(limit: number = 10): Promise<LeaderboardEnt
 
     // Try fetching from edge function
     try {
-      // Add auth header to avoid 401 errors
-      const { data: { session } } = await supabase.auth.getSession();
-      const authHeader = session?.access_token ? `Bearer ${session.access_token}` : '';
-
-      const { data: leaderboardData, error } = await supabase.functions.invoke('get-leaderboard', {
-        body: { limit },
+      // First, try using direct fetch which is known to work for some endpoints
+      const supabaseUrl = "https://eantvimmgdmxzwrjwrop.supabase.co";
+      const response = await fetch(`${supabaseUrl}/functions/v1/get-leaderboard`, {
+        method: 'GET',
         headers: {
-          Authorization: authHeader
+          'Content-Type': 'application/json'
         }
       });
+      
+      if (response.ok) {
+        const leaderboardData = await response.json();
+        
+        if (leaderboardData && leaderboardData.length > 0) {
+          const formattedData: LeaderboardEntry[] = leaderboardData.map((entry: any, index: number) => ({
+            rank: entry.rank || index + 1,
+            name: entry.name || 'Unknown',
+            problems: entry.problems_solved || 0,
+            accuracy: `${entry.accuracy || 0}%`,
+            score: entry.projected_score || 0,
+            trend: entry.trend_percent_change || 0,
+            isCurrentUser: entry.is_current_user || false
+          }));
 
-      if (error) {
-        console.error('Edge function error:', error);
-        throw error;
+          leaderboardCache = formattedData;
+          return formattedData;
+        }
+      } else {
+        console.warn("Direct fetch failed, trying invoke...");
+        throw new Error("Direct fetch failed");
       }
+    } catch (directFetchError) {
+      // If direct fetch fails, try with supabase invoke
+      try {
+        // Add auth header to avoid 401 errors
+        const { data: { session } } = await supabase.auth.getSession();
+        const authHeader = session?.access_token ? `Bearer ${session.access_token}` : '';
 
-      if (leaderboardData && leaderboardData.length > 0) {
-        const formattedData: LeaderboardEntry[] = leaderboardData.map((entry: any, index: number) => ({
-          rank: entry.rank || index + 1,
-          name: entry.name || 'Unknown',
-          problems: entry.problems_solved || 0,
-          accuracy: `${entry.accuracy || 0}%`,
-          score: entry.projected_score || 0,
-          trend: entry.trend_percent_change || 0,
-          isCurrentUser: entry.is_current_user || false
-        }));
+        const { data: leaderboardData, error } = await supabase.functions.invoke('get-leaderboard', {
+          body: { limit },
+          headers: {
+            Authorization: authHeader
+          }
+        });
 
-        leaderboardCache = formattedData;
-        return formattedData;
+        if (error) {
+          console.error('Edge function error:', error);
+          throw error;
+        }
+
+        if (leaderboardData && leaderboardData.length > 0) {
+          const formattedData: LeaderboardEntry[] = leaderboardData.map((entry: any, index: number) => ({
+            rank: entry.rank || index + 1,
+            name: entry.name || 'Unknown',
+            problems: entry.problems_solved || 0,
+            accuracy: `${entry.accuracy || 0}%`,
+            score: entry.projected_score || 0,
+            trend: entry.trend_percent_change || 0,
+            isCurrentUser: entry.is_current_user || false
+          }));
+
+          leaderboardCache = formattedData;
+          return formattedData;
+        }
+      } catch (error) {
+        console.error('Error fetching from edge function:', error);
       }
-    } catch (error) {
-      console.error('Error fetching from edge function:', error);
     }
 
     // Fallback to dummy data

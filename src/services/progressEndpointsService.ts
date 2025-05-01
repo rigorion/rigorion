@@ -1,3 +1,4 @@
+
 import { supabase } from '@/lib/supabase';
 import { toast } from "sonner";
 
@@ -22,22 +23,62 @@ export async function fetchProgressEndpoints() {
     try {
       console.log(`Fetching from ${endpoint}...`);
       
-      // Get auth session if available
-      const { data: { session } } = await supabase.auth.getSession();
-      const authHeader = session?.access_token ? `Bearer ${session.access_token}` : '';
-      
-      // Use supabase.functions.invoke to avoid CORS issues
-      const { data, error } = await supabase.functions.invoke(endpoint, {
-        headers: { Authorization: authHeader }
-      });
-      
-      if (error) {
-        console.error(`Error invoking ${endpoint}:`, error);
-        throw error;
+      // For get-user-progress, use direct fetch which is known to work
+      if (endpoint === 'get-user-progress') {
+        const supabaseUrl = "https://eantvimmgdmxzwrjwrop.supabase.co";
+        const response = await fetch(`${supabaseUrl}/functions/v1/${endpoint}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log(`Successfully fetched ${name} data:`, data);
+        return data;
+      } else {
+        // For other endpoints, try to use supabase.functions.invoke with auth session
+        try {
+          // Get auth session if available
+          const { data: { session } } = await supabase.auth.getSession();
+          const authHeader = session?.access_token ? `Bearer ${session.access_token}` : '';
+          
+          // Use supabase.functions.invoke to avoid CORS issues
+          const { data, error } = await supabase.functions.invoke(endpoint, {
+            headers: { Authorization: authHeader }
+          });
+          
+          if (error) {
+            console.error(`Error invoking ${endpoint}:`, error);
+            throw error;
+          }
+          
+          console.log(`Successfully fetched ${name} data:`, data);
+          return data;
+        } catch (error) {
+          // If invoke fails, fall back to direct fetch for other endpoints too
+          console.warn(`Falling back to direct fetch for ${endpoint}`);
+          const supabaseUrl = "https://eantvimmgdmxzwrjwrop.supabase.co";
+          const response = await fetch(`${supabaseUrl}/functions/v1/${endpoint}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+          }
+          
+          const data = await response.json();
+          console.log(`Successfully fetched ${name} data:`, data);
+          return data;
+        }
       }
-      
-      console.log(`Successfully fetched ${name} data:`, data);
-      return data;
     } catch (error) {
       console.error(`Error fetching ${name}:`, error);
       hasErrors = true;
