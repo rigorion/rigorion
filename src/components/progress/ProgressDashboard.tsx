@@ -135,38 +135,42 @@ export const ProgressDashboard = ({
         />
       </AnimatedItem>
 
-      {/* Chapter Progress - Moved above performance graph */}
-      {visibleSections.chapterProgress && (
-        <AnimatedItem>
-          <Card className="p-6 bg-white border border-gray-50 h-[480px] overflow-auto">
-            <ChapterProgress chapters={userData.chapterPerformance} />
-          </Card>
-        </AnimatedItem>
-      )}
-
-      {/* Mock Tests and Performance Graph side by side */}
+      {/* Chapter Progress and Performance Graph side by side with the same height */}
       <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        <AnimatedItem>
-          <TestMocksList tests={mockTests} />
-        </AnimatedItem>
+        {/* Chapter Progress */}
+        {visibleSections.chapterProgress && (
+          <AnimatedItem>
+            <Card className="p-6 bg-white border border-gray-50 h-[480px] overflow-auto">
+              <ChapterProgress chapters={userData.chapterPerformance} />
+            </Card>
+          </AnimatedItem>
+        )}
         
+        {/* Performance Graph */}
         <AnimatedItem>
           <PerformanceGraphCard data={userData.performanceGraph} />
         </AnimatedItem>
       </AnimatedContainer>
 
+      {/* Mock Tests and Test Analysis side by side */}
+      <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <AnimatedItem>
+          <TestMocksList tests={mockTests} />
+        </AnimatedItem>
+        
+        {/* Global Analysis - Placed beside mock tests */}
+        <AnimatedItem>
+          <GlobalAnalysisCard 
+            percentile={85}
+            averageDaily={15}
+            yourDaily={25}
+            totalUsersCount={5280}
+          />
+        </AnimatedItem>
+      </AnimatedContainer>
+
       {/* Difficulty Stats */}
       <DifficultyStatsGrid stats={difficultyStats} />
-
-      {/* Global Analysis - After difficulty stats */}
-      <AnimatedItem>
-        <GlobalAnalysisCard 
-          percentile={85}
-          averageDaily={15}
-          yourDaily={25}
-          totalUsersCount={5280}
-        />
-      </AnimatedItem>
 
       <Footer />
       

@@ -18,6 +18,15 @@
     stroke-linejoin: round;
     transition: all 0.3s ease;
   }
+  
+  /* Add badge styling for the course expiry */
+  .course-expiry-badge {
+    background-color: #F2FCE2;
+    color: #166534;
+    font-size: 0.75rem;
+    padding: 0.125rem 0.375rem;
+    border-radius: 9999px;
+  }
 }
 
 @keyframes pulse-subtle {

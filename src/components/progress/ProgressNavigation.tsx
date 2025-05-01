@@ -5,6 +5,7 @@ import { Calendar, Settings, ChevronDown } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { TimePeriod } from "@/types/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 
 type VisibleSections = {
   totalProgress: boolean;
@@ -23,7 +24,7 @@ interface ProgressNavigationProps {
   setVisibleSections: (sections: Record<string, boolean>) => void;
   selectedCourse?: string;
   setSelectedCourse?: (courseId: string) => void;
-  courses?: Array<{ id: string; name: string }>;
+  courses?: Array<{ id: string; name: string; status: 'active' | 'expired'; expiresIn: number }>;
 }
 
 export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
@@ -66,20 +67,28 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
       </div>
 
       <div className="flex items-center gap-2 flex-wrap">
-        {/* Course Selection Dropdown */}
+        {/* Course Selection Dropdown with Expiry Badge */}
         {courses.length > 0 && setSelectedCourse && (
-          <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-            <SelectTrigger className="w-[180px] bg-white hover:bg-gray-50 shadow-sm border-gray-100">
-              <SelectValue placeholder="Select Course" />
-            </SelectTrigger>
-            <SelectContent>
-              {courses.map((course) => (
-                <SelectItem key={course.id} value={course.id}>
-                  {course.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="relative">
+            <Select value={selectedCourse} onValueChange={setSelectedCourse}>
+              <SelectTrigger className="w-[180px] bg-white hover:bg-gray-50 shadow-sm border-gray-100">
+                <SelectValue placeholder="Select Course" />
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                {courses.map((course) => (
+                  <SelectItem key={course.id} value={course.id} className="flex items-center justify-between">
+                    <span>{course.name}</span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {/* Green Badge for Active Course Expiry */}
+            {courses.find(c => c.id === selectedCourse)?.status === 'active' && (
+              <Badge className="absolute -top-2 -right-2 bg-green-100 text-green-800 text-xs px-2 py-0.5">
+                {courses.find(c => c.id === selectedCourse)?.expiresIn} days
+              </Badge>
+            )}
+          </div>
         )}
         
         {/* Time Period Dropdown */}
