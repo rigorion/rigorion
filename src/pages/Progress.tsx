@@ -1,21 +1,13 @@
-
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { getUserProgressData } from "@/services/progressService";
 import { TabsList, Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 import { ProgressDashboard } from "@/components/progress/ProgressDashboard";
 import { LeaderboardData } from "@/components/progress/LeaderboardData";
 import { FullPageLoader } from "@/components/progress/FullPageLoader";
-import { ErrorDisplay } from "@/components/progress/ErrorDisplay";
-import { Layout } from "@/components/layout/Layout";
-import type { TimePeriod, ProgressTab, UserProgressData } from "@/types/progress";
-import { toast } from "sonner";
+import type { TimePeriod, ProgressTab } from "@/types/progress";
 import { TrendingUp, Trophy } from "lucide-react";
 import { ProgressNavigation } from "@/components/progress/ProgressNavigation";
-import { supabase } from "@/lib/supabase";
-import { TestMocksList } from "@/components/progress/TestMocksList";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ProgressDataProvider } from "@/components/progress/ProgressDataProvider";
 
 // Define the VisibleSections type to match the structure
 type VisibleSections = {
@@ -225,37 +217,15 @@ const Progress = () => {
     }));
   };
   
-  const {
-    data: userProgress,
-    isLoading,
-    error,
-    isError,
-    isFetching
-  } = useQuery<UserProgressData, Error>({
-    queryKey: ['userProgress', userId, period, selectedCourse],
-    queryFn: async () => {
-      if (!userId) throw new Error("Authentication required");
-      return await getUserProgressData(userId, period);
-    },
-    enabled: isAuthenticated,
-    staleTime: 300000,
-    // 5 minutes
-    retry: (failureCount, error) => {
-      return error.message !== "Authentication required" && failureCount < 2;
-    },
-    meta: {
-      onError: (error: Error) => {
-        console.error("Query error handler:", error);
-        toast.error("Could not load progress data. Using sample data.");
-      }
-    }
-  });
-
-  // Always return DUMMY_PROGRESS if there's any issue
-  const displayData = userProgress || DUMMY_PROGRESS;
-  
-  if (isLoading && isAuthenticated) {
-    return <FullPageLoader />;
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-mono-bg">
+        <div className="text-center p-8 max-w-md">
+          <h2 className="text-2xl font-bold mb-4">Authentication Required</h2>
+          <p className="text-gray-600 mb-6">Please sign in to view your progress dashboard.</p>
+        </div>
+      </div>
+    );
   }
   
   return (
@@ -296,13 +266,17 @@ const Progress = () => {
             </div>
             
             <TabsContent value="performance">
-              <ProgressDashboard 
-                period={period} 
-                type="performance" 
-                userData={displayData} 
-                className="[&_path]:stroke-mono-accent [&_.recharts-area]:fill-gradient-to-b [&_.recharts-area]:from-mono-hover [&_.recharts-area]:to-mono-bg [&_.recharts-bar]:fill-gradient-to-b [&_.recharts-bar]:from-mono-text [&_.recharts-bar]:to-mono-accent [&_.recharts-line]:stroke-mono-accent" 
-                visibleSections={visibleSections} 
-              />
+              <ProgressDataProvider fallbackData={DUMMY_PROGRESS} showLoadingState={true}>
+                {(userData) => (
+                  <ProgressDashboard 
+                    period={period} 
+                    type="performance" 
+                    userData={userData} 
+                    className="[&_path]:stroke-mono-accent [&_.recharts-area]:fill-gradient-to-b [&_.recharts-area]:from-mono-hover [&_.recharts-area]:to-mono-bg [&_.recharts-bar]:fill-gradient-to-b [&_.recharts-bar]:from-mono-text [&_.recharts-bar]:to-mono-accent [&_.recharts-line]:stroke-mono-accent" 
+                    visibleSections={visibleSections} 
+                  />
+                )}
+              </ProgressDataProvider>
             </TabsContent>
             
             <TabsContent value="leaderboard">

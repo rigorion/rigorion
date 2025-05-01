@@ -23,7 +23,7 @@ export const ChapterProgress = ({
 
   return (
     <div className="space-y-4 h-full flex flex-col">
-      <h3 className="text-lg font-semibold mb-4 text-center">Chapter Performance</h3>
+      <h3 className="text-lg font-semibold mb-4 text-center text-gray-800">Chapter Performance</h3>
       
       <div className="flex justify-center gap-8 mb-2">
         <div className="flex items-center gap-2">
@@ -86,6 +86,14 @@ export const ChapterProgress = ({
                 </motion.tr>
               );
             })}
+            
+            {chapters.length === 0 && (
+              <tr>
+                <td colSpan={5} className="py-8 text-center text-gray-500">
+                  No chapter data available
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
