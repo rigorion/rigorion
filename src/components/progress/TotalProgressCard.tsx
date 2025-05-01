@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 interface ProgressData {
   total_questions: number;
@@ -33,6 +34,7 @@ export const TotalProgressCard = ({
   const [localProgress, setLocalProgress] = useState<ProgressData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const [rippleEffect, setRippleEffect] = useState(false);
 
   useEffect(() => {
     const fetchProgress = async () => {
@@ -81,6 +83,14 @@ export const TotalProgressCard = ({
     };
 
     fetchProgress();
+
+    // Add ripple effect animation every 3 seconds
+    const interval = setInterval(() => {
+      setRippleEffect(true);
+      setTimeout(() => setRippleEffect(false), 1500);
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const displayData = propsProgressData || {
@@ -118,6 +128,20 @@ export const TotalProgressCard = ({
       <div className="flex flex-col items-center">
         {/* Fixed circular progress container */}
         <div className="relative flex items-center justify-center mb-8 w-[260px] h-[260px]">
+          <motion.div 
+            className="absolute inset-0 rounded-full"
+            animate={{
+              boxShadow: rippleEffect 
+                ? [
+                    '0 0 0 0px rgba(59, 130, 246, 0.5)',
+                    '0 0 0 10px rgba(59, 130, 246, 0)',
+                    '0 0 0 20px rgba(59, 130, 246, 0)'
+                  ]
+                : '0 0 0 0px rgba(59, 130, 246, 0)'
+            }}
+            transition={{ duration: 1.5, ease: 'easeOut' }}
+          />
+          
           <svg 
             className="absolute inset-0 w-full h-full -rotate-90"
             viewBox="0 0 100 100"
@@ -133,7 +157,7 @@ export const TotalProgressCard = ({
             />
             
             {/* Progress segments with specific colors */}
-            <circle
+            <motion.circle
               cx="50"
               cy="50"
               r={radius}
@@ -143,8 +167,11 @@ export const TotalProgressCard = ({
               strokeDasharray={circumference}
               strokeDashoffset={correctOffset}
               strokeLinecap="round"
+              initial={{ strokeDashoffset: circumference }}
+              animate={{ strokeDashoffset: correctOffset }}
+              transition={{ duration: 1, ease: "easeInOut" }}
             />
-            <circle
+            <motion.circle
               cx="50"
               cy="50"
               r={radius}
@@ -154,8 +181,11 @@ export const TotalProgressCard = ({
               strokeDasharray={circumference}
               strokeDashoffset={incorrectOffset}
               strokeLinecap="round"
+              initial={{ strokeDashoffset: circumference }}
+              animate={{ strokeDashoffset: incorrectOffset }}
+              transition={{ duration: 1, ease: "easeInOut", delay: 0.2 }}
             />
-            <circle
+            <motion.circle
               cx="50"
               cy="50"
               r={radius}
@@ -165,11 +195,19 @@ export const TotalProgressCard = ({
               strokeDasharray={circumference}
               strokeDashoffset={unattemptedOffset}
               strokeLinecap="round"
+              initial={{ strokeDashoffset: circumference }}
+              animate={{ strokeDashoffset: unattemptedOffset }}
+              transition={{ duration: 1, ease: "easeInOut", delay: 0.4 }}
             />
           </svg>
           
           {/* Centered text */}
-          <div className="flex flex-col items-center justify-center text-center z-10">
+          <motion.div 
+            className="flex flex-col items-center justify-center text-center z-10"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
             <span className="text-5xl font-bold text-gray-800">
               {totalProgress}%
             </span>
@@ -181,7 +219,7 @@ export const TotalProgressCard = ({
               <span className="text-sm text-gray-600">{totalQuestionsValue}</span>
             </div>
             <span className="text-xs text-gray-500 mt-1">completed</span>
-          </div>
+          </motion.div>
         </div>
 
         {/* Two column layout for statistics */}

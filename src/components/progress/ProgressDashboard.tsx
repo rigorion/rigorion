@@ -8,7 +8,6 @@ import { StatsCardGrid } from "./StatsCard";
 import { TotalProgressCard } from "./TotalProgressCard";
 import { PerformanceGraphCard } from "./PerformanceGraphCard";
 import { DifficultyStatsGrid } from "./DifficultyStatsGrid";
-import { GoalsCard } from "./GoalsCard";
 import { TestMocksList } from "./TestMocksList";
 import { AnimatedContainer, AnimatedItem } from "./AnimationWrappers";
 import { ProjectedScore } from "@/components/stats/ProjectedScore";
@@ -34,8 +33,7 @@ export const ProgressDashboard = ({
     totalProgress: true,
     performanceGraph: true,
     difficultyStats: true,
-    chapterProgress: true,
-    goals: true
+    chapterProgress: true
   }
 }: ProgressDashboardProps) => {
   const [examDate, setExamDate] = useState<Date | null>(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000));
@@ -126,7 +124,7 @@ export const ProgressDashboard = ({
         </div>
       </div>
       
-      {/* Total Progress + Global Analysis Grid */}
+      {/* Total Progress + Performance Graph Grid */}
       <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <AnimatedItem>
           <TotalProgressCard 
@@ -139,12 +137,7 @@ export const ProgressDashboard = ({
         </AnimatedItem>
 
         <AnimatedItem>
-          <GlobalAnalysisCard 
-            percentile={85}
-            averageDaily={15}
-            yourDaily={25}
-            totalUsersCount={5280}
-          />
+          <PerformanceGraphCard data={userData.performanceGraph} />
         </AnimatedItem>
       </AnimatedContainer>
       
@@ -157,30 +150,23 @@ export const ProgressDashboard = ({
         </AnimatedItem>
       )}
 
-      {/* Performance Graph + Test Mocks Grid */}
-      <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
-        {visibleSections.performanceGraph && (
-          <AnimatedItem className="lg:col-span-8">
-            <PerformanceGraphCard data={userData.performanceGraph} />
-          </AnimatedItem>
-        )}
-
-        <AnimatedItem className="lg:col-span-4">
-          <TestMocksList tests={mockTests} />
-        </AnimatedItem>
-      </AnimatedContainer>
+      {/* Test Mocks List */}
+      <AnimatedItem>
+        <TestMocksList tests={mockTests} />
+      </AnimatedItem>
 
       {/* Difficulty Stats */}
       <DifficultyStatsGrid stats={difficultyStats} />
 
-      {/* Goals and Global Analysis side by side */}
-      {visibleSections.goals && (
-        <AnimatedContainer className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-          <AnimatedItem>
-            <GoalsCard goals={userData.goals} />
-          </AnimatedItem>
-        </AnimatedContainer>
-      )}
+      {/* Global Analysis - After difficulty stats */}
+      <AnimatedItem>
+        <GlobalAnalysisCard 
+          percentile={85}
+          averageDaily={15}
+          yourDaily={25}
+          totalUsersCount={5280}
+        />
+      </AnimatedItem>
 
       <Footer />
       

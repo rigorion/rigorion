@@ -98,7 +98,10 @@ export const GoalsCard = ({ goals = [] }: GoalsCardProps) => {
                     <span>{goal.currentValue} / {goal.targetValue}</span>
                     <span className={isComplete ? "text-green-600" : "text-blue-600"}>{progress}%</span>
                   </div>
-                  <Progress value={progress} className={`h-1.5 ${isComplete ? "bg-green-100" : "bg-blue-100"}`} indicatorClassName={isComplete ? "bg-green-500" : ""} />
+                  <Progress 
+                    value={progress} 
+                    className={`h-1.5 ${isComplete ? "bg-green-100" : "bg-blue-100"}`} 
+                  />
                 </div>
               </motion.div>
             );
