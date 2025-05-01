@@ -3,7 +3,11 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
-export const EmptyProgressState = () => {
+interface EmptyProgressStateProps {
+  message?: string;
+}
+
+export const EmptyProgressState = ({ message = "No Progress Data Yet" }: EmptyProgressStateProps) => {
   const navigate = useNavigate();
   
   return (
@@ -13,7 +17,7 @@ export const EmptyProgressState = () => {
         animate={{ opacity: 1, y: 0 }}
         className="text-center max-w-md"
       >
-        <h2 className="text-2xl font-semibold mb-4">No Progress Data Yet</h2>
+        <h2 className="text-2xl font-semibold mb-4">{message}</h2>
         <p className="text-mono-muted mb-6">Start practicing to track your progress and see your improvements!</p>
         <Button onClick={() => navigate("/practice")}>
           Start Practice

@@ -8,23 +8,13 @@ import {
   TableHead,
   TableCell
 } from "@/components/ui/table";
-
-interface LeaderboardUser {
-  rank: number;
-  name: string;
-  problems: number;
-  accuracy: string;
-  score: number;
-  isCurrentUser?: boolean;
-  trend: number;
-  streak?: number;
-}
+import type { LeaderboardEntry } from '@/services/types/progressTypes';
 
 interface LeaderboardTableProps {
-  users: LeaderboardUser[];
+  data: LeaderboardEntry[];
 }
 
-export const LeaderboardTable = ({ users }: LeaderboardTableProps) => {
+export const LeaderboardTable = ({ data }: LeaderboardTableProps) => {
   return (
     <div className="bg-white rounded-xl p-6">
       <div className="overflow-x-auto">
@@ -41,7 +31,7 @@ export const LeaderboardTable = ({ users }: LeaderboardTableProps) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user, index) => (
+            {data.map((user, index) => (
               <TableRow 
                 key={index} 
                 className={`transition-colors hover:bg-gray-50 ${
