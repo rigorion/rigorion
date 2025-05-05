@@ -12,6 +12,7 @@ import PracticeDisplay from "@/components/practice/PracticeDisplay";
 import PracticeFooter from "@/components/practice/PracticeFooter";
 import ModeDialog from "@/components/practice/ModeDialog";
 import ObjectiveDialog from "@/components/practice/ObjectiveDialogue";
+import { Sidebar } from "@/components/practice/Sidebar";
 
 interface PracticeProps {
   chapterTitle?: string;
@@ -249,7 +250,13 @@ const Practice = ({
         onOpenMode={() => setModeDialogOpen(true)} 
         mode={mode} 
         sidebarOpen={sidebarOpen} 
-        setSidebarOpen={setSidebarOpen} 
+        setSidebarOpen={setSidebarOpen}
+        onUpdateStyle={handleUpdateStyle}
+        fontFamily={fontFamily}
+        fontSize={fontSize}
+        contentColor={contentColor}
+        keyPhraseColor={keyPhraseColor}
+        formulaColor={formulaColor}
       />
 
       {/* Progress Bar with Stats and Tabs */}
@@ -273,26 +280,8 @@ const Practice = ({
 
       {/* Sidebar */}
       <Collapsible open={sidebarOpen}>
-        <CollapsibleContent className="absolute left-0 top-[56px] h-[calc(100vh-56px)] w-64 bg-white shadow-lg z-50 transform transition-all duration-500 ease-in-out" style={{
-        transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
-        opacity: sidebarOpen ? 1 : 0
-      }}>
-          <div className="py-4 px-4">
-            <h3 className="text-lg font-semibold mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-gray-600">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
-              </svg>
-              Navigation
-            </h3>
-            <ul className="space-y-3">
-              {chapters.map((chapter, index) => <li key={index}>
-                  <Button variant="ghost" className={`w-full justify-start text-left ${selectedChapter === index ? "text-blue-600 font-medium" : "text-gray-700"}`} onClick={() => selectChapter(index)}>
-                    {chapter}
-                  </Button>
-                </li>)}
-            </ul>
-          </div>
+        <CollapsibleContent className="absolute left-0 top-[56px] z-50 transform transition-all duration-300 ease-in-out">
+          {sidebarOpen && <Sidebar onClose={() => setSidebarOpen(false)} />}
         </CollapsibleContent>
       </Collapsible>
 
