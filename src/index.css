@@ -1,7 +1,26 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Sans+Pro:wght@300;400;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Source Sans Pro', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #304455;
+  }
+}
 
 @layer components {
   .glow-button {
@@ -26,6 +45,38 @@
     font-size: 0.75rem;
     padding: 0.125rem 0.375rem;
     border-radius: 9999px;
+  }
+
+  /* Vue.js style components */
+  .vue-heading {
+    color: #304455;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  
+  .vue-card {
+    border-radius: 8px;
+    border: 1px solid #eaecef;
+    background-color: #fff;
+    box-shadow: 0 3px 8px 0 rgba(116, 129, 141, 0.1);
+    transition: all 0.3s ease;
+  }
+  
+  .vue-card:hover {
+    box-shadow: 0 8px 16px 0 rgba(116, 129, 141, 0.2);
+  }
+  
+  .vue-button {
+    background-color: #42b883;
+    color: white;
+    padding: 0.5rem 1.25rem;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+  
+  .vue-button:hover {
+    background-color: #33a06f;
   }
 }
 

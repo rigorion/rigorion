@@ -27,6 +27,7 @@ export default {
         merriweather: ["Merriweather", "serif"],
         "dancing-script": ["Dancing Script", "cursive"],
         ubuntu: ["Ubuntu", "sans-serif"],
+        "source-sans": ["Source Sans Pro", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -69,6 +70,12 @@ export default {
           hover: "#F5F5F5",
           muted: "#717171",
           accent: "#000000",
+        },
+        vue: {
+          green: "#42b883",
+          darkGreen: "#33a06f",
+          gray: "#304455",
+          lightGray: "#f8f8f8",
         }
       },
       borderRadius: {
