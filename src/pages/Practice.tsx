@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { sampleQuestions } from "@/components/practice/sampleQuestion";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
@@ -352,7 +351,7 @@ const Practice = ({
         onSetObjective={handleSetObjective} 
       />
 
-      {/* New Settings Dialog */}
+      {/* Settings Dialog */}
       <SettingsDialog 
         open={settingsDialogOpen}
         onOpenChange={setSettingsDialogOpen}

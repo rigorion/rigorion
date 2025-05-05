@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
@@ -69,6 +70,7 @@ const PracticeDisplay = ({
           {currentQuestion && <div style={{
           fontFamily: displaySettings.fontFamily,
           fontSize: `${displaySettings.fontSize}px`,
+          color: colorSettings.content,
           background: displaySettings.colorStyle === 'gradient' ? 'linear-gradient(145deg, #f8fafc 0%, #f0fdf4 100%)' : '#ffffff'
         }} className="mb-8 pr-4 py-0">
               <h2 className="text-2xl font-semibold mb-4">

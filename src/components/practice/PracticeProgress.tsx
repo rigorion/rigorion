@@ -1,4 +1,3 @@
-
 import { Clock, Flag, Lamp, Sparkles } from "lucide-react";
 import CountdownTimer from "./CountDownTimer";
 import HintDialog from "./HintDialog";
@@ -142,14 +141,21 @@ const PracticeProgress = ({
           />
           
           {/* Star icon for styling - Next to hint */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowSettings(true)}
-            className="p-1 h-6 rounded-full"
+          <SettingsDialog
+            open={showSettings}
+            onOpenChange={setShowSettings}
+            settings={settings}
+            onApply={handleSettingsChange}
           >
-            <Sparkles className="h-4 w-4 text-amber-500" />
-          </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowSettings(true)}
+              className="p-1 h-6 rounded-full"
+            >
+              <Sparkles className="h-4 w-4 text-amber-500" />
+            </Button>
+          </SettingsDialog>
 
           {/* Flag icon for "review later" */}
           <Button
@@ -208,14 +214,6 @@ const PracticeProgress = ({
           <span>Unattempted: {totalQuestions - correctAnswers - incorrectAnswers}</span>
         </div>
       </div>
-
-      {/* Settings Dialog */}
-      <SettingsDialog
-        open={showSettings}
-        onOpenChange={setShowSettings}
-        settings={settings}
-        onApply={handleSettingsChange}
-      />
 
       {/* Add the keyframes animation for the shining effect */}
       <style>

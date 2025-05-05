@@ -1,10 +1,9 @@
 
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -49,14 +48,12 @@ const SettingsDialog = ({
   onApply,
 }: SettingsDialogProps) => {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[300px] bg-white border-none p-3 shadow-md rounded-lg">
-        <DialogHeader className="mb-2 pb-1 border-b">
-          <DialogTitle className="flex items-center text-sm font-medium text-gray-800">
-            <Star className="mr-2 h-4 w-4 text-amber-500" fill="#F59E0B" />
-            Text Settings
-          </DialogTitle>
-        </DialogHeader>
+    <Popover open={open} onOpenChange={onOpenChange}>
+      <PopoverContent className="w-[240px] p-3 bg-white shadow-md rounded-lg border" side="bottom" align="end">
+        <div className="flex items-center mb-2 pb-1 border-b">
+          <Star className="mr-2 h-4 w-4 text-amber-500" fill="#F59E0B" />
+          <h3 className="text-sm font-medium text-gray-800">Text Settings</h3>
+        </div>
         
         <div className="grid gap-3 py-1">
           {/* Font Family Selection */}
@@ -130,8 +127,8 @@ const SettingsDialog = ({
             </div>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </PopoverContent>
+    </Popover>
   );
 };
 
