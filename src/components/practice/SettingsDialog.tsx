@@ -17,7 +17,8 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import { Paintbrush } from "lucide-react";
+import { Paintbrush, Star } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface SettingsDialogProps {
   open: boolean;
@@ -60,7 +61,12 @@ const SettingsDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/50">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold tracking-tight">
+          <DialogTitle className="flex items-center text-2xl font-bold tracking-tight">
+            <Star 
+              className="mr-2 h-6 w-6 text-amber-500" 
+              fill="url(#dialogStarGradient)"
+              stroke="url(#dialogStarGradient)"
+            />
             Display Settings
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
@@ -107,7 +113,12 @@ const SettingsDialog = ({
               step={1}
               value={[settings.fontSize]}
               onValueChange={([value]) => onApply("fontSize", value)}
+              className="cursor-pointer"
             />
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>10px</span>
+              <span>24px</span>
+            </div>
           </div>
 
           {/* Color Style Selection */}
@@ -148,7 +159,12 @@ const SettingsDialog = ({
 
             {/* Custom Gradient Picker */}
             {settings.colorStyle === 'custom-gradient' && (
-              <div className="grid grid-cols-2 gap-4">
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="grid grid-cols-2 gap-4"
+              >
                 <div className="space-y-2">
                   <Label className="text-sm">Start Color</Label>
                   <div className="relative">
@@ -171,10 +187,42 @@ const SettingsDialog = ({
                     />
                   </div>
                 </div>
-              </div>
+              </motion.div>
             )}
+
+            {/* Preview */}
+            <div className="mt-4 p-4 rounded-lg border border-gray-200">
+              <h3 className="text-sm font-medium mb-2">Preview</h3>
+              <div 
+                className={cn(
+                  "p-3 rounded-md",
+                  settings.colorStyle === 'gradient' && "bg-gradient-to-r from-blue-400 to-purple-500 text-white",
+                  settings.colorStyle === 'custom-gradient' && "text-white",
+                  `font-${settings.fontFamily}`
+                )}
+                style={{
+                  fontSize: `${settings.fontSize}px`,
+                  ...(settings.colorStyle === 'custom-gradient' ? {
+                    background: `linear-gradient(to right, ${settings.gradientStart}, ${settings.gradientEnd})`
+                  } : {})
+                }}
+              >
+                Sample text with current settings
+              </div>
+            </div>
           </div>
         </div>
+
+        {/* SVG Gradient definition */}
+        <svg className="absolute w-0 h-0">
+          <defs>
+            <linearGradient id="dialogStarGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#F59E0B', stopOpacity: 1 }} />
+              <stop offset="50%" style={{ stopColor: '#D97706', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#B45309', stopOpacity: 1 }} />
+            </linearGradient>
+          </defs>
+        </svg>
       </DialogContent>
     </Dialog>
   );

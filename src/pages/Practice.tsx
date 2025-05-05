@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { sampleQuestions } from "@/components/practice/sampleQuestion";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
