@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -40,9 +39,9 @@ export const PracticeHeader = ({
   sidebarOpen,
   setSidebarOpen,
   onUpdateStyle,
-  fontFamily = 'inter',
+  fontFamily = 'source-sans',
   fontSize = 14,
-  contentColor = '#374151',
+  contentColor = '#304455',
   keyPhraseColor = '#2563eb',
   formulaColor = '#dc2626'
 }: PracticeHeaderProps) => {
@@ -140,7 +139,7 @@ export const PracticeHeader = ({
                   className="cursor-pointer py-2 hover:bg-gray-100 rounded-sm transition-colors"
                   onClick={() => handleNavigation(page.path)}
                 >
-                  {page.name}
+                  <span className="font-source-sans text-[#304455]">{page.name}</span>
                 </DropdownMenuItem>
               ))}
             </ScrollArea>
@@ -154,7 +153,7 @@ export const PracticeHeader = ({
       </div>
       
       <div className="flex items-center gap-4">
-        {/* Modules Dropdown */}
+        {/* Renamed Modules to Exams - ModulesDialog component is used */}
         <ModulesDialog />
 
         {/* Chapters Dropdown */}
@@ -175,9 +174,9 @@ export const PracticeHeader = ({
               {chapters.map((chapter, index) => (
                 <DropdownMenuItem 
                   key={index}
-                  className="cursor-pointer py-2 hover:bg-gray-100 rounded-sm transition-colors"
+                  className="cursor-pointer py-2 px-3 hover:bg-gray-50 rounded-md transition-colors"
                 >
-                  {chapter}
+                  <span className="font-source-sans text-[#304455] text-sm">{chapter}</span>
                 </DropdownMenuItem>
               ))}
             </ScrollArea>
@@ -209,7 +208,7 @@ export const PracticeHeader = ({
                         <div 
                           key={font.value} 
                           className={`px-2 py-1.5 rounded-md cursor-pointer text-sm ${fontFamily === font.value ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-100'}`}
-                          onClick={() => onUpdateStyle('fontFamily', font.value)}
+                          onClick={() => onUpdateStyle && onUpdateStyle('fontFamily', font.value)}
                         >
                           <span className={`font-${font.value}`}>{font.label}</span>
                         </div>
@@ -227,7 +226,7 @@ export const PracticeHeader = ({
                         <div 
                           key={size.value} 
                           className={`px-2 py-1.5 rounded-md cursor-pointer text-sm ${fontSize === size.value ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-100'}`}
-                          onClick={() => onUpdateStyle('fontSize', size.value)}
+                          onClick={() => onUpdateStyle && onUpdateStyle('fontSize', size.value)}
                         >
                           {size.label}
                         </div>
@@ -245,7 +244,7 @@ export const PracticeHeader = ({
                         <div 
                           key={color.value} 
                           className={`px-2 py-1.5 rounded-md cursor-pointer text-sm flex items-center ${contentColor === color.value ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-100'}`}
-                          onClick={() => onUpdateStyle('contentColor', color.value)}
+                          onClick={() => onUpdateStyle && onUpdateStyle('contentColor', color.value)}
                         >
                           <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: color.value }}></div>
                           {color.label}
@@ -264,7 +263,7 @@ export const PracticeHeader = ({
                         <div 
                           key={color.value} 
                           className={`px-2 py-1.5 rounded-md cursor-pointer text-sm flex items-center ${keyPhraseColor === color.value ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-100'}`}
-                          onClick={() => onUpdateStyle('keyPhraseColor', color.value)}
+                          onClick={() => onUpdateStyle && onUpdateStyle('keyPhraseColor', color.value)}
                         >
                           <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: color.value }}></div>
                           {color.label}
@@ -283,7 +282,7 @@ export const PracticeHeader = ({
                         <div 
                           key={color.value} 
                           className={`px-2 py-1.5 rounded-md cursor-pointer text-sm flex items-center ${formulaColor === color.value ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-100'}`}
-                          onClick={() => onUpdateStyle('formulaColor', color.value)}
+                          onClick={() => onUpdateStyle && onUpdateStyle('formulaColor', color.value)}
                         >
                           <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: color.value }}></div>
                           {color.label}
