@@ -1,9 +1,11 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, ToggleLeft, ToggleRight } from "lucide-react";
 import { Question } from "@/types/QuestionInterface";
 import CommentSection from "./CommentSection";
+import { Input } from "@/components/ui/input";
+
 interface PracticeDisplayProps {
   currentQuestion: Question;
   selectedAnswer: string | null;
@@ -24,6 +26,7 @@ interface PracticeDisplayProps {
   };
   activeTab: "problem" | "solution" | "quote";
 }
+
 const PracticeDisplay = ({
   currentQuestion,
   selectedAnswer,
@@ -39,6 +42,8 @@ const PracticeDisplay = ({
   const [showGoToInput, setShowGoToInput] = useState(false);
   const [targetQuestion, setTargetQuestion] = useState('');
   const [inputError, setInputError] = useState('');
+  const [isMultipleChoice, setIsMultipleChoice] = useState(true);
+  const [fillInAnswer, setFillInAnswer] = useState('');
 
   // Handler for "Go to Question"
   const handleGoToQuestion = () => {
@@ -59,6 +64,18 @@ const PracticeDisplay = ({
     setShowGoToInput(false);
     setInputError('');
   };
+
+  const handleSubmitFillIn = () => {
+    checkAnswer(fillInAnswer);
+    setFillInAnswer('');
+  };
+
+  const toggleQuestionType = () => {
+    setIsMultipleChoice(!isMultipleChoice);
+    // Reset answers when toggling
+    setFillInAnswer('');
+  };
+
   return <>
       {/* Main Content Container */}
       <div className="flex gap-4 h-[calc(100vh-300px)] w-full px-[28px]">
@@ -74,13 +91,25 @@ const PracticeDisplay = ({
               color: colorSettings.content,
               background: displaySettings.colorStyle === 'gradient' ? 'linear-gradient(145deg, #f8fafc 0%, #f0fdf4 100%)' : '#ffffff'
             }}>
-              <h2 className="text-2xl font-semibold mb-4"
-                style={{
-                  fontFamily: displaySettings.fontFamily,
-                  color: colorSettings.content
-                }}>
-                Question {currentQuestionIndex + 1}
-              </h2>
+              <div className="flex items-center mb-4 justify-between">
+                <h2 className="text-2xl font-semibold"
+                  style={{
+                    fontFamily: displaySettings.fontFamily,
+                    color: colorSettings.content
+                  }}>
+                  Question {currentQuestionIndex + 1}
+                </h2>
+                <div className="flex items-center gap-2 cursor-pointer" onClick={toggleQuestionType}>
+                  <span className="text-sm text-gray-500">
+                    {isMultipleChoice ? "Multiple Choice" : "Fill-in"}
+                  </span>
+                  {isMultipleChoice ? (
+                    <ToggleRight className="h-6 w-6 text-blue-600" />
+                  ) : (
+                    <ToggleLeft className="h-6 w-6 text-gray-500" />
+                  )}
+                </div>
+              </div>
               
               {/* Question Content */}
               <p className="mb-6 leading-relaxed" style={{
@@ -96,31 +125,79 @@ const PracticeDisplay = ({
                     </span> : part)}
               </p>
 
-              {/* Answer Choices */}
-              <div className="space-y-4">
-                {currentQuestion.choices.map((choice, index) => <div key={index} onClick={() => checkAnswer(choice)} style={{
-                  borderColor: selectedAnswer === choice ? isCorrect ? '#10b981' : '#ef4444' : '#e5e7eb',
-                  backgroundColor: selectedAnswer === choice ? isCorrect ? '#ecfdf5' : '#fef2f2' : 'transparent',
-                  fontFamily: displaySettings.fontFamily,
-                  fontSize: `${displaySettings.fontSize}px`,
-                  color: colorSettings.content
-                }} className="p-4 border-1 cursor-pointer transition-colors bg-transparent shadow-md hover:shadow-large py-[10px] px-[16px] rounded-full">
-                    <span className="mr-2 text-gray-500">{index + 1}.</span>
-                    <span className={selectedAnswer === choice ? "font-medium" : ""}>
-                      {choice}
-                    </span>
-                    {selectedAnswer === choice && <span className="float-right">
-                        {isCorrect ? <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-emerald-500">
+              {/* Answer Choices or Fill-in Input */}
+              {isMultipleChoice ? (
+                <div className="space-y-4">
+                  {currentQuestion.choices.map((choice, index) => <div key={index} onClick={() => checkAnswer(choice)} style={{
+                    borderColor: selectedAnswer === choice ? isCorrect ? '#10b981' : '#ef4444' : '#e5e7eb',
+                    backgroundColor: selectedAnswer === choice ? isCorrect ? '#ecfdf5' : '#fef2f2' : 'transparent',
+                    fontFamily: displaySettings.fontFamily,
+                    fontSize: `${displaySettings.fontSize}px`,
+                    color: colorSettings.content
+                  }} className="p-4 border-1 cursor-pointer transition-colors bg-transparent shadow-md hover:shadow-large py-[10px] px-[16px] rounded-full">
+                      <span className="mr-2 text-gray-500">{index + 1}.</span>
+                      <span className={selectedAnswer === choice ? "font-medium" : ""}>
+                        {choice}
+                      </span>
+                      {selectedAnswer === choice && <span className="float-right">
+                          {isCorrect ? <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-emerald-500">
+                              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg> : <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-red-500">
+                              <circle cx="12" cy="12" r="10"></circle>
+                              <line x1="15" y1="9" x2="9" y2="15"></line>
+                              <line x1="9" y1="9" x2="15" y2="15"></line>
+                            </svg>}
+                        </span>}
+                    </div>)}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex gap-3">
+                    <Input
+                      value={fillInAnswer}
+                      onChange={(e) => setFillInAnswer(e.target.value)}
+                      placeholder="Type your answer here..."
+                      className="flex-1 p-4 border bg-white text-gray-800 shadow-md rounded-md"
+                      style={{
+                        fontFamily: displaySettings.fontFamily,
+                        fontSize: `${displaySettings.fontSize}px`,
+                      }}
+                      onKeyPress={(e) => e.key === 'Enter' && handleSubmitFillIn()}
+                    />
+                    <Button 
+                      onClick={handleSubmitFillIn}
+                      className="shadow-md"
+                    >
+                      Submit
+                    </Button>
+                  </div>
+                  
+                  {/* Show result for fill-in answers */}
+                  {selectedAnswer && (
+                    <div className={`p-4 mt-2 rounded-md ${isCorrect ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
+                      {isCorrect ? (
+                        <div className="flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 mr-2 text-green-500">
                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                             <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                          </svg> : <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-red-500">
+                          </svg>
+                          <span>Correct answer!</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 mr-2 text-red-500">
                             <circle cx="12" cy="12" r="10"></circle>
                             <line x1="15" y1="9" x2="9" y2="15"></line>
                             <line x1="9" y1="9" x2="15" y2="15"></line>
-                          </svg>}
-                      </span>}
-                  </div>)}
-              </div>
+                          </svg>
+                          <span>Incorrect. The correct answer is: {currentQuestion.correctAnswer}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>}
         </div>
         
