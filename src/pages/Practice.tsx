@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { sampleQuestions } from "@/components/practice/sampleQuestion";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
@@ -13,6 +14,7 @@ import PracticeFooter from "@/components/practice/PracticeFooter";
 import ModeDialog from "@/components/practice/ModeDialog";
 import ObjectiveDialog from "@/components/practice/ObjectiveDialogue";
 import { Sidebar } from "@/components/practice/Sidebar";
+import SettingsDialog from "@/components/practice/SettingsDialog";
 
 interface PracticeProps {
   chapterTitle?: string;
@@ -56,6 +58,16 @@ const Practice = ({
   const [keyPhraseColor, setKeyPhraseColor] = useState<string>('#2563eb');
   const [formulaColor, setFormulaColor] = useState<string>('#dc2626');
   const [styleCollapsed, setStyleCollapsed] = useState(true);
+  
+  // New settings dialog state
+  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
+  const [displaySettings, setDisplaySettings] = useState({
+    fontFamily: 'inter',
+    fontSize: 14,
+    colorStyle: 'plain' as 'gradient' | 'plain' | 'custom-gradient',
+    gradientStart: '#4f46e5',
+    gradientEnd: '#ec4899'
+  });
 
   // Stats and feedback states
   const [correctAnswers, setCorrectAnswers] = useState(0);
@@ -71,11 +83,6 @@ const Practice = ({
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("");
 
   // Display settings
-  const [displaySettings, setDisplaySettings] = useState({
-    fontFamily: 'times-new-roman',
-    fontSize: 14,
-    colorStyle: 'plain' as 'gradient' | 'plain'
-  });
   const [colorSettings, setColorSettings] = useState({
     content: '#374151',
     keyPhrase: '#2563eb',
@@ -109,6 +116,7 @@ const Practice = ({
       setIsTimerActive(false);
     }
   };
+  
   const handleSetObjective = (type: "questions" | "time", value: number) => {
     setObjective({
       type,
@@ -119,6 +127,7 @@ const Practice = ({
       setIsTimerActive(true);
     }
   };
+  
   const handleTimerComplete = () => {
     setIsTimerActive(false);
     console.log("Time's up!");
@@ -156,6 +165,21 @@ const Practice = ({
         ...prev,
         formula: value as string
       }));
+    } else if (key === 'colorStyle') {
+      setDisplaySettings(prev => ({
+        ...prev,
+        colorStyle: value as 'gradient' | 'plain' | 'custom-gradient'
+      }));
+    } else if (key === 'gradientStart') {
+      setDisplaySettings(prev => ({
+        ...prev,
+        gradientStart: value as string
+      }));
+    } else if (key === 'gradientEnd') {
+      setDisplaySettings(prev => ({
+        ...prev,
+        gradientEnd: value as string
+      }));
     }
   };
 
@@ -184,6 +208,7 @@ const Practice = ({
       setTimeout(nextQuestion, 1500);
     }
   };
+  
   const nextQuestion = () => {
     const maxIndex = questions.length > 0 ? questions.length - 1 : sampleQuestions.length - 1;
     if (currentQuestionIndex < maxIndex) {
@@ -192,6 +217,7 @@ const Practice = ({
       setIsCorrect(null);
     }
   };
+  
   const prevQuestion = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
@@ -199,6 +225,7 @@ const Practice = ({
       setIsCorrect(null);
     }
   };
+  
   const selectChapter = (index: number) => {
     setSelectedChapter(index);
     setSidebarOpen(false);
@@ -229,6 +256,11 @@ const Practice = ({
     setInputError('');
   };
 
+  // Handler for opening the settings dialog
+  const handleOpenSettings = () => {
+    setSettingsDialogOpen(true);
+  };
+
   // Display an error message if there's an error
   if (error) {
     return <div className="flex flex-col items-center justify-center min-h-screen">
@@ -251,7 +283,7 @@ const Practice = ({
         mode={mode} 
         sidebarOpen={sidebarOpen} 
         setSidebarOpen={setSidebarOpen}
-        onUpdateStyle={handleUpdateStyle}
+        onUpdateStyle={handleOpenSettings}
         fontFamily={fontFamily}
         fontSize={fontSize}
         contentColor={contentColor}
@@ -298,7 +330,7 @@ const Practice = ({
           displaySettings={{
             fontFamily,
             fontSize,
-            colorStyle: 'plain'
+            colorStyle: displaySettings.colorStyle
           }} 
           boardColor={boardColor} 
           colorSettings={{
@@ -336,6 +368,14 @@ const Practice = ({
         open={objectiveDialogOpen} 
         onOpenChange={setObjectiveDialogOpen} 
         onSetObjective={handleSetObjective} 
+      />
+
+      {/* New Settings Dialog */}
+      <SettingsDialog 
+        open={settingsDialogOpen}
+        onOpenChange={setSettingsDialogOpen}
+        settings={displaySettings}
+        onApply={handleUpdateStyle}
       />
 
       {/* Global styles for animations */}

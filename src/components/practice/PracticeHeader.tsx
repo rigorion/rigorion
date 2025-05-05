@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -49,7 +50,6 @@ export const PracticeHeader = ({
   const { user, profile, signOut } = useAuth();
   const [isNavDropdownOpen, setIsNavDropdownOpen] = useState(false);
   const [isChapterDropdownOpen, setIsChapterDropdownOpen] = useState(false);
-  const [isStyleDropdownOpen, setIsStyleDropdownOpen] = useState(false);
 
   const pages = [
     { name: "Home", path: "/" },
@@ -65,42 +65,6 @@ export const PracticeHeader = ({
     "Chapter 3: Geometry Fundamentals",
     "Chapter 4: Probability & Statistics",
     "Chapter 5: Advanced Functions"
-  ];
-
-  const fontOptions = [
-    { value: 'inter', label: 'Inter' },
-    { value: 'source-sans', label: 'Source Sans Pro' },
-    { value: 'poppins', label: 'Poppins' },
-    { value: 'merriweather', label: 'Merriweather' },
-    { value: 'dancing-script', label: 'Dancing Script' }
-  ];
-
-  const fontSizeOptions = [
-    { value: 12, label: 'Small' },
-    { value: 14, label: 'Medium' },
-    { value: 16, label: 'Large' },
-    { value: 18, label: 'X-Large' }
-  ];
-
-  const colorOptions = [
-    { value: '#374151', label: 'Dark Gray' },
-    { value: '#1F2937', label: 'Charcoal' },
-    { value: '#111827', label: 'Almost Black' },
-    { value: '#304455', label: 'Vue Gray' }
-  ];
-
-  const highlightOptions = [
-    { value: '#2563eb', label: 'Blue' },
-    { value: '#059669', label: 'Green' },
-    { value: '#7C3AED', label: 'Purple' },
-    { value: '#42b883', label: 'Vue Green' }
-  ];
-
-  const formulaOptions = [
-    { value: '#dc2626', label: 'Red' },
-    { value: '#d97706', label: 'Orange' },
-    { value: '#4f46e5', label: 'Indigo' },
-    { value: '#7e69ab', label: 'Purple' }
   ];
 
   const handleNavigation = (path: string) => {
@@ -183,117 +147,17 @@ export const PracticeHeader = ({
           </DropdownMenuContent>
         </DropdownMenu>
         
-        {/* Styling Dropdown */}
+        {/* Styling Button */}
         {onUpdateStyle && (
-          <DropdownMenu open={isStyleDropdownOpen} onOpenChange={setIsStyleDropdownOpen}>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="rounded-full bg-transparent hover:bg-gray-100 transition-colors"
-              >
-                <Palette className="h-4 w-4 mr-1.5 text-blue-500" />
-                Styling
-                <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isStyleDropdownOpen ? "rotate-180" : ""}`} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64 bg-white border border-gray-200 shadow-lg rounded-lg p-2">
-              <ScrollArea className="h-[320px]">
-                <div className="space-y-3 px-1">
-                  {/* Font Family */}
-                  <div>
-                    <h4 className="text-xs font-semibold text-gray-500 mb-1">FONT FAMILY</h4>
-                    <div className="space-y-1">
-                      {fontOptions.map(font => (
-                        <div 
-                          key={font.value} 
-                          className={`px-2 py-1.5 rounded-md cursor-pointer text-sm ${fontFamily === font.value ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-100'}`}
-                          onClick={() => onUpdateStyle && onUpdateStyle('fontFamily', font.value)}
-                        >
-                          <span className={`font-${font.value}`}>{font.label}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <DropdownMenuSeparator />
-                  
-                  {/* Font Size */}
-                  <div>
-                    <h4 className="text-xs font-semibold text-gray-500 mb-1">FONT SIZE</h4>
-                    <div className="space-y-1">
-                      {fontSizeOptions.map(size => (
-                        <div 
-                          key={size.value} 
-                          className={`px-2 py-1.5 rounded-md cursor-pointer text-sm ${fontSize === size.value ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-100'}`}
-                          onClick={() => onUpdateStyle && onUpdateStyle('fontSize', size.value)}
-                        >
-                          {size.label}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <DropdownMenuSeparator />
-                  
-                  {/* Content Color */}
-                  <div>
-                    <h4 className="text-xs font-semibold text-gray-500 mb-1">TEXT COLOR</h4>
-                    <div className="space-y-1">
-                      {colorOptions.map(color => (
-                        <div 
-                          key={color.value} 
-                          className={`px-2 py-1.5 rounded-md cursor-pointer text-sm flex items-center ${contentColor === color.value ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-100'}`}
-                          onClick={() => onUpdateStyle && onUpdateStyle('contentColor', color.value)}
-                        >
-                          <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: color.value }}></div>
-                          {color.label}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <DropdownMenuSeparator />
-                  
-                  {/* Key Phrase Color */}
-                  <div>
-                    <h4 className="text-xs font-semibold text-gray-500 mb-1">HIGHLIGHT COLOR</h4>
-                    <div className="space-y-1">
-                      {highlightOptions.map(color => (
-                        <div 
-                          key={color.value} 
-                          className={`px-2 py-1.5 rounded-md cursor-pointer text-sm flex items-center ${keyPhraseColor === color.value ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-100'}`}
-                          onClick={() => onUpdateStyle && onUpdateStyle('keyPhraseColor', color.value)}
-                        >
-                          <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: color.value }}></div>
-                          {color.label}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <DropdownMenuSeparator />
-                  
-                  {/* Formula Color */}
-                  <div>
-                    <h4 className="text-xs font-semibold text-gray-500 mb-1">FORMULA COLOR</h4>
-                    <div className="space-y-1">
-                      {formulaOptions.map(color => (
-                        <div 
-                          key={color.value} 
-                          className={`px-2 py-1.5 rounded-md cursor-pointer text-sm flex items-center ${formulaColor === color.value ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-100'}`}
-                          onClick={() => onUpdateStyle && onUpdateStyle('formulaColor', color.value)}
-                        >
-                          <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: color.value }}></div>
-                          {color.label}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </ScrollArea>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onUpdateStyle}
+            className="rounded-full bg-transparent hover:bg-gray-100 transition-colors"
+          >
+            <Palette className="h-4 w-4 mr-1.5 text-blue-500" />
+            Styling
+          </Button>
         )}
         
         <Button
