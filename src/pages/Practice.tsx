@@ -166,17 +166,14 @@ const Practice = ({
       }));
     } else if (key === 'colorStyle') {
       setDisplaySettings(prev => ({
-        ...prev,
         colorStyle: value as 'gradient' | 'plain' | 'custom-gradient'
       }));
     } else if (key === 'gradientStart') {
       setDisplaySettings(prev => ({
-        ...prev,
         gradientStart: value as string
       }));
     } else if (key === 'gradientEnd') {
       setDisplaySettings(prev => ({
-        ...prev,
         gradientEnd: value as string
       }));
     }
@@ -282,12 +279,6 @@ const Practice = ({
         mode={mode} 
         sidebarOpen={sidebarOpen} 
         setSidebarOpen={setSidebarOpen}
-        onUpdateStyle={handleOpenSettings}
-        fontFamily={fontFamily}
-        fontSize={fontSize}
-        contentColor={contentColor}
-        keyPhraseColor={keyPhraseColor}
-        formulaColor={formulaColor}
       />
 
       {/* Progress Bar with Stats and Tabs */}

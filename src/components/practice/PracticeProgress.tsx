@@ -2,7 +2,6 @@ import { Clock, Flag, Lamp, Sparkles } from "lucide-react";
 import CountdownTimer from "./CountDownTimer";
 import HintDialog from "./HintDialog";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import PracticeTabSelector from "./PracticeTabSelector";
 import { useState } from "react";
 import SettingsDialog from "./SettingsDialog";
@@ -46,9 +45,8 @@ const PracticeProgress = ({
   const [settings, setSettings] = useState({
     fontFamily: 'inter',
     fontSize: 14,
-    colorStyle: 'plain' as 'gradient' | 'plain' | 'custom-gradient',
-    gradientStart: '#4f46e5',
-    gradientEnd: '#ec4899',
+    colorStyle: 'plain' as 'plain',
+    textColor: '#374151',
   });
 
   const handleSettingsChange = (key: string, value: string | number) => {
@@ -130,7 +128,7 @@ const PracticeProgress = ({
             currentQuestionIndex={currentQuestionIndex} 
           />
           
-          {/* Star icon for styling - Moved next to hint */}
+          {/* Star icon for styling - Next to hint */}
           <Button
             variant="ghost"
             size="sm"
