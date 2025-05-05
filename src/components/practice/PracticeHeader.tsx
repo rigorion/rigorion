@@ -2,8 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Target, Navigation, ChevronDown, LogOut, Star } from "lucide-react";
-import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Target, Navigation, ChevronDown, LogOut } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -23,13 +22,7 @@ interface PracticeHeaderProps {
   mode: string;
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
-  // New styling props
-  onUpdateStyle?: () => void;
-  fontFamily?: string;
-  fontSize?: number;
-  contentColor?: string;
-  keyPhraseColor?: string;
-  formulaColor?: string;
+  // Styling props removed
 }
 
 export const PracticeHeader = ({ 
@@ -39,12 +32,6 @@ export const PracticeHeader = ({
   mode,
   sidebarOpen,
   setSidebarOpen,
-  onUpdateStyle,
-  fontFamily = 'source-sans',
-  fontSize = 14,
-  contentColor = '#304455',
-  keyPhraseColor = '#2563eb',
-  formulaColor = '#dc2626'
 }: PracticeHeaderProps) => {
   const navigate = useNavigate();
   const { user, profile, signOut } = useAuth();
@@ -147,22 +134,6 @@ export const PracticeHeader = ({
           </DropdownMenuContent>
         </DropdownMenu>
         
-        {/* Star Icon for Styling */}
-        {onUpdateStyle && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onUpdateStyle()}
-            className="rounded-full bg-transparent hover:bg-gray-100 transition-colors"
-          >
-            <Star 
-              className="h-5 w-5 text-amber-500 drop-shadow-sm" 
-              fill="url(#starGradient)"
-              stroke="url(#starGradient)"
-            />
-          </Button>
-        )}
-        
         <Button
           variant="ghost"
           size="sm"
@@ -219,17 +190,6 @@ export const PracticeHeader = ({
           </DropdownMenu>
         </div>
       </div>
-
-      {/* SVG Gradient definition */}
-      <svg className="absolute w-0 h-0">
-        <defs>
-          <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style={{ stopColor: '#F59E0B', stopOpacity: 1 }} />
-            <stop offset="50%" style={{ stopColor: '#D97706', stopOpacity: 1 }} />
-            <stop offset="100%" style={{ stopColor: '#B45309', stopOpacity: 1 }} />
-          </linearGradient>
-        </defs>
-      </svg>
     </header>
   );
 };

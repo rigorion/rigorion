@@ -4,7 +4,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
@@ -59,38 +58,31 @@ const SettingsDialog = ({
 }: SettingsDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/50">
-        <DialogHeader>
-          <DialogTitle className="flex items-center text-2xl font-bold tracking-tight">
-            <Star 
-              className="mr-2 h-6 w-6 text-amber-500" 
-              fill="url(#dialogStarGradient)"
-              stroke="url(#dialogStarGradient)"
-            />
+      <DialogContent className="sm:max-w-[400px] bg-white border-none p-4 shadow-lg rounded-lg">
+        <DialogHeader className="mb-2 pb-2 border-b">
+          <DialogTitle className="flex items-center text-lg font-medium text-gray-800">
+            <Star className="mr-2 h-5 w-5 text-amber-500" fill="#F59E0B" />
             Display Settings
           </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
-            Customize typography and visual appearance
-          </DialogDescription>
         </DialogHeader>
         
-        <div className="grid gap-6 py-4">
+        <div className="grid gap-4 py-2">
           {/* Font Family Selection */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Font Family</Label>
+          <div className="space-y-1.5">
+            <Label className="text-sm font-medium text-gray-700">Font Family</Label>
             <Select
               value={settings.fontFamily}
               onValueChange={(v) => onApply("fontFamily", v)}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full h-9 text-sm bg-white">
                 <SelectValue placeholder="Select font" />
               </SelectTrigger>
-              <SelectContent className="max-h-[300px]">
+              <SelectContent className="max-h-[200px] bg-white">
                 {FONT_OPTIONS.map((font) => (
                   <SelectItem 
                     key={font.value} 
                     value={font.value}
-                    className={cn("text-base", font.class)}
+                    className={cn("text-sm", font.class)}
                   >
                     {font.label}
                   </SelectItem>
@@ -100,10 +92,10 @@ const SettingsDialog = ({
           </div>
 
           {/* Font Size Slider */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="flex justify-between">
-              <Label className="text-sm font-medium">Font Size</Label>
-              <span className="text-sm text-muted-foreground">
+              <Label className="text-sm font-medium text-gray-700">Font Size</Label>
+              <span className="text-xs text-gray-500">
                 {settings.fontSize}px
               </span>
             </div>
@@ -122,21 +114,22 @@ const SettingsDialog = ({
           </div>
 
           {/* Color Style Selection */}
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Color Style</Label>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium text-gray-700">Color Style</Label>
               <Select
                 value={settings.colorStyle}
                 onValueChange={(v) => onApply("colorStyle", v)}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full h-9 text-sm bg-white">
                   <SelectValue placeholder="Select style" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white">
                   {COLOR_STYLES.map((style) => (
                     <SelectItem 
                       key={style.value} 
                       value={style.value}
+                      className="text-sm"
                     >
                       <div className="flex items-center gap-2">
                         {style.value === 'custom-gradient' ? (
@@ -163,27 +156,27 @@ const SettingsDialog = ({
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="grid grid-cols-2 gap-4"
+                className="grid grid-cols-2 gap-3"
               >
-                <div className="space-y-2">
-                  <Label className="text-sm">Start Color</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-gray-600">Start Color</Label>
                   <div className="relative">
                     <Input
                       type="color"
                       value={settings.gradientStart || '#4f46e5'}
                       onChange={(e) => onApply("gradientStart", e.target.value)}
-                      className="h-10 w-full cursor-pointer"
+                      className="h-8 w-full cursor-pointer p-0"
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-sm">End Color</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-gray-600">End Color</Label>
                   <div className="relative">
                     <Input
                       type="color"
                       value={settings.gradientEnd || '#ec4899'}
                       onChange={(e) => onApply("gradientEnd", e.target.value)}
-                      className="h-10 w-full cursor-pointer"
+                      className="h-8 w-full cursor-pointer p-0"
                     />
                   </div>
                 </div>
@@ -191,11 +184,11 @@ const SettingsDialog = ({
             )}
 
             {/* Preview */}
-            <div className="mt-4 p-4 rounded-lg border border-gray-200">
-              <h3 className="text-sm font-medium mb-2">Preview</h3>
+            <div className="mt-2 p-3 rounded-md border border-gray-100 bg-gray-50">
+              <h3 className="text-xs font-medium mb-2 text-gray-600">Preview</h3>
               <div 
                 className={cn(
-                  "p-3 rounded-md",
+                  "p-2 rounded-md",
                   settings.colorStyle === 'gradient' && "bg-gradient-to-r from-blue-400 to-purple-500 text-white",
                   settings.colorStyle === 'custom-gradient' && "text-white",
                   `font-${settings.fontFamily}`
@@ -212,17 +205,6 @@ const SettingsDialog = ({
             </div>
           </div>
         </div>
-
-        {/* SVG Gradient definition */}
-        <svg className="absolute w-0 h-0">
-          <defs>
-            <linearGradient id="dialogStarGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#F59E0B', stopOpacity: 1 }} />
-              <stop offset="50%" style={{ stopColor: '#D97706', stopOpacity: 1 }} />
-              <stop offset="100%" style={{ stopColor: '#B45309', stopOpacity: 1 }} />
-            </linearGradient>
-          </defs>
-        </svg>
       </DialogContent>
     </Dialog>
   );

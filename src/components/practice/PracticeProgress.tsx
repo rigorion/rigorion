@@ -4,6 +4,8 @@ import HintDialog from "./HintDialog";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import PracticeTabSelector from "./PracticeTabSelector";
+import { useState } from "react";
+import SettingsDialog from "./SettingsDialog";
 
 interface PracticeProgressProps {
   correctAnswers: number;
@@ -40,6 +42,22 @@ const PracticeProgress = ({
   objective = null,
   progress = 0
 }: PracticeProgressProps) => {
+  const [showSettings, setShowSettings] = useState(false);
+  const [settings, setSettings] = useState({
+    fontFamily: 'inter',
+    fontSize: 14,
+    colorStyle: 'plain' as 'gradient' | 'plain' | 'custom-gradient',
+    gradientStart: '#4f46e5',
+    gradientEnd: '#ec4899',
+  });
+
+  const handleSettingsChange = (key: string, value: string | number) => {
+    setSettings(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+  
   const calculateProgress = () => {
     const total = totalQuestions;
     const totalAnswered = correctAnswers + incorrectAnswers;
@@ -104,102 +122,23 @@ const PracticeProgress = ({
           </div>
         </div>
 
-        {/* Center - Styling, Hint, Flag, and Tab selector */}
+        {/* Center - Hint, Style, Flag, and Tab selector */}
         <div className="flex items-center gap-2">
-          {/* Style button inline */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm" 
-                className="p-1 h-6 rounded-full"
-                aria-label="Text styling options"
-              >
-                <Sparkles className="h-4 w-4 text-blue-600" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent 
-              className="w-64 p-4 rounded-xl border border-blue-100 shadow-lg bg-white/90 backdrop-blur-sm transition-all duration-300 animate-in fade-in slide-in"
-              sideOffset={5}
-              align="center"
-            >
-              {/* Style content remains the same */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-medium text-gray-700">Text Styling</h3>
-                
-                <div className="space-y-3">
-                  <div className="flex flex-col gap-2">
-                    <label className="text-xs font-medium text-gray-600">Font</label>
-                    <select
-                      value=""
-                      onChange={() => {}}
-                      className="p-1.5 text-sm border rounded-lg bg-gray-50 focus:ring-1 focus:ring-blue-300 outline-none"
-                    >
-                      <option value="inter">Inter</option>
-                      <option value="times-new-roman">Times New Roman</option>
-                      <option value="roboto">Roboto</option>
-                      <option value="poppins">Poppins</option>
-                      <option value="share-tech-mono">Monospace</option>
-                      <option value="dancing-script">Cursive</option>
-                    </select>
-                  </div>
-                  
-                  <div className="flex flex-col gap-2">
-                    <div className="flex justify-between items-center">
-                      <label className="text-xs font-medium text-gray-600">Size: px</label>
-                    </div>
-                    <input
-                      type="range"
-                      min="10"
-                      max="24"
-                      step="1"
-                      value="14"
-                      onChange={() => {}}
-                      className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="flex flex-col gap-1 items-center">
-                      <label className="text-xs font-medium text-gray-600">Text</label>
-                      <input
-                        type="color"
-                        value="#374151"
-                        onChange={() => {}}
-                        className="w-8 h-8 p-0 border-none rounded-full"
-                      />
-                    </div>
-                    
-                    <div className="flex flex-col gap-1 items-center">
-                      <label className="text-xs font-medium text-gray-600">Key</label>
-                      <input
-                        type="color"
-                        value="#2563eb"
-                        onChange={() => {}}
-                        className="w-8 h-8 p-0 border-none rounded-full"
-                      />
-                    </div>
-                    
-                    <div className="flex flex-col gap-1 items-center">
-                      <label className="text-xs font-medium text-gray-600">Formula</label>
-                      <input
-                        type="color"
-                        value="#dc2626"
-                        onChange={() => {}}
-                        className="w-8 h-8 p-0 border-none rounded-full"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-          
-          {/* Hint button inline */}
+          {/* Hint button */}
           <HintDialog 
             hint={currentQuestionHint} 
             currentQuestionIndex={currentQuestionIndex} 
           />
+          
+          {/* Star icon for styling - Moved next to hint */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowSettings(true)}
+            className="p-1 h-6 rounded-full"
+          >
+            <Sparkles className="h-4 w-4 text-amber-500" />
+          </Button>
 
           {/* Flag icon for "review later" */}
           <Button
@@ -258,6 +197,14 @@ const PracticeProgress = ({
           <span>Unattempted: {totalQuestions - correctAnswers - incorrectAnswers}</span>
         </div>
       </div>
+
+      {/* Settings Dialog */}
+      <SettingsDialog
+        open={showSettings}
+        onOpenChange={setShowSettings}
+        settings={settings}
+        onApply={handleSettingsChange}
+      />
 
       {/* Add the keyframes animation for the shining effect */}
       <style>
