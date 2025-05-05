@@ -150,7 +150,6 @@ const PracticeProgress = ({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setShowSettings(true)}
               className="p-1 h-6 rounded-full"
             >
               <Sparkles className="h-4 w-4 text-amber-500" />

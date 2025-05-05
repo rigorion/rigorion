@@ -16,6 +16,7 @@ import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Star } from "lucide-react";
+import { ReactNode } from "react";
 
 interface SettingsDialogProps {
   open: boolean;
@@ -27,6 +28,7 @@ interface SettingsDialogProps {
     textColor?: string;
   };
   onApply: (key: string, value: string | number) => void;
+  children?: ReactNode;
 }
 
 const FONT_OPTIONS = [
@@ -46,9 +48,13 @@ const SettingsDialog = ({
   onOpenChange,
   settings,
   onApply,
+  children,
 }: SettingsDialogProps) => {
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
+      <PopoverTrigger asChild>
+        {children}
+      </PopoverTrigger>
       <PopoverContent className="w-[240px] p-3 bg-white shadow-md rounded-lg border" side="bottom" align="end">
         <div className="flex items-center mb-2 pb-1 border-b">
           <Star className="mr-2 h-4 w-4 text-amber-500" fill="#F59E0B" />
