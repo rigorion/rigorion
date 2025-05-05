@@ -67,23 +67,31 @@ const PracticeDisplay = ({
         backgroundColor: boardColor === 'black' ? '#000' : boardColor === 'green' ? '#f0fdf4' : '#fff',
         color: boardColor === 'black' ? '#fff' : colorSettings.content
       }}>
-          {currentQuestion && <div style={{
-          fontFamily: displaySettings.fontFamily,
-          fontSize: `${displaySettings.fontSize}px`,
-          color: colorSettings.content,
-          background: displaySettings.colorStyle === 'gradient' ? 'linear-gradient(145deg, #f8fafc 0%, #f0fdf4 100%)' : '#ffffff'
-        }} className="mb-8 pr-4 py-0">
-              <h2 className="text-2xl font-semibold mb-4">
+          {currentQuestion && <div className="mb-8 pr-4 py-0"
+            style={{
+              fontFamily: displaySettings.fontFamily,
+              fontSize: `${displaySettings.fontSize}px`,
+              color: colorSettings.content,
+              background: displaySettings.colorStyle === 'gradient' ? 'linear-gradient(145deg, #f8fafc 0%, #f0fdf4 100%)' : '#ffffff'
+            }}>
+              <h2 className="text-2xl font-semibold mb-4"
+                style={{
+                  fontFamily: displaySettings.fontFamily,
+                  color: colorSettings.content
+                }}>
                 Question {currentQuestionIndex + 1}
               </h2>
               
               {/* Question Content */}
               <p className="mb-6 leading-relaxed" style={{
-            color: colorSettings.content
-          }}>
+                fontFamily: displaySettings.fontFamily,
+                fontSize: `${displaySettings.fontSize}px`,
+                color: colorSettings.content
+              }}>
                 {currentQuestion.content.split('**').map((part, i) => i % 2 === 1 ? <span key={i} className="font-bold" style={{
-              color: colorSettings.keyPhrase
-            }}>
+                    color: colorSettings.keyPhrase,
+                    fontFamily: displaySettings.fontFamily
+                  }}>
                       {part}
                     </span> : part)}
               </p>
@@ -91,9 +99,12 @@ const PracticeDisplay = ({
               {/* Answer Choices */}
               <div className="space-y-4">
                 {currentQuestion.choices.map((choice, index) => <div key={index} onClick={() => checkAnswer(choice)} style={{
-              borderColor: selectedAnswer === choice ? isCorrect ? '#10b981' : '#ef4444' : '#e5e7eb',
-              backgroundColor: selectedAnswer === choice ? isCorrect ? '#ecfdf5' : '#fef2f2' : 'transparent'
-            }} className="p-4 border-1 cursor-pointer transition-colors bg-transparent shadow-md hover:shadow-large py-[10px] px-[16px] rounded-full">
+                  borderColor: selectedAnswer === choice ? isCorrect ? '#10b981' : '#ef4444' : '#e5e7eb',
+                  backgroundColor: selectedAnswer === choice ? isCorrect ? '#ecfdf5' : '#fef2f2' : 'transparent',
+                  fontFamily: displaySettings.fontFamily,
+                  fontSize: `${displaySettings.fontSize}px`,
+                  color: colorSettings.content
+                }} className="p-4 border-1 cursor-pointer transition-colors bg-transparent shadow-md hover:shadow-large py-[10px] px-[16px] rounded-full">
                     <span className="mr-2 text-gray-500">{index + 1}.</span>
                     <span className={selectedAnswer === choice ? "font-medium" : ""}>
                       {choice}
@@ -145,7 +156,9 @@ const PracticeDisplay = ({
                       </svg>
                       Step-by-Step Solution
                     </h3>
-                    <ol className="space-y-3 list-decimal list-inside pl-4">
+                    <ol className="space-y-3 list-decimal list-inside pl-4" style={{
+                      fontFamily: displaySettings.fontFamily
+                    }}>
                       {currentQuestion.solutionSteps.map((step, index) => <li key={`step-${index}`} className="mb-3" style={{
                   color: colorSettings.content
                 }}>
@@ -165,8 +178,9 @@ const PracticeDisplay = ({
                       Historical Context
                     </h3>
                     <blockquote className="italic border-l-4 border-emerald-500 pl-4 py-2" style={{
-                color: colorSettings.keyPhrase
-              }}>
+                      color: colorSettings.keyPhrase,
+                      fontFamily: displaySettings.fontFamily
+                    }}>
                       {currentQuestion.quote.text}
                     </blockquote>
                     {currentQuestion.quote.source && <div className="mt-4 text-sm text-gray-500">

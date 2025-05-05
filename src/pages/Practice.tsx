@@ -131,6 +131,17 @@ const Practice = ({
     console.log("Time's up!");
   };
 
+  // Update displaySettings when settings change
+  useEffect(() => {
+    if (displaySettings.textColor) {
+      setContentColor(displaySettings.textColor);
+      setColorSettings(prev => ({
+        ...prev,
+        content: displaySettings.textColor
+      }));
+    }
+  }, [displaySettings.textColor]);
+
   // Update styling settings
   const handleUpdateStyle = (key: string, value: string | number) => {
     if (key === 'fontFamily') {
@@ -308,17 +319,9 @@ const Practice = ({
           checkAnswer={checkAnswer} 
           currentQuestionIndex={currentQuestionIndex} 
           totalQuestions={questions.length || totalQuestions} 
-          displaySettings={{
-            fontFamily,
-            fontSize,
-            colorStyle: 'plain'
-          }} 
+          displaySettings={displaySettings}
           boardColor={boardColor} 
-          colorSettings={{
-            content: contentColor,
-            keyPhrase: keyPhraseColor,
-            formula: formulaColor
-          }} 
+          colorSettings={colorSettings}
           activeTab={activeTab} 
         />
       </div>
