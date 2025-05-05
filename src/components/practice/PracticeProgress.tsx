@@ -1,3 +1,4 @@
+
 import { Clock, Flag, Lamp, Sparkles } from "lucide-react";
 import CountdownTimer from "./CountDownTimer";
 import HintDialog from "./HintDialog";
@@ -45,15 +46,27 @@ const PracticeProgress = ({
   const [settings, setSettings] = useState({
     fontFamily: 'inter',
     fontSize: 14,
-    colorStyle: 'plain' as 'plain',
+    colorStyle: 'plain' as const,
     textColor: '#374151',
   });
 
   const handleSettingsChange = (key: string, value: string | number) => {
-    setSettings(prev => ({
-      ...prev,
-      [key]: value
-    }));
+    if (key === 'fontFamily') {
+      setSettings(prev => ({
+        ...prev,
+        fontFamily: value as string
+      }));
+    } else if (key === 'fontSize') {
+      setSettings(prev => ({
+        ...prev,
+        fontSize: value as number
+      }));
+    } else if (key === 'textColor') {
+      setSettings(prev => ({
+        ...prev,
+        textColor: value as string
+      }));
+    }
   };
   
   const calculateProgress = () => {

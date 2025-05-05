@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { sampleQuestions } from "@/components/practice/sampleQuestion";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
@@ -63,9 +64,8 @@ const Practice = ({
   const [displaySettings, setDisplaySettings] = useState({
     fontFamily: 'inter',
     fontSize: 14,
-    colorStyle: 'plain' as 'gradient' | 'plain' | 'custom-gradient',
-    gradientStart: '#4f46e5',
-    gradientEnd: '#ec4899'
+    colorStyle: 'plain' as const,
+    textColor: '#374151'
   });
 
   // Stats and feedback states
@@ -146,8 +146,12 @@ const Practice = ({
         ...prev,
         fontSize: value as number
       }));
-    } else if (key === 'contentColor') {
+    } else if (key === 'textColor') {
       setContentColor(value as string);
+      setDisplaySettings(prev => ({
+        ...prev,
+        textColor: value as string
+      }));
       setColorSettings(prev => ({
         ...prev,
         content: value as string
@@ -163,18 +167,6 @@ const Practice = ({
       setColorSettings(prev => ({
         ...prev,
         formula: value as string
-      }));
-    } else if (key === 'colorStyle') {
-      setDisplaySettings(prev => ({
-        colorStyle: value as 'gradient' | 'plain' | 'custom-gradient'
-      }));
-    } else if (key === 'gradientStart') {
-      setDisplaySettings(prev => ({
-        gradientStart: value as string
-      }));
-    } else if (key === 'gradientEnd') {
-      setDisplaySettings(prev => ({
-        gradientEnd: value as string
       }));
     }
   };
@@ -320,7 +312,7 @@ const Practice = ({
           displaySettings={{
             fontFamily,
             fontSize,
-            colorStyle: displaySettings.colorStyle
+            colorStyle: 'plain'
           }} 
           boardColor={boardColor} 
           colorSettings={{
