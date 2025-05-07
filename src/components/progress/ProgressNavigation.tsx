@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar, Settings, ChevronDown } from "lucide-react";
@@ -6,7 +5,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { TimePeriod } from "@/types/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-
 type VisibleSections = {
   totalProgress: boolean;
   performanceGraph: boolean;
@@ -15,7 +13,6 @@ type VisibleSections = {
   timeManagement: boolean;
   goals: boolean;
 };
-
 interface ProgressNavigationProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
@@ -24,9 +21,13 @@ interface ProgressNavigationProps {
   setVisibleSections: (sections: Record<string, boolean>) => void;
   selectedCourse?: string;
   setSelectedCourse?: (courseId: string) => void;
-  courses?: Array<{ id: string; name: string; status: 'active' | 'expired'; expiresIn: number }>;
+  courses?: Array<{
+    id: string;
+    name: string;
+    status: 'active' | 'expired';
+    expiresIn: number;
+  }>;
 }
-
 export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
   sidebarOpen,
   setSidebarOpen,
@@ -38,58 +39,34 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
   courses = []
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  
-  return (
-    <div className="flex items-center justify-between flex-wrap gap-2">
+  return <div className="flex items-center justify-between flex-wrap gap-2">
       <div className="flex items-center space-x-4">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => setSidebarOpen(!sidebarOpen)} 
-          className="hover:bg-gray-100 transition-colors bg-white text-blue-500 rounded-full shadow-sm"
-        >
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            width="20" 
-            height="20" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-            className="smooth-icon"
-          >
+        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="hover:bg-gray-100 transition-colors bg-white text-blue-500 rounded-full shadow-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="smooth-icon">
             <path d="M3 7h18M3 12h18M3 17h18" />
           </svg>
         </Button>
-        <h2 className="font-cursive text-xl sm:text-2xl text-red-dark font-semibold italic">Rigorion</h2>
+        
       </div>
 
       <div className="flex items-center gap-2 flex-wrap">
         {/* Course Selection Dropdown with Expiry Badge - Updated Styling */}
-        {courses.length > 0 && setSelectedCourse && (
-          <div className="relative">
+        {courses.length > 0 && setSelectedCourse && <div className="relative">
             <Select value={selectedCourse} onValueChange={setSelectedCourse}>
               <SelectTrigger className="w-[180px] bg-white hover:bg-gray-50 shadow-sm border-gray-100">
                 <SelectValue placeholder="Select Course" />
               </SelectTrigger>
               <SelectContent className="bg-white">
-                {courses.map((course) => (
-                  <SelectItem key={course.id} value={course.id} className="flex items-center justify-between">
+                {courses.map(course => <SelectItem key={course.id} value={course.id} className="flex items-center justify-between">
                     <span>{course.name}</span>
-                  </SelectItem>
-                ))}
+                  </SelectItem>)}
               </SelectContent>
             </Select>
             {/* Green Badge for Active Course Expiry */}
-            {courses.find(c => c.id === selectedCourse)?.status === 'active' && (
-              <Badge className="absolute -top-2 -right-2 course-expiry-badge">
+            {courses.find(c => c.id === selectedCourse)?.status === 'active' && <Badge className="absolute -top-2 -right-2 course-expiry-badge">
                 {courses.find(c => c.id === selectedCourse)?.expiresIn} days
-              </Badge>
-            )}
-          </div>
-        )}
+              </Badge>}
+          </div>}
         
         {/* Time Period Dropdown */}
         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
@@ -116,8 +93,6 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default ProgressNavigation;
