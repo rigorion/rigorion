@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { TabsList, Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs";
@@ -5,9 +6,19 @@ import { ProgressDashboard } from "@/components/progress/ProgressDashboard";
 import { LeaderboardData } from "@/components/progress/LeaderboardData";
 import { FullPageLoader } from "@/components/progress/FullPageLoader";
 import type { TimePeriod, ProgressTab } from "@/types/progress";
-import { TrendingUp, Trophy } from "lucide-react";
+import { TrendingUp, Trophy, Navigation, Bell } from "lucide-react";
 import { ProgressNavigation } from "@/components/progress/ProgressNavigation";
 import { ProgressDataProvider } from "@/components/progress/ProgressDataProvider";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Define the VisibleSections type to match the structure
 type VisibleSections = {
@@ -185,10 +196,13 @@ const DUMMY_PROGRESS = {
 };
 
 const Progress = () => {
+  const navigate = useNavigate();
   const { session } = useAuth();
   const [period, setPeriod] = useState<TimePeriod>("weekly");
   const [activeTab, setActiveTab] = useState<ProgressTab>("performance");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isNavDropdownOpen, setIsNavDropdownOpen] = useState(false);
+  const [hasNotifications, setHasNotifications] = useState(true); // Demo state to show notification dot
   const [courses, setCourses] = useState<Course[]>([
     { id: '1', name: 'GMAT Preparation', status: 'active', expiresIn: 30 },
     { id: '2', name: 'SAT Advanced', status: 'active', expiresIn: 25 },
@@ -205,9 +219,22 @@ const Progress = () => {
     timeManagement: true,
     goals: true
   });
+
+  const navigationItems = [
+    { name: "Home", path: "/" },
+    { name: "Practice", path: "/practice" },
+    { name: "Progress", path: "/progress" },
+    { name: "Chat", path: "/chat" },
+    { name: "About", path: "/about" },
+  ];
   
   const userId = session?.user?.id;
   const isAuthenticated = !!userId;
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    setIsNavDropdownOpen(false);
+  };
 
   // Create a handler that matches the expected type
   const handleSetVisibleSections = (sections: Record<string, boolean>) => {
@@ -232,16 +259,88 @@ const Progress = () => {
     <div className="flex min-h-screen w-full bg-mono-bg">
       <main className="flex-1 bg-mono-bg">
         <header className="sticky top-0 z-50 bg-white border-b px-4 py-3">
-          <ProgressNavigation 
-            sidebarOpen={sidebarOpen}
-            setSidebarOpen={setSidebarOpen}
-            setPeriod={(value: TimePeriod) => setPeriod(value)}
-            visibleSections={visibleSections}
-            setVisibleSections={handleSetVisibleSections}
-            selectedCourse={selectedCourse}
-            setSelectedCourse={setSelectedCourse}
-            courses={courses}
-          />
+          <div className="container mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <DropdownMenu open={isNavDropdownOpen} onOpenChange={setIsNavDropdownOpen}>
+                <DropdownMenuTrigger className="rounded-lg p-2 hover:bg-gray-100 transition-colors">
+                  <Navigation className="h-5 w-5 text-blue-500" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-56 bg-white border border-gray-200 shadow-lg rounded-lg p-2">
+                  <ScrollArea className="h-auto max-h-[300px]">
+                    {navigationItems.map((item, index) => (
+                      <DropdownMenuItem 
+                        key={index}
+                        className="cursor-pointer py-2 hover:bg-gray-100 rounded-sm transition-colors"
+                        onClick={() => handleNavigation(item.path)}
+                      >
+                        <span className="font-source-sans text-[#304455]">{item.name}</span>
+                      </DropdownMenuItem>
+                    ))}
+                  </ScrollArea>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <h2 className="text-xl font-bold text-gray-800">Progress Dashboard</h2>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {/* Notification Bell */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="relative rounded-full hover:bg-gray-100"
+                  >
+                    <Bell className="h-5 w-5 text-gray-600" />
+                    {hasNotifications && (
+                      <span className="absolute top-1 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-80 bg-white border border-gray-200 shadow-lg rounded-lg p-2">
+                  <div className="flex justify-between items-center mb-2 px-2">
+                    <h3 className="font-semibold">Notifications</h3>
+                    <Button variant="ghost" size="sm" className="text-xs text-blue-500 hover:text-blue-700">
+                      Mark all as read
+                    </Button>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <ScrollArea className="h-64">
+                    <div className="p-2 text-sm bg-blue-50 rounded-md mb-2">
+                      <p className="font-medium">Progress milestone reached!</p>
+                      <p className="text-gray-600">You've completed 75% of your course material.</p>
+                      <p className="text-xs text-gray-500 mt-1">1 hour ago</p>
+                    </div>
+                    <div className="p-2 text-sm mb-2">
+                      <p className="font-medium">Weekly report available</p>
+                      <p className="text-gray-600">Your performance report for this week is ready.</p>
+                      <p className="text-xs text-gray-500 mt-1">1 day ago</p>
+                    </div>
+                    <div className="p-2 text-sm mb-2">
+                      <p className="font-medium">New goal suggestion</p>
+                      <p className="text-gray-600">We've suggested a new goal based on your progress.</p>
+                      <p className="text-xs text-gray-500 mt-1">2 days ago</p>
+                    </div>
+                  </ScrollArea>
+                  <DropdownMenuSeparator />
+                  <Button variant="ghost" size="sm" className="w-full text-center text-sm mt-1">
+                    View all notifications
+                  </Button>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              <ProgressNavigation 
+                sidebarOpen={sidebarOpen}
+                setSidebarOpen={setSidebarOpen}
+                setPeriod={(value: TimePeriod) => setPeriod(value)}
+                visibleSections={visibleSections}
+                setVisibleSections={handleSetVisibleSections}
+                selectedCourse={selectedCourse}
+                setSelectedCourse={setSelectedCourse}
+                courses={courses}
+              />
+            </div>
+          </div>
         </header>
 
         <Tabs defaultValue={activeTab} value={activeTab} onValueChange={value => setActiveTab(value as ProgressTab)} className="w-full">

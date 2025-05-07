@@ -1,7 +1,8 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Target, Navigation, ChevronDown, LogOut } from "lucide-react";
+import { Target, Navigation, ChevronDown, LogOut, Bell } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -35,6 +36,7 @@ export const PracticeHeader = ({
   const { user, profile, signOut } = useAuth();
   const [isNavDropdownOpen, setIsNavDropdownOpen] = useState(false);
   const [isChapterDropdownOpen, setIsChapterDropdownOpen] = useState(false);
+  const [hasNotifications, setHasNotifications] = useState(true); // Demo state to show notification dot
 
   const pages = [
     { name: "Home", path: "/" },
@@ -102,6 +104,52 @@ export const PracticeHeader = ({
       </div>
       
       <div className="flex items-center gap-4">
+        {/* Notification Bell */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative rounded-full hover:bg-gray-100"
+            >
+              <Bell className="h-5 w-5 text-gray-600" />
+              {hasNotifications && (
+                <span className="absolute top-1 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-80 bg-white border border-gray-200 shadow-lg rounded-lg p-2">
+            <div className="flex justify-between items-center mb-2 px-2">
+              <h3 className="font-semibold">Notifications</h3>
+              <Button variant="ghost" size="sm" className="text-xs text-blue-500 hover:text-blue-700">
+                Mark all as read
+              </Button>
+            </div>
+            <DropdownMenuSeparator />
+            <ScrollArea className="h-64">
+              <div className="p-2 text-sm bg-blue-50 rounded-md mb-2">
+                <p className="font-medium">New chapter available!</p>
+                <p className="text-gray-600">Advanced Calculus chapter is now available.</p>
+                <p className="text-xs text-gray-500 mt-1">2 hours ago</p>
+              </div>
+              <div className="p-2 text-sm mb-2">
+                <p className="font-medium">Practice reminder</p>
+                <p className="text-gray-600">You haven't practiced in 2 days.</p>
+                <p className="text-xs text-gray-500 mt-1">1 day ago</p>
+              </div>
+              <div className="p-2 text-sm mb-2">
+                <p className="font-medium">Achievement unlocked!</p>
+                <p className="text-gray-600">You've completed 50 practice problems!</p>
+                <p className="text-xs text-gray-500 mt-1">3 days ago</p>
+              </div>
+            </ScrollArea>
+            <DropdownMenuSeparator />
+            <Button variant="ghost" size="sm" className="w-full text-center text-sm mt-1">
+              View all notifications
+            </Button>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         {/* Renamed Modules to Exams - ModulesDialog component is used */}
         <ModulesDialog />
 
