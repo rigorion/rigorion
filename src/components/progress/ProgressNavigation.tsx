@@ -41,11 +41,7 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   return <div className="flex items-center justify-between flex-wrap gap-2">
       <div className="flex items-center space-x-4">
-        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="hover:bg-gray-100 transition-colors bg-white text-blue-500 rounded-full shadow-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="smooth-icon">
-            <path d="M3 7h18M3 12h18M3 17h18" />
-          </svg>
-        </Button>
+        
         
       </div>
 
