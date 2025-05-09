@@ -68,6 +68,7 @@ async function fetchWithInvokeFallback(
 export async function fetchProgressEndpoints() {
   const endpoints = {
     userProgress: "get-user-progress",
+    progress:     "get-progress",
     leaderboard:  "get-leaders-board",
     satMath:      "get-sat-math-questions",
     satModel:     "get-sat-model-question",
