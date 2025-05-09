@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import AuthLayout from "@/components/auth/AuthLayout";
@@ -13,19 +13,15 @@ const SignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
-  
-  // Get the redirect path from location state or default to progress
-  const from = location.state?.from?.pathname || "/progress";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
     try {
-      await signIn(email, password, from);
-      // Navigation is handled in the signIn function
+      await signIn(email, password);
+      navigate("/welcome");
     } catch (error: any) {
       toast({
         title: "Sign In Failed",
