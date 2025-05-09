@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
@@ -7,10 +6,10 @@ import { useToast } from "@/hooks/use-toast";
 interface AuthContextType {
   user: User | null;
   profile: any | null;
-  session: Session | null; // Add the session property
+  session: Session | null;
   loading: boolean;
   signUp: (email: string, password: string, name: string) => Promise<void>;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string, redirectPath?: string) => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
 }
@@ -19,7 +18,7 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType>({
   user: null,
   profile: null,
-  session: null, // Initialize the session property
+  session: null,
   loading: true,
   signUp: async () => {},
   signIn: async () => {},
@@ -33,7 +32,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
-  const [session, setSession] = useState<Session | null>(null); // Add state for session
+  const [session, setSession] = useState<Session | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -136,7 +135,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, redirectPath: string = "/progress") => {
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
@@ -149,6 +148,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         title: "Signed In",
         description: "Welcome back!",
       });
+      
+      // After successful sign in, navigate to the specified path (default: progress)
+      window.location.href = redirectPath;
+      
     } catch (error: any) {
       console.error("Sign-in error:", error.message);
       toast({
@@ -207,7 +210,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     <AuthContext.Provider value={{ 
       user, 
       profile, 
-      session, // Add session to context value
+      session,
       loading, 
       signUp, 
       signIn, 
