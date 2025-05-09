@@ -83,10 +83,10 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
           />
           <Tooltip content={<CustomTooltip />} />
           <Line
-            type="stepAfter"
+            type="linear"
             dataKey="questions"
             strokeWidth={2}
-            stroke="#8E9196"
+            stroke="#333333"
             dot={(props) => {
               const momentum = props.payload.momentum;
               return (
@@ -141,7 +141,7 @@ export const ProgressChart = ({ data = [] }: ProgressChartProps) => {
         <Tooltip content={<CustomTooltip />} />
         <Bar
           dataKey="questions"
-          fill="#8E9196"
+          fill="#333333"
           radius={[0, 0, 0, 0]} // Rectangular edges
           maxBarSize={15} // 25% thinner (was 20 before)
         />
