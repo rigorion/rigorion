@@ -36,6 +36,7 @@ async function fetchWithInvokeFallback(
     });
     
     if (!res.ok) {
+      console.warn(`Fetch failed for ${endpoint}: ${res.status} ${res.statusText}`);
       throw new Error(`Fetch failed ${res.status}: ${res.statusText}`);
     }
     
