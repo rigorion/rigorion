@@ -125,7 +125,7 @@ export const StatsCardGrid = ({
           }
         }
       }}
-      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 max-w-[95%] mx-auto"
+      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 max-w-[95%] mx-auto rounded-full border border-gray-200"
     >
       {stats.map((stat, index) => (
         <motion.div 
