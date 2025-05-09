@@ -64,16 +64,16 @@ export const StatsCard = ({
 
   if (isCalendar) {
     return (
-      <Card className="p-4 transition-all duration-300 border-none shadow-none">
-        <div className="flex items-center gap-3">
+      <Card className="p-3 md:p-4 transition-all duration-300 border-none shadow-none">
+        <div className="flex items-center gap-2 md:gap-3">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="ghost" className="w-full justify-between rounded-full text-base font-normal p-0 hover:bg-transparent">
-                <div className="flex items-center gap-3">
-                  <Calendar className="h-6 w-6 text-blue-500" strokeWidth={1.5} />
+              <Button variant="ghost" className="w-full justify-between rounded-full text-sm md:text-base font-normal p-0 hover:bg-transparent">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <Calendar className="h-5 w-5 md:h-6 md:w-6 text-blue-500" strokeWidth={1.5} />
                   <div>
-                    <p className="text-sm text-gray-500 text-left">{title}</p>
-                    <p className="text-lg font-semibold text-left">{value}</p>
+                    <p className="text-xs md:text-sm text-gray-500 text-left">{title}</p>
+                    <p className="text-sm md:text-lg font-semibold text-left">{value}</p>
                   </div>
                 </div>
               </Button>
@@ -94,12 +94,12 @@ export const StatsCard = ({
   }
 
   return (
-    <Card className="p-4 transition-all duration-300 border-none shadow-none">
-      <div className="flex items-center gap-3">
-        <Icon className="h-6 w-6 text-blue-500" strokeWidth={1.5} />
+    <Card className="p-3 md:p-4 transition-all duration-300 border-none shadow-none">
+      <div className="flex items-center gap-2 md:gap-3">
+        <Icon className="h-5 w-5 md:h-6 md:w-6 text-blue-500" strokeWidth={1.5} />
         <div>
-          <p className="text-sm text-gray-500">{title}</p>
-          <p className="text-lg font-semibold">{value}</p>
+          <p className="text-xs md:text-sm text-gray-500">{title}</p>
+          <p className="text-sm md:text-lg font-semibold">{value}</p>
         </div>
       </div>
     </Card>
@@ -125,7 +125,7 @@ export const StatsCardGrid = ({
           }
         }
       }}
-      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 max-w-[95%] mx-auto rounded-full border border-gray-200"
+      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-4 w-full max-w-[98%] md:max-w-[95%] mx-auto rounded-full border border-gray-200 py-2 px-2 md:px-4"
     >
       {stats.map((stat, index) => (
         <motion.div 
