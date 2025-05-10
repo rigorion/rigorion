@@ -1,16 +1,16 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface AuthContextType {
   user: User | null;
   profile: any | null;
-  session: Session | null; // Add the session property
+  session: Session | null;
   loading: boolean;
   signUp: (email: string, password: string, name: string) => Promise<void>;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string, redirectPath?: string) => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
 }
@@ -19,7 +19,7 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType>({
   user: null,
   profile: null,
-  session: null, // Initialize the session property
+  session: null,
   loading: true,
   signUp: async () => {},
   signIn: async () => {},
@@ -33,8 +33,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
-  const [session, setSession] = useState<Session | null>(null); // Add state for session
+  const [session, setSession] = useState<Session | null>(null);
   const { toast } = useToast();
+
+  // Note: We can't use useNavigate here as it's a provider component
+  // We'll handle navigation in the components that use this provider
 
   useEffect(() => {
     const initAuth = async () => {
@@ -42,7 +45,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Get initial session
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         setUser(currentSession?.user ?? null);
-        setSession(currentSession); // Store the session
+        setSession(currentSession);
         
         // Log the JWT token to console
         if (currentSession?.access_token) {
@@ -60,7 +63,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (_event, newSession) => {
             setUser(newSession?.user ?? null);
-            setSession(newSession); // Update session on auth state change
+            setSession(newSession);
             
             // Log the JWT token to console when it changes
             if (newSession?.access_token) {
@@ -136,9 +139,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, redirectPath: string = "/progress") => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -149,6 +152,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         title: "Signed In",
         description: "Welcome back!",
       });
+      
+      // After successful sign in, navigate to the specified path (default: progress)
+      // Using window.location.href for direct navigation
+      window.location.href = redirectPath;
+      
     } catch (error: any) {
       console.error("Sign-in error:", error.message);
       toast({
@@ -156,6 +164,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: error.message,
         variant: "destructive",
       });
+      throw error; // Rethrow to handle in the component
     }
   };
 
@@ -207,7 +216,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     <AuthContext.Provider value={{ 
       user, 
       profile, 
-      session, // Add session to context value
+      session,
       loading, 
       signUp, 
       signIn, 
