@@ -1,3 +1,4 @@
+// src/services/progressService.ts
 
 const SUPABASE_URL = "https://eantvimmgdmxzwrjwrop.supabase.co";
 const API_VERSION = "v1";
@@ -5,234 +6,239 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { UserProgressData } from '@/services/types/progressTypes';
 
-/**
- * Try a direct HTTP GET to your edge function, 
- * then fall back to supabase.functions.invoke()
- */
-async function fetchWithInvokeFallback(
-  endpoint: string,
-  authToken?: string
-): Promise<any> {
-  const url = `${SUPABASE_URL}/functions/${API_VERSION}/${endpoint}`;
-  
-  // Prepare headers with CORS support
-  const headers: Record<string,string> = {
-    "Content-Type": "application/json",
-    "Accept": "application/json"
-  };
-  
-  if (authToken) {
-    headers.Authorization = `Bearer ${authToken}`;
-  }
-
-  // 1️⃣ Primary: direct fetch with proper CORS handling
-  try {
-    console.log(`Attempting direct fetch to ${endpoint}`);
-    const res = await fetch(url, { 
-      method: "GET", 
-      headers,
-      credentials: "omit", // Important for CORS
-      mode: "cors"  // Ensure CORS mode is set
-    });
-    
-    if (!res.ok) {
-      throw new Error(`Fetch failed ${res.status}: ${res.statusText}`);
-    }
-    
-    const data = await res.json();
-    console.log(`Successful fetch for ${endpoint}:`, data);
-    return data;
-  } catch (fetchErr) {
-    console.warn(`Direct fetch failed for ${endpoint}:`, fetchErr);
-
-    // 2️⃣ Fallback: supabase.functions.invoke
-    try {
-      console.log(`Trying supabase.functions.invoke for ${endpoint}`);
-      const invokeOpts = { headers: authToken ? { Authorization: `Bearer ${authToken}` } : {} };
-      const { data, error } = await supabase.functions.invoke(endpoint, invokeOpts);
-      
-      if (error) {
-        console.error(`Invoke fallback also failed for ${endpoint}:`, error);
-        throw error;
+// Comprehensive dummy data structure
+const DUMMY_DATA: Record<string, any> = {
+  userProgress: [{
+    user_id: "dummy-user-123",
+    total_questions: 1500,
+    total_attempted: 875,
+    correct_count: 645,
+    incorrect_count: 230,
+    unattempted_count: 625,
+    questions_answered_today: 23,
+    streak_days: 7,
+    avg_score: 82.5,
+    rank: 42,
+    projected_score: 1350,
+    speed: 1.8,
+    easy: {
+      accuracy: 0.85,
+      avg_time: 45,
+      completed: 320,
+      total: 500
+    },
+    medium: {
+      accuracy: 0.72,
+      avg_time: 68,
+      completed: 250,
+      total: 600
+    },
+    hard: {
+      accuracy: 0.55,
+      avg_time: 92,
+      completed: 75,
+      total: 400
+    },
+    avg_time_per_question: 68,
+    avg_time_correct: 58,
+    avg_time_incorrect: 81,
+    longest_time: 210,
+    performance_graph: generatePerformanceGraph(),
+    chapter_stats: generateChapterStats(),
+    goals: [
+      {
+        title: "Complete 1000 Questions",
+        target: 1000,
+        completed: 875,
+        due_date: "2024-12-31"
       }
-      
-      return data;
-    } catch (invokeErr) {
-      console.error(`All fetch methods failed for ${endpoint}:`, invokeErr);
-      // Return null to indicate fetch failure - the calling function will handle fallbacks
-      return null;
+    ]
+  }],
+  progress: {
+    weekly_completion: 65,
+    daily_target: 25,
+    accuracy_improvement: 12,
+    speed_improvement: 8
+  },
+  leaderboard: Array.from({ length: 20 }, (_, i) => ({
+    rank: i + 1,
+    username: `Student${i + 1}`,
+    score: 1500 - (i * 65),
+    avatar_url: `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${i}`
+  })),
+  satMath: Array.from({ length: 10 }, (_, i) => ({
+    question_id: i + 1,
+    text: `Solve for x: ${i + 2}x + 5 = ${(i + 2) * 3 + 5}`,
+    difficulty: i % 2 === 0 ? 'medium' : 'hard',
+    options: Array.from({ length: 4 }, (_, j) => ({
+      id: j + 1,
+      value: (j === i % 4) ? 3 + i : Math.floor(Math.random() * 10) + 1
+    }))
+  })),
+  satModel: {
+    question_id: 0,
+    text: "A train travels 300 miles in 5 hours. If it continues at the same speed, how far will it travel in 7 hours?",
+    difficulty: "medium",
+    options: [
+      { id: 1, value: 380 },
+      { id: 2, value: 420 },
+      { id: 3, value: 400 },
+      { id: 4, value: 410 }
+    ],
+    correct_answer: 2
+  },
+  interactions: { status: "logged", timestamp: new Date().toISOString() }
+};
+
+function generatePerformanceGraph() {
+  const today = new Date();
+  return Array.from({ length: 15 }, (_, i) => ({
+    date: new Date(today.setDate(today.getDate() - 1)).toISOString().split('T')[0],
+    attempted: Math.floor(Math.random() * 20) + 10
+  })).reverse();
+}
+
+function generateChapterStats() {
+  return Array.from({ length: 10 }, (_, i) => ({
+    [`chapter_${i + 1}`]: {
+      correct: Math.floor(Math.random() * 50) + 20,
+      incorrect: Math.floor(Math.random() * 20) + 5,
+      unattempted: Math.floor(Math.random() * 30) + 10
     }
+  })).reduce((acc, curr) => ({ ...acc, ...curr }), {});
+}
+
+async function fetchDirect(endpoint: string, authToken?: string): Promise<any> {
+  const url = `${SUPABASE_URL}/functions/${API_VERSION}/${endpoint}`;
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+    ...(authToken && { Authorization: `Bearer ${authToken}` })
+  };
+
+  try {
+    const res = await fetch(url, {
+      method: "GET",
+      headers,
+      credentials: "omit",
+      mode: "cors"
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status} - ${res.statusText}`);
+    return await res.json();
+  } catch (error) {
+    console.warn(`Direct fetch failed for ${endpoint}:`, error);
+    return null;
   }
 }
 
 export async function fetchProgressEndpoints() {
   const endpoints = {
     userProgress: "get-user-progress",
-    progress:     "get-progress",
-    leaderboard:  "get-leaders-board",
-    satMath:      "get-sat-math-questions",
-    satModel:     "get-sat-model-question",
+    progress: "get-progress",
+    leaderboard: "get-leaders-board",
+    satMath: "get-sat-math-questions",
+    satModel: "get-sat-model-question",
     interactions: "log-interaction",
   };
 
   const results: Record<string, any> = {};
   const failed: string[] = [];
 
-  // Grab session token once
   const { data: { session } } = await supabase.auth.getSession();
   const authToken = session?.access_token;
 
   await Promise.all(
     Object.entries(endpoints).map(async ([key, endpoint]) => {
       try {
-        const data = await fetchWithInvokeFallback(endpoint, authToken);
-        results[key] = data || null; // Ensure we store null if the fetch failed
+        const apiData = await fetchDirect(endpoint, authToken);
+        results[key] = apiData ?? DUMMY_DATA[key];
+        if (!apiData) failed.push(key);
       } catch (error) {
-        console.error(`Error fetching ${endpoint}:`, error);
+        results[key] = DUMMY_DATA[key];
         failed.push(key);
-        results[key] = null;
       }
     })
   );
 
   if (failed.length) {
-    console.warn(`Failed to load: ${failed.join(", ")}`);
-    toast.error(`Some data couldn't be loaded. Using fallback data.`);
+    toast.warning(`Using demo data for: ${failed.join(", ")}`);
   }
 
   return results;
 }
 
-/**
- * Process all the data from multiple endpoints into a single UserProgressData object
- */
 export function processProgressData(endpointsData: Record<string, any>): UserProgressData {
-  console.log("Processing progress data from endpoints:", endpointsData);
+  const userProgressData = endpointsData.userProgress?.[0] || DUMMY_DATA.userProgress[0];
+  const progressData = endpointsData.progress || DUMMY_DATA.progress;
   
-  // Extract user progress data
-  const userProgressData = endpointsData.userProgress && Array.isArray(endpointsData.userProgress) 
-    ? endpointsData.userProgress[0] 
-    : null;
-  
-  if (!userProgressData) {
-    console.warn("No user progress data available, using defaults");
-  }
-  
-  // Create performance graph with 15-day history
-  let performanceGraph = [];
-  if (userProgressData && userProgressData.performance_graph) {
-    performanceGraph = userProgressData.performance_graph;
-  } else {
-    // Generate empty performance data for the last 15 days
-    const today = new Date();
-    for (let i = 14; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      const formattedDate = date.toISOString().split('T')[0];
-      performanceGraph.push({
-        date: formattedDate,
-        attempted: Math.floor(Math.random() * 20) + 5 // Generate random data between 5-25
-      });
-    }
-  }
-  
-  // Create chapter performance data
-  const chapterPerformance = [];
-  if (userProgressData && userProgressData.chapter_stats) {
-    Object.entries(userProgressData.chapter_stats).forEach(([chapterId, stats]: [string, any]) => {
-      chapterPerformance.push({
-        chapterId,
-        chapterName: chapterId.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
-        correct: stats.correct || 0,
-        incorrect: stats.incorrect || 0,
-        unattempted: stats.unattempted || 0
-      });
-    });
-  } else {
-    // Generate fallback chapter data if none exists
-    for (let i = 1; i <= 10; i++) {
-      chapterPerformance.push({
-        chapterId: `chapter_${i}`,
-        chapterName: `Chapter ${i}`,
-        correct: Math.floor(Math.random() * 15) + 5,
-        incorrect: Math.floor(Math.random() * 8) + 1,
-        unattempted: Math.floor(Math.random() * 10) + 3
-      });
-    }
-  }
-  
-  // Create goals data
-  const goals = [];
-  if (userProgressData && userProgressData.goals) {
-    userProgressData.goals.forEach((goal: any) => {
-      goals.push({
-        id: Math.random().toString(),
-        title: goal.title,
-        targetValue: goal.target,
-        currentValue: goal.completed,
-        dueDate: goal.due_date
-      });
-    });
-  } else {
-    // Add fallback goals if none exist
-    goals.push({
-      id: "goal-1",
-      title: "Complete 100 Questions",
-      targetValue: 100,
-      currentValue: 65,
-      dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-    });
-    goals.push({
-      id: "goal-2",
-      title: "Achieve 85% in Medium Questions",
-      targetValue: 85,
-      currentValue: 70,
-      dueDate: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-    });
-  }
-  
-  // Calculate total progress percentage
-  let totalProgressPercent = 0;
-  if (userProgressData) {
-    const total = userProgressData.total_questions || 0;
-    const attempted = userProgressData.total_attempted || 0;
-    totalProgressPercent = total > 0 ? Math.round((attempted / total) * 100) : 0;
-  }
-  
-  // Generate the final processed data - Remove the properties that don't exist in UserProgressData type
+  // Performance graph processing
+  const performanceGraph = userProgressData.performance_graph?.map((entry: any) => ({
+    date: entry.date,
+    attempted: entry.attempted
+  })) || DUMMY_DATA.userProgress[0].performance_graph;
+
+  // Chapter performance processing
+  const chapterPerformance = Object.entries(userProgressData.chapter_stats || {})
+    .map(([chapterId, stats]: [string, any]) => ({
+      chapterId,
+      chapterName: `Chapter ${chapterId.split('_')[1]}`,
+      correct: stats.correct || 0,
+      incorrect: stats.incorrect || 0,
+      unattempted: stats.unattempted || 0
+    }));
+
+  // Goals processing
+  const goals = (userProgressData.goals || []).map((goal: any) => ({
+    id: `goal-${Math.random().toString(36).substr(2, 9)}`,
+    title: goal.title,
+    targetValue: goal.target,
+    currentValue: goal.completed,
+    dueDate: goal.due_date
+  }));
+
+  // Calculate derived values
+  const totalProgressPercent = userProgressData.total_attempted && userProgressData.total_questions
+    ? Math.round((userProgressData.total_attempted / userProgressData.total_questions) * 100)
+    : 58;
+
+  const goalAchievementPercent = goals.length
+    ? goals.reduce((sum: number, goal: any) => 
+        sum + (goal.currentValue / goal.targetValue * 100), 0) / goals.length
+    : 0;
+
   return {
-    userId: userProgressData?.user_id || "unknown",
+    userId: userProgressData.user_id,
     totalProgressPercent,
-    correctAnswers: userProgressData?.correct_count || 0,
-    incorrectAnswers: userProgressData?.incorrect_count || 0,
-    unattemptedQuestions: userProgressData?.unattempted_count || 0,
-    questionsAnsweredToday: userProgressData?.questions_answered_today || 0,
-    streak: userProgressData?.streak_days || 0,
-    averageScore: userProgressData?.avg_score || 0,
-    rank: userProgressData?.rank || 0,
-    projectedScore: userProgressData?.projected_score || 0,
-    speed: userProgressData?.speed || 0,
-    easyAccuracy: userProgressData?.easy?.accuracy * 100 || 0,
-    easyAvgTime: userProgressData?.easy?.avg_time ? userProgressData.easy.avg_time / 60 : 0,
-    easyCompleted: userProgressData?.easy?.completed || 0,
-    easyTotal: userProgressData?.easy?.total || 0,
-    mediumAccuracy: userProgressData?.medium?.accuracy * 100 || 0,
-    mediumAvgTime: userProgressData?.medium?.avg_time ? userProgressData.medium.avg_time / 60 : 0,
-    mediumCompleted: userProgressData?.medium?.completed || 0,
-    mediumTotal: userProgressData?.medium?.total || 0,
-    hardAccuracy: userProgressData?.hard?.accuracy * 100 || 0,
-    hardAvgTime: userProgressData?.hard?.avg_time ? userProgressData.hard.avg_time / 60 : 0,
-    hardCompleted: userProgressData?.hard?.completed || 0,
-    hardTotal: userProgressData?.hard?.total || 0,
-    goalAchievementPercent: userProgressData?.goals?.length 
-      ? userProgressData.goals.reduce((acc: number, goal: any) => acc + (goal.percent || 0), 0) / userProgressData.goals.length * 100 
-      : 0,
-    averageTime: userProgressData?.avg_time_per_question ? userProgressData.avg_time_per_question / 60 : 0,
-    correctAnswerAvgTime: userProgressData?.avg_time_correct ? userProgressData.avg_time_correct / 60 : 0,
-    incorrectAnswerAvgTime: userProgressData?.avg_time_incorrect ? userProgressData.avg_time_incorrect / 60 : 0,
-    longestQuestionTime: userProgressData?.longest_time ? userProgressData.longest_time / 60 : 0,
+    correctAnswers: userProgressData.correct_count,
+    incorrectAnswers: userProgressData.incorrect_count,
+    unattemptedQuestions: userProgressData.unattempted_count,
+    questionsAnsweredToday: userProgressData.questions_answered_today,
+    streak: userProgressData.streak_days,
+    averageScore: userProgressData.avg_score,
+    rank: userProgressData.rank,
+    projectedScore: userProgressData.projected_score,
+    speed: userProgressData.speed,
+    easyAccuracy: userProgressData.easy.accuracy * 100,
+    easyAvgTime: userProgressData.easy.avg_time / 60,
+    easyCompleted: userProgressData.easy.completed,
+    easyTotal: userProgressData.easy.total,
+    mediumAccuracy: userProgressData.medium.accuracy * 100,
+    mediumAvgTime: userProgressData.medium.avg_time / 60,
+    mediumCompleted: userProgressData.medium.completed,
+    mediumTotal: userProgressData.medium.total,
+    hardAccuracy: userProgressData.hard.accuracy * 100,
+    hardAvgTime: userProgressData.hard.avg_time / 60,
+    hardCompleted: userProgressData.hard.completed,
+    hardTotal: userProgressData.hard.total,
+    goalAchievementPercent,
+    averageTime: userProgressData.avg_time_per_question / 60,
+    correctAnswerAvgTime: userProgressData.avg_time_correct / 60,
+    incorrectAnswerAvgTime: userProgressData.avg_time_incorrect / 60,
+    longestQuestionTime: userProgressData.longest_time / 60,
     performanceGraph,
-    chapterPerformance,
-    goals
+    chapterPerformance: chapterPerformance.length ? chapterPerformance : DUMMY_DATA.userProgress[0].chapter_stats,
+    goals: goals.length ? goals : DUMMY_DATA.userProgress[0].goals,
+    ...progressData
   };
 }
