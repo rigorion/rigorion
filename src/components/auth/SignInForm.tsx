@@ -7,7 +7,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -22,6 +22,10 @@ export const SignInForm = ({ onForgotPassword }: SignInFormProps) => {
   const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Get the path to redirect to after sign in - default to progress
+  const from = location.state?.from?.pathname || '/progress';
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -35,9 +39,10 @@ export const SignInForm = ({ onForgotPassword }: SignInFormProps) => {
     try {
       setIsLoading(true);
       await signIn(values.email, values.password);
-      navigate("/welcome");
+      console.log("Form sign in successful, navigating to:", from);
+      navigate(from);
     } catch (error) {
-      console.error(error);
+      console.error("Form sign in error:", error);
     } finally {
       setIsLoading(false);
     }

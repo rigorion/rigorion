@@ -1,10 +1,10 @@
 
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import AuthLayout from "@/components/auth/AuthLayout";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
 const SignIn = () => {
@@ -13,7 +13,11 @@ const SignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  
+  // Get the path to redirect to after sign in - default to progress
+  const from = location.state?.from?.pathname || '/progress';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,8 +25,10 @@ const SignIn = () => {
     
     try {
       await signIn(email, password);
-      navigate("/welcome");
+      console.log("Sign in successful, navigating to:", from);
+      navigate(from);
     } catch (error: any) {
+      console.error("Sign in error:", error);
       toast({
         title: "Sign In Failed",
         description: error.message || "An error occurred during sign in.",
