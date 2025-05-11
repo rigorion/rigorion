@@ -58,6 +58,12 @@ export const SignInForm = ({ onForgotPassword }: SignInFormProps) => {
     }
   };
 
+  // Function to fill in demo credentials
+  const fillDemoCredentials = () => {
+    form.setValue("email", "demo@example.com");
+    form.setValue("password", "demo123456");
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -105,6 +111,14 @@ export const SignInForm = ({ onForgotPassword }: SignInFormProps) => {
           disabled={isLoading}
         >
           {isLoading ? "Signing In..." : "Sign In"}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full mt-2"
+          onClick={fillDemoCredentials}
+        >
+          Use Demo Account
         </Button>
       </form>
     </Form>

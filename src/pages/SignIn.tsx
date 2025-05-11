@@ -20,6 +20,14 @@ const SignIn = () => {
   // Get the path to redirect to after sign in - default to progress
   const from = location.state?.from?.pathname || '/progress';
 
+  // For testing purposes, use demo credentials
+  const handleDemoSignIn = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    setEmail("demo@example.com");
+    setPassword("demo123456");
+    // Do not submit automatically to allow user to see credentials
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -77,6 +85,14 @@ const SignIn = () => {
           disabled={isLoading}
         >
           {isLoading ? "Signing in..." : "Log in"}
+        </Button>
+        <Button 
+          type="button" 
+          variant="outline"
+          className="w-full rounded-xl mt-2"
+          onClick={handleDemoSignIn}
+        >
+          Use Demo Account
         </Button>
         <div className="text-center mt-6">
           <span className="text-gray-600">Don't have an account?</span>{" "}

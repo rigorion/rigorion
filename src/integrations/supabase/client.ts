@@ -3,14 +3,19 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-// Use import.meta.env instead of process.env
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://eantvimmgdmxzwrjwrop.supabase.co";
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhbnR2aW1tZ2RteHp3cmp3cm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI2ODkxNjksImV4cCI6MjA1ODI2NTE2OX0.AN7JVRiz4aFANJPliLpyIfWYC3JxYBeVTYkyZm1sBPo";
+// Use environment variables with fallbacks
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Log the initialization
+// Log the initialization with key format check
 console.log("Initializing Supabase client in integrations with URL:", SUPABASE_URL);
+console.log("API Key format check (integration client):", SUPABASE_ANON_KEY ? `Key length: ${SUPABASE_ANON_KEY.length}` : "Missing key");
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Always use the same key across the application
+export const supabase = createClient<Database>(
+  SUPABASE_URL || "https://xyzcompany.supabase.co",
+  SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5emNvbXBhbnkiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTYwMDAwMDAwMCwiZXhwIjoyMDAwMDAwMDAwfQ.Rl41HWI8A4tGS4WjOVgD6jNg42xk_XiKQbDrEcBtAhA"
+);
