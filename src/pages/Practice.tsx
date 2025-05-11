@@ -14,7 +14,6 @@ import ModeDialog from "@/components/practice/ModeDialog";
 import ObjectiveDialog from "@/components/practice/ObjectiveDialogue";
 import { Sidebar } from "@/components/practice/Sidebar";
 import SettingsDialog from "@/components/practice/SettingsDialog";
-import DBQuestionsLoader from "@/components/practice/DBQuestionsLoader";
 
 interface PracticeProps {
   chapterTitle?: string;
@@ -88,10 +87,6 @@ const Practice = ({
     formula: '#dc2626'
   });
   const [boardColor, setBoardColor] = useState('white');
-
-  // New state for question loading
-  const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
-  const [questionsSource, setQuestionsSource] = useState<"sample" | "database" | "encrypted">("sample");
 
   // Update current question when questions change or index changes
   useEffect(() => {
@@ -264,22 +259,6 @@ const Practice = ({
     setSettingsDialogOpen(true);
   };
 
-  // Handle questions loaded from database
-  const handleQuestionsLoaded = (loadedQuestions: Question[]) => {
-    if (loadedQuestions && loadedQuestions.length > 0) {
-      setQuestions(loadedQuestions);
-      setCurrentQuestionIndex(0);
-      setQuestionsSource("database");
-      setSelectedAnswer(null);
-      setIsCorrect(null);
-      toast({
-        title: "Questions Loaded",
-        description: `${loadedQuestions.length} questions are now available for practice`,
-        variant: "default"
-      });
-    }
-  };
-
   // Display an error message if there's an error
   if (error) {
     return <div className="flex flex-col items-center justify-center min-h-screen">
@@ -303,11 +282,6 @@ const Practice = ({
         sidebarOpen={sidebarOpen} 
         setSidebarOpen={setSidebarOpen}
       />
-
-      {/* Questions Loader (New Component) */}
-      <div className="max-w-xl mx-auto w-full mt-4 px-4">
-        <DBQuestionsLoader onQuestionsLoaded={handleQuestionsLoaded} />
-      </div>
 
       {/* Progress Bar with Stats and Tabs */}
       <PracticeProgress 
