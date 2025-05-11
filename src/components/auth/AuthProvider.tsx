@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 interface AuthContextType {
   user: User | null;
   profile: any | null;
-  session: Session | null;
+  session: Session | null; // Add the session property
   loading: boolean;
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
@@ -15,10 +15,11 @@ interface AuthContextType {
   resetPassword: (email: string) => Promise<void>;
 }
 
+// Export the AuthContext so it can be imported elsewhere
 export const AuthContext = createContext<AuthContextType>({
   user: null,
   profile: null,
-  session: null,
+  session: null, // Initialize the session property
   loading: true,
   signUp: async () => {},
   signIn: async () => {},
@@ -32,45 +33,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<Session | null>(null); // Add state for session
   const { toast } = useToast();
 
   useEffect(() => {
     const initAuth = async () => {
       try {
-        console.log("AuthProvider: Initializing auth state");
         // Get initial session
-        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error("Error getting session:", sessionError);
-          throw sessionError;
-        }
-        
-        console.log("AuthProvider: Session retrieved", !!currentSession);
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
         setUser(currentSession?.user ?? null);
-        setSession(currentSession);
+        setSession(currentSession); // Store the session
         
+        // Log the JWT token to console
         if (currentSession?.access_token) {
-          console.log('JWT Token available:', !!currentSession.access_token);
+          console.log('JWT Token:', currentSession.access_token);
         }
         
         if (currentSession?.user) {
           await fetchProfile(currentSession.user.id);
         } else {
+          // Important: Make sure to set loading to false when there's no session
           setLoading(false);
         }
         
         // Set up auth state change listener
-        console.log("AuthProvider: Setting up auth state change listener");
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (_event, newSession) => {
-            console.log("AuthProvider: Auth state changed", _event);
             setUser(newSession?.user ?? null);
-            setSession(newSession);
+            setSession(newSession); // Update session on auth state change
             
+            // Log the JWT token to console when it changes
             if (newSession?.access_token) {
-              console.log('JWT Token (on auth state change) available:', !!newSession.access_token);
+              console.log('JWT Token (on auth state change):', newSession.access_token);
             }
             
             if (newSession?.user) {
@@ -94,21 +88,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchProfile = async (userId: string) => {
     try {
-      console.log("Fetching profile for user:", userId);
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", userId)
         .single();
 
-      if (error) {
-        console.error("Error fetching profile:", error);
-        throw error;
-      }
-      
-      console.log("Profile retrieved:", !!data);
+      if (error) throw error;
       setProfile(data);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error fetching profile:", error);
       toast({
         title: "Error",
@@ -122,7 +110,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, name: string) => {
     try {
-      console.log("Signing up with email:", email);
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -133,12 +120,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         },
       });
 
-      if (error) {
-        console.error("Sign-up error:", error);
-        throw error;
-      }
+      if (error) throw error;
 
-      console.log("Sign-up successful");
       toast({
         title: "Success",
         description: "Check your email to confirm your account.",
@@ -150,53 +133,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: error.message,
         variant: "destructive",
       });
-      throw error; // Re-throw to let caller handle it
     }
   };
 
   const signIn = async (email: string, password: string) => {
     try {
-      console.log("AuthProvider: Signing in with email:", email);
-      
-      // Add more debugging to understand the Supabase client state
-      console.log("Using Supabase auth client with configured URL");
-      
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) {
-        console.error("Sign-in error:", error);
-        throw error;
-      }
+      if (error) throw error;
 
-      console.log("AuthProvider: Sign-in successful");
       toast({
         title: "Signed In",
         description: "Welcome back!",
       });
     } catch (error: any) {
-      console.error("Sign-in error:", error);
+      console.error("Sign-in error:", error.message);
       toast({
         title: "Sign In Failed",
         description: error.message,
         variant: "destructive",
       });
-      throw error; // Re-throw to let caller handle it
     }
   };
 
   const signOut = async () => {
     try {
-      console.log("Signing out");
       const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error("Sign-out error:", error);
-        throw error;
-      }
+      if (error) throw error;
 
-      console.log("Sign-out successful");
       toast({
         title: "Signed Out",
         description: "You have been signed out.",
@@ -211,23 +178,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: error.message,
         variant: "destructive",
       });
-      throw error; // Re-throw to let caller handle it
     }
   };
 
   const resetPassword = async (email: string) => {
     try {
-      console.log("Requesting password reset for:", email);
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
 
-      if (error) {
-        console.error("Reset password error:", error);
-        throw error;
-      }
+      if (error) throw error;
 
-      console.log("Reset password email sent successfully");
       toast({
         title: "Reset Link Sent",
         description: "Check your email for the password reset link.",
@@ -239,7 +200,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: error.message,
         variant: "destructive",
       });
-      throw error; // Re-throw to let caller handle it
     }
   };
 
@@ -247,7 +207,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     <AuthContext.Provider value={{ 
       user, 
       profile, 
-      session,
+      session, // Add session to context value
       loading, 
       signUp, 
       signIn, 

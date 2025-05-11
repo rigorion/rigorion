@@ -7,8 +7,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -23,11 +22,6 @@ export const SignInForm = ({ onForgotPassword }: SignInFormProps) => {
   const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
-  const { toast } = useToast();
-  
-  // Get the path to redirect to after sign in - default to progress
-  const from = location.state?.from?.pathname || '/progress';
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -40,28 +34,13 @@ export const SignInForm = ({ onForgotPassword }: SignInFormProps) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsLoading(true);
-      console.log("SignInForm attempting to sign in with:", values.email);
-      console.log("Using Supabase auth client");
-      
       await signIn(values.email, values.password);
-      console.log("SignInForm sign in successful, navigating to:", from);
-      navigate(from, { replace: true });
-    } catch (error: any) {
-      console.error("SignInForm sign in error:", error);
-      toast({
-        title: "Sign In Failed",
-        description: error.message || "Failed to sign in",
-        variant: "destructive",
-      });
+      navigate("/welcome");
+    } catch (error) {
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Function to fill in demo credentials
-  const fillDemoCredentials = () => {
-    form.setValue("email", "demo@example.com");
-    form.setValue("password", "demo123456");
   };
 
   return (
@@ -111,14 +90,6 @@ export const SignInForm = ({ onForgotPassword }: SignInFormProps) => {
           disabled={isLoading}
         >
           {isLoading ? "Signing In..." : "Sign In"}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full mt-2"
-          onClick={fillDemoCredentials}
-        >
-          Use Demo Account
         </Button>
       </form>
     </Form>

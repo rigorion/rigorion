@@ -1,12 +1,11 @@
 
 import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import AuthLayout from "@/components/auth/AuthLayout";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabase";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -14,33 +13,16 @@ const SignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
-  
-  // Get the path to redirect to after sign in - default to progress
-  const from = location.state?.from?.pathname || '/progress';
-
-  // For testing purposes, use demo credentials
-  const handleDemoSignIn = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    setEmail("demo@example.com");
-    setPassword("demo123456");
-    // Do not submit automatically to allow user to see credentials
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
     try {
-      console.log("Attempting to sign in with:", email);
-      console.log("Using Supabase client from lib/supabase.ts");
-      
       await signIn(email, password);
-      console.log("Sign in successful, navigating to:", from);
-      navigate(from, { replace: true });
+      navigate("/welcome");
     } catch (error: any) {
-      console.error("Sign in error:", error);
       toast({
         title: "Sign In Failed",
         description: error.message || "An error occurred during sign in.",
@@ -85,14 +67,6 @@ const SignIn = () => {
           disabled={isLoading}
         >
           {isLoading ? "Signing in..." : "Log in"}
-        </Button>
-        <Button 
-          type="button" 
-          variant="outline"
-          className="w-full rounded-xl mt-2"
-          onClick={handleDemoSignIn}
-        >
-          Use Demo Account
         </Button>
         <div className="text-center mt-6">
           <span className="text-gray-600">Don't have an account?</span>{" "}

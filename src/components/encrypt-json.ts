@@ -1,4 +1,3 @@
-
 import CryptoJS from 'crypto-js';
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import * as dotenv from 'dotenv';
@@ -9,12 +8,12 @@ import { supabase } from '@/lib/supabase';
 dotenv.config();
 
 // Configure paths
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_STORAGE_URL;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_STORAGE_URL!;
 const OUTPUT_DIR = './src/stored';
 const OUTPUT_FILE = `${OUTPUT_DIR}/encrypted-rigor.json`;
 
 // Validate environment variables
-if (!import.meta.env.VITE_ENCRYPTION_KEY) {
+if (!import.meta.env.ENCRYPTION_KEY) {
   throw new Error('Missing ENCRYPTION_KEY in .env file');
 }
 if (!SUPABASE_URL) {
@@ -37,7 +36,7 @@ async function fetchAndEncrypt() {
     // Encrypt content
     const encrypted = CryptoJS.AES.encrypt(
       JSON.stringify(response.data), 
-      import.meta.env.VITE_ENCRYPTION_KEY
+      import.meta.env.VITE_ENCRYPTION_KEY!
     ).toString();
 
     // Save encrypted file
