@@ -3,12 +3,13 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
+// Using hardcoded values to ensure consistency
 const SUPABASE_URL = "https://eantvimmgdmxzwrjwrop.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhbnR2aW1tZ2RteHp3cmp3cm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI2ODkxNjksImV4cCI6MjA1ODI2NTE2OX0.AN7JVRiz4aFANJPliLpyIfWYC3JxYBeVTYkyZm1sBPo";
 
 // Log the key being used (for debugging - remove in production)
 console.log("Supabase client initialized with URL:", SUPABASE_URL);
-console.log("Using Publishable Key (first 10 chars):", SUPABASE_PUBLISHABLE_KEY.substring(0, 10) + "...");
+console.log("Using hardcoded Supabase ANON KEY");
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
