@@ -26,8 +26,8 @@ const SignIn = () => {
     
     try {
       console.log("Attempting to sign in with:", email);
-      // Log Supabase instance details for debugging
-      console.log("Using Supabase URL:", supabase.supabaseUrl);
+      // Log Supabase configuration details for debugging
+      console.log("Using Supabase client from lib/supabase.ts");
       
       await signIn(email, password);
       console.log("Sign in successful, navigating to:", from);

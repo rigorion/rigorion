@@ -42,7 +42,7 @@ export const SignInForm = ({ onForgotPassword }: SignInFormProps) => {
     try {
       setIsLoading(true);
       console.log("SignInForm attempting to sign in with:", values.email);
-      console.log("SignInForm using Supabase URL:", supabase.supabaseUrl);
+      console.log("SignInForm using Supabase client from lib/supabase.ts");
       
       await signIn(values.email, values.password);
       console.log("SignInForm sign in successful, navigating to:", from);
