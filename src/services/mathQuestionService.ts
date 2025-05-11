@@ -1,3 +1,4 @@
+
 import { supabase } from '@/lib/supabase';
 import { Question } from '@/types/QuestionInterface';
 import { toast } from "@/hooks/use-toast";
@@ -7,45 +8,98 @@ const STORAGE_BUCKET = 'questions'; // Updated bucket name
 const QUESTIONS_FILE = 'satMath.json'; // File name in the bucket
 
 /**
- * Fetch unencrypted math questions directly from Supabase storage
+ * Fetch math questions directly from Supabase database
  */
 export async function fetchMathQuestions(): Promise<Question[]> {
   try {
-    // Download the file from Supabase storage
-    const { data, error } = await supabase.storage
-      .from(STORAGE_BUCKET)
-      .download(QUESTIONS_FILE);
+    console.log('Fetching math questions from Supabase database');
+    // Try to fetch from the model_sat_math_question table first
+    const { data: tableData, error: tableError } = await supabase
+      .from('model_sat_math_question')
+      .select('*');
       
-    if (error) {
-      console.error('Error downloading math questions:', error);
+    if (tableData && tableData.length > 0) {
+      console.log(`Successfully loaded ${tableData.length} math questions from database table`);
+      
+      // Map the table data to our Question interface
+      const formattedQuestions = tableData.map((q: any) => ({
+        id: q.id || `q-${Math.random().toString(36).substring(2, 9)}`,
+        content: q.content || q.question || q.problem || '',
+        solution: q.solution || q.answer || '',
+        difficulty: q.difficulty || 'medium',
+        chapter: q.chapter || 'SAT Math',
+        bookmarked: Boolean(q.bookmarked),
+        examNumber: q.exam_number || 2024,
+        choices: q.choices || [],
+        correctAnswer: q.correct_answer || q.answer || '',
+        explanation: q.explanation || '',
+        solutionSteps: q.solution_steps || [q.solution || ''],
+        quote: q.quote || { text: "Practice makes perfect", source: "SAT Math" }
+      }));
+      
       toast({
-        title: "Error loading questions",
-        description: `Storage error: ${error.message}`,
+        title: "Questions Loaded",
+        description: `Successfully loaded ${formattedQuestions.length} questions from database`,
+        variant: "default"
+      });
+      
+      return formattedQuestions;
+    }
+    
+    if (tableError) {
+      console.error('Error fetching from table, trying storage as fallback:', tableError);
+    } else {
+      console.warn('No questions found in the database table, trying storage as fallback');
+    }
+    
+    // Fall back to storage if table fetch fails or returns no data
+    try {
+      // Download the file from Supabase storage
+      const { data, error } = await supabase.storage
+        .from(STORAGE_BUCKET)
+        .download(QUESTIONS_FILE);
+        
+      if (error) {
+        console.error('Error downloading math questions from storage:', error);
+        toast({
+          title: "Error loading questions",
+          description: `Storage error: ${error.message}`,
+          variant: "destructive",
+        });
+        
+        // Return sample questions as fallback
+        return getSampleQuestions();
+      }
+      
+      if (!data) {
+        console.error('No data received from storage');
+        toast({
+          title: "No data received",
+          description: "Could not retrieve questions from storage",
+          variant: "destructive",
+        });
+        
+        // Return sample questions as fallback
+        return getSampleQuestions();
+      }
+      
+      // Parse the JSON content
+      const jsonText = await data.text();
+      const questions = JSON.parse(jsonText) as Question[];
+      
+      console.log(`Successfully loaded ${questions.length} math questions from storage`);
+      return questions;
+    } catch (storageError) {
+      console.error('Error fetching from storage:', storageError);
+      toast({
+        title: "Error loading from storage",
+        description: "Using sample questions instead",
         variant: "destructive",
       });
       
-      // Return sample questions as fallback
+      // Return sample questions as final fallback
       return getSampleQuestions();
     }
-    
-    if (!data) {
-      console.error('No data received from storage');
-      toast({
-        title: "No data received",
-        description: "Could not retrieve questions from storage",
-        variant: "destructive",
-      });
-      
-      // Return sample questions as fallback
-      return getSampleQuestions();
-    }
-    
-    // Parse the JSON content
-    const jsonText = await data.text();
-    const questions = JSON.parse(jsonText) as Question[];
-    
-    console.log(`Successfully loaded ${questions.length} math questions`);
-    return questions;
   } catch (error) {
     console.error('Error fetching math questions:', error);
     toast({
@@ -60,9 +114,10 @@ export async function fetchMathQuestions(): Promise<Question[]> {
 }
 
 /**
- * Get sample questions as a fallback if Supabase storage fails
+ * Get sample questions as a fallback if all other methods fail
  */
 function getSampleQuestions(): Question[] {
+  console.log('Using sample questions as fallback');
   // Sample questions to use as fallback
   return [
     {
