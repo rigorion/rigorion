@@ -25,6 +25,9 @@ const SignIn = () => {
     
     try {
       console.log("Attempting to sign in with:", email);
+      // Log the Supabase URL and key for debugging (don't include full key in production)
+      console.log("Using Supabase URL:", import.meta.env.VITE_SUPABASE_URL);
+      
       await signIn(email, password);
       console.log("Sign in successful, navigating to:", from);
       navigate(from, { replace: true });

@@ -40,11 +40,12 @@ export const SignInForm = ({ onForgotPassword }: SignInFormProps) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsLoading(true);
+      console.log("SignInForm attempting to sign in with:", values.email);
       await signIn(values.email, values.password);
-      console.log("Form sign in successful, navigating to:", from);
+      console.log("SignInForm sign in successful, navigating to:", from);
       navigate(from, { replace: true });
     } catch (error: any) {
-      console.error("Form sign in error:", error);
+      console.error("SignInForm sign in error:", error);
       toast({
         title: "Sign In Failed",
         description: error.message || "Failed to sign in",
