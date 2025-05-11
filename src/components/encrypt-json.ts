@@ -1,3 +1,4 @@
+
 import CryptoJS from 'crypto-js';
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import * as dotenv from 'dotenv';
