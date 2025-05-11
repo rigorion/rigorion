@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import AuthLayout from "@/components/auth/AuthLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase"; // Import directly to ensure correct instance
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -25,8 +26,8 @@ const SignIn = () => {
     
     try {
       console.log("Attempting to sign in with:", email);
-      // Log the Supabase URL and key for debugging (don't include full key in production)
-      console.log("Using Supabase URL:", import.meta.env.VITE_SUPABASE_URL);
+      // Log Supabase instance details for debugging
+      console.log("Using Supabase URL:", supabase.supabaseUrl);
       
       await signIn(email, password);
       console.log("Sign in successful, navigating to:", from);
