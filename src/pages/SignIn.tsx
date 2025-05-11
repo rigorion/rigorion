@@ -24,9 +24,10 @@ const SignIn = () => {
     setIsLoading(true);
     
     try {
+      console.log("Attempting to sign in with:", email);
       await signIn(email, password);
       console.log("Sign in successful, navigating to:", from);
-      navigate(from);
+      navigate(from, { replace: true });
     } catch (error: any) {
       console.error("Sign in error:", error);
       toast({

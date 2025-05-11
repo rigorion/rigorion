@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -23,6 +24,7 @@ export const SignInForm = ({ onForgotPassword }: SignInFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
   
   // Get the path to redirect to after sign in - default to progress
   const from = location.state?.from?.pathname || '/progress';
@@ -40,9 +42,14 @@ export const SignInForm = ({ onForgotPassword }: SignInFormProps) => {
       setIsLoading(true);
       await signIn(values.email, values.password);
       console.log("Form sign in successful, navigating to:", from);
-      navigate(from);
-    } catch (error) {
+      navigate(from, { replace: true });
+    } catch (error: any) {
       console.error("Form sign in error:", error);
+      toast({
+        title: "Sign In Failed",
+        description: error.message || "Failed to sign in",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
