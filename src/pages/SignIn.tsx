@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import AuthLayout from "@/components/auth/AuthLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabase"; // Import directly to ensure correct instance
+import { supabase } from "@/lib/supabase";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");

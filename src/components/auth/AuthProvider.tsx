@@ -51,7 +51,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(currentSession?.user ?? null);
         setSession(currentSession);
         
-        // Log the JWT token to console
         if (currentSession?.access_token) {
           console.log('JWT Token available:', !!currentSession.access_token);
         }
@@ -158,6 +157,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     try {
       console.log("AuthProvider: Signing in with email:", email);
+      
+      // Add more debugging to understand the Supabase client state
+      console.log("Using Supabase auth client with configured URL");
+      
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,

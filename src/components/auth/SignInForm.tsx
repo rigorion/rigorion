@@ -9,7 +9,6 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabase"; // Import directly to ensure correct instance
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -42,7 +41,7 @@ export const SignInForm = ({ onForgotPassword }: SignInFormProps) => {
     try {
       setIsLoading(true);
       console.log("SignInForm attempting to sign in with:", values.email);
-      console.log("SignInForm using Supabase client from lib/supabase.ts");
+      console.log("Using Supabase auth client");
       
       await signIn(values.email, values.password);
       console.log("SignInForm sign in successful, navigating to:", from);
