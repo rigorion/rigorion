@@ -2,44 +2,8 @@
 import { supabase } from '@/lib/supabase'
 import { Question } from '@/types/QuestionInterface'
 
-export const fetchQuestions = async (
-  page: number,
-  perPage: number,
-  difficulty?: string,
-  chapter?: string
-) => {
-  try {
-    let query = supabase
-      .from('questions')
-      .select('*')
-      .range((page - 1) * perPage, page * perPage - 1)
-      .order('created_at', { ascending: false })
-
-    if (difficulty) query = query.eq('difficulty', difficulty)
-    if (chapter) query = query.eq('chapter', chapter)
-
-    const { data, error, count } = await query
-
-    if (error) throw error
-    return { data: data as Question[], count: count || 0 }
-  } catch (error) {
-    console.error('Error fetching questions:', error)
-    throw error
-  }
-}
-
-export const fetchQuestionById = async (id: string) => {
-  try {
-    const { data, error } = await supabase
-      .from('questions')
-      .select('*')
-      .eq('id', id)
-      .single()
-
-    if (error) throw error
-    return data as Question
-  } catch (error) {
-    console.error('Error fetching question:', error)
-    throw error
-  }
-}
+import { createClient } from '@supabase/supabase-js'
+const supabase = createClient('https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/my-function', eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhbnR2aW1tZ2RteHp3cmp3cm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU2MTA5MjQsImV4cCI6MjA2MTE4NjkyNH0.ba6UMchrXuMqmkWXzoC2Dd91y-HJm_cB1NMmwNRly-k)
+const { data, error } = await supabase.functions.invoke('get-sat-model-question', {
+  body: { name: 'Functions' },
+})
