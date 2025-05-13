@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { Question } from '@/types/QuestionInterface';
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import type { UserProgressData } from '@/types/progress';
 
 // Your actual deployed Supabase Edge Function URL
@@ -153,8 +153,7 @@ export async function fetchMathQuestions(): Promise<Question[]> {
       console.error('Edge Function failed:', errorText);
       toast({
         title: "Error loading questions",
-        description: "Failed to fetch questions from the server",
-        variant: "destructive",
+        description: "Failed to fetch questions from the server"
       });
       return getSampleQuestions();
     }
@@ -171,8 +170,7 @@ export async function fetchMathQuestions(): Promise<Question[]> {
     console.error('Fetch error:', error);
     toast({
       title: "Error loading questions",
-      description: "Using fallback questions instead",
-      variant: "destructive",
+      description: "Using fallback questions instead"
     });
     return getSampleQuestions();
   }
