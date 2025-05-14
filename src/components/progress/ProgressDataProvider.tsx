@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { fetchProgressEndpoints, processProgressData } from "@/services/progressEndpointsService";
 import { UserProgressData } from "@/types/progress";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/use-toast";
 import { ErrorDisplay } from "./ErrorDisplay";
 
 interface ProgressDataProviderProps {
@@ -34,7 +34,11 @@ export const ProgressDataProvider = ({
       } catch (err) {
         console.error("Error fetching progress data:", err);
         setError(err as Error);
-        toast.error("Could not load all progress data. Some information may be incomplete.");
+        toast({
+          title: "Error",
+          description: "Could not load all progress data. Some information may be incomplete.",
+          variant: "destructive",
+        });
       } finally {
         setIsLoading(false);
       }
