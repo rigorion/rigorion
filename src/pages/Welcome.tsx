@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import HeaderTwo from '@/components/ui/HeaderTwo';
@@ -5,9 +6,8 @@ import ModuleCard, { Module } from '@/components/ui/ModuleCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from "@/components/ui/skeleton";
-import { Star } from "lucide-react";
 
-// Mock data - keep the same modules data
+// Mock data
 const MODULES: Module[] = [
   {
     id: '1',
@@ -128,8 +128,8 @@ const FILTER_OPTIONS = [
   { id: 'coming-soon', label: 'Coming Soon' },
 ];
 
-// Featured modules - top 3 modules for showcase
-const FEATURED_MODULES = MODULES.slice(0, 3);
+// Featured modules - first two modules for showcase
+const FEATURED_MODULES = MODULES.slice(0, 2);
 
 const Welcome = () => {
   const navigate = useNavigate();
@@ -186,21 +186,6 @@ const Welcome = () => {
     setSelectedFilters(filters);
   };
 
-  // Generate stars for rating
-  const renderStars = (rating: number) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <Star 
-          key={i} 
-          size={14} 
-          className={i <= rating ? "fill-amber-400 text-amber-400" : "text-gray-300"} 
-        />
-      );
-    }
-    return stars;
-  };
-
   // Get unique categories for tabs
   const uniqueCategories = Array.from(new Set(MODULES.map(module => module.category)));
 
@@ -213,74 +198,14 @@ const Welcome = () => {
       />
       
       <main className="container mx-auto px-4 py-8">
-        {/* Featured Carousel Section - Streaming Style */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Featured Courses</h2>
-          
-          {FEATURED_MODULES.map((module, index) => (
-            <div key={`featured-${module.id}`} className="flex flex-col md:flex-row mb-6 overflow-hidden rounded-xl bg-gradient-to-r from-orange-50 to-white border border-gray-100 shadow-sm">
-              {/* Left side - Details */}
-              <div className="p-6 md:w-1/2 flex flex-col justify-between">
-                <div>
-                  <div className="mb-2 flex items-center">
-                    <div className="bg-orange-500 text-white text-xs font-medium px-2 py-0.5 rounded-full mr-2">
-                      {module.status === "available" ? "Available" : "Coming Soon"}
-                    </div>
-                    
-                    {module.status === "available" && (
-                      <div className="flex items-center">
-                        <div className="flex">
-                          {renderStars(Math.round(module.rating))}
-                        </div>
-                        <span className="text-gray-700 text-xs ml-1">
-                          {module.rating.toFixed(1)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <h3 className="text-2xl font-bold text-gray-800 mb-2">{module.title}</h3>
-                  <p className="text-gray-600 text-sm mb-4">{module.category}</p>
-                  
-                  <div className="text-sm text-gray-500 space-y-1 mb-6">
-                    <p>{module.questionsCount} questions</p>
-                    <p>{module.chaptersCount} chapters</p>
-                    {module.examsCount && <p>{module.examsCount} exams</p>}
-                    <p>{module.participantsCount.toLocaleString()} participants</p>
-                  </div>
-                </div>
-                
-                <div className="flex gap-3">
-                  {module.status === "available" ? (
-                    <>
-                      <button 
-                        onClick={() => navigate('/payment', { state: { module } })}
-                        className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md transition-colors"
-                      >
-                        Watch now
-                      </button>
-                      <button className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-md transition-colors">
-                        Add to my list
-                      </button>
-                    </>
-                  ) : (
-                    <button className="bg-gray-200 text-gray-600 px-4 py-2 rounded-md cursor-not-allowed">
-                      Coming Soon
-                    </button>
-                  )}
-                </div>
-              </div>
-              
-              {/* Right side - Image */}
-              <div className="md:w-1/2 relative h-48 md:h-auto">
-                <img 
-                  src={module.imageUrl} 
-                  alt={module.title} 
-                  className="w-full h-full object-cover" 
-                />
-                <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/10 to-black/30 opacity-50"></div>
-              </div>
-            </div>
+        {/* Hero Banner */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          {FEATURED_MODULES.map((module) => (
+            <ModuleCard 
+              key={`featured-${module.id}`} 
+              module={module} 
+              featured={true} 
+            />
           ))}
         </div>
         

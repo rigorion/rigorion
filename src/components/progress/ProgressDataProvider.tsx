@@ -1,7 +1,8 @@
+
 import { useEffect, useState } from "react";
 import { fetchProgressEndpoints, processProgressData } from "@/services/progressEndpointsService";
 import { UserProgressData } from "@/types/progress";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { ErrorDisplay } from "./ErrorDisplay";
 
 interface ProgressDataProviderProps {
