@@ -7,10 +7,37 @@ interface DifficultyStatsGridProps {
     medium: number;
     hard: number;
     total: number;
-  }
+  } | Array<{
+    title: string;
+    correct: number;
+    total: number;
+    avgTime: string;
+    color: string;
+  }>;
 }
 
 export const DifficultyStatsGrid: React.FC<DifficultyStatsGridProps> = ({ stats }) => {
+  // Check if we're dealing with the array format or the object format
+  if (Array.isArray(stats)) {
+    return (
+      <div className="grid grid-cols-3 gap-4 w-full">
+        {stats.map((item, index) => (
+          <div key={index} className={`${item.color} p-4 rounded-lg`}>
+            <h4 className="text-sm font-medium mb-1">
+              {item.title}
+            </h4>
+            <p className="text-2xl font-bold">{item.correct}</p>
+            <p className="text-xs">
+              {item.total > 0 ? Math.round((item.correct / item.total) * 100) : 0}% of total
+            </p>
+            <p className="text-xs mt-1">Avg. time: {item.avgTime}</p>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  
+  // Original format
   const calculatePercentage = (value: number) => {
     return stats.total > 0 ? Math.round((value / stats.total) * 100) : 0;
   };
