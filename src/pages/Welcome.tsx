@@ -1,6 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import HeaderTwo from '@/components/ui/HeaderTwo';
 import ModuleCard, { Module } from '@/components/ui/ModuleCard';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from 'react-router-dom';
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Mock data
 const MODULES: Module[] = [
@@ -123,10 +128,15 @@ const FILTER_OPTIONS = [
   { id: 'coming-soon', label: 'Coming Soon' },
 ];
 
-const Index = () => {
+// Featured modules - first two modules for showcase
+const FEATURED_MODULES = MODULES.slice(0, 2);
+
+const Welcome = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [filteredModules, setFilteredModules] = useState<Module[]>(MODULES);
+  const [activeCategory, setActiveCategory] = useState<string>("all");
   const [loading, setLoading] = useState(true);
 
   // Filter modules based on search query and selected filters
@@ -153,13 +163,18 @@ const Index = () => {
           selectedFilters.includes(module.status)
         );
       }
+
+      // Apply tab filter
+      if (activeCategory !== "all") {
+        result = result.filter(module => module.category === activeCategory);
+      }
       
       setFilteredModules(result);
       setLoading(false);
     }, 300);
     
     return () => clearTimeout(timer);
-  }, [searchQuery, selectedFilters]);
+  }, [searchQuery, selectedFilters, activeCategory]);
 
   // Handle search
   const handleSearch = (query: string) => {
@@ -171,8 +186,11 @@ const Index = () => {
     setSelectedFilters(filters);
   };
 
+  // Get unique categories for tabs
+  const uniqueCategories = Array.from(new Set(MODULES.map(module => module.category)));
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-white text-gray-900">
       <HeaderTwo 
         onSearch={handleSearch} 
         onFilterChange={handleFilterChange}
@@ -180,48 +198,71 @@ const Index = () => {
       />
       
       <main className="container mx-auto px-4 py-8">
+        {/* Hero Banner */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          {FEATURED_MODULES.map((module) => (
+            <ModuleCard 
+              key={`featured-${module.id}`} 
+              module={module} 
+              featured={true} 
+            />
+          ))}
+        </div>
+        
+        {/* Category Pills */}
+        <Tabs defaultValue="all" value={activeCategory} onValueChange={setActiveCategory} className="mb-8">
+          <TabsList className="flex overflow-x-auto gap-2 pb-2 mb-4">
+            <TabsTrigger value="all" className="rounded-full">
+              All
+            </TabsTrigger>
+            {uniqueCategories.map(category => (
+              <TabsTrigger key={category} value={category} className="rounded-full">
+                {category}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+
         <div className="mb-8">
-          <h2 className="text-2xl sm:text-3xl font-semibold text-slate-800 mb-2">Academic Modules</h2>
-          <p className="text-slate-500">Browse our collection of academic modules and start learning</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Academic Modules</h2>
         </div>
         
         {loading ? (
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {[...Array(4)].map((_, index) => (
-              <div 
-                key={index} 
-                className="bg-white rounded-xl h-72 animate-pulse"
-              />
+          <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {[...Array(5)].map((_, index) => (
+              <div key={index} className="flex flex-col">
+                <Skeleton className="aspect-[3/4] w-full rounded-lg" />
+                <Skeleton className="h-5 mt-3 w-3/4" />
+                <Skeleton className="h-4 mt-2 w-1/2" />
+              </div>
             ))}
           </div>
         ) : filteredModules.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <div className="bg-blue-light/30 p-5 rounded-full mb-4">
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="bg-gray-100 p-5 rounded-full mb-4">
               <svg 
                 xmlns="http://www.w3.org/2000/svg" 
-                className="h-20 w-10 text-blue-dark/70" 
+                className="h-12 w-12 text-gray-400" 
                 fill="none" 
-                viewBox="0 0 42 42" 
-                stroke="black"
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="text-xl font-medium text-slate-700 mb-1">No modules found</h3>
-            <p className="text-slate-500 max-w-md">
+            <h3 className="text-xl font-medium text-gray-700 mb-1">No modules found</h3>
+            <p className="text-gray-500 max-w-md">
               We couldn't find any modules matching your search criteria. 
               Please try a different search term or filter.
             </p>
           </div>
         ) : (
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filteredModules.map((module, index) => (
-              <div 
+          <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {filteredModules.map((module) => (
+              <ModuleCard 
                 key={module.id} 
-                style={{ animationDelay: `${index * 0.05}s` }}
-              >
-                <ModuleCard module={module} />
-              </div>
+                module={module} 
+              />
             ))}
           </div>
         )}
@@ -230,4 +271,4 @@ const Index = () => {
   );  
 };
 
-export default Index;
+export default Welcome;
