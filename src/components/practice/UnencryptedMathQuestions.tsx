@@ -16,20 +16,22 @@ const UnencryptedMathQuestions = ({ onQuestionsLoaded }: UnencryptedMathQuestion
     queryFn: fetchMathQuestionsViaFunctions,
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
     retry: 1,
-    onSuccess: (data) => {
+    gcTime: 10 * 60 * 1000,
+    select: (data) => {
       console.log(`Successfully loaded ${data.length} math questions`);
+      // Process data on successful fetch
       onQuestionsLoaded(data);
+      return data;
     },
-    onError: (error) => {
-      console.error('Error loading questions:', error);
-      // Fall back to sample questions
+    onError: () => {
+      console.error('Error loading questions, trying fallback method');
       toast({
         title: "Error loading questions",
         description: "Using sample questions instead",
         variant: "destructive",
       });
       
-      // We'll try the alternate method if the primary one fails
+      // Try the alternate method if the primary one fails
       fetchMathQuestions().then(fallbackData => {
         onQuestionsLoaded(fallbackData);
       });
