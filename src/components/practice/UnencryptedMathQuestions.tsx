@@ -1,61 +1,56 @@
 
-import { useState, useEffect } from 'react';
 import { Question } from '@/types/QuestionInterface';
-import { fetchMathQuestions } from '@/services/mathQuestionService';
+import { fetchMathQuestions, fetchMathQuestionsViaFunctions } from '@/services/questionService';
+import { useQuery } from '@tanstack/react-query';
 import { toast } from "@/hooks/use-toast";
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface UnencryptedMathQuestionsProps {
   onQuestionsLoaded: (questions: Question[]) => void;
 }
 
 const UnencryptedMathQuestions = ({ onQuestionsLoaded }: UnencryptedMathQuestionsProps) => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const loadQuestions = async () => {
-      try {
-        setLoading(true);
-        const questions = await fetchMathQuestions();
-        
-        if (questions && questions.length > 0) {
-          console.log(`Loaded ${questions.length} questions successfully`);
-          onQuestionsLoaded(questions);
-          // Removed toast notification here
-        } else {
-          setError("No questions available");
-          toast({
-            title: "No questions available",
-            description: "Using sample questions instead",
-            variant: "destructive",
-          });
-        }
-      } catch (err) {
-        console.error('Error loading questions:', err);
-        setError(err instanceof Error ? err.message : 'Unknown error loading questions');
-        toast({
-            title: "Error loading questions",
-            description: "Using sample questions instead",
-            variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadQuestions();
-  }, [onQuestionsLoaded]);
+  // Use React Query to fetch questions
+  const { isLoading, error } = useQuery({
+    queryKey: ['mathQuestions'],
+    queryFn: fetchMathQuestionsViaFunctions,
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    retry: 1,
+    onSuccess: (data) => {
+      console.log(`Successfully loaded ${data.length} math questions`);
+      onQuestionsLoaded(data);
+    },
+    onError: (err) => {
+      console.error('Error loading questions:', err);
+      // Fall back to sample questions
+      toast({
+        title: "Error loading questions",
+        description: "Using sample questions instead",
+        variant: "destructive",
+      });
+      
+      // We'll try the alternate method if the primary one fails
+      fetchMathQuestions().then(fallbackData => {
+        onQuestionsLoaded(fallbackData);
+      });
+    }
+  });
 
   if (error) {
     return (
       <div className="p-4 bg-red-50 border border-red-200 rounded-md">
-        <p className="text-red-600">Failed to load questions: {error}</p>
+        <p className="text-red-600">Failed to load questions: {(error as Error).message}</p>
       </div>
     );
   }
 
-  if (loading) {
-    return <span className="text-sm text-gray-500">Loading questions...</span>;
+  if (isLoading) {
+    return (
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-4 w-1/2" />
+      </div>
+    );
   }
 
   return null; // Component doesn't need to render anything after questions are loaded

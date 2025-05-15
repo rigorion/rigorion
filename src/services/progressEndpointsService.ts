@@ -22,8 +22,11 @@ export async function fetchProgressEndpoints() {
   try {
     const results = await Promise.all(
       endpoints.map(async ({ name, method = 'GET', body }) => {
+        // Ensure method is a valid HTTP method type
+        const validMethod = method as 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+        
         const { data, error } = await supabase.functions.invoke(name, {
-          method: method as 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+          method: validMethod,
           ...(body ? { body } : {}),
         });
 
@@ -118,4 +121,35 @@ export function processProgressData(endpointsData: any[]): UserProgressData {
       dueDate: '2024-05-15'
     }]
   };
+}
+
+// New function to fetch math questions using Supabase Edge Function
+export async function fetchMathQuestionsFromEdge() {
+  try {
+    const { data, error } = await supabase.functions.invoke('get-sat-math-questions', {
+      method: 'GET'
+    });
+    
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error fetching math questions:', error);
+    throw error;
+  }
+}
+
+// New function to fetch user progress data from Edge Function
+export async function fetchUserProgressFromEdge(period: string = 'weekly') {
+  try {
+    const { data, error } = await supabase.functions.invoke('get-user-progress', {
+      method: 'GET',
+      body: { period }
+    });
+    
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error fetching user progress:', error);
+    throw error;
+  }
 }

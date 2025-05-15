@@ -1,55 +1,59 @@
 
-import { useEffect, useState } from "react";
-import { fetchProgressEndpoints, processProgressData } from "@/services/progressEndpointsService";
+import { useQuery } from "@tanstack/react-query";
+import { fetchProgressEndpoints, processProgressData, fetchUserProgressFromEdge } from "@/services/progressEndpointsService";
 import { UserProgressData } from "@/types/progress";
 import { toast } from "@/components/ui/use-toast";
 import { ErrorDisplay } from "./ErrorDisplay";
+import { Skeleton } from "../ui/skeleton";
 
 interface ProgressDataProviderProps {
   children: (data: UserProgressData) => React.ReactNode;
   fallbackData: UserProgressData;
   showLoadingState?: boolean;
+  timePeriod?: string;
 }
 
 export const ProgressDataProvider = ({
   children,
   fallbackData,
-  showLoadingState = true
+  showLoadingState = true,
+  timePeriod = 'weekly'
 }: ProgressDataProviderProps) => {
-  const [data, setData] = useState<UserProgressData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      setError(null);
-      
+  // Use React Query to fetch and cache progress data
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['userProgress', timePeriod],
+    queryFn: async () => {
       try {
-        const endpointsData = await fetchProgressEndpoints();
-        const processedData = processProgressData(endpointsData);
+        // First try to fetch from the dedicated edge function
+        const progressData = await fetchUserProgressFromEdge(timePeriod);
+        if (progressData && progressData.length > 0) {
+          console.log("Loaded progress data from edge function:", progressData);
+          // Transform edge function response to match our UserProgressData type
+          return processProgressData(progressData);
+        }
         
-        console.log("Processed progress data:", processedData);
-        setData(processedData);
+        // Fall back to the generic endpoint approach if edge function fails
+        const endpointsData = await fetchProgressEndpoints();
+        console.log("Loaded progress data from multiple endpoints:", endpointsData);
+        return processProgressData(endpointsData);
       } catch (err) {
         console.error("Error fetching progress data:", err);
-        setError(err as Error);
         toast({
           title: "Error",
           description: "Could not load all progress data. Some information may be incomplete.",
           variant: "destructive",
         });
-      } finally {
-        setIsLoading(false);
+        throw err;
       }
-    };
-    
-    loadData();
-  }, []);
+    },
+    retry: 1,
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+  });
   
   // If there's a critical error, show the error display
   if (error && !data) {
-    return <ErrorDisplay error={error} />;
+    return <ErrorDisplay error={error as Error} />;
   }
   
   // Merge fallback data with any available data from API
@@ -57,11 +61,17 @@ export const ProgressDataProvider = ({
   
   if (isLoading && showLoadingState) {
     return (
-      <div className="flex items-center justify-center h-60">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-gray-500">Loading progress data...</p>
+      <div className="space-y-4 w-full">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-8 w-24" />
         </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-40 w-full" />
+        </div>
+        <Skeleton className="h-64 w-full" />
       </div>
     );
   }

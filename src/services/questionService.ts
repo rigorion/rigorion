@@ -58,6 +58,43 @@ export async function fetchMathQuestions(): Promise<Question[]> {
 }
 
 /**
+ * Fetch SAT Math questions using Supabase Functions.invoke() API
+ * This is an alternative way to call the edge function
+ */
+export async function fetchMathQuestionsViaFunctions(): Promise<Question[]> {
+  try {
+    const { data, error } = await supabase.functions.invoke('get-sat-math-questions', {
+      method: 'GET',
+    });
+
+    if (error) {
+      console.error('Edge Function error:', error);
+      toast({
+        title: "Error loading questions",
+        description: "Failed to fetch questions from edge function",
+        variant: "destructive",
+      });
+      return getSampleQuestions();
+    }
+
+    if (!Array.isArray(data)) {
+      throw new Error("Invalid data format received");
+    }
+
+    console.log(`Loaded ${data.length} questions from Edge Function via functions.invoke()`);
+    return data as Question[];
+  } catch (error) {
+    console.error('Functions invoke error:', error);
+    toast({
+      title: "Error loading questions",
+      description: "Using fallback questions instead",
+      variant: "destructive",
+    });
+    return getSampleQuestions();
+  }
+}
+
+/**
  * Get sample questions as a fallback if Edge Function fails
  */
 function getSampleQuestions(): Question[] {
