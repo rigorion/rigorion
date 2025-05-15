@@ -5,7 +5,7 @@ import { toast } from "@/components/ui/use-toast";
 import type { UserProgressData } from '@/types/progress';
 
 // Your actual deployed Supabase Edge Function URL
-const EDGE_FUNCTION_URL = 'https://eantvimmgdmxzwr.supabase.co/functions/v1/my-function';
+const EDGE_FUNCTION_URL = 'https://eantvimmgdmxzwrop.supabase.co/functions/v1/my-function';
 
 // Define all endpoints
 const endpoints = [
