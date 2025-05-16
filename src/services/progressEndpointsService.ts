@@ -1,4 +1,3 @@
-
 import { supabase } from '@/lib/supabase';
 import { Question } from '@/types/QuestionInterface';
 import { toast } from "@/components/ui/use-toast";
@@ -12,7 +11,7 @@ const endpoints = [
   { name: 'get-progress' },
   { name: 'log-interaction', method: 'POST', body: { type: 'viewed', questionId: 101 } },
   { name: 'get-sat-math-questions' },
-  { name: 'get-user-progress', body: { period: 'weekly' } },
+  { name: 'get-user-progress' },
   { name: 'get-apijson' },
   { name: 'my-function', body: { name: 'Functions' } },
 ];
@@ -138,12 +137,13 @@ export async function fetchMathQuestionsFromEdge() {
   }
 }
 
-// New function to fetch user progress data from Edge Function
+// Updated function to fetch user progress data from Edge Function
+// Fixed by using URL parameters instead of body for GET requests
 export async function fetchUserProgressFromEdge(period: string = 'weekly') {
   try {
-    const { data, error } = await supabase.functions.invoke('get-user-progress', {
-      method: 'GET',
-      body: { period }
+    // Using URL parameters instead of body for GET requests
+    const { data, error } = await supabase.functions.invoke(`get-user-progress?period=${period}`, {
+      method: 'GET'
     });
     
     if (error) throw error;

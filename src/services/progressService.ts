@@ -1,4 +1,3 @@
-
 import { supabase } from '@/lib/supabase';
 import type { UserProgressData } from '@/types/progress';
 import { toast } from "sonner";
@@ -9,10 +8,8 @@ export async function getUserProgressData(userId: string, period: string = "week
     
     // Try to get data from Supabase edge function
     try {
-      // Call the Edge Function
-      const { data, error } = await supabase.functions.invoke('get-user-progress', {
-        body: { userId, period }
-      });
+      // Call the Edge Function with URL parameters instead of body
+      const { data, error } = await supabase.functions.invoke(`get-user-progress?period=${period}`);
 
       if (error) {
         console.error('Edge function error:', error);

@@ -23,18 +23,20 @@ const UnencryptedMathQuestions = ({ onQuestionsLoaded }: UnencryptedMathQuestion
       onQuestionsLoaded(data);
       return data;
     },
-    onError: () => {
-      console.error('Error loading questions, trying fallback method');
-      toast({
-        title: "Error loading questions",
-        description: "Using sample questions instead",
-        variant: "destructive",
-      });
-      
-      // Try the alternate method if the primary one fails
-      fetchMathQuestions().then(fallbackData => {
-        onQuestionsLoaded(fallbackData);
-      });
+    meta: {
+      onError: () => {
+        console.error('Error loading questions, trying fallback method');
+        toast({
+          title: "Error loading questions",
+          description: "Using sample questions instead",
+          variant: "destructive",
+        });
+        
+        // Try the alternate method if the primary one fails
+        fetchMathQuestions().then(fallbackData => {
+          onQuestionsLoaded(fallbackData);
+        });
+      }
     }
   });
 

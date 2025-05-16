@@ -24,6 +24,10 @@ serve(async (req) => {
   }
 
   try {
+    // Get period parameter from URL instead of body
+    const url = new URL(req.url);
+    const period = url.searchParams.get('period') || 'weekly';
+    
     // Create admin client to access data
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
