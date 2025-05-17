@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,11 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 interface TableInfo {
   name: string;
   description: string;
+}
+
+// Define the expected response type from our RPC function
+interface TableNameResult {
+  tablename: string;
 }
 
 const TableDataFetcher = () => {
@@ -32,8 +38,11 @@ const TableDataFetcher = () => {
     try {
       console.log('Fetching available tables using RPC...');
       
-      // Call the RPC function to get all tables
-      const { data, error } = await supabase.rpc('get_all_tables');
+      // Use type assertion to tell TypeScript that this RPC exists and will return data of TableNameResult[]
+      const { data, error } = await supabase.rpc('get_all_tables') as { 
+        data: TableNameResult[] | null; 
+        error: any;
+      };
       
       if (error) {
         throw error;
@@ -42,7 +51,7 @@ const TableDataFetcher = () => {
       if (data && data.length > 0) {
         console.log('Fetched tables:', data);
         // Format the tables from the RPC call
-        const formattedTables = data.map((table: { tablename: string }) => ({
+        const formattedTables = data.map((table: TableNameResult) => ({
           name: table.tablename,
           description: "Table in public schema",
         }));
