@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SUPABASE_URL } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import TableDataFetcher from "./TableDataFetcher";
 
 interface Endpoint {
   url: string;
@@ -127,8 +128,8 @@ const AllEndpointsFetcher = () => {
 
   return (
     <div className="max-w-5xl mx-auto my-10 px-4">
-      <h1 className="text-3xl font-bold mb-2">🧑‍💻 Supabase Edge Functions – API Explorer</h1>
-      <p className="mb-8">Use the buttons below to fetch data from each endpoint and see the responses in real-time. 🚀</p>
+      <h1 className="text-3xl font-bold mb-2">🧑‍💻 Supabase Data Access Explorer</h1>
+      <p className="mb-8">Explore both Edge Functions and direct table access methods to understand how data can be fetched. 🚀</p>
       
       <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
         <p className="font-medium">
@@ -151,18 +152,35 @@ const AllEndpointsFetcher = () => {
           </Button>
         </div>
         <p className="text-xs text-gray-500 mt-2">
-          Note: Most deployed functions are public and don't require authentication
+          Note: Table access requires authentication for restricted tables, but public tables can be accessed without auth
         </p>
       </div>
       
-      <Tabs defaultValue="get" className="w-full">
+      <Tabs defaultValue="tables" className="w-full">
         <TabsList className="mb-4">
-          <TabsTrigger value="get">GET Endpoints</TabsTrigger>
-          <TabsTrigger value="post">POST Endpoints</TabsTrigger>
+          <TabsTrigger value="tables">Direct Table Access</TabsTrigger>
+          <TabsTrigger value="get">GET Edge Functions</TabsTrigger>
+          <TabsTrigger value="post">POST Edge Functions</TabsTrigger>
         </TabsList>
         
+        <TabsContent value="tables">
+          <h2 className="text-xl font-semibold mb-4">Direct Table Access</h2>
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
+            <p className="text-sm">
+              This method uses the Supabase client to directly query tables, bypassing Edge Functions and avoiding CORS issues.
+              The client handles authentication and CORS automatically.
+            </p>
+          </div>
+          <TableDataFetcher />
+        </TabsContent>
+
         <TabsContent value="get">
-          <h2 className="text-xl font-semibold mb-4">GET Endpoints</h2>
+          <h2 className="text-xl font-semibold mb-4">GET Edge Functions</h2>
+          <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded">
+            <p className="text-sm">
+              Edge Functions may have CORS issues when accessed directly. Compare with table access to see the difference.
+            </p>
+          </div>
           {endpoints.map((ep) => (
             <UniversalFetcher
               key={ep.url + ep.method}
@@ -175,7 +193,12 @@ const AllEndpointsFetcher = () => {
         </TabsContent>
         
         <TabsContent value="post">
-          <h2 className="text-xl font-semibold mb-4">POST Endpoints</h2>
+          <h2 className="text-xl font-semibold mb-4">POST Edge Functions</h2>
+          <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded">
+            <p className="text-sm">
+              POST requests to Edge Functions require proper CORS handling, including preflight OPTIONS requests.
+            </p>
+          </div>
           {postEndpoints.map((ep) => (
             <UniversalFetcher
               key={ep.url + ep.method}

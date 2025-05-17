@@ -9,30 +9,31 @@ export default function Endpoints() {
   return (
     <Layout>
       <div className="container mx-auto py-8">
-        <h1 className="text-3xl font-bold mb-6">API Endpoints Explorer</h1>
+        <h1 className="text-3xl font-bold mb-6">API & Database Explorer</h1>
         <p className="mb-4 text-gray-600">
-          This interactive page allows you to test all available Supabase Edge Function endpoints.
-          Click the "Fetch" buttons to send requests and see responses in real-time.
+          This interactive page allows you to test both direct Supabase table access and Edge Function endpoints.
+          Compare the different approaches to see which works best for your needs.
         </p>
         
-        <Tabs defaultValue="endpoints" className="w-full mb-8">
+        <Tabs defaultValue="explorer" className="w-full mb-8">
           <TabsList>
-            <TabsTrigger value="endpoints">API Endpoints</TabsTrigger>
+            <TabsTrigger value="explorer">Data Explorer</TabsTrigger>
             <TabsTrigger value="diagnostic">CORS Diagnostic</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="endpoints">
+          <TabsContent value="explorer">
             <Card className="mb-8">
               <CardHeader>
                 <CardTitle>How to Use This Explorer</CardTitle>
-                <CardDescription>Instructions for using the API explorer</CardDescription>
+                <CardDescription>Compare direct table access vs Edge Functions</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="list-disc pl-6 space-y-2">
-                  <li>Click the <strong>Fetch Data</strong> button on any endpoint card to make a request</li>
+                  <li><strong>Direct Table Access</strong>: Uses the Supabase client to query tables directly from the browser (avoids CORS issues)</li>
+                  <li><strong>Edge Functions</strong>: Makes HTTP requests to serverless functions (may encounter CORS issues)</li>
+                  <li>Switch between tabs to compare different data access methods</li>
+                  <li>Use the authentication toggle if accessing protected resources</li>
                   <li>For POST requests, you can edit the JSON payload before sending</li>
-                  <li>Switch between GET and POST endpoints using the tabs</li>
-                  <li>Use the authentication toggle at the top if you need to include your auth token</li>
                   <li>Response data will appear below each endpoint after fetching</li>
                   <li>The CORS Pong Test endpoint can be used to verify CORS configuration</li>
                 </ul>
