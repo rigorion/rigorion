@@ -34,8 +34,9 @@ const TableDataFetcher = () => {
       console.log('Fetching available tables...');
       
       // Get the actual tables from the database
+      // Using 'as any' to bypass TypeScript's type checking for system tables
       const { data, error } = await supabase
-        .from('_tables')
+        .from('_tables' as any)
         .select('name:table_name, description:table_schema')
         .eq('table_schema', 'public');
       
