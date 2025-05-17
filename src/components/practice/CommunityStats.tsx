@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Clock, Star } from "lucide-react";
@@ -45,46 +46,66 @@ const CommunityStats = ({ questionId }: { questionId?: string }) => {
         // Fetch community stats from the database
         const { data } = await fetchTable('community_stats');
         
+        // Check if data is valid and can be processed
         if (data && Array.isArray(data) && data.length > 0) {
           console.log("Community stats data:", data);
           
-          // Make sure we're working with properly typed data
-          const typedData = data as CommunityStatRecord[];
+          // Validate that data has the expected structure before processing
+          const isValidData = data.every(item => 
+            typeof item === 'object' && 
+            item !== null && 
+            'total_attempts' in item && 
+            'correct_count' in item && 
+            'incorrect_count' in item && 
+            'avg_time_spent_sec' in item
+          );
           
-          // Calculate stats from the data - with explicit initial values
-          const totalAttempts = typedData.reduce((sum: number, stat: CommunityStatRecord) => 
-            sum + (Number(stat.total_attempts) || 0), 0);
-          
-          const totalCorrect = typedData.reduce((sum: number, stat: CommunityStatRecord) => 
-            sum + (Number(stat.correct_count) || 0), 0);
-          
-          // Calculate average time in seconds - with explicit initial values
-          const totalTime = typedData.reduce((sum: number, stat: CommunityStatRecord) => 
-            sum + (Number(stat.avg_time_spent_sec) || 0), 0);
-          
-          const avgTimeInSec = typedData.length > 0 ? totalTime / typedData.length : 0;
-          
-          // Format the time into minutes and seconds
-          const minutes = Math.floor(avgTimeInSec / 60);
-          const seconds = Math.round(avgTimeInSec % 60);
-          const formattedTime = `${minutes}m ${seconds}s`;
-          
-          // Calculate correct percentage
-          const correctPercentage = totalAttempts > 0 
-            ? Math.round((totalCorrect / totalAttempts) * 100)
-            : 0;
-          
-          // Update stats state
-          setStats({
-            difficultyDistribution: {
-              easy: 45, // We keep this distribution for now as it's not in the schema
-              medium: 35,
-              hard: 20
-            },
-            averageTime: formattedTime,
-            correctPercentage: correctPercentage,
-            totalResponses: totalAttempts
-          });
+          if (isValidData) {
+            // Now we can safely cast to our expected type after validation
+            const typedData = data as unknown as CommunityStatRecord[];
+            
+            // Calculate stats from the data with explicit initial values
+            const totalAttempts = typedData.reduce((sum: number, stat: CommunityStatRecord) => 
+              sum + (Number(stat.total_attempts) || 0), 0);
+            
+            const totalCorrect = typedData.reduce((sum: number, stat: CommunityStatRecord) => 
+              sum + (Number(stat.correct_count) || 0), 0);
+            
+            // Calculate average time in seconds with explicit initial values
+            const totalTime = typedData.reduce((sum: number, stat: CommunityStatRecord) => 
+              sum + (Number(stat.avg_time_spent_sec) || 0), 0);
+            
+            const avgTimeInSec = typedData.length > 0 ? totalTime / typedData.length : 0;
+            
+            // Format the time into minutes and seconds
+            const minutes = Math.floor(avgTimeInSec / 60);
+            const seconds = Math.round(avgTimeInSec % 60);
+            const formattedTime = `${minutes}m ${seconds}s`;
+            
+            // Calculate correct percentage
+            const correctPercentage = totalAttempts > 0 
+              ? Math.round((totalCorrect / totalAttempts) * 100)
+              : 0;
+            
+            // Update stats state
+            setStats({
+              difficultyDistribution: {
+                easy: 45, // We keep this distribution for now as it's not in the schema
+                medium: 35,
+                hard: 20
+              },
+              averageTime: formattedTime,
+              correctPercentage: correctPercentage,
+              totalResponses: totalAttempts
+            });
+          } else {
+            console.error("Data format is not as expected:", data);
+            toast({
+              title: "Data Error",
+              description: "The community statistics data format is unexpected",
+              variant: "destructive",
+            });
+          }
         }
       } catch (error) {
         console.error("Error fetching community stats:", error);
