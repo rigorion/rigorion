@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -25,35 +24,33 @@ const TableDataFetcher = () => {
   const [rowCount, setRowCount] = useState<number | null>(null);
   const [isLoadingTables, setIsLoadingTables] = useState<boolean>(true);
 
-  // Fetch available tables directly from the database
+  // Fetch available tables using RPC function
   const fetchAvailableTables = async () => {
     setIsLoadingTables(true);
     setError(null);
     
     try {
-      console.log('Fetching available tables...');
+      console.log('Fetching available tables using RPC...');
       
-      // Get the actual tables from the database
-      // Using 'as any' to bypass TypeScript's type checking for system tables
-      const { data, error } = await supabase
-        .from('_tables' as any)
-        .select('name:table_name, description:table_schema')
-        .eq('table_schema', 'public');
+      // Call the RPC function to get all tables
+      const { data, error } = await supabase.rpc('get_all_tables');
       
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
       
       if (data && data.length > 0) {
         console.log('Fetched tables:', data);
-        // Format the tables from the database
-        const formattedTables = data.map((table: any) => ({
-          name: table.name,
-          description: `Table in ${table.description} schema`,
+        // Format the tables from the RPC call
+        const formattedTables = data.map((table: { tablename: string }) => ({
+          name: table.tablename,
+          description: "Table in public schema",
         }));
         
         setTables(formattedTables);
       } else {
-        // Fallback to some known tables if the above doesn't work
-        console.log('No tables found or access restricted, using fallback list');
+        // Fallback to some known tables if the RPC doesn't work
+        console.log('No tables found or RPC not set up, using fallback list');
         const fallbackTables = [
           "profiles",
           "questions",
@@ -78,7 +75,7 @@ const TableDataFetcher = () => {
       }
     } catch (err: any) {
       console.error('Exception fetching tables:', err);
-      setError(err.message || 'An error occurred fetching tables');
+      setError(err.message || 'An error occurred fetching tables. Make sure the RPC function exists.');
       
       // Fallback to empty array on error
       setTables([]);
