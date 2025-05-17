@@ -2,6 +2,7 @@
 // src/services/mathQuestionService.ts
 import { callEdgeFunction } from './edgeFunctionService';
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export async function getModelSatQuestions() {
   try {
@@ -16,7 +17,23 @@ export async function getModelSatQuestions() {
 export async function getCustomFunction() {
   try {
     console.log('Calling my-function endpoint...');
-    const { data, error } = await callEdgeFunction('my-function');
+    
+    // Get the current session to include auth token if available
+    const { data: { session } } = await supabase.auth.getSession();
+    const options: RequestInit = { 
+      method: 'GET',
+      headers: {} 
+    };
+    
+    // If there's an active session, include the Authorization header
+    if (session?.access_token) {
+      options.headers = {
+        Authorization: `Bearer ${session.access_token}`
+      };
+      console.log('Including auth token in request');
+    }
+    
+    const { data, error } = await callEdgeFunction('my-function', options);
     
     if (error) {
       console.error('Error fetching from my-function endpoint:', error);
