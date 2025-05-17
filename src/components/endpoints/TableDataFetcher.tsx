@@ -91,7 +91,7 @@ const TableDataFetcher = () => {
     try {
       console.log(`Fetching data from ${selectedTable} table with limit ${limit}`);
       
-      // Type assertion to ensure type safety with Supabase
+      // Use a more flexible approach that doesn't rely on type assertions
       const { data, error, count } = await supabase
         .from(selectedTable as ValidTableName)
         .select('*', { count: 'exact' })
