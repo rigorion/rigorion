@@ -24,7 +24,16 @@ const AVAILABLE_TABLES = [
   "chapters",
   "topics",
   "question_categories",
-  "sat-math-progress" // Fixed: changed underscore to hyphen to match actual table name
+  "sat-math-progress", // Fixed: changed underscore to hyphen to match actual table name
+  "study_plans",
+  "exam_results",
+  "user_sessions",
+  "question_categories",
+  "practice_sets",
+  "bookmarks",
+  "comments",
+  "user_settings",
+  "analytics_events"
 ] as const;
 
 // Type to define valid table names for type safety
