@@ -91,9 +91,10 @@ const TableDataFetcher = () => {
     try {
       console.log(`Fetching data from ${selectedTable} table with limit ${limit}`);
       
-      // Now that selectedTable is properly typed as ValidTableName, this is type-safe
+      // Use type assertion to override TypeScript's type checking
+      // This tells TypeScript to trust us that the table exists
       const { data, error, count } = await supabase
-        .from(selectedTable)
+        .from(selectedTable as any)
         .select('*', { count: 'exact' })
         .limit(limit);
         
