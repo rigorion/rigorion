@@ -14,8 +14,21 @@ interface TableInfo {
   description: string;
 }
 
-// List of available tables based on the Supabase types
-const AVAILABLE_TABLES = ["payments", "profiles", "questions"];
+// List of available tables based on your complete Supabase schema
+const AVAILABLE_TABLES = [
+  "payments", 
+  "profiles", 
+  "questions", 
+  "user_progress", 
+  "leaderboard", 
+  "submissions",
+  "chapters",
+  "topics",
+  "question_categories"
+];
+
+// Type to define valid table names for type safety
+type ValidTableName = typeof AVAILABLE_TABLES[number];
 
 const TableDataFetcher = () => {
   const [tables, setTables] = useState<TableInfo[]>([]);
@@ -36,7 +49,7 @@ const TableDataFetcher = () => {
     try {
       console.log('Fetching available tables...');
       
-      // Format the available tables defined in Supabase types
+      // Format the available tables from our expanded list
       const formattedTables = AVAILABLE_TABLES.map(tableName => ({
         name: tableName,
         description: `Table in public schema`,
@@ -78,9 +91,9 @@ const TableDataFetcher = () => {
     try {
       console.log(`Fetching data from ${selectedTable} table with limit ${limit}`);
       
-      // Type-safe way to query tables
+      // Type assertion to ensure type safety with Supabase
       const { data, error, count } = await supabase
-        .from(selectedTable as "payments" | "profiles" | "questions")
+        .from(selectedTable as ValidTableName)
         .select('*', { count: 'exact' })
         .limit(limit);
         
