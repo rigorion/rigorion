@@ -51,15 +51,20 @@ const CommunityStats = ({ questionId }: { questionId?: string }) => {
           console.log("Community stats data:", data);
           
           // Validate that data has the expected structure before processing
-          const isValidData = data.every(item => 
-            item !== null && 
-            typeof item === 'object' && 
-            item !== null && 
-            'total_attempts' in item && 
-            'correct_count' in item && 
-            'incorrect_count' in item && 
-            'avg_time_spent_sec' in item
-          );
+          const isValidData = data.every(item => {
+            // First check if item exists and is an object
+            if (item === null || typeof item !== 'object') {
+              return false;
+            }
+            
+            // Then check if it has all required properties
+            return (
+              'total_attempts' in item && 
+              'correct_count' in item && 
+              'incorrect_count' in item && 
+              'avg_time_spent_sec' in item
+            );
+          });
           
           if (isValidData) {
             // Now we can safely cast to our expected type after validation
