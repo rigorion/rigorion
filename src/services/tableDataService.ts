@@ -1,6 +1,7 @@
 
 import { supabase } from '@/lib/supabase';
 import { toast } from "@/hooks/use-toast";
+import { PostgrestQueryBuilder } from '@supabase/supabase-js';
 
 // List of all available tables in the Supabase database
 export const TABLES = [
@@ -32,8 +33,9 @@ export async function fetchTable(
   try {
     console.log(`Fetching data from ${tableName} table...`);
     
-    // Start building the query
-    let query = supabase.from(tableName).select(options.columns || '*');
+    // Start building the query - use type assertion here to bypass TypeScript restrictions
+    // as we're dynamically selecting tables that TypeScript doesn't know about at compile time
+    let query = supabase.from(tableName as any).select(options.columns || '*');
     
     // Apply limit if provided
     if (options.limit) {
@@ -140,7 +142,7 @@ export async function checkTableExists(tableName: string): Promise<boolean> {
   try {
     // Try to fetch 0 rows from the table
     const { data, error } = await supabase
-      .from(tableName)
+      .from(tableName as any)
       .select('*')
       .limit(1);
       
@@ -162,7 +164,7 @@ export async function getTableCounts(): Promise<Record<string, number>> {
   for (const table of TABLES) {
     try {
       const { data, error, count } = await supabase
-        .from(table)
+        .from(table as any)
         .select('*', { count: 'exact', head: true });
       
       counts[table] = count || 0;

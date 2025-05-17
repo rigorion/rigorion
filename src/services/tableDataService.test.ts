@@ -6,6 +6,18 @@ import { TABLES } from './tableDataService';
  * It's a placeholder for now, but in a real app, you would add proper tests here
  */
 
+// Define Jest global functions if the types aren't properly imported
+declare global {
+  namespace jest {
+    interface Matchers<R> {
+      toEqual(expected: any): R;
+    }
+  }
+  function describe(name: string, fn: () => void): void;
+  function test(name: string, fn: () => void): void;
+  function expect<T>(actual: T): jest.Matchers<T>;
+}
+
 describe('tableDataService', () => {
   test('TABLES constant should contain all expected tables', () => {
     // Verify that all the expected tables are defined
