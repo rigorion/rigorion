@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
@@ -17,7 +18,7 @@ const modules = [
     questionsCount: 500,
     chaptersCount: 12,
     participantsCount: 3500,
-    status: "available",
+    status: "available" as const,
     rating: 4.8,
     price: "$49.99",
     examsCount: 10
@@ -30,7 +31,7 @@ const modules = [
     questionsCount: 450,
     chaptersCount: 10,
     participantsCount: 2800,
-    status: "available",
+    status: "available" as const,
     rating: 4.7,
     price: "$49.99",
     examsCount: 8
@@ -43,7 +44,7 @@ const modules = [
     questionsCount: 600,
     chaptersCount: 14,
     participantsCount: 4200,
-    status: "available",
+    status: "available" as const,
     rating: 4.9,
     price: "$59.99",
     examsCount: 12
@@ -56,7 +57,7 @@ const modules = [
     questionsCount: 420,
     chaptersCount: 15,
     participantsCount: 2200,
-    status: "coming-soon",
+    status: "coming-soon" as const,
     rating: 4.5,
     price: "$49.99",
     examsCount: 8
