@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -25,7 +24,7 @@ const AVAILABLE_TABLES = [
   "chapters",
   "topics",
   "question_categories",
-  "sat_math_progress" // Added the new table
+  "sat-math-progress" // Fixed: changed underscore to hyphen to match actual table name
 ] as const;
 
 // Type to define valid table names for type safety
