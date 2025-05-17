@@ -62,6 +62,11 @@ const AllEndpointsFetcher = () => {
         url: `${SUPABASE_URL}/functions/v1/get-performance`,
         title: "performance (GET)",
         method: "GET"
+      },
+      {
+        url: "https://mmxqzcztduhtrlptzsrp.supabase.co/functions/v1/cors-pong-function",
+        title: "CORS Pong Test (GET)",
+        method: "GET"
       }
     ];
 

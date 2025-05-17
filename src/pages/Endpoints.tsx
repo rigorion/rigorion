@@ -34,6 +34,7 @@ export default function Endpoints() {
                   <li>Switch between GET and POST endpoints using the tabs</li>
                   <li>Use the authentication toggle at the top if you need to include your auth token</li>
                   <li>Response data will appear below each endpoint after fetching</li>
+                  <li>The CORS Pong Test endpoint can be used to verify CORS configuration</li>
                 </ul>
               </CardContent>
             </Card>
