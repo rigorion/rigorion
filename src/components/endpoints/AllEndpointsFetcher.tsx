@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import UniversalFetcher from "./UniversalFetcher";
 import { supabase } from "@/integrations/supabase/client";
 import { SUPABASE_URL } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 interface Endpoint {
   url: string;
@@ -14,6 +15,7 @@ interface Endpoint {
 const AllEndpointsFetcher = () => {
   const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
   const [authHeaders, setAuthHeaders] = useState<Record<string, string>>({});
+  const [useAuth, setUseAuth] = useState<boolean>(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   useEffect(() => {
@@ -62,7 +64,7 @@ const AllEndpointsFetcher = () => {
           Authorization: `Bearer ${data.session.access_token}`
         });
         setIsAuthenticated(true);
-        console.log("User is authenticated, will include auth token in requests");
+        console.log("User is authenticated, token available if needed");
       } else {
         console.log("User is not authenticated");
         setIsAuthenticated(false);
@@ -71,6 +73,10 @@ const AllEndpointsFetcher = () => {
 
     checkAuth();
   }, []);
+
+  const toggleAuth = () => {
+    setUseAuth(!useAuth);
+  };
 
   // Optional POST example
   const postExample: Endpoint = {
@@ -91,12 +97,26 @@ const AllEndpointsFetcher = () => {
       
       <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
         <p className="font-medium">
-          Auth Status: {isAuthenticated ? "✅ Authenticated" : "❌ Not Authenticated"}
+          Auth Status: {isAuthenticated ? "✅ Token Available" : "❌ No Auth Token"}
         </p>
-        <p className="text-sm text-gray-600 mt-1">
-          {isAuthenticated 
-            ? "Auth token will be included with requests" 
-            : "Requests will be made without authentication"}
+        <div className="flex items-center mt-2">
+          <p className="text-sm text-gray-600 mr-3">
+            {useAuth 
+              ? "Including auth token with requests" 
+              : "Making requests without authentication"}
+          </p>
+          <Button 
+            onClick={toggleAuth} 
+            variant="outline" 
+            size="sm" 
+            className="text-xs"
+            disabled={!isAuthenticated}
+          >
+            {useAuth ? "Disable Auth" : "Enable Auth"}
+          </Button>
+        </div>
+        <p className="text-xs text-gray-500 mt-2">
+          Note: Most deployed functions are public and don't require authentication
         </p>
       </div>
 
@@ -105,7 +125,7 @@ const AllEndpointsFetcher = () => {
           key={ep.url + ep.method}
           url={ep.url}
           method={ep.method}
-          headers={authHeaders}
+          headers={useAuth ? authHeaders : {}}
           title={ep.title}
         />
       ))}
@@ -115,7 +135,7 @@ const AllEndpointsFetcher = () => {
         url={postExample.url}
         method={postExample.method}
         payload={postExample.payload}
-        headers={authHeaders}
+        headers={useAuth ? authHeaders : {}}
         title={postExample.title}
       /> */}
     </div>
