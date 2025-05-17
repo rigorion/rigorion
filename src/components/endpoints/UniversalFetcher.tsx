@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { AlertTriangle, CheckCircle } from "lucide-react";
 
 interface UniversalFetcherProps {
   url: string;
@@ -27,11 +28,15 @@ const UniversalFetcher = ({
   const [payloadInput, setPayloadInput] = useState<string>(
     payload ? JSON.stringify(payload, null, 2) : '{}'
   );
+  const [responseHeaders, setResponseHeaders] = useState<Record<string, string> | null>(null);
+  const [responseStatus, setResponseStatus] = useState<number | null>(null);
 
   const fetchData = () => {
     setLoading(true);
     setError(null);
     setData(null);
+    setResponseHeaders(null);
+    setResponseStatus(null);
 
     // Prepare the fetch options
     const options: RequestInit = {
@@ -60,6 +65,16 @@ const UniversalFetcher = ({
 
     fetch(url, options)
       .then(async (res) => {
+        // Store response status
+        setResponseStatus(res.status);
+        
+        // Extract and store headers
+        const headers: Record<string, string> = {};
+        res.headers.forEach((value, key) => {
+          headers[key] = value;
+        });
+        setResponseHeaders(headers);
+        
         if (!res.ok) {
           let errMsg = await res.text();
           throw new Error(errMsg || `Network error: ${res.status} ${res.statusText}`);
@@ -78,6 +93,11 @@ const UniversalFetcher = ({
         onError(err);
       });
   };
+
+  const hasCorsHeaders = responseHeaders && (
+    responseHeaders['access-control-allow-origin'] ||
+    responseHeaders['Access-Control-Allow-Origin']
+  );
 
   return (
     <div className="mb-8 p-4 border border-gray-200 rounded-lg">
@@ -124,7 +144,43 @@ const UniversalFetcher = ({
       {loading && <div className="text-blue-600 mt-3">🔄 Loading...</div>}
       {error && (
         <div className="text-red-500 mt-3 p-2 bg-red-50 border border-red-100 rounded">
-          ❌ Error: {error}
+          <div className="flex items-center">
+            <AlertTriangle size={16} className="mr-1" />
+            <span>Error: {error}</span>
+          </div>
+          
+          {/* Show CORS information if applicable */}
+          {!hasCorsHeaders && responseHeaders && (
+            <div className="mt-2 text-xs bg-yellow-50 p-2 rounded border border-yellow-200">
+              <span className="font-semibold">Possible CORS issue detected!</span>
+              <p className="mt-1">No CORS headers found in response. The server may not be configured to allow cross-origin requests.</p>
+            </div>
+          )}
+        </div>
+      )}
+      
+      {/* Response status */}
+      {responseStatus !== null && (
+        <div className={`mt-3 text-sm ${responseStatus >= 200 && responseStatus < 300 ? 'text-green-600' : 'text-orange-500'}`}>
+          Status: {responseStatus} {responseStatus >= 200 && responseStatus < 300 ? 'OK' : ''}
+        </div>
+      )}
+      
+      {/* CORS status */}
+      {responseHeaders && (
+        <div className="mt-2 text-xs">
+          <span className="font-medium">CORS: </span>
+          {hasCorsHeaders ? (
+            <span className="text-green-600 flex items-center inline-flex">
+              <CheckCircle size={14} className="mr-1" /> 
+              Enabled
+            </span>
+          ) : (
+            <span className="text-red-500 flex items-center inline-flex">
+              <AlertTriangle size={14} className="mr-1" /> 
+              Not detected
+            </span>
+          )}
         </div>
       )}
       
