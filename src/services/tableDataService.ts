@@ -1,7 +1,9 @@
+
 import { supabase } from '@/lib/supabase';
 import { toast } from "@/hooks/use-toast";
 
 // List of all available tables in the Supabase database
+// These tables may not exist yet in your database - the code will handle this gracefully
 export const TABLES = [
   'community_stats',
   'model_sat_math_question',
@@ -51,6 +53,12 @@ export async function fetchTable(
     const { data, error, count } = await query;
     
     if (error) {
+      // Check if this is a "table doesn't exist" error
+      if (error.code === '42P01') {
+        console.warn(`Table '${tableName}' does not exist yet in the database`);
+        return { data: [], count: 0 };
+      }
+      
       console.error(`Error fetching ${tableName}:`, error);
       throw new Error(`Error fetching ${tableName}: ${error.message}`);
     }
@@ -164,6 +172,15 @@ export async function getTableCounts(): Promise<Record<string, number>> {
       const { data, error, count } = await supabase
         .from(table as any)
         .select('*', { count: 'exact', head: true });
+      
+      if (error) {
+        if (error.code === '42P01') {
+          // Table doesn't exist
+          counts[table] = 0;
+          continue;
+        }
+        throw error;
+      }
       
       counts[table] = count || 0;
     } catch (err) {

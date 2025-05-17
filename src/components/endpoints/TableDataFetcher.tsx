@@ -4,15 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CheckCircle, AlertTriangle, RefreshCw, Database } from "lucide-react";
+import { CheckCircle, AlertTriangle, RefreshCw, Database, AlertCircle } from "lucide-react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { toast } from "@/components/ui/use-toast";
 import { TABLES, fetchTable, checkTableExists } from "@/services/tableDataService";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // Interface to define a table structure
 interface TableInfo {
   name: string;
   description: string;
+  exists?: boolean;
 }
 
 const TableDataFetcher = () => {
@@ -41,54 +43,47 @@ const TableDataFetcher = () => {
       for (const tableName of TABLES) {
         const exists = await checkTableExists(tableName);
         
-        if (exists) {
-          formattedTables.push({
-            name: tableName,
-            description: "Table in public schema",
-          });
-        }
+        formattedTables.push({
+          name: tableName,
+          description: exists ? "Table in public schema" : "Table not created yet",
+          exists
+        });
       }
       
-      if (formattedTables.length > 0) {
-        console.log('Found tables:', formattedTables);
-        setTables(formattedTables);
-        toast({
-          title: "Success",
-          description: `Found ${formattedTables.length} tables in database`,
-        });
-      } else {
-        // Use all tables as fallback even if they don't exist yet
-        console.log('No tables found, using all defined tables as fallback');
-        const fallbackTables = TABLES.map(name => ({
-          name,
-          description: "Table in public schema",
-        }));
-        
-        setTables(fallbackTables);
-        toast({
-          title: "Using all defined tables",
-          description: "Couldn't verify tables existence. Some might not exist yet in your database.",
-          variant: "destructive",
-        });
-      }
+      console.log('Tables status:', formattedTables);
+      setTables(formattedTables);
       
       // If we had a selected table but it's no longer in the list, clear selection
-      if (selectedTable && !tables.find(t => t.name === selectedTable)) {
+      if (selectedTable && !formattedTables.find(t => t.name === selectedTable)) {
         setSelectedTable("");
+      }
+      
+      const existingTableCount = formattedTables.filter(t => t.exists).length;
+      if (existingTableCount === 0) {
+        toast({
+          title: "No tables exist yet",
+          description: "You need to create tables in your Supabase project first",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Tables checked",
+          description: `Found ${existingTableCount} existing tables out of ${formattedTables.length} defined tables`,
+        });
       }
     } catch (err: any) {
       console.error('Exception fetching tables:', err);
       setError(err.message || 'An error occurred fetching tables.');
       toast({
         title: "Error fetching tables",
-        description: err.message || "Make sure the tables exist in your Supabase project.",
+        description: err.message || "Make sure your Supabase connection is working correctly.",
         variant: "destructive",
       });
       
       // Fallback to all tables on error
       setTables(TABLES.map(name => ({
         name,
-        description: "Table in public schema",
+        description: "Status unknown",
       })));
     } finally {
       setIsLoadingTables(false);
@@ -122,8 +117,9 @@ const TableDataFetcher = () => {
       const endTime = performance.now();
       setQueryTime(endTime - startTime);
 
-      if (!data) {
-        setError("No data returned from table");
+      if (!data || data.length === 0) {
+        setData([]);
+        setRowCount(0);
         return;
       }
 
@@ -137,6 +133,8 @@ const TableDataFetcher = () => {
       setLoading(false);
     }
   };
+
+  const selectedTableExists = selectedTable ? tables.find(t => t.name === selectedTable)?.exists : false;
 
   return (
     <div className="space-y-6">
@@ -178,8 +176,13 @@ const TableDataFetcher = () => {
                     <SelectGroup>
                       <SelectLabel>Available Tables ({tables.length})</SelectLabel>
                       {tables.map((table) => (
-                        <SelectItem key={table.name} value={table.name}>
-                          {table.name} - {table.description}
+                        <SelectItem 
+                          key={table.name} 
+                          value={table.name}
+                          disabled={table.exists === false}
+                        >
+                          {table.name} 
+                          {table.exists === false && " (Not created yet)"}
                         </SelectItem>
                       ))}
                     </SelectGroup>
@@ -204,6 +207,16 @@ const TableDataFetcher = () => {
             </div>
           )}
         </div>
+
+        {selectedTable && !selectedTableExists && (
+          <Alert variant="warning" className="mb-4 bg-yellow-50 border-yellow-200">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Table does not exist</AlertTitle>
+            <AlertDescription>
+              The table "{selectedTable}" hasn't been created in your Supabase database yet.
+            </AlertDescription>
+          </Alert>
+        )}
         
         <Button
           onClick={fetchTableData}
