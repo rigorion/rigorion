@@ -1,9 +1,10 @@
 
 import { Question } from '@/types/QuestionInterface';
-import { fetchMathQuestions, fetchMathQuestionsViaFunctions } from '@/services/questionService';
+import { fetchMathQuestions } from '@/services/questionService';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
+import { callEdgeFunction } from '@/services/edgeFunctionService';
 
 interface UnencryptedMathQuestionsProps {
   onQuestionsLoaded: (questions: Question[]) => void;
@@ -13,18 +14,20 @@ const UnencryptedMathQuestions = ({ onQuestionsLoaded }: UnencryptedMathQuestion
   // Use React Query to fetch questions
   const { isLoading, error } = useQuery({
     queryKey: ['mathQuestions'],
-    queryFn: fetchMathQuestionsViaFunctions,
-    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-    retry: 1,
-    gcTime: 10 * 60 * 1000,
-    select: (data) => {
-      console.log(`Successfully loaded ${data.length} math questions`);
-      // Process data on successful fetch
-      onQuestionsLoaded(data);
-      return data;
-    },
-    meta: {
-      onError: () => {
+    queryFn: async () => {
+      try {
+        // Use our new fetch utility instead of Supabase functions.invoke
+        const { data, error } = await callEdgeFunction<Question[]>('get-sat-math-questions');
+        
+        if (error || !data) {
+          throw error || new Error('No data returned');
+        }
+        
+        console.log(`Successfully loaded ${data.length} math questions`);
+        // Process data on successful fetch
+        onQuestionsLoaded(data);
+        return data;
+      } catch (err) {
         console.error('Error loading questions, trying fallback method');
         toast({
           title: "Error loading questions",
@@ -33,11 +36,14 @@ const UnencryptedMathQuestions = ({ onQuestionsLoaded }: UnencryptedMathQuestion
         });
         
         // Try the alternate method if the primary one fails
-        fetchMathQuestions().then(fallbackData => {
-          onQuestionsLoaded(fallbackData);
-        });
+        const fallbackData = await fetchMathQuestions();
+        onQuestionsLoaded(fallbackData);
+        return fallbackData;
       }
-    }
+    },
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    retry: 1,
+    gcTime: 10 * 60 * 1000,
   });
 
   if (error) {

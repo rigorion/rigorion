@@ -2,32 +2,24 @@ import { supabase } from '@/lib/supabase';
 import { Question } from '@/types/QuestionInterface';
 import { toast } from "@/components/ui/use-toast";
 import type { UserProgressData } from '@/types/progress';
+import { callEdgeFunction } from './edgeFunctionService';
 
-// Your actual deployed Supabase Edge Function URL
-const EDGE_FUNCTION_URL = 'https://eantvimmgdmxzwrop.supabase.co/functions/v1/my-function';
-
-// Define all endpoints
+// Define all endpoints for reference
 const endpoints = [
-  { name: 'get-progress' },
-  { name: 'log-interaction', method: 'POST', body: { type: 'viewed', questionId: 101 } },
-  { name: 'get-sat-math-questions' },
-  { name: 'get-user-progress' },
-  { name: 'get-apijson' },
-  { name: 'my-function', body: { name: 'Functions' } },
+  'get-progress',
+  'get-sat-math-questions',
+  'get-user-progress',
+  'get-apijson',
+  'my-function',
+  'mock',
 ];
 
 // Invoke all endpoints and collect responses
 export async function fetchProgressEndpoints() {
   try {
     const results = await Promise.all(
-      endpoints.map(async ({ name, method = 'GET', body }) => {
-        // Ensure method is a valid HTTP method type
-        const validMethod = method as 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-        
-        const { data, error } = await supabase.functions.invoke(name, {
-          method: validMethod,
-          ...(body ? { body } : {}),
-        });
+      endpoints.map(async (name) => {
+        const { data, error } = await callEdgeFunction(name);
 
         if (error) {
           console.error(`❌ Error from ${name}:`, error);
@@ -122,12 +114,10 @@ export function processProgressData(endpointsData: any[]): UserProgressData {
   };
 }
 
-// New function to fetch math questions using Supabase Edge Function
+// Updated function to fetch math questions from Edge Function
 export async function fetchMathQuestionsFromEdge() {
   try {
-    const { data, error } = await supabase.functions.invoke('get-sat-math-questions', {
-      method: 'GET'
-    });
+    const { data, error } = await callEdgeFunction<Question[]>('get-sat-math-questions');
     
     if (error) throw error;
     return data;
@@ -138,13 +128,12 @@ export async function fetchMathQuestionsFromEdge() {
 }
 
 // Updated function to fetch user progress data from Edge Function
-// Fixed by using URL parameters instead of body for GET requests
 export async function fetchUserProgressFromEdge(period: string = 'weekly') {
   try {
-    // Using URL parameters instead of body for GET requests
-    const { data, error } = await supabase.functions.invoke(`get-user-progress?period=${period}`, {
-      method: 'GET'
-    });
+    const { data, error } = await callEdgeFunction('get-user-progress', 
+      { method: 'GET' },
+      { period }
+    );
     
     if (error) throw error;
     return data;

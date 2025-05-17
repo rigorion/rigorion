@@ -1,17 +1,13 @@
-// src/api/getModelSatQuestions.ts
+
+// src/services/mathQuestionService.ts
+import { callEdgeFunction } from './edgeFunctionService';
+
 export async function getModelSatQuestions() {
   try {
-    const response = await fetch(
-      'https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-sat-model-question'
-    );
-
-    if (!response.ok) {
-      throw new Error(`HTTP error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return { data, error: null };
+    const { data, error } = await callEdgeFunction('get-sat-model-question');
+    
+    return { data, error: error ? error.message : null };
   } catch (error) {
-    return { data: null, error };
+    return { data: null, error: error instanceof Error ? error.message : String(error) };
   }
 }

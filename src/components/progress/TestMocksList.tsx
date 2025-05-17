@@ -1,8 +1,8 @@
-
 import { useEffect, useState } from 'react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { callEdgeFunction } from '@/services/edgeFunctionService';
 
 interface TestMockData {
   id: string;
@@ -41,43 +41,17 @@ export const TestMocksList = ({ tests: propTests }: { tests?: TestMockData[] }) 
     
     const fetchTests = async () => {
       try {
-        console.log('⭐ Attempting to fetch mock tests from endpoint...');
+        console.log('⭐ Attempting to fetch mock tests from edge function...');
         
-        // Use the environment variable for the Supabase URL
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-        const url = `${supabaseUrl}/functions/v1/mock`;
+        const { data, error } = await callEdgeFunction<TestMockData[]>('mock');
         
-        console.log('⭐ Fetch URL:', url);
-        
-        // Add timeout to ensure the request doesn't hang
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
-        
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          signal: controller.signal,
-          credentials: 'omit' // Explicitly avoid sending credentials
-        });
-        
-        clearTimeout(timeoutId);
-        
-        console.log('⭐ Response status:', response.status);
-        console.log('⭐ Response headers:', Object.fromEntries([...response.headers.entries()]));
-        
-        if (!response.ok) {
-          console.error('Response not OK:', response.status, response.statusText);
-          const responseText = await response.text();
-          console.error('Error response body:', responseText);
-          throw new Error(`Failed to fetch mock tests: ${response.status} ${response.statusText}`);
+        if (error) {
+          throw error;
         }
         
-        const data = await response.json();
         console.log('⭐ Mock tests data received:', data);
         
-        if (Array.isArray(data)) {
+        if (data && Array.isArray(data)) {
           setTests(data);
         } else {
           console.error('Received non-array data:', data);

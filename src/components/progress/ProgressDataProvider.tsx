@@ -5,6 +5,7 @@ import { UserProgressData } from "@/types/progress";
 import { toast } from "@/components/ui/use-toast";
 import { ErrorDisplay } from "./ErrorDisplay";
 import { Skeleton } from "../ui/skeleton";
+import { callEdgeFunction } from "@/services/edgeFunctionService";
 
 interface ProgressDataProviderProps {
   children: (data: UserProgressData) => React.ReactNode;
@@ -24,9 +25,14 @@ export const ProgressDataProvider = ({
     queryKey: ['userProgress', timePeriod],
     queryFn: async () => {
       try {
-        // First try to fetch from the dedicated edge function
-        const progressData = await fetchUserProgressFromEdge(timePeriod);
-        if (progressData && progressData.length > 0) {
+        // First try to fetch from the dedicated edge function using our new fetch utility
+        const { data: progressData, error: progressError } = await callEdgeFunction(
+          'get-user-progress',
+          { method: 'GET' },
+          { period: timePeriod }
+        );
+        
+        if (!progressError && progressData && Array.isArray(progressData) && progressData.length > 0) {
           console.log("Loaded progress data from edge function:", progressData);
           // Transform edge function response to match our UserProgressData type
           return processProgressData(progressData);
