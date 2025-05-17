@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -13,44 +14,18 @@ interface TableInfo {
   description: string;
 }
 
-// List of available tables based on your complete Supabase schema
-const AVAILABLE_TABLES = [
-  "payments", 
-  "profiles", 
-  "questions", 
-  "user_progress", 
-  "leaderboard", 
-  "submissions",
-  "chapters",
-  "topics",
-  "question_categories",
-  "sat-math-progress", // Fixed: changed underscore to hyphen to match actual table name
-  "study_plans",
-  "exam_results",
-  "user_sessions",
-  "question_categories",
-  "practice_sets",
-  "bookmarks",
-  "comments",
-  "user_settings",
-  "analytics_events"
-] as const;
-
-// Type to define valid table names for type safety
-type ValidTableName = typeof AVAILABLE_TABLES[number];
-
 const TableDataFetcher = () => {
   const [tables, setTables] = useState<TableInfo[]>([]);
-  const [selectedTable, setSelectedTable] = useState<ValidTableName | "">("");
+  const [selectedTable, setSelectedTable] = useState<string>("");
   const [limit, setLimit] = useState<number>(10);
   const [data, setData] = useState<any[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [queryTime, setQueryTime] = useState<number | null>(null);
   const [rowCount, setRowCount] = useState<number | null>(null);
-  const [isLoadingTables, setIsLoadingTables] = useState<boolean>(false);
+  const [isLoadingTables, setIsLoadingTables] = useState<boolean>(true);
 
-  // Fetch available tables from the database
+  // Fetch available tables directly from the database
   const fetchAvailableTables = async () => {
     setIsLoadingTables(true);
     setError(null);
@@ -58,21 +33,54 @@ const TableDataFetcher = () => {
     try {
       console.log('Fetching available tables...');
       
-      // Format the available tables from our expanded list
-      const formattedTables = AVAILABLE_TABLES.map(tableName => ({
-        name: tableName,
-        description: `Table in public schema`,
-      }));
+      // Get the actual tables from the database
+      const { data, error } = await supabase
+        .from('_tables')
+        .select('name:table_name, description:table_schema')
+        .eq('table_schema', 'public');
       
-      setTables(formattedTables);
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        console.log('Fetched tables:', data);
+        // Format the tables from the database
+        const formattedTables = data.map((table: any) => ({
+          name: table.name,
+          description: `Table in ${table.description} schema`,
+        }));
+        
+        setTables(formattedTables);
+      } else {
+        // Fallback to some known tables if the above doesn't work
+        console.log('No tables found or access restricted, using fallback list');
+        const fallbackTables = [
+          "profiles",
+          "questions",
+          "payments",
+          "user_progress",
+          "leaderboard",
+          "submissions",
+          "chapters",
+          "topics",
+          "sat-math-progress"
+        ].map(name => ({
+          name,
+          description: "Table in public schema",
+        }));
+        
+        setTables(fallbackTables);
+      }
       
       // If we had a selected table but it's no longer in the list, clear selection
-      if (selectedTable && !formattedTables.find(t => t.name === selectedTable)) {
+      if (selectedTable && !tables.find(t => t.name === selectedTable)) {
         setSelectedTable("");
       }
     } catch (err: any) {
       console.error('Exception fetching tables:', err);
       setError(err.message || 'An error occurred fetching tables');
+      
+      // Fallback to empty array on error
+      setTables([]);
     } finally {
       setIsLoadingTables(false);
     }
@@ -158,7 +166,7 @@ const TableDataFetcher = () => {
                 </label>
                 <Select 
                   value={selectedTable} 
-                  onValueChange={(value) => setSelectedTable(value as ValidTableName)}
+                  onValueChange={(value) => setSelectedTable(value)}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select a table" />
