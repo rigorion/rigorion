@@ -1,5 +1,6 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 interface UniversalFetcherProps {
   url: string;
@@ -23,11 +24,16 @@ const UniversalFetcher = ({
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [payloadInput, setPayloadInput] = useState<string>(
+    payload ? JSON.stringify(payload, null, 2) : '{}'
+  );
 
-  useEffect(() => {
+  const fetchData = () => {
     setLoading(true);
     setError(null);
+    setData(null);
 
+    // Prepare the fetch options
     const options: RequestInit = {
       method,
       headers: {
@@ -38,8 +44,16 @@ const UniversalFetcher = ({
       credentials: 'omit'  // Don't send cookies by default for CORS
     };
     
-    if (method === "POST" && payload) {
-      options.body = JSON.stringify(payload);
+    // Add payload for POST/PUT methods
+    if ((method === "POST" || method === "PUT") && payloadInput) {
+      try {
+        const parsedPayload = JSON.parse(payloadInput);
+        options.body = JSON.stringify(parsedPayload);
+      } catch (err) {
+        setError("Invalid JSON payload");
+        setLoading(false);
+        return;
+      }
     }
 
     console.log(`Fetching ${url} with method ${method}`, options);
@@ -63,29 +77,65 @@ const UniversalFetcher = ({
         setLoading(false);
         onError(err);
       });
-
-    // Only rerun if url, method, or payload/headers change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [url, method, JSON.stringify(payload), JSON.stringify(headers)]);
+  };
 
   return (
     <div className="mb-8 p-4 border border-gray-200 rounded-lg">
       <div className="flex flex-col">
         <div className="flex items-center justify-between">
           {title && <h3 className="text-lg font-medium">{title}</h3>}
-          <span className="text-xs bg-gray-100 px-2 py-1 rounded">{method}</span>
+          <span className={`text-xs px-2 py-1 rounded ${
+            method === "GET" ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"
+          }`}>{method}</span>
         </div>
         <p className="text-xs text-gray-500 mt-1 mb-2 truncate">{url}</p>
       </div>
       
-      {loading && <div className="text-blue-600 mt-2">🔄 Loading...</div>}
-      {error && (
-        <div className="text-red-500 mt-2">❌ Error: {error}</div>
+      {/* Payload input for POST methods */}
+      {(method === "POST" || method === "PUT") && (
+        <div className="mt-3">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Payload JSON:
+          </label>
+          <textarea 
+            className="w-full h-24 p-2 border border-gray-300 rounded text-sm font-mono"
+            value={payloadInput}
+            onChange={(e) => setPayloadInput(e.target.value)}
+          />
+        </div>
       )}
+      
+      {/* Fetch button */}
+      <div className="mt-3">
+        <Button 
+          onClick={fetchData}
+          disabled={loading}
+          variant="outline"
+          size="sm"
+          className={`${
+            method === "GET" ? "border-blue-500 hover:bg-blue-50" : "border-green-500 hover:bg-green-50"
+          }`}
+        >
+          {loading ? "Fetching..." : `Fetch ${method === "GET" ? "Data" : "Send Request"}`}
+        </Button>
+      </div>
+      
+      {/* Status indicators */}
+      {loading && <div className="text-blue-600 mt-3">🔄 Loading...</div>}
+      {error && (
+        <div className="text-red-500 mt-3 p-2 bg-red-50 border border-red-100 rounded">
+          ❌ Error: {error}
+        </div>
+      )}
+      
+      {/* Response data */}
       {data && (
-        <pre className="bg-gray-50 p-3 rounded mt-2 max-h-[300px] overflow-auto">
-          {JSON.stringify(data, null, 2)}
-        </pre>
+        <div className="mt-3">
+          <h4 className="text-sm font-medium text-gray-700 mb-1">Response:</h4>
+          <pre className="bg-gray-50 p-3 rounded border border-gray-200 max-h-[300px] overflow-auto text-sm">
+            {JSON.stringify(data, null, 2)}
+          </pre>
+        </div>
       )}
     </div>
   );

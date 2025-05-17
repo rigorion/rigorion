@@ -9,21 +9,22 @@ export default function Endpoints() {
       <div className="container mx-auto py-8">
         <h1 className="text-3xl font-bold mb-6">API Endpoints Explorer</h1>
         <p className="mb-4 text-gray-600">
-          This page allows you to explore and test all available Supabase Edge Function endpoints.
-          Each endpoint will display its response data, loading state, and any errors that occur.
+          This interactive page allows you to test all available Supabase Edge Function endpoints.
+          Click the "Fetch" buttons to send requests and see responses in real-time.
         </p>
         
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>About These Endpoints</CardTitle>
-            <CardDescription>Important information about the API endpoints</CardDescription>
+            <CardTitle>How to Use This Explorer</CardTitle>
+            <CardDescription>Instructions for using the API explorer</CardDescription>
           </CardHeader>
           <CardContent>
             <ul className="list-disc pl-6 space-y-2">
-              <li>All endpoints are public by default and don't require authentication</li>
-              <li>Use the toggle to include your auth token if needed for protected endpoints</li>
-              <li>Response times may vary based on function cold starts</li>
-              <li>These endpoints are designed for demonstration purposes</li>
+              <li>Click the <strong>Fetch Data</strong> button on any endpoint card to make a request</li>
+              <li>For POST requests, you can edit the JSON payload before sending</li>
+              <li>Switch between GET and POST endpoints using the tabs</li>
+              <li>Use the authentication toggle at the top if you need to include your auth token</li>
+              <li>Response data will appear below each endpoint after fetching</li>
             </ul>
           </CardContent>
         </Card>
