@@ -70,16 +70,22 @@ const CommunityStats = ({ questionId }: { questionId?: string }) => {
             // Now we can safely cast to our expected type after validation
             const typedData = data as unknown as CommunityStatRecord[];
             
-            // Calculate stats from the data with explicit initial values
-            const totalAttempts = typedData.reduce((sum: number, stat: CommunityStatRecord) => 
-              sum + (Number(stat.total_attempts) || 0), 0);
+            // Calculate stats from the data with explicit initial values and null safety
+            const totalAttempts = typedData.reduce((sum: number, stat: CommunityStatRecord) => {
+              const attempts = stat && typeof stat.total_attempts === 'number' ? stat.total_attempts : 0;
+              return sum + attempts;
+            }, 0);
             
-            const totalCorrect = typedData.reduce((sum: number, stat: CommunityStatRecord) => 
-              sum + (Number(stat.correct_count) || 0), 0);
+            const totalCorrect = typedData.reduce((sum: number, stat: CommunityStatRecord) => {
+              const correct = stat && typeof stat.correct_count === 'number' ? stat.correct_count : 0;
+              return sum + correct;
+            }, 0);
             
-            // Calculate average time in seconds with explicit initial values
-            const totalTime = typedData.reduce((sum: number, stat: CommunityStatRecord) => 
-              sum + (Number(stat.avg_time_spent_sec) || 0), 0);
+            // Calculate average time in seconds with explicit initial values and null safety
+            const totalTime = typedData.reduce((sum: number, stat: CommunityStatRecord) => {
+              const avgTime = stat && typeof stat.avg_time_spent_sec === 'number' ? stat.avg_time_spent_sec : 0;
+              return sum + avgTime;
+            }, 0);
             
             const avgTimeInSec = typedData.length > 0 ? totalTime / typedData.length : 0;
             
