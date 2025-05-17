@@ -11,10 +11,11 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 // Interface to define a table structure
 interface TableInfo {
   name: string;
-  schema: string;
   description: string;
-  rowCount?: number | null;
 }
+
+// List of available tables based on the Supabase types
+const AVAILABLE_TABLES = ["payments", "profiles", "questions"];
 
 const TableDataFetcher = () => {
   const [tables, setTables] = useState<TableInfo[]>([]);
@@ -34,32 +35,11 @@ const TableDataFetcher = () => {
     
     try {
       console.log('Fetching available tables...');
-      // Query the Postgres information_schema to get table information
-      const { data: tablesData, error: tablesError } = await supabase
-        .from('pg_tables')
-        .select('schemaname, tablename')
-        .eq('schemaname', 'public') // Only get public schema tables
-        .order('tablename', { ascending: true });
-        
-      if (tablesError) {
-        console.error('Error fetching tables:', tablesError);
-        setError(`Error fetching tables: ${tablesError.message}`);
-        return;
-      }
       
-      if (!tablesData || tablesData.length === 0) {
-        console.log('No tables found');
-        setTables([]);
-        return;
-      }
-      
-      console.log(`Found ${tablesData.length} tables`);
-      
-      // Format table data with descriptions
-      const formattedTables = tablesData.map(table => ({
-        name: table.tablename,
-        schema: table.schemaname,
-        description: `Table in ${table.schemaname} schema`,
+      // Format the available tables defined in Supabase types
+      const formattedTables = AVAILABLE_TABLES.map(tableName => ({
+        name: tableName,
+        description: `Table in public schema`,
       }));
       
       setTables(formattedTables);
@@ -98,8 +78,9 @@ const TableDataFetcher = () => {
     try {
       console.log(`Fetching data from ${selectedTable} table with limit ${limit}`);
       
+      // Type-safe way to query tables
       const { data, error, count } = await supabase
-        .from(selectedTable)
+        .from(selectedTable as "payments" | "profiles" | "questions")
         .select('*', { count: 'exact' })
         .limit(limit);
         
