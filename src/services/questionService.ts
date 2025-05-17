@@ -1,3 +1,4 @@
+
 // services/questionService.ts
 import { Question } from '@/types/QuestionInterface';
 import { toast } from "@/hooks/use-toast";
@@ -31,15 +32,15 @@ export async function fetchMathQuestions(): Promise<Question[]> {
   }
 }
 
-// Function that still uses Supabase's functions.invoke() API
-// We'll keep this as a fallback method
+// Function that provides fallback questions without using Supabase directly
 export async function fetchMathQuestionsViaFunctions(): Promise<Question[]> {
   try {
-    const { data, error } = await supabase.functions.invoke('get-sat-math-questions', {
-      method: 'GET',
-    });
+    console.log('Attempting to fetch math questions via fallback method');
+    
+    // Use our callEdgeFunction instead of directly using supabase.functions.invoke
+    const { data, error } = await callEdgeFunction<Question[]>('get-sat-math-questions');
 
-    if (error) {
+    if (error || !data) {
       console.error('Edge Function error:', error);
       toast({
         title: "Error loading questions",

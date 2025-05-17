@@ -1,5 +1,6 @@
 
 // Generic fetch utility for Supabase Edge Functions
+import { useState, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast";
 
 // Base URL for Supabase Edge Functions
