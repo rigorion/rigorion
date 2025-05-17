@@ -7,15 +7,18 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CheckCircle, AlertTriangle } from "lucide-react";
 
+// Define table names as a type to match Supabase's schema
+type TableName = "questions" | "profiles" | "payments";
+
 // List of available public tables for direct querying
-const AVAILABLE_TABLES = [
+const AVAILABLE_TABLES: Array<{ name: TableName; description: string }> = [
   { name: "questions", description: "SAT math questions" },
   { name: "profiles", description: "User profiles" },
   { name: "payments", description: "User payments" }
 ];
 
 const TableDataFetcher = () => {
-  const [selectedTable, setSelectedTable] = useState<string>("");
+  const [selectedTable, setSelectedTable] = useState<TableName | "">("");
   const [limit, setLimit] = useState<number>(10);
   const [data, setData] = useState<any[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +43,7 @@ const TableDataFetcher = () => {
     try {
       console.log(`Fetching data from ${selectedTable} table with limit ${limit}`);
       
-      // Query the selected table with a limit
+      // Now TypeScript knows selectedTable is a valid table name
       const { data, error, count } = await supabase
         .from(selectedTable)
         .select('*', { count: 'exact' })
@@ -76,7 +79,10 @@ const TableDataFetcher = () => {
               <label htmlFor="table-select" className="block text-sm font-medium text-gray-700 mb-1">
                 Table:
               </label>
-              <Select value={selectedTable} onValueChange={setSelectedTable}>
+              <Select 
+                value={selectedTable} 
+                onValueChange={(value) => setSelectedTable(value as TableName)}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a table" />
                 </SelectTrigger>
