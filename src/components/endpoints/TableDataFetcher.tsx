@@ -24,7 +24,8 @@ const AVAILABLE_TABLES = [
   "submissions",
   "chapters",
   "topics",
-  "question_categories"
+  "question_categories",
+  "sat_math_progress" // Added the new table
 ] as const;
 
 // Type to define valid table names for type safety
