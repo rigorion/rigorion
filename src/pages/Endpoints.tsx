@@ -4,6 +4,7 @@ import { Layout } from "@/components/layout/Layout";
 import AllEndpointsFetcher from "@/components/endpoints/AllEndpointsFetcher";
 import CorsDiagnosticTool from "@/components/endpoints/CorsDiagnosticTool";
 import TableDataFetcher from "@/components/endpoints/TableDataFetcher";
+import TableFetcher from "@/components/supabase/TableFetcher";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TABLES, fetchAllTables } from "@/services/tableDataService";
@@ -59,6 +60,7 @@ export default function Endpoints() {
             <TabsTrigger value="explorer">Data Explorer</TabsTrigger>
             <TabsTrigger value="diagnostic">CORS Diagnostic</TabsTrigger>
             <TabsTrigger value="tables">Tables</TabsTrigger>
+            <TabsTrigger value="simple">Simple Fetcher</TabsTrigger>
           </TabsList>
           
           <TabsContent value="explorer">
@@ -119,6 +121,18 @@ export default function Endpoints() {
                 </div>
                 
                 <TableDataFetcher />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="simple">
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>Simple Table Fetcher</CardTitle>
+                <CardDescription>A simplified interface for querying Supabase tables</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <TableFetcher defaultTable="community_stats" />
               </CardContent>
             </Card>
           </TabsContent>
