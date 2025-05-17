@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,16 +7,12 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { CheckCircle, AlertTriangle, RefreshCw, Database } from "lucide-react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { toast } from "@/components/ui/use-toast";
+import { TABLES, fetchTable, checkTableExists } from "@/services/tableDataService";
 
 // Interface to define a table structure
 interface TableInfo {
   name: string;
   description: string;
-}
-
-// Define the expected response type from our RPC function
-interface TableNameResult {
-  tablename: string;
 }
 
 const TableDataFetcher = () => {
@@ -31,63 +26,48 @@ const TableDataFetcher = () => {
   const [rowCount, setRowCount] = useState<number | null>(null);
   const [isLoadingTables, setIsLoadingTables] = useState<boolean>(true);
 
-  // Fetch available tables using RPC function
+  // Fetch available tables from our predefined list
   const fetchAvailableTables = async () => {
     setIsLoadingTables(true);
     setError(null);
     
     try {
-      console.log('Fetching available tables using RPC...');
+      console.log('Fetching available tables...');
       
-      // We need to use type assertions to work around TypeScript's type checking
-      // This is necessary because our custom RPC function is not part of the generated types
-      const response = await supabase.functions.invoke('get-tables') as unknown as { 
-        data: TableNameResult[] | null; 
-        error: any;
-      };
+      // Create formatted table list from our predefined TABLES constant
+      const formattedTables: TableInfo[] = [];
       
-      // Alternative approach using direct Postgres method with type assertion
-      const { data, error } = await (supabase as any).rpc('get_all_tables');
-      
-      if (error) {
-        throw error;
+      // Check which tables actually exist in the database
+      for (const tableName of TABLES) {
+        const exists = await checkTableExists(tableName);
+        
+        if (exists) {
+          formattedTables.push({
+            name: tableName,
+            description: "Table in public schema",
+          });
+        }
       }
       
-      if (data && Array.isArray(data) && data.length > 0) {
-        console.log('Fetched tables:', data);
-        // Format the tables from the RPC call
-        const formattedTables = data.map((table: any) => ({
-          name: table.tablename,
-          description: "Table in public schema",
-        }));
-        
+      if (formattedTables.length > 0) {
+        console.log('Found tables:', formattedTables);
         setTables(formattedTables);
         toast({
           title: "Success",
           description: `Found ${formattedTables.length} tables in database`,
         });
       } else {
-        // Fallback to some known tables if the RPC doesn't work
-        console.log('No tables found or RPC not set up, using fallback list');
-        const fallbackTables = [
-          "profiles",
-          "questions",
-          "payments",
-          "user_progress",
-          "leaderboard",
-          "submissions",
-          "chapters",
-          "topics",
-          "sat-math-progress"
-        ].map(name => ({
+        // Use all tables as fallback even if they don't exist yet
+        console.log('No tables found, using all defined tables as fallback');
+        const fallbackTables = TABLES.map(name => ({
           name,
           description: "Table in public schema",
         }));
         
         setTables(fallbackTables);
         toast({
-          title: "Using fallback tables",
-          description: "Couldn't fetch tables from database. Make sure the RPC function exists.",
+          title: "Using all defined tables",
+          description: "Couldn't verify tables existence. Some might not exist yet in your database.",
           variant: "destructive",
         });
       }
@@ -98,15 +78,18 @@ const TableDataFetcher = () => {
       }
     } catch (err: any) {
       console.error('Exception fetching tables:', err);
-      setError(err.message || 'An error occurred fetching tables. Make sure the RPC function exists.');
+      setError(err.message || 'An error occurred fetching tables.');
       toast({
         title: "Error fetching tables",
-        description: err.message || "Make sure the 'get_all_tables' RPC function exists in your Supabase project.",
+        description: err.message || "Make sure the tables exist in your Supabase project.",
         variant: "destructive",
       });
       
-      // Fallback to empty array on error
-      setTables([]);
+      // Fallback to all tables on error
+      setTables(TABLES.map(name => ({
+        name,
+        description: "Table in public schema",
+      })));
     } finally {
       setIsLoadingTables(false);
     }
@@ -134,25 +117,19 @@ const TableDataFetcher = () => {
     try {
       console.log(`Fetching data from ${selectedTable} table with limit ${limit}`);
       
-      // Use type assertion to override TypeScript's type checking
-      // This tells TypeScript to trust us that the table exists
-      const { data, error, count } = await supabase
-        .from(selectedTable as any)
-        .select('*', { count: 'exact' })
-        .limit(limit);
-        
+      // Use our new fetchTable service
+      const { data, count } = await fetchTable(selectedTable, { limit });
       const endTime = performance.now();
       setQueryTime(endTime - startTime);
 
-      if (error) {
-        console.error("Error fetching table data:", error);
-        setError(error.message);
+      if (!data) {
+        setError("No data returned from table");
         return;
       }
 
       console.log(`Fetched ${data.length} rows from ${selectedTable}`);
       setData(data);
-      setRowCount(count);
+      setRowCount(count !== null ? count : data.length);
     } catch (err: any) {
       console.error("Exception while fetching table data:", err);
       setError(err.message || "An unknown error occurred");
@@ -290,7 +267,7 @@ const TableDataFetcher = () => {
           </div>
           
           <div className="mt-3 text-sm text-gray-500">
-            <p>This data was fetched directly from the Supabase database using the client library, avoiding CORS issues that can occur with Edge Functions.</p>
+            <p>This data was fetched directly from the Supabase database using the client library.</p>
           </div>
         </div>
       )}

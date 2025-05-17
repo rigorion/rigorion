@@ -1,12 +1,50 @@
 
+import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import AllEndpointsFetcher from "@/components/endpoints/AllEndpointsFetcher";
 import CorsDiagnosticTool from "@/components/endpoints/CorsDiagnosticTool";
 import TableDataFetcher from "@/components/endpoints/TableDataFetcher";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TABLES, fetchAllTables } from "@/services/tableDataService";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
 
 export default function Endpoints() {
+  const [isFetchingAll, setIsFetchingAll] = useState(false);
+  
+  // Function to fetch data from all tables
+  const handleFetchAllData = async () => {
+    setIsFetchingAll(true);
+    try {
+      toast({
+        title: "Fetching all tables",
+        description: `Starting to fetch data from ${TABLES.length} tables...`
+      });
+      
+      const results = await fetchAllTables({ limit: 50 });
+      const tableCount = Object.keys(results).length;
+      const dataCount = Object.values(results).reduce((acc, tableData) => 
+        acc + (Array.isArray(tableData) ? tableData.length : 0), 0);
+      
+      console.log("All tables data:", results);
+      
+      toast({
+        title: "Fetch Completed",
+        description: `Retrieved ${dataCount} rows from ${tableCount} tables`
+      });
+    } catch (error) {
+      console.error("Error fetching all tables:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch all tables. See console for details.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsFetchingAll(false);
+    }
+  };
+
   return (
     <Layout>
       <div className="container mx-auto py-8">
@@ -20,6 +58,7 @@ export default function Endpoints() {
           <TabsList>
             <TabsTrigger value="explorer">Data Explorer</TabsTrigger>
             <TabsTrigger value="diagnostic">CORS Diagnostic</TabsTrigger>
+            <TabsTrigger value="tables">Tables</TabsTrigger>
           </TabsList>
           
           <TabsContent value="explorer">
@@ -52,6 +91,34 @@ export default function Endpoints() {
               </CardHeader>
               <CardContent>
                 <CorsDiagnosticTool />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="tables">
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>Table Data Explorer</CardTitle>
+                <CardDescription>Directly query Supabase tables</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4">
+                  <p className="text-sm text-gray-600 mb-3">
+                    Available tables: {TABLES.join(', ')}
+                  </p>
+                  <Button 
+                    onClick={handleFetchAllData} 
+                    disabled={isFetchingAll}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    {isFetchingAll ? "Fetching All Tables..." : "Fetch All Tables"}
+                  </Button>
+                  <p className="text-xs text-gray-500 mt-1">
+                    This will fetch data from all tables and log it to the console
+                  </p>
+                </div>
+                
+                <TableDataFetcher />
               </CardContent>
             </Card>
           </TabsContent>
