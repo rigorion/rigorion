@@ -52,6 +52,7 @@ const CommunityStats = ({ questionId }: { questionId?: string }) => {
           
           // Validate that data has the expected structure before processing
           const isValidData = data.every(item => 
+            item !== null && 
             typeof item === 'object' && 
             item !== null && 
             'total_attempts' in item && 
