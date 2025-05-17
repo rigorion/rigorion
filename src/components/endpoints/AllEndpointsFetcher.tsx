@@ -50,6 +50,16 @@ const AllEndpointsFetcher = () => {
         url: `${SUPABASE_URL}/functions/v1/mock`,
         title: "mock tests (GET)",
         method: "GET"
+      },
+      {
+        url: `${SUPABASE_URL}/functions/v1/get-leaderboard`,
+        title: "leaderboard (GET)",
+        method: "GET"
+      },
+      {
+        url: `${SUPABASE_URL}/functions/v1/get-performance`,
+        title: "performance (GET)",
+        method: "GET"
       }
     ];
 
