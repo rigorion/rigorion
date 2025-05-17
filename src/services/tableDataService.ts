@@ -1,7 +1,5 @@
-
 import { supabase } from '@/lib/supabase';
 import { toast } from "@/hooks/use-toast";
-import { PostgrestQueryBuilder } from '@supabase/supabase-js';
 
 // List of all available tables in the Supabase database
 export const TABLES = [
