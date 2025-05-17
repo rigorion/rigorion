@@ -2,6 +2,7 @@
 import { Layout } from "@/components/layout/Layout";
 import AllEndpointsFetcher from "@/components/endpoints/AllEndpointsFetcher";
 import CorsDiagnosticTool from "@/components/endpoints/CorsDiagnosticTool";
+import TableDataFetcher from "@/components/endpoints/TableDataFetcher";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 

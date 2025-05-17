@@ -1,30 +1,85 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CheckCircle, AlertTriangle } from "lucide-react";
+import { CheckCircle, AlertTriangle, RefreshCw, Database } from "lucide-react";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 
-// Define table names as a type to match Supabase's schema
-type TableName = "questions" | "profiles" | "payments";
-
-// List of available public tables for direct querying
-const AVAILABLE_TABLES: Array<{ name: TableName; description: string }> = [
-  { name: "questions", description: "SAT math questions" },
-  { name: "profiles", description: "User profiles" },
-  { name: "payments", description: "User payments" }
-];
+// Interface to define a table structure
+interface TableInfo {
+  name: string;
+  schema: string;
+  description: string;
+  rowCount?: number | null;
+}
 
 const TableDataFetcher = () => {
-  const [selectedTable, setSelectedTable] = useState<TableName | "">("");
+  const [tables, setTables] = useState<TableInfo[]>([]);
+  const [selectedTable, setSelectedTable] = useState<string>("");
   const [limit, setLimit] = useState<number>(10);
   const [data, setData] = useState<any[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [queryTime, setQueryTime] = useState<number | null>(null);
   const [rowCount, setRowCount] = useState<number | null>(null);
+  const [isLoadingTables, setIsLoadingTables] = useState<boolean>(false);
+
+  // Fetch available tables from the database
+  const fetchAvailableTables = async () => {
+    setIsLoadingTables(true);
+    setError(null);
+    
+    try {
+      console.log('Fetching available tables...');
+      // Query the Postgres information_schema to get table information
+      const { data: tablesData, error: tablesError } = await supabase
+        .from('pg_tables')
+        .select('schemaname, tablename')
+        .eq('schemaname', 'public') // Only get public schema tables
+        .order('tablename', { ascending: true });
+        
+      if (tablesError) {
+        console.error('Error fetching tables:', tablesError);
+        setError(`Error fetching tables: ${tablesError.message}`);
+        return;
+      }
+      
+      if (!tablesData || tablesData.length === 0) {
+        console.log('No tables found');
+        setTables([]);
+        return;
+      }
+      
+      console.log(`Found ${tablesData.length} tables`);
+      
+      // Format table data with descriptions
+      const formattedTables = tablesData.map(table => ({
+        name: table.tablename,
+        schema: table.schemaname,
+        description: `Table in ${table.schemaname} schema`,
+      }));
+      
+      setTables(formattedTables);
+      
+      // If we had a selected table but it's no longer in the list, clear selection
+      if (selectedTable && !formattedTables.find(t => t.name === selectedTable)) {
+        setSelectedTable("");
+      }
+    } catch (err: any) {
+      console.error('Exception fetching tables:', err);
+      setError(err.message || 'An error occurred fetching tables');
+    } finally {
+      setIsLoadingTables(false);
+    }
+  };
+
+  // Load tables when component mounts
+  useEffect(() => {
+    fetchAvailableTables();
+  }, []);
 
   const fetchTableData = async () => {
     if (!selectedTable) {
@@ -43,7 +98,6 @@ const TableDataFetcher = () => {
     try {
       console.log(`Fetching data from ${selectedTable} table with limit ${limit}`);
       
-      // Now TypeScript knows selectedTable is a valid table name
       const { data, error, count } = await supabase
         .from(selectedTable)
         .select('*', { count: 'exact' })
@@ -73,47 +127,67 @@ const TableDataFetcher = () => {
     <div className="space-y-6">
       <Card className="p-4 border border-gray-200">
         <div className="mb-4">
-          <h3 className="text-lg font-medium mb-2">Select Table and Options</h3>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <label htmlFor="table-select" className="block text-sm font-medium text-gray-700 mb-1">
-                Table:
-              </label>
-              <Select 
-                value={selectedTable} 
-                onValueChange={(value) => setSelectedTable(value as TableName)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a table" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Available Tables</SelectLabel>
-                    {AVAILABLE_TABLES.map((table) => (
-                      <SelectItem key={table.name} value={table.name}>
-                        {table.name} - {table.description}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="w-24">
-              <label htmlFor="limit-input" className="block text-sm font-medium text-gray-700 mb-1">
-                Limit:
-              </label>
-              <Input
-                id="limit-input"
-                type="number"
-                min="1"
-                max="100"
-                value={limit}
-                onChange={(e) => setLimit(parseInt(e.target.value) || 10)}
-                className="w-full"
-              />
-            </div>
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-lg font-medium">Select Table and Options</h3>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={fetchAvailableTables}
+              disabled={isLoadingTables}
+              className="flex items-center gap-1"
+            >
+              <RefreshCw size={14} className={isLoadingTables ? "animate-spin" : ""} />
+              <span>Refresh Tables</span>
+            </Button>
           </div>
+          
+          {isLoadingTables ? (
+            <div className="py-4 text-center text-gray-500">
+              <Database className="animate-pulse inline-block mr-2" size={16} />
+              Loading available tables...
+            </div>
+          ) : (
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <label htmlFor="table-select" className="block text-sm font-medium text-gray-700 mb-1">
+                  Table:
+                </label>
+                <Select 
+                  value={selectedTable} 
+                  onValueChange={(value) => setSelectedTable(value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a table" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Available Tables ({tables.length})</SelectLabel>
+                      {tables.map((table) => (
+                        <SelectItem key={table.name} value={table.name}>
+                          {table.name} - {table.description}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="w-24">
+                <label htmlFor="limit-input" className="block text-sm font-medium text-gray-700 mb-1">
+                  Limit:
+                </label>
+                <Input
+                  id="limit-input"
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={limit}
+                  onChange={(e) => setLimit(parseInt(e.target.value) || 10)}
+                  className="w-full"
+                />
+              </div>
+            </div>
+          )}
         </div>
         
         <Button
@@ -155,9 +229,26 @@ const TableDataFetcher = () => {
           </div>
           
           <div className="bg-gray-50 p-3 rounded border border-gray-200 max-h-[500px] overflow-auto">
-            <pre className="text-xs whitespace-pre-wrap">
-              {JSON.stringify(data, null, 2)}
-            </pre>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {Object.keys(data[0]).map((column) => (
+                    <TableHead key={column}>{column}</TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.map((row, rowIndex) => (
+                  <TableRow key={`row-${rowIndex}`}>
+                    {Object.entries(row).map(([column, value], cellIndex) => (
+                      <TableCell key={`cell-${rowIndex}-${cellIndex}`}>
+                        {typeof value === 'object' ? JSON.stringify(value) : String(value || '')}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
           
           <div className="mt-3 text-sm text-gray-500">
