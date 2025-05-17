@@ -5,6 +5,9 @@ import { useQuery } from '@tanstack/react-query';
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
 import { callEdgeFunction } from '@/services/edgeFunctionService';
+import { useEffect } from 'react';
+import { getCustomFunction, testCustomFunction } from '@/services/mathQuestionService';
+import { Button } from '@/components/ui/button';
 
 interface UnencryptedMathQuestionsProps {
   onQuestionsLoaded: (questions: Question[]) => void;
@@ -46,10 +49,38 @@ const UnencryptedMathQuestions = ({ onQuestionsLoaded }: UnencryptedMathQuestion
     gcTime: 10 * 60 * 1000,
   });
 
+  // Call the custom function on component mount to test it
+  useEffect(() => {
+    const testFunction = async () => {
+      try {
+        console.log('Testing custom function from component...');
+        await testCustomFunction();
+      } catch (error) {
+        console.error('Error testing custom function:', error);
+      }
+    };
+    
+    testFunction();
+  }, []);
+
+  const handleManualTest = async () => {
+    try {
+      const result = await getCustomFunction();
+      console.log('Manual test result:', result);
+    } catch (error) {
+      console.error('Manual test error:', error);
+    }
+  };
+
   if (error) {
     return (
       <div className="p-4 bg-red-50 border border-red-200 rounded-md">
         <p className="text-red-600">Failed to load questions: {(error as Error).message}</p>
+        <div className="mt-4">
+          <Button onClick={handleManualTest} variant="outline" className="mt-2">
+            Test Custom Function
+          </Button>
+        </div>
       </div>
     );
   }
@@ -59,11 +90,22 @@ const UnencryptedMathQuestions = ({ onQuestionsLoaded }: UnencryptedMathQuestion
       <div className="space-y-2">
         <Skeleton className="h-4 w-3/4" />
         <Skeleton className="h-4 w-1/2" />
+        <div className="mt-4">
+          <Button onClick={handleManualTest} variant="outline" className="mt-2">
+            Test Custom Function
+          </Button>
+        </div>
       </div>
     );
   }
 
-  return null; // Component doesn't need to render anything after questions are loaded
+  return (
+    <div>
+      <Button onClick={handleManualTest} variant="outline" className="mt-2">
+        Test Custom Function
+      </Button>
+    </div>
+  );
 };
 
 export default UnencryptedMathQuestions;
