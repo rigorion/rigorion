@@ -16,6 +16,7 @@ import About from "./pages/About";
 import Welcome from "./pages/Welcome";
 import Payment from "./pages/Payment";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import Endpoints from "./pages/Endpoints";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 const router = createBrowserRouter([
@@ -32,6 +33,7 @@ const router = createBrowserRouter([
   { path: "/about", element: <About /> },
   { path: "/payment", element: <Payment /> },
   { path: "/payment-success", element: <PaymentSuccess /> },
+  { path: "/endpoints", element: <ProtectedRoute><Endpoints /></ProtectedRoute> },
   { path: "*", element: <NotFound /> },
 ]);
 
