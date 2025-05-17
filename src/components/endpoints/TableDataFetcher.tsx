@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -209,7 +208,7 @@ const TableDataFetcher = () => {
         </div>
 
         {selectedTable && !selectedTableExists && (
-          <Alert variant="warning" className="mb-4 bg-yellow-50 border-yellow-200">
+          <Alert variant="destructive" className="mb-4 bg-yellow-50 border-yellow-200">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Table does not exist</AlertTitle>
             <AlertDescription>
