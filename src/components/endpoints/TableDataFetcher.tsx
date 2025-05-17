@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CheckCircle, AlertTriangle, RefreshCw, Database } from "lucide-react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { toast } from "@/components/ui/use-toast";
 
 // Interface to define a table structure
 interface TableInfo {
@@ -38,25 +39,33 @@ const TableDataFetcher = () => {
     try {
       console.log('Fetching available tables using RPC...');
       
-      // Use type assertion to tell TypeScript that this RPC exists and will return data of TableNameResult[]
-      const { data, error } = await supabase.rpc('get_all_tables') as { 
+      // We need to use type assertions to work around TypeScript's type checking
+      // This is necessary because our custom RPC function is not part of the generated types
+      const response = await supabase.functions.invoke('get-tables') as unknown as { 
         data: TableNameResult[] | null; 
         error: any;
       };
+      
+      // Alternative approach using direct Postgres method with type assertion
+      const { data, error } = await (supabase as any).rpc('get_all_tables');
       
       if (error) {
         throw error;
       }
       
-      if (data && data.length > 0) {
+      if (data && Array.isArray(data) && data.length > 0) {
         console.log('Fetched tables:', data);
         // Format the tables from the RPC call
-        const formattedTables = data.map((table: TableNameResult) => ({
+        const formattedTables = data.map((table: any) => ({
           name: table.tablename,
           description: "Table in public schema",
         }));
         
         setTables(formattedTables);
+        toast({
+          title: "Success",
+          description: `Found ${formattedTables.length} tables in database`,
+        });
       } else {
         // Fallback to some known tables if the RPC doesn't work
         console.log('No tables found or RPC not set up, using fallback list');
@@ -76,6 +85,11 @@ const TableDataFetcher = () => {
         }));
         
         setTables(fallbackTables);
+        toast({
+          title: "Using fallback tables",
+          description: "Couldn't fetch tables from database. Make sure the RPC function exists.",
+          variant: "destructive",
+        });
       }
       
       // If we had a selected table but it's no longer in the list, clear selection
@@ -85,6 +99,11 @@ const TableDataFetcher = () => {
     } catch (err: any) {
       console.error('Exception fetching tables:', err);
       setError(err.message || 'An error occurred fetching tables. Make sure the RPC function exists.');
+      toast({
+        title: "Error fetching tables",
+        description: err.message || "Make sure the 'get_all_tables' RPC function exists in your Supabase project.",
+        variant: "destructive",
+      });
       
       // Fallback to empty array on error
       setTables([]);
