@@ -25,14 +25,14 @@ const AVAILABLE_TABLES = [
   "chapters",
   "topics",
   "question_categories"
-];
+] as const;
 
 // Type to define valid table names for type safety
 type ValidTableName = typeof AVAILABLE_TABLES[number];
 
 const TableDataFetcher = () => {
   const [tables, setTables] = useState<TableInfo[]>([]);
-  const [selectedTable, setSelectedTable] = useState<string>("");
+  const [selectedTable, setSelectedTable] = useState<ValidTableName | "">("");
   const [limit, setLimit] = useState<number>(10);
   const [data, setData] = useState<any[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -91,9 +91,9 @@ const TableDataFetcher = () => {
     try {
       console.log(`Fetching data from ${selectedTable} table with limit ${limit}`);
       
-      // Use a more flexible approach that doesn't rely on type assertions
+      // Now that selectedTable is properly typed as ValidTableName, this is type-safe
       const { data, error, count } = await supabase
-        .from(selectedTable as ValidTableName)
+        .from(selectedTable)
         .select('*', { count: 'exact' })
         .limit(limit);
         
@@ -148,7 +148,7 @@ const TableDataFetcher = () => {
                 </label>
                 <Select 
                   value={selectedTable} 
-                  onValueChange={(value) => setSelectedTable(value)}
+                  onValueChange={(value) => setSelectedTable(value as ValidTableName)}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select a table" />
