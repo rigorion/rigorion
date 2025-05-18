@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -81,7 +81,7 @@ const TableFetcher = ({ defaultTable = "community_stats" }: TableFetcherProps) =
               id="columns"
               value={columns}
               onChange={(e) => setColumns(e.target.value)}
-              placeholder="*, column1, column2, related_table->column"
+              placeholder="*, column1, column2, related_table(column)"
             />
           </div>
           
@@ -117,7 +117,13 @@ const TableFetcher = ({ defaultTable = "community_stats" }: TableFetcherProps) =
                         <TableRow key={`row-${rowIndex}`}>
                           {Object.entries(row).map(([column, value], cellIndex) => (
                             <TableCell key={`cell-${rowIndex}-${cellIndex}`}>
-                              {typeof value === 'object' ? JSON.stringify(value) : String(value || '')}
+                              {typeof value === 'object' && value !== null ? (
+                                <pre className="text-xs overflow-auto max-w-xs whitespace-pre-wrap">
+                                  {JSON.stringify(value, null, 2)}
+                                </pre>
+                              ) : (
+                                String(value ?? '')
+                              )}
                             </TableCell>
                           ))}
                         </TableRow>
@@ -136,7 +142,7 @@ const TableFetcher = ({ defaultTable = "community_stats" }: TableFetcherProps) =
             <ul className="list-disc ml-5 space-y-1">
               <li>Use <code>*</code> to select all columns</li>
               <li>For related tables: <code>related_table(id, name)</code></li>
-              <li>For JSON columns: <code>json_column->key</code></li>
+              <li>For JSON columns: <code>json_column-&gt;key</code></li>
             </ul>
           </div>
         </div>
