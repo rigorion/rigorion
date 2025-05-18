@@ -25,11 +25,11 @@ const TableFetcher = ({ defaultTable = "community_stats" }: TableFetcherProps) =
     try {
       console.log(`Fetching data from ${tableName} with columns: ${columns}`);
       
-      // Use the generic query method to avoid TypeScript errors with dynamic table names
-      const { data, error } = await supabase
+      // Use type assertion to tell TypeScript to trust us on this dynamic table name
+      const { data, error } = await (supabase
         .from(tableName)
         .select(columns)
-        .limit(10) as any;
+        .limit(10) as any);
       
       if (error) throw error;
       

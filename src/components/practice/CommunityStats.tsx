@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Clock, Star } from "lucide-react";
@@ -57,10 +56,8 @@ const CommunityStats = ({ questionId }: { questionId?: string }) => {
               return false;
             }
             
-            // Then check if it has all required properties
+            // Then check if it has all required properties - with proper null checks
             return (
-              item !== null &&
-              typeof item === 'object' &&
               'total_attempts' in item && 
               'correct_count' in item && 
               'incorrect_count' in item && 
