@@ -38,6 +38,9 @@ const EdgeFunctionFetcher = ({
         headers['Authorization'] = `Bearer ${token}`;
       }
 
+      // Log request details for debugging
+      console.log(`Fetching from ${url} with headers:`, headers);
+
       const response = await fetch(url, {
         method: 'GET',
         headers,

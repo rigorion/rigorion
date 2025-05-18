@@ -40,6 +40,7 @@ export async function callEdgeFunction<T>(
     const response = await fetch(url, {
       ...options,
       headers,
+      mode: 'cors', // Explicitly set CORS mode
     });
 
     if (!response.ok) {
