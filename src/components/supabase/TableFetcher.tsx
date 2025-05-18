@@ -27,9 +27,9 @@ const TableFetcher = ({ defaultTable = "community_stats" }: TableFetcherProps) =
       
       // Use type assertion to tell TypeScript to trust us on this dynamic table name
       const { data, error } = await (supabase
-        .from(tableName)
+        .from(tableName as any)
         .select(columns)
-        .limit(10) as any);
+        .limit(10)) as any;
       
       if (error) throw error;
       

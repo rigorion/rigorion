@@ -24,8 +24,8 @@ export default function SatMathProgressTable() {
       try {
         // Use parentheses and type assertion to help TypeScript understand our intention
         const { data, error } = await (supabase
-          .from("sat_math_progress")
-          .select("*") as any);
+          .from("sat_math_progress" as any)
+          .select("*")) as any;
 
         if (error) {
           throw error;
