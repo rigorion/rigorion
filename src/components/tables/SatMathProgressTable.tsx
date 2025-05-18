@@ -22,9 +22,10 @@ export default function SatMathProgressTable() {
       setError("");
       
       try {
+        // Use type assertion to avoid TypeScript errors with table names not in the schema
         const { data, error } = await supabase
           .from("sat_math_progress")
-          .select("*");
+          .select("*") as any;
 
         if (error) {
           throw error;

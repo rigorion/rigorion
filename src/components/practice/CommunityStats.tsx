@@ -59,6 +59,8 @@ const CommunityStats = ({ questionId }: { questionId?: string }) => {
             
             // Then check if it has all required properties
             return (
+              item !== null &&
+              typeof item === 'object' &&
               'total_attempts' in item && 
               'correct_count' in item && 
               'incorrect_count' in item && 

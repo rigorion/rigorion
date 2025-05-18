@@ -25,11 +25,11 @@ const TableFetcher = ({ defaultTable = "community_stats" }: TableFetcherProps) =
     try {
       console.log(`Fetching data from ${tableName} with columns: ${columns}`);
       
-      // Perform the query using Supabase client
+      // Use the generic query method to avoid TypeScript errors with dynamic table names
       const { data, error } = await supabase
         .from(tableName)
         .select(columns)
-        .limit(10);
+        .limit(10) as any;
       
       if (error) throw error;
       
@@ -132,7 +132,7 @@ const TableFetcher = ({ defaultTable = "community_stats" }: TableFetcherProps) =
                   </Table>
                 </div>
               ) : (
-                <p className="text-gray-500">No data returned from the query.</p>
+                <p className="text-center py-4 text-gray-500">No data found.</p>
               )}
             </div>
           )}
