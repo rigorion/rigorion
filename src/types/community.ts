@@ -1,3 +1,4 @@
+
 export interface Post {
   id: number;
   content: string;
@@ -27,4 +28,12 @@ export interface Poll {
   question: string;
   options: string[];
   votes: number[];
+}
+
+export interface CommunityStatsData {
+  question_id: string;
+  total_attempts: number;
+  correct_count: number;
+  incorrect_count: number;
+  average_time_seconds: number;
 }

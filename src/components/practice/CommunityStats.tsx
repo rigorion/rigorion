@@ -15,11 +15,12 @@ export function CommunityStats({ questionId }: { questionId: string }) {
       if (!questionId) return;
 
       try {
-        const { data, error } = await supabase
-          .from("community_stats")
+        // Use type assertion to help TypeScript understand our intention
+        const { data, error } = await (supabase
+          .from("community_stats" as any)
           .select("*")
           .eq("question_id", questionId)
-          .single();
+          .single()) as any;
 
         if (error) {
           console.error("Error fetching community stats:", error);
