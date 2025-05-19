@@ -1,4 +1,3 @@
-
 // Generic fetch utility for Supabase Edge Functions
 import { useState, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast";
@@ -113,6 +112,95 @@ export function useEdgeFunction<T>(
       isMounted = false;
     };
   }, [functionName, JSON.stringify(options), JSON.stringify(queryParams)]);
+
+  return { data, loading, error };
+}
+
+/**
+ * Specialized function to fetch data from the my-function endpoint
+ * @param options Additional fetch options
+ * @returns Promise with the edge function response
+ */
+export async function fetchMyFunctionData<T>(options: RequestInit = { method: 'GET' }) {
+  try {
+    console.log('Fetching data from my-function endpoint...');
+    const result = await callEdgeFunction<T>('my-function', options);
+    
+    if (result.error) {
+      console.error('Error fetching from my-function endpoint:', result.error);
+      toast({
+        title: "API Error",
+        description: `Failed to fetch from my-function: ${result.error.message}`,
+        variant: "destructive",
+      });
+    }
+    
+    return result;
+  } catch (error) {
+    console.error('Exception when fetching from my-function:', error);
+    toast({
+      title: "Exception",
+      description: `Exception when calling my-function: ${error instanceof Error ? error.message : String(error)}`,
+      variant: "destructive",
+    });
+    throw error;
+  }
+}
+
+/**
+ * Hook to fetch data from the my-function endpoint
+ * @param options Additional fetch options
+ * @param queryParams Optional URL query parameters
+ * @returns Object containing data, loading state, and any errors
+ */
+export function useMyFunctionData<T>(
+  options: RequestInit = { method: 'GET' },
+  queryParams: Record<string, string> = {}
+) {
+  const [data, setData] = useState<T | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    
+    const fetchData = async () => {
+      try {
+        const result = await callEdgeFunction<T>('my-function', options, queryParams);
+        
+        if (!isMounted) return;
+        
+        if (result.error) {
+          setError(result.error);
+          toast({
+            title: "Error",
+            description: `Failed to load data from my-function`,
+            variant: "destructive",
+          });
+        } else {
+          setData(result.data);
+        }
+      } catch (err) {
+        if (!isMounted) return;
+        setError(err as Error);
+        toast({
+          title: "Error",
+          description: `Failed to load data from my-function`,
+          variant: "destructive",
+        });
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [JSON.stringify(options), JSON.stringify(queryParams)]);
 
   return { data, loading, error };
 }

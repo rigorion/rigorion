@@ -6,6 +6,7 @@ import CorsDiagnosticTool from "@/components/endpoints/CorsDiagnosticTool";
 import TableDataFetcher from "@/components/endpoints/TableDataFetcher";
 import TableFetcher from "@/components/supabase/TableFetcher";
 import SatMathProgressTable from "@/components/tables/SatMathProgressTable";
+import MyFunctionTable from "@/components/tables/MyFunctionTable";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TABLES, fetchAllTables } from "@/services/tableDataService";
@@ -63,6 +64,7 @@ export default function Endpoints() {
             <TabsTrigger value="tables">Tables</TabsTrigger>
             <TabsTrigger value="simple">Simple Fetcher</TabsTrigger>
             <TabsTrigger value="sat-math">SAT Math Progress</TabsTrigger>
+            <TabsTrigger value="my-function">My Function</TabsTrigger>
           </TabsList>
           
           <TabsContent value="explorer">
@@ -141,6 +143,10 @@ export default function Endpoints() {
           
           <TabsContent value="sat-math">
             <SatMathProgressTable />
+          </TabsContent>
+          
+          <TabsContent value="my-function">
+            <MyFunctionTable />
           </TabsContent>
         </Tabs>
       </div>
