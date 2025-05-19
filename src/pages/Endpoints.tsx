@@ -7,6 +7,8 @@ import TableDataFetcher from "@/components/endpoints/TableDataFetcher";
 import TableFetcher from "@/components/supabase/TableFetcher";
 import SatMathProgressTable from "@/components/tables/SatMathProgressTable";
 import MyFunctionTable from "@/components/tables/MyFunctionTable";
+import LogInteraction from "@/components/progress/LogInteraction";
+import LogInteractionTable from "@/components/tables/LogInteractionTable";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TABLES, fetchAllTables } from "@/services/tableDataService";
@@ -65,6 +67,7 @@ export default function Endpoints() {
             <TabsTrigger value="simple">Simple Fetcher</TabsTrigger>
             <TabsTrigger value="sat-math">SAT Math Progress</TabsTrigger>
             <TabsTrigger value="my-function">My Function</TabsTrigger>
+            <TabsTrigger value="log-interaction">Log Interaction</TabsTrigger>
           </TabsList>
           
           <TabsContent value="explorer">
@@ -147,6 +150,13 @@ export default function Endpoints() {
           
           <TabsContent value="my-function">
             <MyFunctionTable />
+          </TabsContent>
+          
+          <TabsContent value="log-interaction">
+            <div className="grid grid-cols-1 gap-6">
+              <LogInteraction />
+              <LogInteractionTable />
+            </div>
           </TabsContent>
         </Tabs>
       </div>

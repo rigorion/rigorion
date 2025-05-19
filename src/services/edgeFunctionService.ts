@@ -204,3 +204,83 @@ export function useMyFunctionData<T>(
 
   return { data, loading, error };
 }
+
+/**
+ * Specialized function to log interactions via the log-interaction endpoint
+ * @param interactionData Data to log
+ * @param options Additional fetch options
+ * @returns Promise with the edge function response
+ */
+export async function logInteraction<T>(
+  interactionData: any,
+  options: RequestInit = {}
+): Promise<EdgeFunctionResponse<T>> {
+  try {
+    console.log('Logging interaction...', interactionData);
+    
+    // Set up default POST options
+    const postOptions: RequestInit = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      body: JSON.stringify(interactionData),
+      ...options,
+    };
+    
+    const result = await callEdgeFunction<T>('log-interaction', postOptions);
+    
+    if (result.error) {
+      console.error('Error logging interaction:', result.error);
+      toast({
+        title: "API Error",
+        description: `Failed to log interaction: ${result.error.message}`,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Interaction logged successfully",
+      });
+    }
+    
+    return result;
+  } catch (error) {
+    console.error('Exception when logging interaction:', error);
+    toast({
+      title: "Exception",
+      description: `Exception when logging interaction: ${error instanceof Error ? error.message : String(error)}`,
+      variant: "destructive",
+    });
+    throw error;
+  }
+}
+
+/**
+ * Hook to log interactions using the log-interaction endpoint
+ */
+export function useLogInteraction() {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const submitInteraction = async (interactionData: any) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const result = await logInteraction(interactionData);
+      setData(result.data);
+      return result;
+    } catch (err) {
+      const errorObj = err as Error;
+      setError(errorObj);
+      throw errorObj;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { submitInteraction, data, loading, error };
+}
