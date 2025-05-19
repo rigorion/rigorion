@@ -58,7 +58,8 @@ const EncryptedFunctionFetcher = ({
         toast({
           title: "Warning",
           description: "Received data doesn't appear to be encrypted",
-          variant: "warning"
+          // Fix: Change 'warning' to 'destructive' as it's one of the accepted values
+          variant: "destructive"
         });
       }
     } catch (err: any) {
