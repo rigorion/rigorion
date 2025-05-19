@@ -10,6 +10,7 @@ import MyFunctionTable from "@/components/tables/MyFunctionTable";
 import LogInteraction from "@/components/progress/LogInteraction";
 import LogInteractionTable from "@/components/tables/LogInteractionTable";
 import EncryptedFunctionFetcher from "@/components/endpoints/EncryptedFunctionFetcher";
+import SimpleEncryptedDataFetcher from "@/components/endpoints/SimpleEncryptedDataFetcher";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TABLES, fetchAllTables } from "@/services/tableDataService";
@@ -163,6 +164,7 @@ export default function Endpoints() {
           
           <TabsContent value="encrypted">
             <div className="grid grid-cols-1 gap-6">
+              <SimpleEncryptedDataFetcher />
               <EncryptedFunctionFetcher 
                 url="https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/encrypted-data"
                 title="Encrypted Function Data"
