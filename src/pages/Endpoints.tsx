@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import AllEndpointsFetcher from "@/components/endpoints/AllEndpointsFetcher";
@@ -165,35 +166,36 @@ export default function Endpoints() {
               <EncryptedFunctionFetcher 
                 url="https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/encrypted-data"
                 title="Encrypted Function Data"
-                description="Data from encrypted-data endpoint using Simon cipher"
+                description="Data from encrypted-data endpoint using AES-GCM"
               />
               <Card className="w-full">
                 <CardHeader>
-                  <CardTitle>Simon Cipher Encryption</CardTitle>
-                  <CardDescription>How the Simon cipher encryption works</CardDescription>
+                  <CardTitle>AES-GCM Encryption</CardTitle>
+                  <CardDescription>How the AES-GCM encryption works</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4 text-sm text-gray-700">
                     <p>
-                      This implementation demonstrates using the Simon block cipher (a lightweight cipher) for encrypting 
-                      and decrypting data between edge functions and the client.
+                      This implementation demonstrates using the AES-GCM (Advanced Encryption Standard in Galois/Counter Mode),
+                      a widely-used secure encryption algorithm for protecting data between edge functions and the client.
                     </p>
                     <div>
                       <h3 className="font-medium">Key Security Notes:</h3>
                       <ul className="list-disc pl-6 space-y-1 mt-2">
-                        <li>The key is stored only in memory (not localStorage/sessionStorage)</li>
-                        <li>For production, use a secure key exchange mechanism</li>
-                        <li>Simon64/128 uses a 128-bit (16 byte) key for strong encryption</li>
-                        <li>The edge function must share the same key for encryption</li>
+                        <li>The encryption key should never be sent from the server to the client</li>
+                        <li>In a real application, keys would be stored securely as environment variables</li>
+                        <li>AES-GCM requires both a key and an initialization vector (IV) for security</li>
+                        <li>The IV must be unique for each encryption operation but doesn't need to be secret</li>
                       </ul>
                     </div>
                     <div>
                       <h3 className="font-medium">How It Works:</h3>
                       <ol className="list-decimal pl-6 space-y-1 mt-2">
-                        <li>Edge function encrypts data with Simon cipher</li>
-                        <li>Encrypted data is sent as base64 encoded string</li>
-                        <li>Client decrypts data using the same key</li>
-                        <li>Decrypted data is parsed as JSON if valid</li>
+                        <li>Server generates a random IV and encrypts data using the key</li>
+                        <li>Server sends the encrypted data and IV to the client (but never the key)</li>
+                        <li>Client must know the key in advance to decrypt</li>
+                        <li>Client uses the key and IV to decrypt the data</li>
+                        <li>The decrypted data is then parsed and displayed</li>
                       </ol>
                     </div>
                   </div>

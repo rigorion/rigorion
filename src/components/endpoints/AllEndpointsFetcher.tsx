@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import UniversalFetcher from "./UniversalFetcher";
 import { supabase } from "@/integrations/supabase/client";
@@ -51,7 +50,7 @@ const AllEndpointsFetcher = () => {
       },
       {
         url: `${SUPABASE_URL}/functions/v1/encrypted-data`,
-        title: "encrypted-data (GET)",
+        title: "encrypted-data (AES-GCM)",
         method: "GET"
       },
       {
