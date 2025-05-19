@@ -1,6 +1,5 @@
 
 import React, { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
@@ -22,16 +21,20 @@ export default function SatMathProgressTable() {
       setError("");
       
       try {
-        // Use parentheses and type assertion to help TypeScript understand our intention
-        const { data, error } = await (supabase
-          .from("sat_math_progress" as any)
-          .select("*")) as any;
+        const response = await fetch('https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-user-progress', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          mode: 'cors',
+        });
 
-        if (error) {
-          throw error;
+        if (!response.ok) {
+          throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
         }
-        
-        setRows(data || []);
+
+        const data = await response.json();
+        setRows(Array.isArray(data) ? data : [data]);
       } catch (err: any) {
         console.error("Error fetching SAT Math Progress:", err);
         setError(err.message);
