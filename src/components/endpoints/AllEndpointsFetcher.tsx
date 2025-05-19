@@ -50,6 +50,11 @@ const AllEndpointsFetcher = () => {
         method: "GET"
       },
       {
+        url: `${SUPABASE_URL}/functions/v1/encrypted-data`,
+        title: "encrypted-data (GET)",
+        method: "GET"
+      },
+      {
         url: `${SUPABASE_URL}/functions/v1/mock`,
         title: "mock tests (GET)",
         method: "GET"

@@ -43,6 +43,7 @@ const EncryptedFunctionFetcher = ({
       }
 
       const result = await response.json();
+      console.log("Response from encrypted function:", result);
       
       // Check if the response contains a base64-encoded data field
       if (result?.data) {
@@ -54,6 +55,11 @@ const EncryptedFunctionFetcher = ({
       } else {
         // If not encrypted, just store the raw data
         setEncryptedData(JSON.stringify(result));
+        toast({
+          title: "Warning",
+          description: "Received data doesn't appear to be encrypted",
+          variant: "warning"
+        });
       }
     } catch (err: any) {
       console.error("Error fetching encrypted data:", err);
@@ -87,13 +93,18 @@ const EncryptedFunctionFetcher = ({
       // Try to decode as base64
       let ciphertext: Uint8Array;
       try {
+        console.log("Decoding base64 data");
         ciphertext = base64ToBytes(encryptedData);
+        console.log("Successfully decoded base64 to bytes, length:", ciphertext.length);
       } catch (e) {
+        console.error("Base64 decoding error:", e);
         throw new Error("Invalid Base64 data");
       }
 
       // Decrypt the data
+      console.log("Attempting to decrypt data with key:", key);
       const decrypted = simonDecrypt(ciphertext, key);
+      console.log("Decryption result:", decrypted);
       
       // Parse as JSON if possible
       try {

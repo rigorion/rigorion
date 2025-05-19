@@ -122,7 +122,7 @@ serve(async (req) => {
         { name: "Item 3", value: 128 }
       ],
       metadata: {
-        source: "my-function",
+        source: "encrypted-data",
         version: "1.0.0"
       }
     };
@@ -139,9 +139,14 @@ serve(async (req) => {
     // Convert to base64 for transport
     const encryptedBase64 = bytesToBase64(encryptedBytes);
     
+    console.log("Sending encrypted data (base64):", encryptedBase64.substring(0, 20) + "...");
+    
     // Return the encrypted data
     return new Response(
-      JSON.stringify({ data: encryptedBase64 }),
+      JSON.stringify({ 
+        data: encryptedBase64,
+        encrypted: true 
+      }),
       { 
         headers: { 
           ...corsHeaders,

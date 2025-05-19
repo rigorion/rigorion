@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import AllEndpointsFetcher from "@/components/endpoints/AllEndpointsFetcher";
@@ -164,9 +163,9 @@ export default function Endpoints() {
           <TabsContent value="encrypted">
             <div className="grid grid-cols-1 gap-6">
               <EncryptedFunctionFetcher 
-                url="https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/my-function"
-                title="Encrypted My Function Data"
-                description="Data from my-function endpoint encrypted with Simon cipher"
+                url="https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/encrypted-data"
+                title="Encrypted Function Data"
+                description="Data from encrypted-data endpoint using Simon cipher"
               />
               <Card className="w-full">
                 <CardHeader>
