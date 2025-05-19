@@ -9,6 +9,7 @@ import SatMathProgressTable from "@/components/tables/SatMathProgressTable";
 import MyFunctionTable from "@/components/tables/MyFunctionTable";
 import LogInteraction from "@/components/progress/LogInteraction";
 import LogInteractionTable from "@/components/tables/LogInteractionTable";
+import EncryptedFunctionFetcher from "@/components/endpoints/EncryptedFunctionFetcher";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TABLES, fetchAllTables } from "@/services/tableDataService";
@@ -68,6 +69,7 @@ export default function Endpoints() {
             <TabsTrigger value="sat-math">SAT Math Progress</TabsTrigger>
             <TabsTrigger value="my-function">My Function</TabsTrigger>
             <TabsTrigger value="log-interaction">Log Interaction</TabsTrigger>
+            <TabsTrigger value="encrypted">Encrypted Data</TabsTrigger>
           </TabsList>
           
           <TabsContent value="explorer">
@@ -156,6 +158,48 @@ export default function Endpoints() {
             <div className="grid grid-cols-1 gap-6">
               <LogInteraction />
               <LogInteractionTable />
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="encrypted">
+            <div className="grid grid-cols-1 gap-6">
+              <EncryptedFunctionFetcher 
+                url="https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/my-function"
+                title="Encrypted My Function Data"
+                description="Data from my-function endpoint encrypted with Simon cipher"
+              />
+              <Card className="w-full">
+                <CardHeader>
+                  <CardTitle>Simon Cipher Encryption</CardTitle>
+                  <CardDescription>How the Simon cipher encryption works</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4 text-sm text-gray-700">
+                    <p>
+                      This implementation demonstrates using the Simon block cipher (a lightweight cipher) for encrypting 
+                      and decrypting data between edge functions and the client.
+                    </p>
+                    <div>
+                      <h3 className="font-medium">Key Security Notes:</h3>
+                      <ul className="list-disc pl-6 space-y-1 mt-2">
+                        <li>The key is stored only in memory (not localStorage/sessionStorage)</li>
+                        <li>For production, use a secure key exchange mechanism</li>
+                        <li>Simon64/128 uses a 128-bit (16 byte) key for strong encryption</li>
+                        <li>The edge function must share the same key for encryption</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h3 className="font-medium">How It Works:</h3>
+                      <ol className="list-decimal pl-6 space-y-1 mt-2">
+                        <li>Edge function encrypts data with Simon cipher</li>
+                        <li>Encrypted data is sent as base64 encoded string</li>
+                        <li>Client decrypts data using the same key</li>
+                        <li>Decrypted data is parsed as JSON if valid</li>
+                      </ol>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
         </Tabs>
