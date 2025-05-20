@@ -17,14 +17,29 @@ const TableDataFetcher = () => {
   const fetchTables = async () => {
     setLoading(true);
     try {
-      // Use RPC to call a stored function to get tables
-      // We use executeRaw for SQL queries as a workaround
-      const { data, error } = await supabase.rpc('get_all_tables');
+      // Call our custom Edge Function instead of RPC
+      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/get-all-tables`, {
+        headers: {
+          'Authorization': `Bearer ${supabase.supabaseKey}`,
+          'Content-Type': 'application/json'
+        }
+      });
       
-      if (error) {
-        // If RPC fails, fallback to predefined tables
-        console.error("Error fetching tables:", error);
-        const predefinedTables = [
+      if (!response.ok) {
+        throw new Error(`Failed to fetch tables: ${response.statusText}`);
+      }
+      
+      const tableNames = await response.json();
+      
+      if (Array.isArray(tableNames) && tableNames.length > 0) {
+        setTables(tableNames);
+        toast({
+          title: "Tables Fetched",
+          description: `Found ${tableNames.length} tables in your database`,
+        });
+      } else {
+        // If Edge Function fails or returns empty, fallback to predefined tables
+        const fallbackTables = [
           'profiles',
           'payments',
           'questions',
@@ -34,17 +49,10 @@ const TableDataFetcher = () => {
           'model_test_question'
         ];
         
-        setTables(predefinedTables);
+        setTables(fallbackTables);
         toast({
           title: "Tables Fetched",
-          description: `Using ${predefinedTables.length} predefined tables`,
-        });
-      } else if (data) {
-        const tableNames = Array.isArray(data) ? data : [];
-        setTables(tableNames);
-        toast({
-          title: "Tables Fetched",
-          description: `Found ${tableNames.length} tables in your database`,
+          description: `Using ${fallbackTables.length} predefined tables`,
         });
       }
     } catch (error: any) {
