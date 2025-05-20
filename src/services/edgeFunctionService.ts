@@ -21,6 +21,7 @@ export async function getAuthHeaders(): Promise<Record<string, string>> {
   try {
     const { data } = await supabase.auth.getSession();
     if (data.session?.access_token) {
+      // Fix: Return the header as a Record<string, string> instead
       return {
         Authorization: `Bearer ${data.session.access_token}`
       };
