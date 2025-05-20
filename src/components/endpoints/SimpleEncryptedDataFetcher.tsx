@@ -21,6 +21,7 @@ const SimpleEncryptedDataFetcher = () => {
       
       // Get authentication headers
       const authHeaders = await getAuthHeaders();
+      console.log('Auth headers for encrypted data:', authHeaders);
       
       // Check if we have auth headers
       if (!authHeaders.Authorization) {
@@ -32,7 +33,8 @@ const SimpleEncryptedDataFetcher = () => {
         headers: {
           'Content-Type': 'application/json',
           ...authHeaders
-        }
+        },
+        mode: 'cors' // Explicitly set CORS mode
       });
       
       // Log response headers for debugging
@@ -40,9 +42,12 @@ const SimpleEncryptedDataFetcher = () => {
       response.headers.forEach((value, key) => {
         responseHeaders[key] = value;
       });
+      console.log('Response status:', response.status);
       console.log('Response headers:', responseHeaders);
       
       if (!response.ok) {
+        const errorBody = await response.text();
+        console.error(`Response error: ${errorBody}`);
         throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
       }
       
@@ -89,7 +94,7 @@ const SimpleEncryptedDataFetcher = () => {
             </div>
             <p className="text-sm mt-2">
               This error may occur if you need to authenticate to access the encrypted data.
-              Please ensure you are logged in.
+              Please ensure you are logged in with an account that has access to this resource.
             </p>
           </div>
         )}

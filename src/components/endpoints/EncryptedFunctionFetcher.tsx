@@ -30,13 +30,15 @@ const EncryptedFunctionFetcher = ({
     try {
       // Get authentication headers
       const authHeaders = await getAuthHeaders();
+      console.log("Auth headers for encrypted function:", authHeaders);
       
       const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           ...authHeaders
-        }
+        },
+        mode: 'cors' // Explicitly set CORS mode
       });
       
       if (!response.ok) {

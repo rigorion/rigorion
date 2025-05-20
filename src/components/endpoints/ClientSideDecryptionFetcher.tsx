@@ -27,6 +27,7 @@ const ClientSideDecryptionFetcher = () => {
       
       // Get authentication headers
       const authHeaders = await getAuthHeaders();
+      console.log('Auth headers for client decryption:', authHeaders);
       
       // Check if we have auth headers
       if (!authHeaders.Authorization) {
@@ -38,10 +39,15 @@ const ClientSideDecryptionFetcher = () => {
         headers: {
           'Content-Type': 'application/json',
           ...authHeaders
-        }
+        },
+        mode: 'cors' // Explicitly set CORS mode
       });
       
+      console.log('Response status:', response.status);
+      
       if (!response.ok) {
+        const errorBody = await response.text();
+        console.error(`Response error: ${errorBody}`);
         throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
       }
       
@@ -49,14 +55,23 @@ const ClientSideDecryptionFetcher = () => {
       setEncryptedData(result);
       
       // Now decrypt the data
-      const decrypted = await decryptData(result.ciphertext, result.iv);
-      setDecryptedData(decrypted);
-      setLastUpdated(new Date());
-      
-      toast({
-        title: "Data Decrypted",
-        description: "Successfully fetched and decrypted the data client-side",
-      });
+      if (result.ciphertext && result.iv) {
+        const decrypted = await decryptData(result.ciphertext, result.iv);
+        setDecryptedData(decrypted);
+        setLastUpdated(new Date());
+        
+        toast({
+          title: "Data Decrypted",
+          description: "Successfully fetched and decrypted the data client-side",
+        });
+      } else {
+        console.warn("Received data doesn't contain expected encryption fields", result);
+        toast({
+          title: "Warning",
+          description: "Received data is not in the expected encrypted format",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error('Error fetching encrypted data:', error);
       setError(error as Error);
@@ -154,7 +169,7 @@ const ClientSideDecryptionFetcher = () => {
             </div>
             <p className="text-sm mt-2">
               This error may occur if you need to authenticate to access the encrypted data.
-              Please ensure you are logged in.
+              Please ensure you are logged in with an account that has access to this resource.
             </p>
           </div>
         )}

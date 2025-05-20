@@ -1,3 +1,4 @@
+
 // Generic fetch utility for Supabase Edge Functions
 import { useState, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast";
@@ -5,7 +6,7 @@ import { SUPABASE_URL } from '@/integrations/supabase/client';
 import { supabase } from '@/integrations/supabase/client';
 
 // Base URL for Supabase Edge Functions
-const EDGE_FUNCTION_BASE_URL = SUPABASE_URL || "https://eantvimmgdmxzwrjwrop.supabase.co";
+const EDGE_FUNCTION_BASE_URL = "https://eantvimmgdmxzwrjwrop.supabase.co";
 
 export interface EdgeFunctionResponse<T> {
   data: T | null;
