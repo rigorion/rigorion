@@ -46,7 +46,7 @@ export function useSecureContent() {
       try {
         // Check if we have valid local data
         const isValid = await isLocalDataValid();
-        let encryptedData: Uint8Array | null = null;
+        let encryptedData: any = null;
         
         if (isValid) {
           // Try to use local data first
@@ -82,29 +82,32 @@ export function useSecureContent() {
           }
         }
         
-        // Parse the encrypted data
-        const textDecoder = new TextDecoder();
-        const jsonText = textDecoder.decode(encryptedData);
-        console.log('Data loaded, length:', jsonText.length);
+        // Parse the encrypted data if it's a Uint8Array
+        let jsonText = encryptedData;
+        if (encryptedData instanceof Uint8Array) {
+          const textDecoder = new TextDecoder();
+          jsonText = textDecoder.decode(encryptedData);
+        }
+        console.log('Data loaded, length:', typeof jsonText === 'string' ? jsonText.length : 'not a string');
         
         try {
           // Try to parse as JSON directly (for development/testing)
-          const jsonData = JSON.parse(jsonText);
-          if (jsonData.questions) {
+          const jsonData = typeof jsonText === 'string' ? JSON.parse(jsonText) : jsonText;
+          if (jsonData && jsonData.questions) {
             console.log('Valid JSON found with questions property');
             setQuestions(jsonData.questions);
             setIsLoading(false);
           } else {
             console.log('Valid JSON found, but no questions property');
             // Save the entire JSON for later decryption
-            setQuestions({ _encrypted: jsonText });
+            setQuestions({ _encrypted: JSON.stringify(jsonData) });
             setIsLoading(false);
           }
         } catch (parseError) {
           // Not valid JSON, must be encrypted
           console.log('Data is encrypted, will decrypt on demand');
           // Save the encrypted data for later decryption
-          setQuestions({ _encrypted: jsonText });
+          setQuestions({ _encrypted: typeof jsonText === 'string' ? jsonText : JSON.stringify(jsonText) });
           setIsLoading(false);
         }
       } catch (err) {
