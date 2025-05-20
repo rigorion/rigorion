@@ -1,6 +1,6 @@
 
 import Dexie from 'dexie';
-import { encryptedIndexedDB } from 'dexie-encrypted';
+import { encryptedIndexedDb } from 'dexie-encrypted';
 
 // Define database schema
 export class AppDatabase extends Dexie {
@@ -10,7 +10,7 @@ export class AppDatabase extends Dexie {
     super("AppDatabase");
     
     // Apply encryption middleware
-    encryptedIndexedDB(this);
+    encryptedIndexedDb(this);
     
     // Define tables and their schemas
     this.version(1).stores({

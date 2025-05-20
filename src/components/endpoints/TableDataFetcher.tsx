@@ -18,9 +18,10 @@ const TableDataFetcher = () => {
     setLoading(true);
     try {
       // Call our custom Edge Function instead of RPC
-      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/get-all-tables`, {
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-all-tables`;
+      const response = await fetch(url, {
         headers: {
-          'Authorization': `Bearer ${supabase.supabaseKey}`,
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
           'Content-Type': 'application/json'
         }
       });
