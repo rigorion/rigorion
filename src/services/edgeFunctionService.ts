@@ -1,4 +1,3 @@
-
 // Generic fetch utility for Supabase Edge Functions
 import { useState, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast";
@@ -21,7 +20,6 @@ export async function getAuthHeaders(): Promise<Record<string, string>> {
   try {
     const { data } = await supabase.auth.getSession();
     if (data.session?.access_token) {
-      // Fix: Return the header as a Record<string, string> instead
       return {
         Authorization: `Bearer ${data.session.access_token}`
       };
@@ -53,14 +51,14 @@ export async function callEdgeFunction<T>(
     console.log(`Calling Edge Function: ${functionName}`, { url, method: options.method });
     
     // Get auth headers if not provided in options
-    const authHeaders = options.headers?.Authorization 
-      ? {} 
-      : await getAuthHeaders();
+    const authHeaders = await getAuthHeaders();
+    const hasAuthHeader = options.headers && 
+      (options.headers as Record<string, string>)['Authorization'] !== undefined;
     
     // Set default headers
     const headers = {
       'Content-Type': 'application/json',
-      ...authHeaders,
+      ...(hasAuthHeader ? {} : authHeaders),
       ...options.headers,
     };
 
