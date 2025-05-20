@@ -1,7 +1,9 @@
+
 // Generic fetch utility for Supabase Edge Functions
 import { useState, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast";
 import { SUPABASE_URL } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
 
 // Base URL for Supabase Edge Functions
 const EDGE_FUNCTION_BASE_URL = SUPABASE_URL || "https://eantvimmgdmxzwrjwrop.supabase.co";
@@ -9,6 +11,25 @@ const EDGE_FUNCTION_BASE_URL = SUPABASE_URL || "https://eantvimmgdmxzwrjwrop.sup
 export interface EdgeFunctionResponse<T> {
   data: T | null;
   error: Error | null;
+}
+
+/**
+ * Retrieves current auth token from Supabase
+ * @returns Authorization header object or empty object if no token
+ */
+export async function getAuthHeaders(): Promise<Record<string, string>> {
+  try {
+    const { data } = await supabase.auth.getSession();
+    if (data.session?.access_token) {
+      return {
+        Authorization: `Bearer ${data.session.access_token}`
+      };
+    }
+    return {};
+  } catch (error) {
+    console.error("Error getting auth token:", error);
+    return {};
+  }
 }
 
 /**
@@ -30,11 +51,19 @@ export async function callEdgeFunction<T>(
     
     console.log(`Calling Edge Function: ${functionName}`, { url, method: options.method });
     
+    // Get auth headers if not provided in options
+    const authHeaders = options.headers?.Authorization 
+      ? {} 
+      : await getAuthHeaders();
+    
     // Set default headers
     const headers = {
       'Content-Type': 'application/json',
+      ...authHeaders,
       ...options.headers,
     };
+
+    console.log(`Headers for ${functionName}:`, headers);
 
     const response = await fetch(url, {
       ...options,

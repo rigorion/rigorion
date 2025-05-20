@@ -1,202 +1,190 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { toast } from '@/components/ui/use-toast';
-
-// Helper function to convert Base64 to ArrayBuffer
-function base64ToArrayBuffer(base64: string): ArrayBuffer {
-  const binaryString = atob(base64);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return bytes.buffer;
-}
+import { toast } from "@/hooks/use-toast";
+import { AlertTriangle, CheckCircle } from "lucide-react";
+import { getAuthHeaders } from '@/services/edgeFunctionService';
 
 const ClientSideDecryptionFetcher = () => {
   const [encryptedData, setEncryptedData] = useState<any>(null);
   const [decryptedData, setDecryptedData] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [decrypting, setDecrypting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // This would be your encryption key - in a real app, this should be securely managed
-  // For demo purposes we're using a fixed key (same as in the edge function)
-  const encryptionKey = "1234567890abcdef"; // Must match the key used on the server
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  
+  // This is for demonstration only; in a real app, this would be securely stored
+  const ENCRYPTION_KEY = "TmV2ZXJVc2VUaGlzS2V5SW5Qcm9k"; // Base64 encoded demo key
 
   const fetchEncryptedData = async () => {
     setLoading(true);
     setError(null);
-
+    setEncryptedData(null);
+    setDecryptedData(null);
+    
     try {
-      console.log("Fetching encrypted data...");
+      console.log('Fetching encrypted data...');
+      
+      // Get authentication headers
+      const authHeaders = await getAuthHeaders();
+      
+      // Check if we have auth headers
+      if (!authHeaders.Authorization) {
+        console.warn('No authentication token available. The request might fail.');
+      }
+      
       const response = await fetch('https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/encrypt-sample-data', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-        },
-        mode: 'cors',
-        credentials: 'omit',
+          ...authHeaders
+        }
       });
-
+      
       if (!response.ok) {
         throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
       }
-
-      const data = await response.json();
-      console.log("Response from encrypted function:", data);
       
-      setEncryptedData(data);
+      const result = await response.json();
+      setEncryptedData(result);
+      
+      // Now decrypt the data
+      const decrypted = await decryptData(result.ciphertext, result.iv);
+      setDecryptedData(decrypted);
+      setLastUpdated(new Date());
+      
       toast({
-        title: "Data fetched",
-        description: "Encrypted data received successfully"
+        title: "Data Decrypted",
+        description: "Successfully fetched and decrypted the data client-side",
       });
-
-      // Auto-attempt to decrypt
-      decryptData(data);
-    } catch (err: any) {
-      console.error("Error fetching encrypted data:", err);
-      setError(err.message);
+    } catch (error) {
+      console.error('Error fetching encrypted data:', error);
+      setError(error as Error);
+      
       toast({
         title: "Error",
-        description: `Failed to fetch data: ${err.message}`,
-        variant: "destructive"
+        description: error instanceof Error ? error.message : "Failed to fetch or decrypt data",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
   };
-
-  const decryptData = async (data = encryptedData) => {
-    if (!data || !data.ciphertext || !data.iv) {
-      toast({
-        title: "Missing Data",
-        description: "No encrypted data available to decrypt",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setDecrypting(true);
+  
+  const decryptData = async (ciphertext: string, iv: string) => {
     try {
-      console.log("Starting decryption process...");
+      // Convert base64 encoded strings to array buffers
+      const keyData = atob(ENCRYPTION_KEY);
+      const keyBuffer = new Uint8Array(keyData.length);
+      for (let i = 0; i < keyData.length; i++) {
+        keyBuffer[i] = keyData.charCodeAt(i);
+      }
       
-      // Convert the encryption key string to bytes
-      const encoder = new TextEncoder();
-      const keyBytes = encoder.encode(encryptionKey);
+      const ivBuffer = base64ToArrayBuffer(iv);
+      const ciphertextBuffer = base64ToArrayBuffer(ciphertext);
       
-      // Convert Base64 ciphertext and IV to ArrayBuffer
-      const ivBytes = base64ToArrayBuffer(data.iv);
-      const ciphertextBytes = base64ToArrayBuffer(data.ciphertext);
-
-      // Import the key for AES-GCM
-      const webKey = await crypto.subtle.importKey(
+      // Import the key
+      const key = await window.crypto.subtle.importKey(
         'raw',
-        keyBytes,
+        keyBuffer,
         { name: 'AES-GCM' },
         false,
         ['decrypt']
       );
-
-      // Decrypt the data
-      const decrypted = await crypto.subtle.decrypt(
-        { name: 'AES-GCM', iv: new Uint8Array(ivBytes) },
-        webKey,
-        ciphertextBytes
-      );
-
-      // Convert decrypted data to string and parse as JSON
-      const decryptedText = new TextDecoder().decode(decrypted);
-      console.log("Decrypted text:", decryptedText);
       
-      try {
-        const jsonData = JSON.parse(decryptedText);
-        setDecryptedData(jsonData);
-        toast({
-          title: "Decryption successful",
-          description: "Data decrypted and parsed as JSON"
-        });
-      } catch (parseError) {
-        // If not valid JSON, just set as text
-        setDecryptedData({ text: decryptedText });
-        toast({
-          title: "Decryption successful",
-          description: "Data decrypted as text (not valid JSON)"
-        });
-      }
-    } catch (err: any) {
-      console.error("Decryption error:", err);
-      setError(`Decryption error: ${err.message}`);
-      toast({
-        title: "Decryption failed",
-        description: err.message,
-        variant: "destructive"
-      });
-    } finally {
-      setDecrypting(false);
+      // Decrypt the data
+      const decrypted = await window.crypto.subtle.decrypt(
+        {
+          name: 'AES-GCM',
+          iv: ivBuffer
+        },
+        key,
+        ciphertextBuffer
+      );
+      
+      // Convert result to string and parse as JSON
+      const decoder = new TextDecoder();
+      const jsonStr = decoder.decode(decrypted);
+      return JSON.parse(jsonStr);
+    } catch (error) {
+      console.error('Decryption error:', error);
+      throw new Error('Failed to decrypt data: ' + (error instanceof Error ? error.message : String(error)));
     }
   };
-
-  // Auto-fetch on mount
-  useEffect(() => {
-    fetchEncryptedData();
-  }, []);
+  
+  // Helper function to convert Base64 to ArrayBuffer
+  const base64ToArrayBuffer = (base64: string) => {
+    const binaryString = atob(base64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes.buffer;
+  };
 
   return (
     <Card className="w-full">
       <CardHeader>
         <CardTitle>Client-Side Decryption</CardTitle>
-        <CardDescription>Fetch encrypted data and decrypt it in the browser</CardDescription>
+        <CardDescription>Fetches encrypted data and decrypts it in the browser</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="mb-4">
           <Button 
             onClick={fetchEncryptedData} 
-            disabled={loading || decrypting}
-            className="mb-4"
+            disabled={loading}
+            variant="outline"
+            className="mb-2"
           >
-            {loading ? "Fetching..." : "Refresh Data"}
+            {loading ? "Processing..." : "Fetch & Decrypt Data"}
           </Button>
-
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded text-red-600 mb-4">
-              <p className="font-medium">Error</p>
-              <p className="text-sm">{error}</p>
-            </div>
-          )}
-
-          {loading && !encryptedData && (
-            <div className="text-center py-4">Loading data...</div>
-          )}
-
-          {decrypting && (
-            <div className="text-center py-4">Decrypting data...</div>
-          )}
-
-          {encryptedData && (
-            <div className="mb-6">
-              <h3 className="text-sm font-medium mb-2">Encrypted Data (stored in memory):</h3>
-              <div className="bg-gray-50 p-3 rounded border overflow-auto max-h-[150px]">
-                <pre className="text-xs font-mono">
-                  {JSON.stringify(encryptedData, null, 2)}
-                </pre>
-              </div>
-            </div>
-          )}
-
-          {decryptedData && (
-            <div>
-              <h3 className="text-sm font-medium mb-2">Decrypted Data (stored in memory):</h3>
-              <div className="bg-gray-50 p-3 rounded border overflow-auto max-h-[300px]">
-                <pre className="text-xs font-mono">
-                  {JSON.stringify(decryptedData, null, 2)}
-                </pre>
-              </div>
+          
+          {lastUpdated && (
+            <div className="text-xs text-gray-500 mt-1">
+              Last updated: {lastUpdated.toLocaleTimeString()}
             </div>
           )}
         </div>
+        
+        {error && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded text-red-600 mb-4">
+            <div className="flex items-center">
+              <AlertTriangle size={16} className="mr-1" />
+              <span className="font-medium">Error:</span> {error.message}
+            </div>
+            <p className="text-sm mt-2">
+              This error may occur if you need to authenticate to access the encrypted data.
+              Please ensure you are logged in.
+            </p>
+          </div>
+        )}
+        
+        {encryptedData && (
+          <div className="mt-4">
+            <h3 className="text-sm font-medium text-gray-700 mb-2">Encrypted Data:</h3>
+            <pre className="bg-gray-50 p-3 rounded border border-gray-200 text-xs overflow-auto max-h-32">
+              {JSON.stringify(encryptedData, null, 2)}
+            </pre>
+          </div>
+        )}
+        
+        {decryptedData && (
+          <div className="mt-4">
+            <div className="flex items-center text-green-700 mb-2">
+              <CheckCircle size={16} className="mr-1" />
+              <h3 className="text-sm font-medium">Decrypted Data:</h3>
+            </div>
+            <pre className="bg-green-50 p-3 rounded border border-green-200 text-sm overflow-auto">
+              {JSON.stringify(decryptedData, null, 2)}
+            </pre>
+          </div>
+        )}
+        
+        {!encryptedData && !error && !loading && (
+          <div className="text-center py-8 text-gray-400">
+            Click the button above to fetch and decrypt data
+          </div>
+        )}
       </CardContent>
     </Card>
   );
