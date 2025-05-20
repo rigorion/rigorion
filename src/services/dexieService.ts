@@ -1,31 +1,8 @@
 
 import Dexie from 'dexie';
-import { encryptedIndexedDb } from 'dexie-encrypted';
+import { applyEncryptionMiddleware } from 'dexie-encrypted';
 
-// Define database schema
-export class AppDatabase extends Dexie {
-  functionData: Dexie.Table<FunctionData, number>;
-  
-  constructor() {
-    super("AppDatabase");
-    
-    // Apply encryption middleware
-    encryptedIndexedDb(this);
-    
-    // Define tables and their schemas
-    this.version(1).stores({
-      functionData: '++id, endpoint, timestamp, data'
-    });
-    
-    // Define types for tables
-    this.functionData = this.table("functionData");
-  }
-}
-
-// Create and export a database instance
-export const db = new AppDatabase();
-
-// Interface for function data
+// Define interface for function data
 export interface FunctionData {
   id?: number;
   endpoint: string;
@@ -33,6 +10,30 @@ export interface FunctionData {
   data: any;
   encrypted?: boolean;
 }
+
+// Define database schema
+export class AppDatabase extends Dexie {
+  // Define the table
+  functionData!: Dexie.Table<FunctionData, number>;
+  
+  constructor() {
+    super("AppDatabase");
+    
+    // Define tables and their schemas
+    this.version(1).stores({
+      functionData: '++id, endpoint, timestamp, data'
+    });
+    
+    // Apply encryption middleware after schema definition
+    applyEncryptionMiddleware(this, {
+      secretKey: 'my-secret-key',
+      tables: ['functionData']
+    });
+  }
+}
+
+// Create and export a database instance
+export const db = new AppDatabase();
 
 // Store function data in IndexedDB
 export async function storeFunctionData(endpoint: string, data: any): Promise<number> {
