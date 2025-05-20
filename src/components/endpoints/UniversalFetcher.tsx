@@ -8,6 +8,8 @@ interface UniversalFetcherProps {
   method?: "GET" | "POST" | "PUT" | "DELETE";
   payload?: any;
   headers?: Record<string, string>;
+  authHeaders?: Record<string, string>;
+  useAuthHeaders?: boolean;
   onSuccess?: (data: any) => void;
   onError?: (error: Error) => void;
   title?: string;
@@ -18,6 +20,8 @@ const UniversalFetcher = ({
   method = "GET",
   payload = null,
   headers = {},
+  authHeaders = {},
+  useAuthHeaders = false,
   onSuccess = () => {},
   onError = () => {},
   title = "",
@@ -43,6 +47,7 @@ const UniversalFetcher = ({
       method,
       headers: {
         "Content-Type": "application/json",
+        ...(useAuthHeaders ? authHeaders : {}),
         ...headers,
       },
       mode: 'cors',
@@ -110,6 +115,19 @@ const UniversalFetcher = ({
         </div>
         <p className="text-xs text-gray-500 mt-1 mb-2 truncate">{url}</p>
       </div>
+      
+      {/* Auth header indicator */}
+      {useAuthHeaders && (
+        <div className="mt-2 text-xs">
+          <span className={`px-2 py-1 rounded ${authHeaders && Object.keys(authHeaders).length 
+            ? "bg-green-50 text-green-700" 
+            : "bg-yellow-50 text-yellow-700"}`}>
+            {authHeaders && Object.keys(authHeaders).length 
+              ? "Using Authentication" 
+              : "Auth Enabled (No Token Available)"}
+          </span>
+        </div>
+      )}
       
       {/* Payload input for POST methods */}
       {(method === "POST" || method === "PUT") && (
