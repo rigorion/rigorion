@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import UniversalFetcher from "./UniversalFetcher";
 import { supabase } from "@/integrations/supabase/client";
@@ -5,18 +6,21 @@ import { SUPABASE_URL } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TableDataFetcher from "./TableDataFetcher";
+
 interface Endpoint {
   url: string;
   title: string;
   method: "GET" | "POST";
   payload?: any;
 }
+
 const AllEndpointsFetcher = () => {
   const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
   const [postEndpoints, setPostEndpoints] = useState<Endpoint[]>([]);
   const [authHeaders, setAuthHeaders] = useState<Record<string, string>>({});
   const [useAuth, setUseAuth] = useState<boolean>(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+
   useEffect(() => {
     // Define base GET endpoints
     const baseEndpoints: Endpoint[] = [{
@@ -109,9 +113,69 @@ const AllEndpointsFetcher = () => {
     };
     checkAuth();
   }, []);
+  
   const toggleAuth = () => {
     setUseAuth(!useAuth);
   };
-  return;
+  
+  // Return JSX content instead of void
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-4 mb-4">
+        <Button
+          onClick={toggleAuth}
+          variant={useAuth ? "default" : "outline"}
+          className="text-xs"
+        >
+          {useAuth ? "Using Auth Headers" : "Not Using Auth"}
+        </Button>
+        {!isAuthenticated && useAuth && (
+          <span className="text-xs text-yellow-600">
+            Not logged in! No auth token available.
+          </span>
+        )}
+      </div>
+
+      <Tabs defaultValue="get" className="w-full">
+        <TabsList>
+          <TabsTrigger value="get">GET Endpoints</TabsTrigger>
+          <TabsTrigger value="post">POST Endpoints</TabsTrigger>
+          <TabsTrigger value="tables">Tables</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="get" className="space-y-4 pt-4">
+          {endpoints.map((endpoint, index) => (
+            <UniversalFetcher
+              key={index}
+              url={endpoint.url}
+              title={endpoint.title}
+              method={endpoint.method}
+              useAuthHeaders={useAuth}
+              authHeaders={authHeaders}
+            />
+          ))}
+        </TabsContent>
+        
+        <TabsContent value="post" className="space-y-4 pt-4">
+          {postEndpoints.map((endpoint, index) => (
+            <UniversalFetcher
+              key={index}
+              url={endpoint.url}
+              title={endpoint.title}
+              method={endpoint.method}
+              payload={endpoint.payload}
+              useAuthHeaders={useAuth}
+              authHeaders={authHeaders}
+            />
+          ))}
+        </TabsContent>
+        
+        <TabsContent value="tables" className="pt-4">
+          <TableDataFetcher />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
 };
+
 export default AllEndpointsFetcher;
