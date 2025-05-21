@@ -1,52 +1,76 @@
 
-import Dexie from 'dexie';
-import { applyEncryptionMiddleware } from 'dexie-encrypted';
-
 // Define interface for function data
 export interface FunctionData {
   id?: number;
   endpoint: string;
   timestamp: Date;
   data: any;
-  encrypted?: boolean;
 }
 
-// Define database schema
-export class AppDatabase extends Dexie {
-  // Define the table
-  functionData!: Dexie.Table<FunctionData, number>;
-  
-  constructor() {
-    super("AppDatabase");
-    
-    // Define tables and their schemas
-    this.version(1).stores({
-      functionData: '++id, endpoint, timestamp, data'
-    });
-    
-    // Apply encryption middleware after schema definition
-    applyEncryptionMiddleware(this, {
-      secretKey: 'my-secret-key',
-      tables: ['functionData']
-    });
-  }
-}
+// Database constants
+const DB_NAME = "AppDatabase";
+const DB_VERSION = 1;
+const STORE_NAME = "functionData";
 
-// Create and export a database instance
-export const db = new AppDatabase();
+// Open database connection
+function openDatabase(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    
+    request.onerror = (event) => {
+      reject(`Database error: ${(event.target as IDBRequest).error}`);
+    };
+    
+    request.onsuccess = (event) => {
+      resolve((event.target as IDBOpenDBRequest).result);
+    };
+    
+    request.onupgradeneeded = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result;
+      
+      // Create object store if it doesn't exist
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        // Create store with auto-incrementing id as key
+        const store = db.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
+        
+        // Create indexes for querying
+        store.createIndex("endpoint", "endpoint", { unique: false });
+        store.createIndex("timestamp", "timestamp", { unique: false });
+      }
+    };
+  });
+}
 
 // Store function data in IndexedDB
 export async function storeFunctionData(endpoint: string, data: any): Promise<number> {
   try {
-    const id = await db.functionData.add({
-      endpoint,
-      timestamp: new Date(),
-      data,
-      encrypted: true
-    });
+    const db = await openDatabase();
     
-    console.log(`Data from ${endpoint} stored with ID: ${id}`);
-    return id;
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORE_NAME], "readwrite");
+      const store = transaction.objectStore(STORE_NAME);
+      
+      const record: FunctionData = {
+        endpoint,
+        timestamp: new Date(),
+        data
+      };
+      
+      const request = store.add(record);
+      
+      request.onsuccess = () => {
+        const id = request.result as number;
+        console.log(`Data from ${endpoint} stored with ID: ${id}`);
+        resolve(id);
+        db.close();
+      };
+      
+      request.onerror = (event) => {
+        console.error("Error storing function data:", (event.target as IDBRequest).error);
+        reject((event.target as IDBRequest).error);
+        db.close();
+      };
+    });
   } catch (error) {
     console.error("Error storing function data:", error);
     throw error;
@@ -56,13 +80,35 @@ export async function storeFunctionData(endpoint: string, data: any): Promise<nu
 // Get latest data for a specific endpoint
 export async function getLatestFunctionData(endpoint: string): Promise<FunctionData | undefined> {
   try {
-    const result = await db.functionData
-      .where("endpoint")
-      .equals(endpoint)
-      .reverse()
-      .first();
+    const db = await openDatabase();
+    
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORE_NAME], "readonly");
+      const store = transaction.objectStore(STORE_NAME);
+      const index = store.index("endpoint");
       
-    return result;
+      // Open a cursor on the index with endpoint value
+      const request = index.openCursor(IDBKeyRange.only(endpoint), "prev");
+      
+      request.onsuccess = (event) => {
+        const cursor = (event.target as IDBRequest).result as IDBCursorWithValue;
+        
+        if (cursor) {
+          // Return the first record (latest due to prev direction)
+          resolve(cursor.value);
+        } else {
+          resolve(undefined);
+        }
+        
+        db.close();
+      };
+      
+      request.onerror = (event) => {
+        console.error(`Error retrieving data for ${endpoint}:`, (event.target as IDBRequest).error);
+        reject((event.target as IDBRequest).error);
+        db.close();
+      };
+    });
   } catch (error) {
     console.error(`Error retrieving data for ${endpoint}:`, error);
     throw error;
@@ -72,13 +118,29 @@ export async function getLatestFunctionData(endpoint: string): Promise<FunctionD
 // Get all data for a specific endpoint
 export async function getAllFunctionData(endpoint: string): Promise<FunctionData[]> {
   try {
-    const results = await db.functionData
-      .where("endpoint")
-      .equals(endpoint)
-      .reverse()
-      .toArray();
+    const db = await openDatabase();
+    
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORE_NAME], "readonly");
+      const store = transaction.objectStore(STORE_NAME);
+      const index = store.index("endpoint");
       
-    return results;
+      const request = index.getAll(IDBKeyRange.only(endpoint));
+      
+      request.onsuccess = (event) => {
+        const results = (event.target as IDBRequest).result;
+        // Sort by timestamp in descending order (newest first)
+        results.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        resolve(results);
+        db.close();
+      };
+      
+      request.onerror = (event) => {
+        console.error(`Error retrieving all data for ${endpoint}:`, (event.target as IDBRequest).error);
+        reject((event.target as IDBRequest).error);
+        db.close();
+      };
+    });
   } catch (error) {
     console.error(`Error retrieving all data for ${endpoint}:`, error);
     throw error;
@@ -88,8 +150,26 @@ export async function getAllFunctionData(endpoint: string): Promise<FunctionData
 // Clear all stored data
 export async function clearAllData(): Promise<void> {
   try {
-    await db.functionData.clear();
-    console.log("All function data cleared from IndexedDB");
+    const db = await openDatabase();
+    
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORE_NAME], "readwrite");
+      const store = transaction.objectStore(STORE_NAME);
+      
+      const request = store.clear();
+      
+      request.onsuccess = () => {
+        console.log("All function data cleared from IndexedDB");
+        resolve();
+        db.close();
+      };
+      
+      request.onerror = (event) => {
+        console.error("Error clearing data:", (event.target as IDBRequest).error);
+        reject((event.target as IDBRequest).error);
+        db.close();
+      };
+    });
   } catch (error) {
     console.error("Error clearing data:", error);
     throw error;
