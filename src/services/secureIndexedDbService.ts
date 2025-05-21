@@ -1,35 +1,9 @@
 
 import Dexie from 'dexie';
-import { encrypted } from 'dexie-encrypted';
 import { FunctionData } from './dexieService';
 
-// Define our secure database class
-class SecureAppDB extends Dexie {
-  // Define tables
-  functionData!: Dexie.Table<FunctionData, number>;
-  
-  constructor() {
-    super('SecureAppDB');
-    
-    // Define schema
-    this.version(1).stores({
-      functionData: '++id, endpoint, timestamp, [endpoint+timestamp]'
-    });
-    
-    // Initialize encryption on specific fields
-    encrypted(this, {
-      functionData: {
-        key: getEncryptionKey(),
-        algorithm: 'AES-GCM',
-        salt: 'lovable-app-salt-2025',
-        property: 'data'  // Only encrypt the 'data' property
-      }
-    });
-  }
-}
-
-// Create the database instance
-const secureDb = new SecureAppDB();
+// Import the encryption module correctly
+import { encrypt } from 'dexie-encrypted';
 
 // In-memory key generation
 // This key exists only in memory during the session
@@ -52,6 +26,34 @@ function getEncryptionKey(): Uint8Array {
   
   return encryptionKey;
 }
+
+// Define our secure database class
+class SecureAppDB extends Dexie {
+  // Define tables
+  functionData!: Dexie.Table<FunctionData, number>;
+  
+  constructor() {
+    super('SecureAppDB');
+    
+    // Define schema
+    this.version(1).stores({
+      functionData: '++id, endpoint, timestamp, [endpoint+timestamp]'
+    });
+    
+    // Initialize encryption on specific fields
+    encrypt(this, {
+      functionData: {
+        key: getEncryptionKey(),
+        algorithm: 'AES-GCM',
+        salt: 'lovable-app-salt-2025',
+        property: 'data'  // Only encrypt the 'data' property
+      }
+    });
+  }
+}
+
+// Create the database instance
+const secureDb = new SecureAppDB();
 
 // Store function data with encryption
 export async function storeSecureFunctionData(
@@ -136,4 +138,3 @@ export function clearEncryptionKey(): void {
   encryptionKey = null;
   sessionStorage.removeItem('secure_storage_active');
 }
-
