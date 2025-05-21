@@ -5,6 +5,7 @@ export interface FunctionData {
   endpoint: string;
   timestamp: Date;
   data: any;
+  encrypted?: boolean;
 }
 
 // Database constants
@@ -53,7 +54,8 @@ export async function storeFunctionData(endpoint: string, data: any): Promise<nu
       const record: FunctionData = {
         endpoint,
         timestamp: new Date(),
-        data
+        data,
+        encrypted: false // Add the encrypted property with a default value
       };
       
       const request = store.add(record);
