@@ -3,8 +3,18 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { storeFunctionData, getLatestFunctionData } from "@/services/dexieService";
-import { Loader2, Save, Database, RefreshCw } from "lucide-react";
+import { 
+  storeFunctionData, 
+  getLatestFunctionData 
+} from "@/services/dexieService";
+import {
+  storeSecureFunctionData,
+  getSecureLatestFunctionData,
+  isSecureStorageActive
+} from "@/services/secureIndexedDbService";
+import { Loader2, Save, Database, RefreshCw, Lock, Unlock, KeyRound } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const EdgeFunctionStore = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -14,6 +24,7 @@ const EdgeFunctionStore = () => {
     "my-function": null,
     "get-user-progress": null
   });
+  const [useEncryption, setUseEncryption] = useState<boolean>(isSecureStorageActive());
   const { toast } = useToast();
 
   const fetchAndStoreFunction = async (endpoint: string) => {
@@ -40,8 +51,20 @@ const EdgeFunctionStore = () => {
       
       const result = await response.json();
       
-      // Store in IndexedDB
-      await storeFunctionData(endpoint, result);
+      // Store in IndexedDB (either encrypted or normal)
+      if (useEncryption) {
+        await storeSecureFunctionData(endpoint, result);
+        toast({
+          title: "Encrypted Data Stored",
+          description: `Data from ${endpoint} securely encrypted and stored`,
+        });
+      } else {
+        await storeFunctionData(endpoint, result);
+        toast({
+          title: "Data Stored Successfully",
+          description: `Data from ${endpoint} stored in IndexedDB`,
+        });
+      }
       
       // Update state based on which endpoint was called
       if (endpoint === "my-function") {
@@ -51,11 +74,6 @@ const EdgeFunctionStore = () => {
         setProgressData(result);
         setLastFetched(prev => ({...prev, "get-user-progress": new Date()}));
       }
-      
-      toast({
-        title: "Data Stored Successfully",
-        description: `Data from ${endpoint} stored in IndexedDB`,
-      });
     } catch (error) {
       console.error(`Error fetching or storing data from ${endpoint}:`, error);
       toast({
@@ -71,8 +89,10 @@ const EdgeFunctionStore = () => {
   const loadLatestData = async (endpoint: string) => {
     setLoading(true);
     try {
-      // Get latest data
-      const latestData = await getLatestFunctionData(endpoint);
+      // Get latest data from either encrypted or normal storage
+      const latestData = useEncryption
+        ? await getSecureLatestFunctionData(endpoint)
+        : await getLatestFunctionData(endpoint);
       
       if (latestData) {
         // Update state based on which endpoint was called
@@ -86,7 +106,9 @@ const EdgeFunctionStore = () => {
         
         toast({
           title: "Data Loaded",
-          description: `Latest data from ${endpoint} loaded from IndexedDB`,
+          description: useEncryption
+            ? `Encrypted data from ${endpoint} decrypted and loaded`
+            : `Latest data from ${endpoint} loaded from IndexedDB`,
         });
       } else {
         if (endpoint === "my-function") {
@@ -117,7 +139,7 @@ const EdgeFunctionStore = () => {
   useEffect(() => {
     loadLatestData("my-function");
     loadLatestData("get-user-progress");
-  }, []);
+  }, [useEncryption]); // Reload when encryption setting changes
 
   return (
     <Card>
@@ -126,6 +148,33 @@ const EdgeFunctionStore = () => {
           <Database className="mr-2 h-5 w-5" /> Edge Function Storage
         </CardTitle>
         <CardDescription>Store and retrieve data from edge functions securely in IndexedDB</CardDescription>
+        
+        <div className="flex items-center space-x-2 mt-4">
+          <Switch
+            id="encryption-mode"
+            checked={useEncryption}
+            onCheckedChange={setUseEncryption}
+          />
+          <Label htmlFor="encryption-mode" className="flex items-center cursor-pointer">
+            {useEncryption ? (
+              <>
+                <Lock className="h-4 w-4 mr-1 text-green-600" /> 
+                <span>Using Encrypted Storage</span>
+              </>
+            ) : (
+              <>
+                <Unlock className="h-4 w-4 mr-1 text-amber-600" /> 
+                <span>Using Standard Storage</span>
+              </>
+            )}
+          </Label>
+        </div>
+        {useEncryption && (
+          <p className="text-xs text-green-600 mt-1">
+            <KeyRound className="h-3 w-3 inline mr-1" /> 
+            Data is encrypted with AES-GCM before storage and only decrypted in memory when accessed
+          </p>
+        )}
       </CardHeader>
       <CardContent>
         <div className="grid gap-6 md:grid-cols-2">
@@ -140,7 +189,7 @@ const EdgeFunctionStore = () => {
                 className="flex items-center gap-2"
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                Fetch & Store
+                {useEncryption ? "Fetch & Encrypt" : "Fetch & Store"}
               </Button>
               
               <Button
@@ -183,7 +232,7 @@ const EdgeFunctionStore = () => {
                 className="flex items-center gap-2"
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                Fetch & Store
+                {useEncryption ? "Fetch & Encrypt" : "Fetch & Store"}
               </Button>
               
               <Button

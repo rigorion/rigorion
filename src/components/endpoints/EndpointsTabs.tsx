@@ -17,7 +17,7 @@ export default function EndpointsTabs() {
         <TabsTrigger value="storage">LocalStorage</TabsTrigger>
         <TabsTrigger value="indexeddb">IndexedDB</TabsTrigger>
         <TabsTrigger value="cors">CORS Diagnostics</TabsTrigger>
-        <TabsTrigger value="edge-function-store">Secure Store</TabsTrigger>
+        <TabsTrigger value="edge-function-store">Encrypted Store</TabsTrigger>
         <TabsTrigger value="crypto-payment">Crypto Payment</TabsTrigger>
       </TabsList>
       
