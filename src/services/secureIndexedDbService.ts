@@ -3,7 +3,7 @@ import Dexie from 'dexie';
 import { FunctionData } from './dexieService';
 
 // Import the encryption module correctly
-import { encrypt } from 'dexie-encrypted';
+import { encrypted } from 'dexie-encrypted';
 
 // In-memory key generation
 // This key exists only in memory during the session
@@ -41,7 +41,7 @@ class SecureAppDB extends Dexie {
     });
     
     // Initialize encryption on specific fields
-    encrypt(this, {
+    encrypted(this, {
       functionData: {
         key: getEncryptionKey(),
         algorithm: 'AES-GCM',
