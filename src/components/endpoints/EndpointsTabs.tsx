@@ -1,63 +1,47 @@
 
-import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import CorsDiagnosticTool from "@/components/endpoints/CorsDiagnosticTool";
-import MyFunctionTable from "@/components/tables/MyFunctionTable";
-import LogInteraction from "@/components/progress/LogInteraction";
-import LogInteractionTable from "@/components/tables/LogInteractionTable";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import IndexedDbExplorer from "@/components/endpoints/IndexedDbExplorer";
-import LocalDataManager from "@/components/endpoints/LocalDataManager";
+import AllEndpointsFetcher from "./AllEndpointsFetcher";
+import LocalDataManager from "./LocalDataManager";
+import CorsDiagnosticTool from "./CorsDiagnosticTool";
+import EndpointsIntro from "./EndpointsIntro";
+import IndexedDbExplorer from "./IndexedDbExplorer";
+import EdgeFunctionStore from "./EdgeFunctionStore";
 
-const EndpointsTabs = () => {
+export default function EndpointsTabs() {
   return (
-    <Tabs defaultValue="my-function" className="w-full mb-8">
-      <TabsList>
-        <TabsTrigger value="my-function">Edge Function</TabsTrigger>
-        <TabsTrigger value="local-data">Local Data</TabsTrigger>
-        <TabsTrigger value="log-interaction">Log Interaction</TabsTrigger>
-        <TabsTrigger value="diagnostic">CORS Diagnostic</TabsTrigger>
+    <Tabs defaultValue="intro">
+      <TabsList className="mb-4 w-full overflow-x-auto">
+        <TabsTrigger value="intro">Introduction</TabsTrigger>
+        <TabsTrigger value="endpoints">Edge Functions</TabsTrigger>
+        <TabsTrigger value="storage">LocalStorage</TabsTrigger>
+        <TabsTrigger value="indexeddb">IndexedDB</TabsTrigger>
+        <TabsTrigger value="cors">CORS Diagnostics</TabsTrigger>
+        <TabsTrigger value="edge-function-store">Secure Store</TabsTrigger>
       </TabsList>
       
-      <TabsContent value="my-function">
-        <Card>
-          <CardHeader>
-            <CardTitle>Edge Function Data</CardTitle>
-            <CardDescription>Fetch data from Supabase edge functions and store locally</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <MyFunctionTable />
-          </CardContent>
-        </Card>
+      <TabsContent value="intro" className="border rounded-md p-4 md:p-6">
+        <EndpointsIntro />
       </TabsContent>
       
-      <TabsContent value="local-data">
-        <div className="grid grid-cols-1 gap-6">
-          <LocalDataManager />
-          <IndexedDbExplorer />
-        </div>
+      <TabsContent value="endpoints" className="border rounded-md p-4 md:p-6">
+        <AllEndpointsFetcher />
       </TabsContent>
       
-      <TabsContent value="log-interaction">
-        <div className="grid grid-cols-1 gap-6">
-          <LogInteraction />
-          <LogInteractionTable />
-        </div>
+      <TabsContent value="storage" className="border rounded-md p-4 md:p-6">
+        <LocalDataManager />
       </TabsContent>
       
-      <TabsContent value="diagnostic">
-        <Card>
-          <CardHeader>
-            <CardTitle>CORS Diagnostic Tool</CardTitle>
-            <CardDescription>Test for CORS issues with Supabase Edge Functions</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <CorsDiagnosticTool />
-          </CardContent>
-        </Card>
+      <TabsContent value="indexeddb" className="border rounded-md p-4 md:p-6">
+        <IndexedDbExplorer />
+      </TabsContent>
+      
+      <TabsContent value="cors" className="border rounded-md p-4 md:p-6">
+        <CorsDiagnosticTool />
+      </TabsContent>
+      
+      <TabsContent value="edge-function-store" className="border rounded-md p-4 md:p-6">
+        <EdgeFunctionStore />
       </TabsContent>
     </Tabs>
   );
-};
-
-export default EndpointsTabs;
+}
