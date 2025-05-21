@@ -1,7 +1,8 @@
+
 // src/services/secureIndexedDbService.ts
 
 import Dexie from 'dexie'
-import dexieEncrypted, { ENCRYPT_LIST } from 'dexie-encrypted'
+import * as dexieEncrypted from 'dexie-encrypted'
 import { FunctionData } from './dexieService'  // your existing interface
 
 // In-memory key (session-only)
@@ -28,12 +29,12 @@ export class SecureAppDB extends Dexie {
     })
 
     // 2) Install the encryption plugin
-    dexieEncrypted(
+    dexieEncrypted.default(
       this,                    // your Dexie instance
       getEncryptionKey(),      // Uint8Array(32)—holds in JS memory only
       {
         functionData: {
-          type: ENCRYPT_LIST,  // encrypt a list of fields
+          type: dexieEncrypted.ENCRYPT_LIST,  // encrypt a list of fields
           fields: ['data'],    // only the `data` property is encrypted
           salt: 'lovable-app-salt-2025'
         }
