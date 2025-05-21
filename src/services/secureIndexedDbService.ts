@@ -2,8 +2,8 @@
 import Dexie from 'dexie';
 import { FunctionData } from './dexieService';
 
-// Correct the import to use default export
-import dexieEncrypted from 'dexie-encrypted';
+// Import the correct named export
+import { encrypt } from 'dexie-encrypted';
 
 // In-memory key generation
 // This key exists only in memory during the session
@@ -40,11 +40,11 @@ class SecureAppDB extends Dexie {
       functionData: '++id, endpoint, timestamp, [endpoint+timestamp]'
     });
     
-    // Use dexieEncrypted.init() to initialize encryption
-    dexieEncrypted.init(this, getEncryptionKey(), {
+    // Use encrypt function directly
+    encrypt(this, getEncryptionKey(), {
       functionData: {
-        // Access ENCRYPT_LIST via dexieEncrypted
-        type: dexieEncrypted.ENCRYPT_LIST,
+        // Use string literal for type as per v2.0.0
+        type: 'encrypted-list',
         fields: ['data'],
         // Optional salt for AES-GCM nonce derivation
         salt: 'lovable-app-salt-2025'
