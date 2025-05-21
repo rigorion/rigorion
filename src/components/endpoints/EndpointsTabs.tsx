@@ -6,6 +6,7 @@ import CorsDiagnosticTool from "./CorsDiagnosticTool";
 import EndpointsIntro from "./EndpointsIntro";
 import IndexedDbExplorer from "./IndexedDbExplorer";
 import EdgeFunctionStore from "./EdgeFunctionStore";
+import CryptoPayment from "./CryptoPayment";
 
 export default function EndpointsTabs() {
   return (
@@ -17,6 +18,7 @@ export default function EndpointsTabs() {
         <TabsTrigger value="indexeddb">IndexedDB</TabsTrigger>
         <TabsTrigger value="cors">CORS Diagnostics</TabsTrigger>
         <TabsTrigger value="edge-function-store">Secure Store</TabsTrigger>
+        <TabsTrigger value="crypto-payment">Crypto Payment</TabsTrigger>
       </TabsList>
       
       <TabsContent value="intro" className="border rounded-md p-4 md:p-6">
@@ -41,6 +43,10 @@ export default function EndpointsTabs() {
       
       <TabsContent value="edge-function-store" className="border rounded-md p-4 md:p-6">
         <EdgeFunctionStore />
+      </TabsContent>
+      
+      <TabsContent value="crypto-payment" className="border rounded-md p-4 md:p-6">
+        <CryptoPayment />
       </TabsContent>
     </Tabs>
   );
