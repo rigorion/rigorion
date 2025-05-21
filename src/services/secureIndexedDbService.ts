@@ -1,141 +1,127 @@
+// src/services/secureIndexedDbService.ts
 
-import Dexie from 'dexie';
-import { FunctionData } from './dexieService';
+import Dexie from 'dexie'
+import dexieEncrypted, { ENCRYPT_LIST } from 'dexie-encrypted'
+import { FunctionData } from './dexieService'  // your existing interface
 
-// Import the correct named export
-import { encrypt } from 'dexie-encrypted';
-
-// In-memory key generation
-// This key exists only in memory during the session
-let encryptionKey: Uint8Array | null = null;
+// In-memory key (session-only)
+let encryptionKey: Uint8Array | null = null
 
 function getEncryptionKey(): Uint8Array {
   if (!encryptionKey) {
-    // For production, consider:
-    // 1. Deriving from user passphrase via PBKDF2
-    // 2. Fetching from your edge function over HTTPS
-    // 3. Using a secure key from user input
-    
-    // For now, we'll generate a session key
-    encryptionKey = crypto.getRandomValues(new Uint8Array(32));
-    
-    // Optional: Store an indicator that encryption is active
-    // but NOT the key itself
-    sessionStorage.setItem('secure_storage_active', 'true');
+    // In production you might derive this via PBKDF2 or fetch it securely
+    encryptionKey = crypto.getRandomValues(new Uint8Array(32))
+    sessionStorage.setItem('secure_storage_active', 'true')
   }
-  
-  return encryptionKey;
+  return encryptionKey
 }
 
-// Define our secure database class
-class SecureAppDB extends Dexie {
-  // Define tables
-  functionData!: Dexie.Table<FunctionData, number>;
-  
+export class SecureAppDB extends Dexie {
+  functionData!: Dexie.Table<FunctionData, number>
+
   constructor() {
-    super('SecureAppDB');
-    
-    // Define schema
+    super('SecureAppDB')
+
+    // 1) Define your schema
     this.version(1).stores({
-      functionData: '++id, endpoint, timestamp, [endpoint+timestamp]'
-    });
-    
-    // Use encrypt function directly
-    encrypt(this, getEncryptionKey(), {
-      functionData: {
-        // Use string literal for type as per v2.0.0
-        type: 'encrypted-list',
-        fields: ['data'],
-        // Optional salt for AES-GCM nonce derivation
-        salt: 'lovable-app-salt-2025'
+      functionData: '++id, endpoint, timestamp'
+    })
+
+    // 2) Install the encryption plugin
+    dexieEncrypted(
+      this,                    // your Dexie instance
+      getEncryptionKey(),      // Uint8Array(32)—holds in JS memory only
+      {
+        functionData: {
+          type: ENCRYPT_LIST,  // encrypt a list of fields
+          fields: ['data'],    // only the `data` property is encrypted
+          salt: 'lovable-app-salt-2025'
+        }
       }
-    });
+    )
   }
 }
 
-// Create the database instance
-const secureDb = new SecureAppDB();
+const secureDb = new SecureAppDB()
 
-// Store function data with encryption
+/**
+ * Store a FunctionData record securely.
+ * The `data` field will be AES-GCM encrypted in IndexedDB.
+ */
 export async function storeSecureFunctionData(
-  endpoint: string, 
-  data: any
+  endpoint: string,
+  data: unknown
 ): Promise<number> {
-  try {
-    const record: FunctionData = {
-      endpoint,
-      timestamp: new Date(),
-      data,
-      encrypted: true
-    };
-    
-    return await secureDb.functionData.add(record);
-  } catch (error) {
-    console.error("Error storing secure function data:", error);
-    throw error;
+  const record: FunctionData = {
+    endpoint,
+    timestamp: new Date(),
+    data,
+    encrypted: true
   }
+  return await secureDb.functionData.add(record)
 }
 
-// Get latest data for a specific endpoint
+/**
+ * Get the latest FunctionData for a given endpoint (decrypted in memory).
+ */
 export async function getSecureLatestFunctionData(
   endpoint: string
 ): Promise<FunctionData | undefined> {
-  try {
-    // Get the latest record for this endpoint
-    const result = await secureDb.functionData
-      .where('endpoint')
-      .equals(endpoint)
-      .reverse() // Newest first
-      .first();
-    
-    return result;
-  } catch (error) {
-    console.error(`Error retrieving secure data for ${endpoint}:`, error);
-    throw error;
-  }
+  return await secureDb.functionData
+    .where('endpoint')
+    .equals(endpoint)
+    .reverse()    // newest first
+    .first()
 }
 
-// Get all data for a specific endpoint
+/**
+ * Get all FunctionData for a given endpoint (decrypted in memory).
+ */
 export async function getAllSecureFunctionData(
   endpoint: string
 ): Promise<FunctionData[]> {
-  try {
-    const results = await secureDb.functionData
-      .where('endpoint')
-      .equals(endpoint)
-      .toArray();
-    
-    // Sort by timestamp in descending order (newest first)
-    return results.sort((a, b) => 
-      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  } catch (error) {
-    console.error(`Error retrieving all secure data for ${endpoint}:`, error);
-    throw error;
-  }
+  const results = await secureDb.functionData
+    .where('endpoint')
+    .equals(endpoint)
+    .toArray()
+  // sort descending by timestamp
+  return results.sort((a, b) =>
+    new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  )
 }
 
-// Clear all stored secure data
+/**
+ * Clear all stored FunctionData records.
+ */
 export async function clearAllSecureData(): Promise<void> {
-  try {
-    await secureDb.functionData.clear();
-  } catch (error) {
-    console.error("Error clearing secure data:", error);
-    throw error;
-  }
+  await secureDb.functionData.clear()
 }
 
-// Check if secure storage is active/initialized
+/**
+ * Has the secure storage been initialized this session?
+ */
 export function isSecureStorageActive(): boolean {
-  return encryptionKey !== null || sessionStorage.getItem('secure_storage_active') === 'true';
+  return (
+    encryptionKey !== null ||
+    sessionStorage.getItem('secure_storage_active') === 'true'
+  )
 }
 
-// Generate a new encryption key (useful for key rotation)
+/**
+ * Rotate the encryption key (old data becomes unreadable until re-encrypted).
+ */
 export function regenerateEncryptionKey(): void {
-  encryptionKey = crypto.getRandomValues(new Uint8Array(32));
+  encryptionKey = crypto.getRandomValues(new Uint8Array(32))
+  sessionStorage.setItem('secure_storage_active', 'true')
 }
 
-// Reset the encryption key (e.g., on logout)
+/**
+ * Clear the in-memory encryption key (e.g. on logout).
+ * Existing encrypted records remain, but can't be decrypted until a key is re‐set.
+ */
 export function clearEncryptionKey(): void {
-  encryptionKey = null;
-  sessionStorage.removeItem('secure_storage_active');
+  encryptionKey = null
+  sessionStorage.removeItem('secure_storage_active')
 }
+
+export default secureDb
