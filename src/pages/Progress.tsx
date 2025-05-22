@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { TabsList, Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 import { ProgressDashboard } from "@/components/progress/ProgressDashboard";
@@ -11,6 +10,8 @@ import { ProgressNavigation } from "@/components/progress/ProgressNavigation";
 import { ProgressDataProvider } from "@/components/progress/ProgressDataProvider";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import SecureProgressDataButton from "@/components/progress/SecureProgressDataButton";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -209,17 +210,13 @@ const Progress = () => {
     { id: '3', name: 'GRE Verbal', status: 'expired', expiresIn: 0 }
   ]);
   const [selectedCourse, setSelectedCourse] = useState<string>('1');
+  const queryClient = useQueryClient();
   
-  const [visibleSections, setVisibleSections] = useState<VisibleSections>({
-    totalProgress: true,
-    // Always visible
-    performanceGraph: true,
-    difficultyStats: true,
-    chapterProgress: true,
-    timeManagement: true,
-    goals: true
-  });
-
+  // Add refreshProgressData function to invalidate progress data cache
+  const refreshProgressData = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['userProgress'] });
+  }, [queryClient]);
+  
   const navigationItems = [
     { name: "Home", path: "/" },
     { name: "Practice", path: "/practice" },
@@ -243,6 +240,16 @@ const Progress = () => {
       ...sections
     }));
   };
+  
+  const [visibleSections, setVisibleSections] = useState<VisibleSections>({
+    totalProgress: true,
+    // Always visible
+    performanceGraph: true,
+    difficultyStats: true,
+    chapterProgress: true,
+    timeManagement: true,
+    goals: true
+  });
   
   if (!isAuthenticated) {
     return (
@@ -348,6 +355,9 @@ const Progress = () => {
             <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
               <div className="flex items-center gap-2">
                 <h1 className="font-bold text-lg">Progress Dashboard</h1>
+                
+                {/* Add Secure Sync button */}
+                <SecureProgressDataButton onRefresh={refreshProgressData} />
               </div>
               
               <div className="flex items-center">
@@ -365,7 +375,11 @@ const Progress = () => {
             </div>
             
             <TabsContent value="performance">
-              <ProgressDataProvider fallbackData={DUMMY_PROGRESS} showLoadingState={true}>
+              <ProgressDataProvider 
+                fallbackData={DUMMY_PROGRESS} 
+                showLoadingState={true}
+                timePeriod={period}
+              >
                 {(userData) => (
                   <ProgressDashboard 
                     period={period} 

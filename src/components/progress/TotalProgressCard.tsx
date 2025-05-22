@@ -1,9 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/lib/supabase';
-import { toast } from "sonner";
 import { motion } from "framer-motion";
+
 interface ProgressData {
   total_questions: number;
   correct_count: number;
@@ -11,6 +9,7 @@ interface ProgressData {
   unattempted_count: number;
   total_progress_percent?: number;
 }
+
 interface TotalProgressCardProps {
   totalQuestions?: number;
   correctQuestions?: number;
@@ -19,6 +18,7 @@ interface TotalProgressCardProps {
   progressData?: ProgressData;
   alwaysVisible?: boolean;
 }
+
 export const TotalProgressCard = ({
   totalQuestions: propsTotalQuestions,
   correctQuestions: propsCorrectQuestions,
@@ -49,6 +49,7 @@ export const TotalProgressCard = ({
     id: 5,
     active: false
   }]);
+
   useEffect(() => {
     const fetchProgress = async () => {
       setIsLoading(true);
@@ -76,15 +77,6 @@ export const TotalProgressCard = ({
       } catch (err) {
         console.error('Error fetching progress:', err);
         setError(err as Error);
-        toast.error("Failed to load progress data. Using fallback data.");
-
-        // Set fallback values
-        setLocalProgress({
-          total_questions: 130,
-          correct_count: 53,
-          incorrect_count: 21,
-          unattempted_count: 56
-        });
       } finally {
         setIsLoading(false);
       }
@@ -114,6 +106,8 @@ export const TotalProgressCard = ({
     }, 600);
     return () => clearInterval(rippleInterval);
   }, []);
+
+  // Update display data logic to prioritize secure data from props
   const displayData = propsProgressData || {
     total_questions: propsTotalQuestions || localProgress?.total_questions || 130,
     correct_count: propsCorrectQuestions || localProgress?.correct_count || 53,

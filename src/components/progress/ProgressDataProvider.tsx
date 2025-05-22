@@ -2,10 +2,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchProgressEndpoints, processProgressData, fetchUserProgressFromEdge } from "@/services/progressEndpointsService";
 import { UserProgressData } from "@/types/progress";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { ErrorDisplay } from "./ErrorDisplay";
 import { Skeleton } from "../ui/skeleton";
 import { callEdgeFunction } from "@/services/edgeFunctionService";
+import { fetchSecureUserProgressData } from "@/services/progressDataService";
+import { isSecureStorageActive } from "@/services/secureIndexedDbService";
 
 interface ProgressDataProviderProps {
   children: (data: UserProgressData) => React.ReactNode;
@@ -25,7 +27,18 @@ export const ProgressDataProvider = ({
     queryKey: ['userProgress', timePeriod],
     queryFn: async () => {
       try {
-        // First try to fetch from the dedicated edge function using our new fetch utility
+        // Check if secure storage is active - if so, use it as our primary data source
+        if (isSecureStorageActive()) {
+          console.log("Attempting to load progress data from secure storage...");
+          const secureData = await fetchSecureUserProgressData();
+          if (secureData) {
+            console.log("Successfully loaded progress data from secure storage");
+            return secureData;
+          }
+          console.log("No secure data found, falling back to other methods");
+        }
+        
+        // If secure storage is not active or doesn't have data, try the edge function
         const { data: progressData, error: progressError } = await callEdgeFunction(
           'get-user-progress',
           { method: 'GET' },
@@ -44,7 +57,7 @@ export const ProgressDataProvider = ({
         return processProgressData(endpointsData);
       } catch (err) {
         console.error("Error fetching progress data:", err);
-        toast({
+        useToast().toast({
           title: "Error",
           description: "Could not load all progress data. Some information may be incomplete.",
           variant: "destructive",
