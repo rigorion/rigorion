@@ -5,6 +5,14 @@ import Dexie from 'dexie'
 import { applyEncryptionMiddleware, cryptoOptions } from 'dexie-encrypted'
 import { FunctionData } from './dexieService'  // your existing interface
 
+// Extend the FunctionData interface to include the integrity property
+declare module './dexieService' {
+  interface FunctionData {
+    integrity?: string;
+    encrypted?: boolean;
+  }
+}
+
 // In-memory key (session-only)
 let encryptionKey: Uint8Array | null = null
 
@@ -28,6 +36,8 @@ export class SecureAppDB extends Dexie {
     super('SecureAppDB')
 
     // 1) Apply encryption middleware before defining schema
+    // The 4th parameter is the clearTablesCallback which is optional
+    // Let's provide null for now as the 4th argument
     applyEncryptionMiddleware(
       this,                    // your Dexie instance
       getEncryptionKey(),      // Uint8Array(32)—holds in JS memory only
@@ -37,7 +47,8 @@ export class SecureAppDB extends Dexie {
           fields: ['data'],    // only the `data` property is encrypted
           salt: 'lovable-app-salt-2025'
         }
-      }
+      },
+      null,                   // Added 4th parameter (clearTablesCallback)
     )
 
     // 2) Define your schema
