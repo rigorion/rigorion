@@ -33,17 +33,21 @@ export function useSecureQuestions() {
             chapter: "Secure Chapter",
             bookmarked: false,
             examNumber: 1,
-            choices: q.choices || ["Option A", "Option B", "Option C", "Option D"],
+            choices: Array.isArray(q.choices) ? q.choices : ["Option A", "Option B", "Option C", "Option D"],
             correctAnswer: q.answer || "",
             explanation: q.explanation || "",
-            solutionSteps: q.steps || [q.answer || "Solution step"],
+            solutionSteps: Array.isArray(q.steps) ? q.steps : [q.answer || "Solution step"],
             hint: q.hint || "Think about the problem carefully",
             quote: q.quote ? {
               text: q.quote,
               source: q.source || "Unknown"
-            } : undefined
+            } : {
+              text: "Practice makes perfect",
+              source: "Common saying"
+            }
           }));
           
+          console.log("Transformed secure questions:", mappedQuestions);
           return mappedQuestions;
         }
         
@@ -60,6 +64,7 @@ export function useSecureQuestions() {
   
   useEffect(() => {
     if (secureQuestions && Array.isArray(secureQuestions)) {
+      console.log("Setting secure questions to state:", secureQuestions.length);
       setQuestions(secureQuestions);
     }
   }, [secureQuestions]);
