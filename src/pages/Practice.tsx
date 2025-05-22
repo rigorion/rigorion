@@ -4,6 +4,8 @@ import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/component
 import { Question } from "@/types/QuestionInterface";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import useSecureQuestions from "@/hooks/useSecureQuestions";
+import SecureProgressDataButton from "@/components/progress/SecureProgressDataButton";
 
 // Import refactored components
 import PracticeHeader from "@/components/practice/PracticeHeader";
@@ -26,6 +28,9 @@ const Practice = ({
   chapterTitle = "Chapter 1",
   totalQuestions = sampleQuestions.length
 }: PracticeProps) => {
+  // Get secure questions from hook
+  const { questions: secureQuestions, isLoading: loadingSecureQuestions, refetch: refetchSecureQuestions } = useSecureQuestions();
+  
   // Basic question and UI states
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [questions, setQuestions] = useState<Question[]>(sampleQuestions);
@@ -49,6 +54,7 @@ const Practice = ({
   const [showGoToInput, setShowGoToInput] = useState(false);
   const [targetQuestion, setTargetQuestion] = useState('');
   const [inputError, setInputError] = useState('');
+  const [useSecureData, setUseSecureData] = useState(false);
 
   // Style states
   const [fontFamily, setFontFamily] = useState<string>('inter');
@@ -87,6 +93,18 @@ const Practice = ({
     formula: '#dc2626'
   });
   const [boardColor, setBoardColor] = useState('white');
+
+  // Use secure questions when available
+  useEffect(() => {
+    if (useSecureData && secureQuestions && secureQuestions.length > 0) {
+      console.log("Using secure questions:", secureQuestions);
+      setQuestions(secureQuestions);
+      setCurrentQuestionIndex(0);
+    } else if (!useSecureData) {
+      setQuestions(sampleQuestions);
+      setCurrentQuestionIndex(0);
+    }
+  }, [useSecureData, secureQuestions]);
 
   // Update current question when questions change or index changes
   useEffect(() => {
@@ -254,6 +272,16 @@ const Practice = ({
     setInputError('');
   };
 
+  // Toggle between secure and sample data
+  const toggleDataSource = () => {
+    setUseSecureData(prev => !prev);
+  };
+
+  // Handler for refreshing secure data
+  const handleRefreshSecureData = () => {
+    refetchSecureQuestions();
+  };
+
   // Handler for opening the settings dialog
   const handleOpenSettings = () => {
     setSettingsDialogOpen(true);
@@ -282,6 +310,24 @@ const Practice = ({
         sidebarOpen={sidebarOpen} 
         setSidebarOpen={setSidebarOpen}
       />
+
+      {/* Data Source Controls */}
+      <div className="flex items-center justify-between px-4 py-2 bg-gray-50">
+        <div className="flex items-center space-x-2">
+          <Button
+            variant={useSecureData ? "default" : "outline"}
+            size="sm"
+            onClick={toggleDataSource}
+            className="text-xs"
+          >
+            {useSecureData ? "Using Secure Data" : "Using Sample Data"}
+          </Button>
+          
+          {loadingSecureQuestions && <span className="text-xs text-gray-500">Loading secure questions...</span>}
+        </div>
+        
+        <SecureProgressDataButton onRefresh={handleRefreshSecureData} />
+      </div>
 
       {/* Progress Bar with Stats and Tabs */}
       <PracticeProgress 

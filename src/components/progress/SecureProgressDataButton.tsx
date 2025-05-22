@@ -19,7 +19,7 @@ const SecureProgressDataButton = ({ onRefresh }: SecureProgressDataButtonProps) 
     setLoading(true);
     try {
       // Fetch from edge function
-      const response = await fetch('https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-user-progress', {
+      const response = await fetch('https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/my-function', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -32,28 +32,30 @@ const SecureProgressDataButton = ({ onRefresh }: SecureProgressDataButtonProps) 
       }
       
       const result = await response.json();
-      console.log("Fetched progress data:", result);
+      console.log("Fetched secure data:", result);
       
       // Store the data securely
-      await storeSecureFunctionData('get-user-progress', result);
+      await storeSecureFunctionData('my-function', result);
       
       toast({
-        title: "Progress Data Encrypted & Stored",
-        description: "Your progress data has been securely stored offline",
+        title: "Questions Data Encrypted & Stored",
+        description: "Your questions data has been securely stored offline",
         duration: 3000,
       });
       
       // Invalidate React Query cache to refresh data
       queryClient.invalidateQueries({ queryKey: ['userProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['mathQuestions'] });
+      queryClient.invalidateQueries({ queryKey: ['secureQuestions'] });
       
       // Trigger a refresh of the progress data
       onRefresh();
       
     } catch (error) {
-      console.error("Error fetching or storing progress data:", error);
+      console.error("Error fetching or storing data:", error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to fetch or store progress data",
+        description: error instanceof Error ? error.message : "Failed to fetch or store data",
         variant: "destructive",
       });
     } finally {
@@ -74,7 +76,7 @@ const SecureProgressDataButton = ({ onRefresh }: SecureProgressDataButtonProps) 
       ) : (
         <Lock className="h-3.5 w-3.5" />
       )}
-      <span>Secure Sync</span>
+      <span>Secure Questions</span>
     </Button>
   );
 };

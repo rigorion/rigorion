@@ -27,6 +27,9 @@ const ContentSection = ({
     return "border-2 border-red-500 bg-red-50 rounded-full p-4 transition-all text-left flex justify-between items-center animate-pulse";
   };
 
+  // Create choices array if it doesn't exist
+  const choices = question.choices || ["Option A", "Option B", "Option C", "Option D"];
+
   return (
     <div className="flex-1 p-8 max-w-3xl mx-auto">
       {/* Question Content */}
@@ -34,13 +37,13 @@ const ContentSection = ({
         <div className="text-sm text-gray-500 mb-2 flex items-center justify-center gap-2">
           <span>Problem Solution Quote</span>
         </div>
-        <h2 className="text-2xl font-medium" dangerouslySetInnerHTML={{ __html: question.content }} />
+        <h2 className="text-2xl font-medium" dangerouslySetInnerHTML={{ __html: question.content || "Question content not available" }} />
       </div>
 
       {/* Dynamic Content based on Tab */}
       {activeTab === "problem" && (
         <div className="grid grid-cols-2 gap-4 mb-12">
-          {question.choices.map((answer) => (
+          {choices.map((answer) => (
             <button
               key={answer}
               className={getAnswerButtonStyles(answer)}
@@ -58,7 +61,7 @@ const ContentSection = ({
       {activeTab === "solution" && (
         <div className="prose max-w-none mb-12 p-6 bg-gray-50 rounded-lg">
           <h3 className="text-lg font-semibold mb-4">Step-by-Step Solution</h3>
-          <div dangerouslySetInnerHTML={{ __html: question.solution }} />
+          <div dangerouslySetInnerHTML={{ __html: question.solution || "Solution not available" }} />
           {question.explanation && (
             <div className="mt-4 p-4 bg-white rounded-lg border">
               <h4 className="font-medium mb-2">Explanation</h4>
@@ -70,13 +73,15 @@ const ContentSection = ({
 
       {activeTab === "quote" && (
         <div className="prose max-w-none mb-12 p-6 pt-24 bg-gray-50 rounded-lg">
-          {question.quote && (
+          {question.quote ? (
             <blockquote className="text-xl italic text-gray-700">
               "{question.quote.text}"
               {question.quote.source && (
                 <footer className="mt-2 text-gray-500">- {question.quote.source}</footer>
               )}
             </blockquote>
+          ) : (
+            <p className="text-gray-500 italic">No quote available for this question.</p>
           )}
         </div>
       )}

@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, ArrowRight, ArrowRight as GoIcon } from "lucide-react";
@@ -10,6 +11,7 @@ interface QuestionNavigationProps {
   onGoToQuestion: () => void;
   currentIndex: number;
   totalQuestions: number;
+  questionId?: string;
 }
 
 export const QuestionNavigation = ({
@@ -20,6 +22,7 @@ export const QuestionNavigation = ({
   onGoToQuestion,
   currentIndex,
   totalQuestions,
+  questionId,
 }: QuestionNavigationProps) => {
   return (
     <div className="flex items-center justify-between mt-8 gap-4">
@@ -33,7 +36,10 @@ export const QuestionNavigation = ({
       </Button>
 
       <div className="flex-1 max-w-[300px] flex items-center gap-2">
-        <span className="text-sm text-gray-600">Question {currentIndex + 1} of {totalQuestions}</span>
+        <span className="text-sm text-gray-600">
+          Question {currentIndex + 1} of {totalQuestions}
+          {questionId && <span className="ml-2 text-xs text-gray-500">({questionId})</span>}
+        </span>
         <div className="relative flex-1">
           <Input
             type="number"
@@ -72,3 +78,5 @@ export const QuestionNavigation = ({
     </div>
   );
 };
+
+export default QuestionNavigation;

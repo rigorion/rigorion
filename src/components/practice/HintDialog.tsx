@@ -39,7 +39,7 @@ const HintDialog = ({ hint = "Try breaking down the problem into smaller parts."
         
         <div className="py-2">
           <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-            <p className="text-blue-800">{hint}</p>
+            <p className="text-blue-800">{hint || "Think about the problem carefully"}</p>
           </div>
           
           {isHintUsed && (
