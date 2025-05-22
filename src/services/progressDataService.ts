@@ -38,6 +38,7 @@ interface ProgressApiResponse {
   avg_time_incorrect: number;
   longest_time: number;
   chapter_stats: Record<string, ChapterStat>;
+  questions_answered_today?: number; // Added this property as optional
   goals?: Array<{
     title: string;
     target: number;
