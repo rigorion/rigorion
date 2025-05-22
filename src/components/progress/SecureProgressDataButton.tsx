@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Lock, RefreshCw, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { storeSecureFunctionData } from "@/services/secureIndexedDbService";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface SecureProgressDataButtonProps {
   onRefresh: () => void;
@@ -12,6 +13,7 @@ interface SecureProgressDataButtonProps {
 const SecureProgressDataButton = ({ onRefresh }: SecureProgressDataButtonProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const fetchAndStoreProgressData = async () => {
     setLoading(true);
@@ -30,6 +32,7 @@ const SecureProgressDataButton = ({ onRefresh }: SecureProgressDataButtonProps) 
       }
       
       const result = await response.json();
+      console.log("Fetched progress data:", result);
       
       // Store the data securely
       await storeSecureFunctionData('get-user-progress', result);
@@ -39,6 +42,9 @@ const SecureProgressDataButton = ({ onRefresh }: SecureProgressDataButtonProps) 
         description: "Your progress data has been securely stored offline",
         duration: 3000,
       });
+      
+      // Invalidate React Query cache to refresh data
+      queryClient.invalidateQueries({ queryKey: ['userProgress'] });
       
       // Trigger a refresh of the progress data
       onRefresh();

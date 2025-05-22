@@ -22,6 +22,8 @@ export const ProgressDataProvider = ({
   showLoadingState = true,
   timePeriod = 'weekly'
 }: ProgressDataProviderProps) => {
+  const { toast } = useToast();
+
   // Use React Query to fetch and cache progress data
   const { data, isLoading, error } = useQuery({
     queryKey: ['userProgress', timePeriod],
@@ -39,6 +41,11 @@ export const ProgressDataProvider = ({
         }
         
         // If secure storage is not active or doesn't have data, try the edge function
+        console.log("Calling Edge Function: get-user-progress", {
+          url: `https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1/get-user-progress?period=${timePeriod}`,
+          method: 'GET'
+        });
+
         const { data: progressData, error: progressError } = await callEdgeFunction(
           'get-user-progress',
           { method: 'GET' },
@@ -47,7 +54,14 @@ export const ProgressDataProvider = ({
         
         if (!progressError && progressData && Array.isArray(progressData) && progressData.length > 0) {
           console.log("Loaded progress data from edge function:", progressData);
-          // Transform edge function response to match our UserProgressData type
+          
+          // Process the data through the secure service to ensure proper transformation
+          const transformedData = await fetchSecureUserProgressData();
+          if (transformedData) {
+            return transformedData;
+          }
+          
+          // If transformation failed, process directly
           return processProgressData(progressData);
         }
         
@@ -57,7 +71,7 @@ export const ProgressDataProvider = ({
         return processProgressData(endpointsData);
       } catch (err) {
         console.error("Error fetching progress data:", err);
-        useToast().toast({
+        toast({
           title: "Error",
           description: "Could not load all progress data. Some information may be incomplete.",
           variant: "destructive",
@@ -95,6 +109,8 @@ export const ProgressDataProvider = ({
     );
   }
   
+  // Make sure we're correctly passing the data to children
+  console.log("Rendering progress data:", displayData);
   return <>{children(displayData)}</>;
 };
 

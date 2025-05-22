@@ -12,7 +12,7 @@ import { TestMocksList } from "./TestMocksList";
 import { AnimatedContainer, AnimatedItem } from "./AnimationWrappers";
 import { ProjectedScore } from "@/components/stats/ProjectedScore";
 import { UserProgressData } from "@/types/progress";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Footer } from "@/components/Footer";
 import { GlobalAnalysisCard } from "./GlobalAnalysisCard";
 
@@ -38,6 +38,11 @@ export const ProgressDashboard = ({
 }: ProgressDashboardProps) => {
   const [examDate, setExamDate] = useState<Date | null>(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000));
   const daysToExam = examDate ? Math.ceil((examDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 30;
+  
+  useEffect(() => {
+    // Log the received user data for debugging
+    console.log("ProgressDashboard received userData:", userData);
+  }, [userData]);
   
   // Mock tests data
   const mockTests = [{
@@ -99,19 +104,19 @@ export const ProgressDashboard = ({
     title: "Easy Questions",
     correct: userData.easyCompleted,
     total: userData.easyTotal,
-    avgTime: `${userData.easyAvgTime} min`,
+    avgTime: `${userData.easyAvgTime.toFixed(1)} min`,
     color: "bg-blue-100"
   }, {
     title: "Medium Questions",
     correct: userData.mediumCompleted,
     total: userData.mediumTotal,
-    avgTime: `${userData.mediumAvgTime} min`,
+    avgTime: `${userData.mediumAvgTime.toFixed(1)} min`,
     color: "bg-blue-200"
   }, {
     title: "Hard Questions",
     correct: userData.hardCompleted,
     total: userData.hardTotal,
-    avgTime: `${userData.hardAvgTime} min`,
+    avgTime: `${userData.hardAvgTime.toFixed(1)} min`,
     color: "bg-blue-300"
   }];
 
