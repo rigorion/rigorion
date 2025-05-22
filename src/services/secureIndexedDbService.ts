@@ -1,6 +1,3 @@
-
-// src/services/secureIndexedDbService.ts
-
 import Dexie from 'dexie'
 import { applyEncryptionMiddleware, cryptoOptions } from 'dexie-encrypted'
 import { FunctionData } from './dexieService'  // your existing interface
@@ -37,18 +34,17 @@ export class SecureAppDB extends Dexie {
 
     // 1) Apply encryption middleware before defining schema
     // The 4th parameter is the clearTablesCallback which is optional
-    // Let's provide null for now as the 4th argument
     applyEncryptionMiddleware(
       this,                    // your Dexie instance
       getEncryptionKey(),      // Uint8Array(32)—holds in JS memory only
       {
         functionData: {
           type: cryptoOptions.ENCRYPT_LIST,  // encrypt a list of fields
-          fields: ['data'],    // only the `data` property is encrypted
+          fields: ['data'] as string[],    // explicitly type as string array
           salt: 'lovable-app-salt-2025'
         }
       },
-      null,                   // Added 4th parameter (clearTablesCallback)
+      null                    // clearTablesCallback (optional)
     )
 
     // 2) Define your schema
