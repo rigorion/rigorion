@@ -1,3 +1,4 @@
+
 import Dexie from 'dexie'
 import { applyEncryptionMiddleware, cryptoOptions } from 'dexie-encrypted'
 import { FunctionData } from './dexieService'  // your existing interface
@@ -33,17 +34,20 @@ export class SecureAppDB extends Dexie {
     super('SecureAppDB')
 
     // 1) Apply encryption middleware before defining schema
-    // The 4th parameter is the clearTablesCallback which is optional
+    // Using proper type casting to fix the TypeScript error
+    const encryptionOptions = {
+      functionData: {
+        type: cryptoOptions.ENCRYPT_LIST,
+        fields: ['data'] as string[],
+        salt: 'lovable-app-salt-2025'
+      }
+    }
+
+    // Apply encryption middleware with explicit typing
     applyEncryptionMiddleware(
-      this,                    // your Dexie instance
-      getEncryptionKey(),      // Uint8Array(32)—holds in JS memory only
-      {
-        functionData: {
-          type: cryptoOptions.ENCRYPT_LIST,  // encrypt a list of fields
-          fields: ['data'] as string[],    // explicitly type as string array
-          salt: 'lovable-app-salt-2025'
-        }
-      },
+      this,                   // Dexie instance
+      getEncryptionKey(),     // Encryption key
+      encryptionOptions as any, // Type assertion to bypass type issues
       null                    // clearTablesCallback (optional)
     )
 
