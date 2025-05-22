@@ -17,6 +17,10 @@ function getEncryptionKey(): Uint8Array {
   return encryptionKey
 }
 
+// Store last known good timestamp for integrity validation
+const STORAGE_VERSION_KEY = 'secure_db_version'
+const OFFLINE_EXPIRY_DAYS = 7
+
 export class SecureAppDB extends Dexie {
   functionData!: Dexie.Table<FunctionData, number>
 
@@ -48,54 +52,112 @@ const secureDb = new SecureAppDB()
 /**
  * Store a FunctionData record securely.
  * The `data` field will be AES-GCM encrypted in IndexedDB.
+ * Adds integrity hash for later verification.
  */
 export async function storeSecureFunctionData(
   endpoint: string,
   data: unknown
 ): Promise<number> {
+  const timestamp = new Date()
+  const integrity = generateIntegrityHash(data)
+  
   const record: FunctionData = {
     endpoint,
-    timestamp: new Date(),
+    timestamp,
     data,
-    encrypted: true
+    encrypted: true,
+    integrity
   }
+  
+  // Store version information for validation
+  localStorage.setItem(STORAGE_VERSION_KEY, Date.now().toString())
+  
   return await secureDb.functionData.add(record)
 }
 
 /**
  * Get the latest FunctionData for a given endpoint (decrypted in memory).
+ * Validates integrity and checks for expiry.
  */
 export async function getSecureLatestFunctionData(
   endpoint: string
 ): Promise<FunctionData | undefined> {
-  return await secureDb.functionData
-    .where('endpoint')
-    .equals(endpoint)
-    .reverse()    // newest first
-    .first()
+  try {
+    const record = await secureDb.functionData
+      .where('endpoint')
+      .equals(endpoint)
+      .reverse()    // newest first
+      .first()
+    
+    if (!record) return undefined
+    
+    // Check for offline expiry
+    if (isDataExpired(record.timestamp)) {
+      console.warn('Secure data has expired, clearing cache')
+      await clearAllSecureData()
+      return undefined
+    }
+    
+    // Verify data integrity
+    if (record.integrity && !verifyIntegrityHash(record.data, record.integrity)) {
+      console.error('Data integrity check failed')
+      return undefined
+    }
+    
+    return record
+  } catch (error) {
+    console.error('Error accessing secure data:', error)
+    return undefined
+  }
 }
 
 /**
  * Get all FunctionData for a given endpoint (decrypted in memory).
+ * With added integrity checking.
  */
 export async function getAllSecureFunctionData(
   endpoint: string
 ): Promise<FunctionData[]> {
-  const results = await secureDb.functionData
-    .where('endpoint')
-    .equals(endpoint)
-    .toArray()
-  // sort descending by timestamp
-  return results.sort((a, b) =>
-    new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-  )
+  try {
+    const results = await secureDb.functionData
+      .where('endpoint')
+      .equals(endpoint)
+      .toArray()
+    
+    // Filter out any expired or invalid data
+    const validResults = results.filter(record => {
+      const expired = isDataExpired(record.timestamp)
+      const valid = !record.integrity || verifyIntegrityHash(record.data, record.integrity)
+      return !expired && valid
+    })
+    
+    // sort descending by timestamp
+    return validResults.sort((a, b) =>
+      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    )
+  } catch (error) {
+    console.error('Error accessing secure data collection:', error)
+    return []
+  }
 }
 
 /**
  * Clear all stored FunctionData records.
  */
 export async function clearAllSecureData(): Promise<void> {
+  localStorage.removeItem(STORAGE_VERSION_KEY)
   await secureDb.functionData.clear()
+}
+
+/**
+ * Checks if secure storage is in a valid state by comparing version info
+ */
+export function isSecureStorageValid(): boolean {
+  const versionTimestamp = localStorage.getItem(STORAGE_VERSION_KEY)
+  if (!versionTimestamp) return false
+  
+  // The storage is valid if we have both a version timestamp and an active key
+  return isSecureStorageActive() && !isNaN(Number(versionTimestamp))
 }
 
 /**
@@ -114,6 +176,8 @@ export function isSecureStorageActive(): boolean {
 export function regenerateEncryptionKey(): void {
   encryptionKey = crypto.getRandomValues(new Uint8Array(32))
   sessionStorage.setItem('secure_storage_active', 'true')
+  // Update version timestamp to reflect the key change
+  localStorage.setItem(STORAGE_VERSION_KEY, Date.now().toString())
 }
 
 /**
@@ -123,6 +187,91 @@ export function regenerateEncryptionKey(): void {
 export function clearEncryptionKey(): void {
   encryptionKey = null
   sessionStorage.removeItem('secure_storage_active')
+}
+
+/**
+ * Helper function to generate a simple integrity hash for data objects
+ * In production, you would use a more robust HMAC implementation
+ */
+function generateIntegrityHash(data: any): string {
+  try {
+    // Simple hash generation for demonstration
+    // In production use a proper HMAC library
+    const str = JSON.stringify(data)
+    let hash = 0
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash) + str.charCodeAt(i)
+      hash |= 0 // Convert to 32bit integer
+    }
+    return `${hash}-v1`
+  } catch (e) {
+    return ''
+  }
+}
+
+/**
+ * Helper function to verify the integrity hash of data
+ */
+function verifyIntegrityHash(data: any, storedHash: string): boolean {
+  try {
+    const currentHash = generateIntegrityHash(data)
+    return currentHash === storedHash
+  } catch (e) {
+    return false
+  }
+}
+
+/**
+ * Check if data has expired based on timestamp
+ */
+function isDataExpired(timestamp: Date): boolean {
+  const expiryTime = OFFLINE_EXPIRY_DAYS * 24 * 60 * 60 * 1000 // days in ms
+  return Date.now() - new Date(timestamp).getTime() > expiryTime
+}
+
+/**
+ * Safe wrapper for data retrieval that handles errors and missing data
+ */
+export async function safeGetSecureData(
+  endpoint: string,
+  fetchFallback?: () => Promise<any>
+): Promise<{data: any | null, fromCache: boolean}> {
+  try {
+    // Try to get from secure storage
+    const record = await getSecureLatestFunctionData(endpoint)
+    
+    if (record && record.data) {
+      return { data: record.data, fromCache: true }
+    }
+    
+    // If we have a fallback function, use it
+    if (fetchFallback) {
+      const freshData = await fetchFallback()
+      if (freshData) {
+        // Store the fresh data securely
+        await storeSecureFunctionData(endpoint, freshData)
+        return { data: freshData, fromCache: false }
+      }
+    }
+    
+    return { data: null, fromCache: false }
+  } catch (e) {
+    console.error(`Error retrieving secure data for ${endpoint}:`, e)
+    
+    // Try fallback if provided
+    if (fetchFallback) {
+      try {
+        const freshData = await fetchFallback()
+        if (freshData) {
+          return { data: freshData, fromCache: false }
+        }
+      } catch (fallbackError) {
+        console.error('Fallback fetch failed:', fallbackError)
+      }
+    }
+    
+    return { data: null, fromCache: false }
+  }
 }
 
 export default secureDb

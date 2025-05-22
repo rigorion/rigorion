@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { 
   storeFunctionData, 
   getLatestFunctionData 
@@ -10,11 +10,15 @@ import {
 import {
   storeSecureFunctionData,
   getSecureLatestFunctionData,
-  isSecureStorageActive
+  isSecureStorageActive,
+  isSecureStorageValid,
+  safeGetSecureData,
+  clearAllSecureData
 } from "@/services/secureIndexedDbService";
-import { Loader2, Save, Database, RefreshCw, Lock, Unlock, KeyRound } from "lucide-react";
+import { Loader2, Save, Database, RefreshCw, Lock, Unlock, KeyRound, AlertTriangle } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const EdgeFunctionStore = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -25,6 +29,7 @@ const EdgeFunctionStore = () => {
     "get-user-progress": null
   });
   const [useEncryption, setUseEncryption] = useState<boolean>(isSecureStorageActive());
+  const [isStorageValid, setIsStorageValid] = useState<boolean>(true);
   const { toast } = useToast();
 
   const fetchAndStoreFunction = async (endpoint: string) => {
@@ -56,7 +61,7 @@ const EdgeFunctionStore = () => {
         await storeSecureFunctionData(endpoint, result);
         toast({
           title: "Encrypted Data Stored",
-          description: `Data from ${endpoint} securely encrypted and stored`,
+          description: `Data from ${endpoint} securely encrypted and stored with integrity check`,
         });
       } else {
         await storeFunctionData(endpoint, result);
@@ -89,39 +94,82 @@ const EdgeFunctionStore = () => {
   const loadLatestData = async (endpoint: string) => {
     setLoading(true);
     try {
-      // Get latest data from either encrypted or normal storage
-      const latestData = useEncryption
-        ? await getSecureLatestFunctionData(endpoint)
-        : await getLatestFunctionData(endpoint);
-      
-      if (latestData) {
-        // Update state based on which endpoint was called
-        if (endpoint === "my-function") {
-          setMyFunctionData(latestData.data);
-          setLastFetched(prev => ({...prev, "my-function": new Date(latestData.timestamp)}));
-        } else if (endpoint === "get-user-progress") {
-          setProgressData(latestData.data);
-          setLastFetched(prev => ({...prev, "get-user-progress": new Date(latestData.timestamp)}));
-        }
+      if (useEncryption) {
+        // Use the safe wrapper with fallback
+        const { data, fromCache } = await safeGetSecureData(
+          endpoint, 
+          // Provide fallback function to fetch from server if needed
+          async () => {
+            const baseUrl = "https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1";
+            const response = await fetch(`${baseUrl}/${endpoint}`, {
+              headers: { 'Content-Type': 'application/json' },
+              mode: 'cors'
+            });
+            if (!response.ok) return null;
+            return await response.json();
+          }
+        );
         
-        toast({
-          title: "Data Loaded",
-          description: useEncryption
-            ? `Encrypted data from ${endpoint} decrypted and loaded`
-            : `Latest data from ${endpoint} loaded from IndexedDB`,
-        });
+        if (data) {
+          // Update state based on which endpoint was called
+          if (endpoint === "my-function") {
+            setMyFunctionData(data);
+            setLastFetched(prev => ({...prev, "my-function": new Date()}));
+          } else if (endpoint === "get-user-progress") {
+            setProgressData(data);
+            setLastFetched(prev => ({...prev, "get-user-progress": new Date()}));
+          }
+          
+          toast({
+            title: "Data Loaded",
+            description: fromCache 
+              ? `Encrypted data from ${endpoint} decrypted and loaded with integrity verification`
+              : `Fresh data from ${endpoint} fetched and stored securely`,
+          });
+        } else {
+          if (endpoint === "my-function") {
+            setMyFunctionData(null);
+          } else if (endpoint === "get-user-progress") {
+            setProgressData(null);
+          }
+          
+          toast({
+            title: "No Data Found",
+            description: `No valid data found for ${endpoint}`,
+            variant: "destructive",
+          });
+        }
       } else {
-        if (endpoint === "my-function") {
-          setMyFunctionData(null);
-        } else if (endpoint === "get-user-progress") {
-          setProgressData(null);
-        }
+        // Regular non-encrypted flow
+        const latestData = await getLatestFunctionData(endpoint);
         
-        toast({
-          title: "No Data Found",
-          description: `No data found for ${endpoint}`,
-          variant: "destructive",
-        });
+        if (latestData) {
+          // Update state based on which endpoint was called
+          if (endpoint === "my-function") {
+            setMyFunctionData(latestData.data);
+            setLastFetched(prev => ({...prev, "my-function": new Date(latestData.timestamp)}));
+          } else if (endpoint === "get-user-progress") {
+            setProgressData(latestData.data);
+            setLastFetched(prev => ({...prev, "get-user-progress": new Date(latestData.timestamp)}));
+          }
+          
+          toast({
+            title: "Data Loaded",
+            description: `Latest data from ${endpoint} loaded from IndexedDB`,
+          });
+        } else {
+          if (endpoint === "my-function") {
+            setMyFunctionData(null);
+          } else if (endpoint === "get-user-progress") {
+            setProgressData(null);
+          }
+          
+          toast({
+            title: "No Data Found",
+            description: `No data found for ${endpoint}`,
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       console.error(`Error loading data from ${endpoint}:`, error);
@@ -135,11 +183,44 @@ const EdgeFunctionStore = () => {
     }
   };
 
+  // Check storage validity and handle data expiry
+  useEffect(() => {
+    if (useEncryption) {
+      setIsStorageValid(isSecureStorageValid());
+    } else {
+      setIsStorageValid(true); // Non-encrypted storage doesn't use validity
+    }
+  }, [useEncryption]);
+
   // Load data from IndexedDB on component mount
   useEffect(() => {
     loadLatestData("my-function");
     loadLatestData("get-user-progress");
   }, [useEncryption]); // Reload when encryption setting changes
+
+  const handleClearStorage = async () => {
+    try {
+      await clearAllSecureData();
+      setMyFunctionData(null);
+      setProgressData(null);
+      setLastFetched({
+        "my-function": null,
+        "get-user-progress": null
+      });
+      setIsStorageValid(true);
+      toast({
+        title: "Storage Cleared",
+        description: "All secure data has been removed from storage",
+      });
+    } catch (error) {
+      console.error("Error clearing secure storage:", error);
+      toast({
+        title: "Error",
+        description: "Failed to clear secure storage",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <Card>
@@ -168,14 +249,36 @@ const EdgeFunctionStore = () => {
               </>
             )}
           </Label>
+          
+          {useEncryption && (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleClearStorage}
+              className="ml-2"
+            >
+              Clear Secure Cache
+            </Button>
+          )}
         </div>
+        
         {useEncryption && (
           <p className="text-xs text-green-600 mt-1">
             <KeyRound className="h-3 w-3 inline mr-1" /> 
             Data is encrypted with AES-GCM before storage and only decrypted in memory when accessed
           </p>
         )}
+        
+        {useEncryption && !isStorageValid && (
+          <Alert variant="destructive" className="mt-3">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Storage integrity check failed. Data may be corrupted or expired. Try clearing the cache.
+            </AlertDescription>
+          </Alert>
+        )}
       </CardHeader>
+      
       <CardContent>
         <div className="grid gap-6 md:grid-cols-2">
           {/* My Function Section */}
