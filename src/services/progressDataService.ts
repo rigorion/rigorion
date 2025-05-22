@@ -2,6 +2,55 @@
 import { safeGetSecureData } from './secureIndexedDbService';
 import { UserProgressData } from '@/types/progress';
 
+// Define interface for chapter stats from the API response
+interface ChapterStat {
+  correct: number;
+  accuracy: number;
+  incorrect: number;
+  unattempted: number;
+}
+
+// Define the difficulty level stats structure
+interface DifficultyStats {
+  total: number;
+  accuracy: number;
+  avg_time: number;
+  completed: number;
+}
+
+// Define the overall progress data structure from the API
+interface ProgressApiResponse {
+  user_id: string;
+  total_questions: number;
+  correct_count: number;
+  incorrect_count: number;
+  unattempted_count: number;
+  streak_days: number;
+  avg_score: number;
+  rank: number;
+  projected_score: number;
+  speed: number;
+  easy?: DifficultyStats;
+  medium?: DifficultyStats;
+  hard?: DifficultyStats;
+  avg_time_per_question: number;
+  avg_time_correct: number;
+  avg_time_incorrect: number;
+  longest_time: number;
+  chapter_stats: Record<string, ChapterStat>;
+  goals?: Array<{
+    title: string;
+    target: number;
+    percent: number;
+    due_date: string;
+    completed: number;
+  }>;
+  performance_graph?: Array<{
+    date: string;
+    attempted: number;
+  }>;
+}
+
 /**
  * Fetches user progress data from secure storage and maps it to the UserProgressData format
  * used in the Progress page components
@@ -20,7 +69,7 @@ export async function fetchSecureUserProgressData(): Promise<UserProgressData | 
     console.log(`Progress data loaded from ${fromCache ? 'local secure cache' : 'network'}`);
     
     // The edge function returns an array, take the first item
-    const progressData = data[0];
+    const progressData = data[0] as ProgressApiResponse;
     
     // Map the edge function data format to our UserProgressData format
     return {
@@ -58,7 +107,7 @@ export async function fetchSecureUserProgressData(): Promise<UserProgressData | 
         date: item.date,
         attempted: item.attempted
       })) || [],
-      // Format the chapter performance data
+      // Format the chapter performance data - Now properly typed
       chapterPerformance: Object.entries(progressData.chapter_stats || {}).map(([key, value]) => ({
         chapterId: key,
         chapterName: `Chapter ${key.split('_')[1]}`,
