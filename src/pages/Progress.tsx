@@ -7,7 +7,7 @@ import { FullPageLoader } from "@/components/progress/FullPageLoader";
 import type { TimePeriod, ProgressTab } from "@/types/progress";
 import { TrendingUp, Trophy, Navigation, Bell } from "lucide-react";
 import { ProgressNavigation } from "@/components/progress/ProgressNavigation";
-import { SecureProgressProvider } from "@/components/progress/SecureProgressProvider";
+import { SecureProgressDataProvider } from "@/components/progress/SecureProgressDataProvider";
 import { useProgress } from "@/contexts/ProgressContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -199,10 +199,9 @@ const DUMMY_PROGRESS = {
 
 // Create a wrapper component to use the context
 const ProgressContent = () => {
-  const { progressData } = useProgress();
+  const { progressData, isLoading } = useProgress();
   const [period, setPeriod] = useState<TimePeriod>("weekly");
   const [activeTab, setActiveTab] = useState<ProgressTab>("performance");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [visibleSections, setVisibleSections] = useState<VisibleSections>({
     totalProgress: true,
     performanceGraph: true,
@@ -220,7 +219,7 @@ const ProgressContent = () => {
     }));
   };
   
-  if (!progressData) {
+  if (isLoading || !progressData) {
     return <FullPageLoader />;
   }
   
@@ -304,7 +303,7 @@ const Progress = () => {
   }
   
   return (
-    <SecureProgressProvider fallbackData={DUMMY_PROGRESS} showLoadingState={true}>
+    <SecureProgressDataProvider fallbackData={DUMMY_PROGRESS} showLoadingState={true}>
       <div className="flex min-h-screen w-full bg-mono-bg">
         <main className="flex-1 bg-mono-bg">
           <header className="sticky top-0 z-50 bg-white border-b px-4 py-3">
@@ -427,7 +426,7 @@ const Progress = () => {
           </Tabs>
         </main>
       </div>
-    </SecureProgressProvider>
+    </SecureProgressDataProvider>
   );
 };
 
