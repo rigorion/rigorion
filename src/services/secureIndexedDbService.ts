@@ -231,7 +231,7 @@ function generateIntegrityHash(data: any): string {
     // In production use a proper HMAC library
     const str = JSON.stringify(data)
     let hash = 0
-    for (let i = 0; < str.length; i++) {
+    for (let i = 0; i < str.length; i++) {
       hash = ((hash << 5) - hash) + str.charCodeAt(i)
       hash |= 0 // Convert to 32bit integer
     }
