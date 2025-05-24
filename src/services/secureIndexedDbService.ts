@@ -1,4 +1,5 @@
 
+
 import Dexie from 'dexie'
 import { applyEncryptionMiddleware, cryptoOptions } from 'dexie-encrypted'
 import { FunctionData } from './dexieService'
@@ -63,7 +64,7 @@ export class SecureAppDB extends Dexie {
         getEncryptionKey(),
         {
           functionData: {
-            type: cryptoOptions.NON_INDEXED_FIELDS
+            exclude: cryptoOptions.NON_INDEXED_FIELDS
           }
         },
         () => {
