@@ -1,7 +1,6 @@
-
 import Dexie from 'dexie'
 import { applyEncryptionMiddleware, cryptoOptions } from 'dexie-encrypted'
-import { FunctionData } from './dexieService'  // your existing interface
+import { FunctionData } from './dexieService'
 
 // Extend the FunctionData interface to include the integrity property
 declare module './dexieService' {
@@ -33,38 +32,39 @@ export class SecureAppDB extends Dexie {
   constructor() {
     super('SecureAppDB')
 
-    // 1) Apply encryption middleware before defining schema
-    // Using proper type casting to fix the TypeScript error
+    // 1) Define your schema FIRST
+    this.version(1).stores({
+      functionData: '++id, endpoint, timestamp'
+    })
+
+    // 2) Apply encryption middleware AFTER schema definition
     const encryptionOptions = {
       functionData: {
         type: cryptoOptions.ENCRYPT_LIST,
-        fields: ['data'] as string[],
+        fields: ['data'],
         salt: 'lovable-app-salt-2025'
       }
     }
 
-    // Apply encryption middleware with explicit typing
-    applyEncryptionMiddleware(
-      this,                   // Dexie instance
-      getEncryptionKey(),     // Encryption key
-      encryptionOptions as any, // Type assertion to bypass type issues
-      null                    // clearTablesCallback (optional)
-    )
+    // Provide a proper onKeyChange callback function
+    const onKeyChange = () => {
+      console.log('Encryption key changed')
+      // Clear any cached data when key changes
+      sessionStorage.setItem('secure_storage_active', 'true')
+    }
 
-    // 2) Define your schema
-    this.version(1).stores({
-      functionData: '++id, endpoint, timestamp'
-    })
+    // Apply encryption middleware with proper callback
+    applyEncryptionMiddleware(
+      this,
+      getEncryptionKey(),
+      encryptionOptions,
+      onKeyChange
+    )
   }
 }
 
 const secureDb = new SecureAppDB()
 
-/**
- * Store a FunctionData record securely.
- * The `data` field will be AES-GCM encrypted in IndexedDB.
- * Adds integrity hash for later verification.
- */
 export async function storeSecureFunctionData(
   endpoint: string,
   data: unknown
@@ -86,10 +86,6 @@ export async function storeSecureFunctionData(
   return await secureDb.functionData.add(record)
 }
 
-/**
- * Get the latest FunctionData for a given endpoint (decrypted in memory).
- * Validates integrity and checks for expiry.
- */
 export async function getSecureLatestFunctionData(
   endpoint: string
 ): Promise<FunctionData | undefined> {
@@ -97,7 +93,7 @@ export async function getSecureLatestFunctionData(
     const record = await secureDb.functionData
       .where('endpoint')
       .equals(endpoint)
-      .reverse()    // newest first
+      .reverse()
       .first()
     
     if (!record) return undefined
@@ -122,10 +118,6 @@ export async function getSecureLatestFunctionData(
   }
 }
 
-/**
- * Get all FunctionData for a given endpoint (decrypted in memory).
- * With added integrity checking.
- */
 export async function getAllSecureFunctionData(
   endpoint: string
 ): Promise<FunctionData[]> {
@@ -152,17 +144,11 @@ export async function getAllSecureFunctionData(
   }
 }
 
-/**
- * Clear all stored FunctionData records.
- */
 export async function clearAllSecureData(): Promise<void> {
   localStorage.removeItem(STORAGE_VERSION_KEY)
   await secureDb.functionData.clear()
 }
 
-/**
- * Checks if secure storage is in a valid state by comparing version info
- */
 export function isSecureStorageValid(): boolean {
   const versionTimestamp = localStorage.getItem(STORAGE_VERSION_KEY)
   if (!versionTimestamp) return false
@@ -171,9 +157,6 @@ export function isSecureStorageValid(): boolean {
   return isSecureStorageActive() && !isNaN(Number(versionTimestamp))
 }
 
-/**
- * Has the secure storage been initialized this session?
- */
 export function isSecureStorageActive(): boolean {
   return (
     encryptionKey !== null ||
@@ -181,9 +164,6 @@ export function isSecureStorageActive(): boolean {
   )
 }
 
-/**
- * Rotate the encryption key (old data becomes unreadable until re-encrypted).
- */
 export function regenerateEncryptionKey(): void {
   encryptionKey = crypto.getRandomValues(new Uint8Array(32))
   sessionStorage.setItem('secure_storage_active', 'true')
@@ -191,19 +171,11 @@ export function regenerateEncryptionKey(): void {
   localStorage.setItem(STORAGE_VERSION_KEY, Date.now().toString())
 }
 
-/**
- * Clear the in-memory encryption key (e.g. on logout).
- * Existing encrypted records remain, but can't be decrypted until a key is re‐set.
- */
 export function clearEncryptionKey(): void {
   encryptionKey = null
   sessionStorage.removeItem('secure_storage_active')
 }
 
-/**
- * Helper function to generate a simple integrity hash for data objects
- * In production, you would use a more robust HMAC implementation
- */
 function generateIntegrityHash(data: any): string {
   try {
     // Simple hash generation for demonstration
@@ -220,9 +192,6 @@ function generateIntegrityHash(data: any): string {
   }
 }
 
-/**
- * Helper function to verify the integrity hash of data
- */
 function verifyIntegrityHash(data: any, storedHash: string): boolean {
   try {
     const currentHash = generateIntegrityHash(data)
@@ -232,17 +201,11 @@ function verifyIntegrityHash(data: any, storedHash: string): boolean {
   }
 }
 
-/**
- * Check if data has expired based on timestamp
- */
 function isDataExpired(timestamp: Date): boolean {
   const expiryTime = OFFLINE_EXPIRY_DAYS * 24 * 60 * 60 * 1000 // days in ms
   return Date.now() - new Date(timestamp).getTime() > expiryTime
 }
 
-/**
- * Safe wrapper for data retrieval that handles errors and missing data
- */
 export async function safeGetSecureData(
   endpoint: string,
   fetchFallback?: () => Promise<any>
