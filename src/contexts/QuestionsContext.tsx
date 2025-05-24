@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { Question } from "@/types/QuestionInterface";
 import { getSecureLatestFunctionData } from "@/services/secureIndexedDbService";
 import { useToast } from "@/components/ui/use-toast";
+import { mapQuestions, validateQuestion } from "@/utils/mapQuestion";
 
 interface QuestionsContextType {
   questions: Question[];
@@ -23,30 +24,6 @@ export const useQuestions = () => useContext(QuestionsContext);
 interface QuestionsProviderProps {
   children: React.ReactNode;
 }
-
-// Define the shape of the data we expect from the secure storage
-interface SecureQuestionData {
-  questions?: Array<{
-    id?: string | number;
-    text?: string;
-    answer?: string;
-    difficulty?: string;
-    choices?: string[];
-    explanation?: string;
-    steps?: string[];
-    hint?: string;
-    quote?: string;
-    source?: string;
-  }>;
-}
-
-// Helper function to validate difficulty
-const validateDifficulty = (difficulty: string | undefined): "easy" | "medium" | "hard" => {
-  if (difficulty === "easy" || difficulty === "hard") {
-    return difficulty;
-  }
-  return "medium"; // Default to medium if not specified or invalid
-};
 
 export const QuestionsProvider: React.FC<QuestionsProviderProps> = ({ children }) => {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -69,39 +46,37 @@ export const QuestionsProvider: React.FC<QuestionsProviderProps> = ({ children }
       
       console.log("Found secure question data:", record.data);
       
-      // Cast to the expected type
-      const secureData = record.data as SecureQuestionData;
+      let rawQuestions: any[] = [];
       
-      // Transform the data into Question format
-      if (secureData.questions && Array.isArray(secureData.questions)) {
-        const mappedQuestions: Question[] = secureData.questions.map((q, index) => ({
-          id: q.id?.toString() || `secure-${index}`,
-          content: q.text || "",
-          solution: q.answer || "",
-          difficulty: validateDifficulty(q.difficulty), // Use the helper function
-          chapter: "Secure Chapter",
-          bookmarked: false,
-          examNumber: 1,
-          choices: Array.isArray(q.choices) ? q.choices : ["Option A", "Option B", "Option C", "Option D"],
-          correctAnswer: q.answer || "",
-          explanation: q.explanation || "",
-          solutionSteps: Array.isArray(q.steps) ? q.steps : [q.answer || "Solution step"],
-          hint: q.hint || "Think about the problem carefully",
-          quote: q.quote ? {
-            text: q.quote,
-            source: q.source || "Unknown"
-          } : {
-            text: "Practice makes perfect",
-            source: "Common saying"
-          }
-        }));
-        
-        console.log("Transformed secure questions:", mappedQuestions);
-        setQuestions(mappedQuestions);
+      // Handle different possible data structures from the backend
+      if (record.data.questions && Array.isArray(record.data.questions)) {
+        rawQuestions = record.data.questions;
+      } else if (Array.isArray(record.data)) {
+        rawQuestions = record.data;
+      } else if (record.data.data && Array.isArray(record.data.data)) {
+        rawQuestions = record.data.data;
       } else {
-        console.log("No questions array found in secure data");
+        console.log("No questions array found in secure data structure");
         setQuestions([]);
+        setIsLoading(false);
+        return;
       }
+      
+      // Use the mapping utility to normalize the questions
+      const mappedQuestions = mapQuestions(rawQuestions);
+      
+      // Validate the mapped questions
+      const validQuestions = mappedQuestions.filter(question => {
+        const isValid = validateQuestion(question);
+        if (!isValid) {
+          console.warn('[CONTEXT] Filtered out invalid question:', question);
+        }
+        return isValid;
+      });
+      
+      console.log(`[CONTEXT] Processed ${rawQuestions.length} raw questions into ${validQuestions.length} valid questions`);
+      setQuestions(validQuestions);
+      
     } catch (err) {
       console.error("Error getting secure questions:", err);
       setError(err instanceof Error ? err : new Error("Failed to load secure questions"));

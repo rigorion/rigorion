@@ -1,3 +1,4 @@
+
 import Dexie from 'dexie';
 import { applyEncryptionMiddleware, cryptoOptions } from 'dexie-encrypted';
 import { FunctionData } from './dexieService';
@@ -50,11 +51,13 @@ export class SecureAppDB extends Dexie {
     });
 
     try {
-      // The correct way is to specify the option for the table directly:
+      // Apply encryption middleware with correct options format
       applyEncryptionMiddleware(
         this,
         getEncryptionKey(),
-        { functionData: cryptoOptions.NON_INDEXED_FIELDS },
+        {
+          functionData: cryptoOptions.NON_INDEXED_FIELDS
+        },
         () => {
           console.log('[SECURE DB] Encryption key changed (middleware callback)');
           sessionStorage.setItem('secure_storage_active', 'true');

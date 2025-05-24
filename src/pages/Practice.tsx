@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,12 +14,14 @@ import {
 import PracticeContent from "@/components/practice/PracticeContent";
 import AIAnalyzer from "@/components/ai/AIAnalyzer";
 import CommentSection from "@/components/practice/CommentSection";
+import { mapQuestions, validateQuestion } from "@/utils/mapQuestion";
+import { Question } from "@/types/QuestionInterface";
 
 const ENDPOINT = "my-function"; // Customize this to your questions endpoint
 
 const Practice = () => {
   const { toast } = useToast();
-  const [questions, setQuestions] = useState([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
   const [loading, setLoading] = useState(false);
   const [isStorageValid, setIsStorageValid] = useState(true);
@@ -39,12 +42,32 @@ const Practice = () => {
       if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
       const result = await response.json();
 
+      console.log('[PRACTICE] Raw API response:', result);
+
+      // Store the raw data
       await storeSecureFunctionData(ENDPOINT, result);
-      setQuestions(result);
+      
+      // Extract and map questions
+      let rawQuestions: any[] = [];
+      if (result.questions && Array.isArray(result.questions)) {
+        rawQuestions = result.questions;
+      } else if (Array.isArray(result)) {
+        rawQuestions = result;
+      } else if (result.data && Array.isArray(result.data)) {
+        rawQuestions = result.data;
+      }
+
+      // Map the questions using our mapping utility
+      const mappedQuestions = mapQuestions(rawQuestions);
+      const validQuestions = mappedQuestions.filter(validateQuestion);
+      
+      console.log('[PRACTICE] Mapped and validated questions:', validQuestions);
+      
+      setQuestions(validQuestions);
       setLastFetched(new Date());
       toast({
         title: "Questions Fetched & Encrypted",
-        description: "Fetched questions stored securely.",
+        description: `Fetched ${validQuestions.length} questions and stored securely.`,
       });
     } catch (e: any) {
       setError(e.message || "Unknown error");
@@ -65,14 +88,32 @@ const Practice = () => {
     try {
       const { data, fromCache } = await safeGetSecureData(ENDPOINT, fetchAndStoreQuestions);
       if (data) {
-        setQuestions(data);
+        console.log('[PRACTICE] Loaded raw data from cache:', data);
+        
+        // Extract and map questions from cached data
+        let rawQuestions: any[] = [];
+        if (data.questions && Array.isArray(data.questions)) {
+          rawQuestions = data.questions;
+        } else if (Array.isArray(data)) {
+          rawQuestions = data;
+        } else if (data.data && Array.isArray(data.data)) {
+          rawQuestions = data.data;
+        }
+
+        // Map and validate the questions
+        const mappedQuestions = mapQuestions(rawQuestions);
+        const validQuestions = mappedQuestions.filter(validateQuestion);
+        
+        console.log('[PRACTICE] Mapped cached questions:', validQuestions);
+        
+        setQuestions(validQuestions);
         setLastFetched(new Date());
         setError(null);
         toast({
           title: "Questions Loaded",
           description: fromCache
-            ? "Loaded from secure storage."
-            : "Fetched from server and stored securely.",
+            ? `Loaded ${validQuestions.length} questions from secure storage.`
+            : `Fetched ${validQuestions.length} questions from server and stored securely.`,
         });
       } else {
         setQuestions([]);
@@ -114,7 +155,7 @@ const Practice = () => {
               Practice Questions
             </CardTitle>
             <CardDescription>
-              Only encrypted, fetched questions are used. No local or sample data.
+              Questions are securely encrypted and mapped to ensure consistent UI display.
             </CardDescription>
           </div>
           <div className="flex items-center space-x-4">
@@ -151,7 +192,7 @@ const Practice = () => {
         </div>
         <p className="text-xs text-green-600 mt-2 flex items-center">
           <Lock className="h-3 w-3 inline mr-1" />
-          Secure mode: Only encrypted, fetched questions are used.
+          Secure mode: Questions are mapped and validated for consistent display.
         </p>
         {!isStorageValid && (
           <div className="mt-2 flex items-center text-red-600 text-xs">
@@ -164,7 +205,7 @@ const Practice = () => {
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-            <span className="ml-2">Loading secure questions...</span>
+            <span className="ml-2">Loading and mapping secure questions...</span>
           </div>
         ) : error ? (
           <div className="flex flex-col items-center py-8">
@@ -174,7 +215,6 @@ const Practice = () => {
         ) : questions && questions.length > 0 ? (
           <>
             <PracticeContent questions={questions} />
-            {/* AI Analyzer & Comment Section, as before */}
             <AIAnalyzer
               context="practice"
               data={{
