@@ -10,16 +10,13 @@ declare module './dexieService' {
   }
 }
 
-// In-memory key (session-only)
 let encryptionKey: Uint8Array | null = null
 
 function getEncryptionKey(): Uint8Array {
   if (!encryptionKey) {
-    // Try to get a persistent key from localStorage first
     const storedKey = localStorage.getItem('secure_db_key')
     if (storedKey) {
       try {
-        // Convert hex string back to Uint8Array
         const keyArray = new Uint8Array(storedKey.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16)))
         encryptionKey = keyArray
         sessionStorage.setItem('secure_storage_active', 'true')
@@ -30,8 +27,6 @@ function getEncryptionKey(): Uint8Array {
         localStorage.removeItem('secure_db_key')
       }
     }
-
-    // Generate new key and store it persistently
     encryptionKey = crypto.getRandomValues(new Uint8Array(32))
     const hexKey = Array.from(encryptionKey).map(b => b.toString(16).padStart(2, '0')).join('')
     localStorage.setItem('secure_db_key', hexKey)
@@ -46,23 +41,18 @@ const OFFLINE_EXPIRY_DAYS = 7
 
 export class SecureAppDB extends Dexie {
   functionData!: Dexie.Table<FunctionData, number>
-
   constructor() {
     super('SecureAppDB')
-
-    // 1) Define your schema FIRST
     this.version(1).stores({
       functionData: '++id, endpoint, timestamp'
     })
-
-    // 2) Apply encryption middleware AFTER schema definition
     try {
-      // CORRECT usage with cryptoOptions.NON_INDEXED_FIELDS (not an object)
+      // FINAL CORRECT USAGE (no { type: ... } wrapper)
       applyEncryptionMiddleware(
         this,
         getEncryptionKey(),
         {
-          functionData: { type: cryptoOptions.NON_INDEXED_FIELDS }
+          functionData: cryptoOptions.NON_INDEXED_FIELDS  // <-- correct!
         },
         () => {
           console.log('[ENCRYPTION] Encryption key changed')
@@ -92,7 +82,6 @@ export async function storeSecureFunctionData(
     integrity
   }
   localStorage.setItem(STORAGE_VERSION_KEY, Date.now().toString())
-
   try {
     const result = await secureDb.functionData.add(record)
     console.log('[SECURE STORE]', { endpoint, record, result })
@@ -130,8 +119,6 @@ export async function getSecureLatestFunctionData(
     return record
   } catch (error: any) {
     console.error('[SECURE LOAD ERROR]', error)
-
-    // Handle decryption errors specifically
     if (
       error.name === 'DatabaseClosedError' ||
       (error.message && error.message.includes('decrypt'))
@@ -221,8 +208,6 @@ export function clearEncryptionKey(): void {
   sessionStorage.removeItem('secure_storage_active')
   console.log('[KEY] Cleared encryption key')
 }
-
-// Utility Functions
 
 function generateIntegrityHash(data: any): string {
   try {
