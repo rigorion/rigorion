@@ -1,6 +1,8 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
+import { Sparkles, Search } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import AISearchBar from "@/components/ui/AISearchBar";
 
 export const Hero = () => {
