@@ -51,7 +51,7 @@ export class SecureAppDB extends Dexie {
     });
 
     try {
-      // Apply encryption middleware with correct options format
+      // Apply encryption middleware with correct format
       applyEncryptionMiddleware(
         this,
         getEncryptionKey(),

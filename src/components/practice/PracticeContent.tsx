@@ -150,7 +150,14 @@ console.log("PracticeContent: questions in use", questions);
   
   const handleTimerComplete = () => {
     setIsTimerActive(false);
-    console.log("Time's up!");
+    // Auto-navigate to next question when timer completes in timer mode
+    if (mode === "timer") {
+      nextQuestion();
+      toast({
+        title: "Time's up!",
+        description: "Moving to the next question.",
+      });
+    }
   };
 
   // Update displaySettings when settings change
