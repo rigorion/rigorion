@@ -1,4 +1,5 @@
 
+
 import Dexie from 'dexie'
 import { applyEncryptionMiddleware, cryptoOptions } from 'dexie-encrypted'
 import { FunctionData } from './dexieService'
@@ -57,9 +58,11 @@ export class SecureAppDB extends Dexie {
     })
 
     // 2) Apply encryption middleware AFTER schema definition
-    // Fix the encryption options format
+    // Use the correct object format for encryption options
     const encryptionOptions = {
-      functionData: cryptoOptions.NON_INDEXED_FIELDS
+      functionData: {
+        type: cryptoOptions.NON_INDEXED_FIELDS
+      }
     }
 
     // Apply encryption middleware
