@@ -1,6 +1,7 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Search, ToggleLeft, ToggleRight } from "lucide-react";
+import { Search, ToggleLeft, ToggleRight, Check, X } from "lucide-react";
 import { Question } from "@/types/QuestionInterface";
 import CommentSection from "./CommentSection";
 import { Input } from "@/components/ui/input";
@@ -217,9 +218,9 @@ const PracticeDisplay = ({
                     {selectedAnswer === choice && (
                       <span className="float-right">
                         {isCorrect ? (
-                          <svg /* checkmark */ ... />
+                          <Check className="h-5 w-5 text-green-600" />
                         ) : (
-                          <svg /* xmark */ ... />
+                          <X className="h-5 w-5 text-red-600" />
                         )}
                       </span>
                     )}
@@ -254,12 +255,12 @@ const PracticeDisplay = ({
                   >
                     {isCorrect ? (
                       <div className="flex items-center">
-                        {/* Checkmark SVG */}
+                        <Check className="h-5 w-5 text-green-600 mr-2" />
                         <span>Correct answer!</span>
                       </div>
                     ) : (
                       <div className="flex items-center">
-                        {/* Xmark SVG */}
+                        <X className="h-5 w-5 text-red-600 mr-2" />
                         <span>
                           Incorrect. The correct answer is: {currentQuestion.correctAnswer}
                         </span>
