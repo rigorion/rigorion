@@ -22,6 +22,7 @@ const Practice = () => {
     refetchSecureQuestions();
   };
 
+  
   return (
     <div className="flex flex-col min-h-screen bg-white">
       {/* Data Source Controls */}
@@ -69,7 +70,7 @@ const Practice = () => {
 </SecureQuestionProvider>
 
       ) : (
-        <PracticeContent questions={sampleQuestions} />
+        <PracticeContent questions={questions} />
       )}
     </div>
   );
