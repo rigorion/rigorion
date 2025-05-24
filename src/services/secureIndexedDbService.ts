@@ -1,3 +1,4 @@
+
 import Dexie from 'dexie'
 import { applyEncryptionMiddleware, cryptoOptions } from 'dexie-encrypted'
 import { FunctionData } from './dexieService'
@@ -56,27 +57,20 @@ export class SecureAppDB extends Dexie {
     })
 
     // 2) Apply encryption middleware AFTER schema definition
-    // Use the correct format for dexie-encrypted
+    // Fix the encryption options format
     const encryptionOptions = {
-      functionData: {
-        type: cryptoOptions.ENCRYPT_LIST,
-        fields: ['data'],
-        salt: 'lovable-app-salt-2025'
-      }
+      functionData: cryptoOptions.NON_INDEXED_FIELDS
     }
 
-    // Provide a proper onKeyChange callback function
-    const onKeyChange = () => {
-      console.log('Encryption key changed')
-      sessionStorage.setItem('secure_storage_active', 'true')
-    }
-
-    // Apply encryption middleware with proper callback and options
+    // Apply encryption middleware
     applyEncryptionMiddleware(
       this,
       getEncryptionKey(),
       encryptionOptions,
-      onKeyChange
+      () => {
+        console.log('Encryption key changed')
+        sessionStorage.setItem('secure_storage_active', 'true')
+      }
     )
   }
 }
@@ -134,7 +128,7 @@ export async function getSecureLatestFunctionData(
     console.error('Error accessing secure data:', error)
     
     // Handle decryption errors specifically
-    if (error.name === 'DatabaseClosedError' && error.message?.includes('decrypt')) {
+    if (error.name === 'DatabaseClosedError' || (error.message && error.message.includes('decrypt'))) {
       console.warn('Decryption failed, clearing corrupt data')
       await handleDecryptionError()
       return undefined
@@ -168,7 +162,7 @@ export async function getAllSecureFunctionData(
     console.error('Error accessing secure data collection:', error)
     
     // Handle decryption errors specifically
-    if (error.name === 'DatabaseClosedError' && error.message?.includes('decrypt')) {
+    if (error.name === 'DatabaseClosedError' || (error.message && error.message.includes('decrypt'))) {
       console.warn('Decryption failed, clearing corrupt data')
       await handleDecryptionError()
       return []
