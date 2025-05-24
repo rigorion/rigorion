@@ -9,6 +9,7 @@ interface CountdownTimerProps {
   mode?: "timer" | "level" | "manual" | "pomodoro" | "exam";
   className?: string;
   onUpdate?: (formattedTime: string) => void;
+  onAutoNext?: () => void; // New prop for auto navigation
 }
 
 const CountdownTimer = ({ 
@@ -17,7 +18,8 @@ const CountdownTimer = ({
   isActive,
   mode = "timer",
   className,
-  onUpdate
+  onUpdate,
+  onAutoNext
 }: CountdownTimerProps) => {
   const [timeLeft, setTimeLeft] = useState(durationInSeconds);
   const [isPaused, setIsPaused] = useState(false);
@@ -25,7 +27,7 @@ const CountdownTimer = ({
   // Full reset when duration changes
   useEffect(() => {
     setTimeLeft(durationInSeconds);
-    setIsPaused(false); // Reset pause state on duration change
+    setIsPaused(false);
   }, [durationInSeconds]);
 
   // Timer countdown effect
@@ -39,6 +41,14 @@ const CountdownTimer = ({
         if (newTime <= 0) {
           clearInterval(timer);
           onComplete();
+          
+          // Auto-navigate to next question in timer mode
+          if (mode === "timer" && onAutoNext) {
+            setTimeout(() => {
+              onAutoNext();
+            }, 1000); // Small delay to show timer completion
+          }
+          
           return 0;
         }
         
@@ -47,7 +57,7 @@ const CountdownTimer = ({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isActive, isPaused, onComplete, durationInSeconds]); // Add duration to deps
+  }, [isActive, isPaused, onComplete, durationInSeconds, mode, onAutoNext]);
 
   // Format time as mm:ss
   const formatTime = (seconds: number) => {

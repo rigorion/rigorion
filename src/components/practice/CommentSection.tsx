@@ -17,7 +17,7 @@ const CommentSection = () => {
   };
 
   return (
-    <div className="relative w-full">
+    <div className="fixed bottom-6 left-6 z-40">
       {/* Trigger Button */}
       {!isOpen && (
         <Button
@@ -28,14 +28,15 @@ const CommentSection = () => {
         </Button>
       )}
 
-      {/* Comment Input Area (opens upward) */}
+      {/* Comment Input Area (opens upward and fits within viewport) */}
       {isOpen && (
-        <div className="absolute bottom-full mb-2 right-0 w-96 bg-white rounded-lg shadow-[0_0_10px_rgba(59,130,246,0.7)] transition-all duration-500 ease-in-out p-4">
-          <div className="flex items-center justify-between mb-2">
+        <div className="absolute bottom-14 left-0 w-80 max-w-[calc(100vw-3rem)] bg-white rounded-lg shadow-xl border transition-all duration-300 ease-in-out p-4">
+          <div className="flex items-center justify-between mb-3">
             <h4 className="text-sm font-medium">Write your comment</h4>
             <Button
               onClick={handleToggle}
-              className="p-1 h-6 w-6 rounded-full bg-gray-100"
+              variant="ghost"
+              className="p-1 h-6 w-6 rounded-full hover:bg-gray-100"
               size="sm"
             >
               <X className="h-3 w-3" />
@@ -46,16 +47,23 @@ const CommentSection = () => {
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="Share your thoughts..."
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 max-h-[7.5rem] overflow-y-auto"
-            rows={5}
+            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            rows={4}
+            maxLength={500}
           />
           
+          {/* Character count */}
+          <div className="text-xs text-gray-500 mt-1 text-right">
+            {comment.length}/500
+          </div>
+          
           {/* Action Buttons */}
-          <div className="flex justify-end mt-2 gap-2">
+          <div className="flex justify-end mt-3 gap-2">
             {/* Image Upload (Plus Icon) */}
             <Button
               onClick={() => console.log("Upload image")}
-              className="bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full p-2 h-8 w-8"
+              variant="outline"
+              className="rounded-full p-2 h-8 w-8"
               size="sm"
             >
               <Plus className="h-4 w-4" />
@@ -64,7 +72,8 @@ const CommentSection = () => {
             {/* Send Button */}
             <Button
               onClick={handleSend}
-              className="bg-blue-600 hover:bg-blue-700 text-white rounded-full pl-3 pr-4 py-1 h-8 flex items-center gap-1"
+              disabled={!comment.trim()}
+              className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-4 py-1 h-8 flex items-center gap-1"
               size="sm"
             >
               <Send className="h-3 w-3" />

@@ -38,37 +38,66 @@ export function mapQuestion(raw: any, index?: number): Question {
     choices = ["Option A", "Option B", "Option C", "Option D"];
   }
 
-  // Map correct answer
+  // Map correct answer - ensure it's a single character for animation
   const correctAnswer = questionData.correctAnswer || 
                        questionData.correct_answer || 
                        questionData.answer || 
-                       choices[0] || 
-                       "";
+                       "A";
 
-  // Map solution/explanation
+  // Enhanced solution mapping with better structure
   const solution = questionData.solution || 
                   questionData.explanation || 
                   questionData.answer_explanation ||
                   questionData.rationale ||
+                  questionData.detailed_solution ||
                   "Solution not available";
+
+  // Map solution steps with more comprehensive handling
+  let solutionSteps: string[] = [];
+  if (Array.isArray(questionData.solutionSteps)) {
+    solutionSteps = questionData.solutionSteps;
+  } else if (Array.isArray(questionData.solution_steps)) {
+    solutionSteps = questionData.solution_steps;
+  } else if (Array.isArray(questionData.steps)) {
+    solutionSteps = questionData.steps;
+  } else if (questionData.step_by_step) {
+    solutionSteps = Array.isArray(questionData.step_by_step) 
+      ? questionData.step_by_step 
+      : [questionData.step_by_step];
+  } else if (solution && solution !== "Solution not available") {
+    // Try to split solution into steps if it contains numbered steps
+    const stepPattern = /\d+\./g;
+    if (stepPattern.test(solution)) {
+      solutionSteps = solution.split(/(?=\d+\.)/).filter(step => step.trim().length > 0);
+    } else {
+      solutionSteps = [solution];
+    }
+  } else {
+    solutionSteps = ["Solution steps not available"];
+  }
 
   // Map difficulty
   const difficulty = questionData.difficulty === "easy" || questionData.difficulty === "hard" 
     ? questionData.difficulty 
     : "medium";
 
+  // Enhanced chapter and exam mapping
+  const chapter = questionData.chapter || 
+                 questionData.chapter_name ||
+                 questionData.section ||
+                 "General";
+
+  const examNumber = questionData.examNumber || 
+                    questionData.exam_number ||
+                    questionData.exam_id ||
+                    questionData.test_id ||
+                    1;
+
   // Map other fields
   const hint = questionData.hint || 
               questionData.help_text || 
-              "Think about the problem carefully";
-
-  const solutionSteps = Array.isArray(questionData.solutionSteps) 
-    ? questionData.solutionSteps 
-    : Array.isArray(questionData.solution_steps)
-    ? questionData.solution_steps
-    : Array.isArray(questionData.steps)
-    ? questionData.steps
-    : [solution];
+              questionData.clue ||
+              "Think about the problem step by step";
 
   // Create the normalized question object
   const mappedQuestion: Question = {
@@ -76,9 +105,9 @@ export function mapQuestion(raw: any, index?: number): Question {
     content: content,
     solution: solution,
     difficulty: difficulty,
-    chapter: questionData.chapter || "Secure Chapter",
+    chapter: chapter,
     bookmarked: questionData.bookmarked || false,
-    examNumber: questionData.examNumber || 1,
+    examNumber: examNumber,
     choices: choices,
     correctAnswer: correctAnswer,
     explanation: questionData.explanation || solution,
@@ -93,7 +122,7 @@ export function mapQuestion(raw: any, index?: number): Question {
     }
   };
 
-  console.log('[MAPPER] Mapped question:', mappedQuestion);
+  console.log('[MAPPER] Mapped question with enhanced solution:', mappedQuestion);
   return mappedQuestion;
 }
 

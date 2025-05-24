@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Target, Navigation, ChevronDown, LogOut, Bell } from "lucide-react";
+import { Target, Navigation, ChevronDown, LogOut, Bell, Filter } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -22,6 +22,7 @@ interface PracticeHeaderProps {
   mode: string;
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
+  onFilterChange?: (filters: { chapter?: string; examNumber?: number }) => void;
 }
 
 export const PracticeHeader = ({ 
@@ -31,12 +32,16 @@ export const PracticeHeader = ({
   mode,
   sidebarOpen,
   setSidebarOpen,
+  onFilterChange
 }: PracticeHeaderProps) => {
   const navigate = useNavigate();
   const { user, profile, signOut } = useAuth();
   const [isNavDropdownOpen, setIsNavDropdownOpen] = useState(false);
   const [isChapterDropdownOpen, setIsChapterDropdownOpen] = useState(false);
-  const [hasNotifications, setHasNotifications] = useState(true); // Demo state to show notification dot
+  const [isExamDropdownOpen, setIsExamDropdownOpen] = useState(false);
+  const [hasNotifications, setHasNotifications] = useState(true);
+  const [selectedChapter, setSelectedChapter] = useState<string>("All Chapters");
+  const [selectedExam, setSelectedExam] = useState<number | string>("All Exams");
 
   const pages = [
     { name: "Home", path: "/" },
@@ -47,11 +52,20 @@ export const PracticeHeader = ({
   ];
 
   const chapters = [
+    "All Chapters",
     "Chapter 1: Introduction to Mathematics",
-    "Chapter 2: Basic Algebra",
+    "Chapter 2: Basic Algebra", 
     "Chapter 3: Geometry Fundamentals",
     "Chapter 4: Probability & Statistics",
     "Chapter 5: Advanced Functions"
+  ];
+
+  const exams = [
+    { id: "all", name: "All Exams" },
+    { id: 1, name: "Exam 1: Foundation" },
+    { id: 2, name: "Exam 2: Intermediate" },
+    { id: 3, name: "Exam 3: Advanced" },
+    { id: 4, name: "Exam 4: Final Assessment" }
   ];
 
   const handleNavigation = (path: string) => {
@@ -61,6 +75,30 @@ export const PracticeHeader = ({
   const handleLogout = async () => {
     await signOut();
     navigate("/signin");
+  };
+
+  const handleChapterFilter = (chapter: string) => {
+    setSelectedChapter(chapter);
+    setIsChapterDropdownOpen(false);
+    
+    if (onFilterChange) {
+      onFilterChange({
+        chapter: chapter === "All Chapters" ? undefined : chapter,
+        examNumber: selectedExam === "All Exams" ? undefined : Number(selectedExam)
+      });
+    }
+  };
+
+  const handleExamFilter = (examId: number | string) => {
+    setSelectedExam(examId);
+    setIsExamDropdownOpen(false);
+    
+    if (onFilterChange) {
+      onFilterChange({
+        chapter: selectedChapter === "All Chapters" ? undefined : selectedChapter,
+        examNumber: examId === "All Exams" ? undefined : Number(examId)
+      });
+    }
   };
 
   const getUserInitials = (): string => {
@@ -96,9 +134,7 @@ export const PracticeHeader = ({
             </ScrollArea>
           </DropdownMenuContent>
         </DropdownMenu>
-        <h1
-          className="text-xl font-bold text-gray-800 font-cursive"
-        >
+        <h1 className="text-xl font-bold text-gray-800 font-cursive">
           Academic Arc
         </h1>
       </div>
@@ -150,6 +186,34 @@ export const PracticeHeader = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
+        {/* Exam Filter */}
+        <DropdownMenu open={isExamDropdownOpen} onOpenChange={setIsExamDropdownOpen}>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="rounded-full bg-transparent hover:bg-gray-100 transition-colors"
+            >
+              <Filter className="h-4 w-4 mr-1.5 text-blue-500" />
+              {typeof selectedExam === 'string' ? selectedExam : `Exam ${selectedExam}`}
+              <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isExamDropdownOpen ? "rotate-180" : ""}`} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 bg-white border border-gray-200 shadow-lg rounded-lg p-2">
+            <ScrollArea className="h-[200px]">
+              {exams.map((exam) => (
+                <DropdownMenuItem 
+                  key={exam.id}
+                  className="cursor-pointer py-2 px-3 hover:bg-gray-50 rounded-md transition-colors"
+                  onClick={() => handleExamFilter(exam.id)}
+                >
+                  <span className="font-source-sans text-[#304455] text-sm">{exam.name}</span>
+                </DropdownMenuItem>
+              ))}
+            </ScrollArea>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         {/* Renamed Modules to Exams - ModulesDialog component is used */}
         <ModulesDialog />
 
@@ -162,7 +226,7 @@ export const PracticeHeader = ({
               className="rounded-full bg-transparent hover:bg-gray-100 transition-colors"
             >
               <Target className="h-4 w-4 mr-1.5 text-blue-500" />
-              Chapters
+              {selectedChapter === "All Chapters" ? "Chapters" : selectedChapter.split(":")[0]}
               <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isChapterDropdownOpen ? "rotate-180" : ""}`} />
             </Button>
           </DropdownMenuTrigger>
@@ -172,6 +236,7 @@ export const PracticeHeader = ({
                 <DropdownMenuItem 
                   key={index}
                   className="cursor-pointer py-2 px-3 hover:bg-gray-50 rounded-md transition-colors"
+                  onClick={() => handleChapterFilter(chapter)}
                 >
                   <span className="font-source-sans text-[#304455] text-sm">{chapter}</span>
                 </DropdownMenuItem>

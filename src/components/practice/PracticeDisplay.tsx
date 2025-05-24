@@ -5,7 +5,6 @@ import { Search, ToggleLeft, ToggleRight, Check, X } from "lucide-react";
 import { Question } from "@/types/QuestionInterface";
 import { Input } from "@/components/ui/input";
 
-// NEW: Allow navigation handlers as optional props
 interface PracticeDisplayProps {
   currentQuestion: Question | null;
   currentQuestionIndex: number;
@@ -45,7 +44,6 @@ const PracticeDisplay = ({
   colorSettings,
   activeTab,
 }: PracticeDisplayProps) => {
-  // If handlers aren't provided (using sample data), manage local state:
   const [localSelectedAnswer, setLocalSelectedAnswer] = useState<string | null>(null);
   const [localIsCorrect, setLocalIsCorrect] = useState<boolean | null>(null);
   const [showGoToInput, setShowGoToInput] = useState(false);
@@ -183,44 +181,49 @@ const PracticeDisplay = ({
             {/* Answer Choices or Fill-in Input */}
             {isMultipleChoice ? (
               <div className="space-y-4">
-                {(currentQuestion.choices || []).map((choice, index) => (
-                  <div
-                    key={index}
-                    onClick={() => checkAnswer(choice)}
-                    style={{
-                      borderColor:
-                        selectedAnswer === choice
-                          ? isCorrect
-                            ? '#10b981'
-                            : '#ef4444'
-                          : '#e5e7eb',
-                      backgroundColor:
-                        selectedAnswer === choice
-                          ? isCorrect
-                            ? '#ecfdf5'
-                            : '#fef2f2'
-                          : 'transparent',
-                      fontFamily: displaySettings.fontFamily,
-                      fontSize: `${displaySettings.fontSize}px`,
-                      color: colorSettings.content,
-                    }}
-                    className="p-4 border-1 cursor-pointer transition-colors bg-transparent shadow-md hover:shadow-large py-[10px] px-[16px] rounded-full"
-                  >
-                    <span className="mr-2 text-gray-500">{index + 1}.</span>
-                    <span className={selectedAnswer === choice ? "font-medium" : ""}>
-                      {choice}
-                    </span>
-                    {selectedAnswer === choice && (
-                      <span className="float-right">
-                        {isCorrect ? (
-                          <Check className="h-5 w-5 text-green-600" />
-                        ) : (
-                          <X className="h-5 w-5 text-red-600" />
-                        )}
+                {(currentQuestion.choices || []).map((choice, index) => {
+                  const choiceLetter = String.fromCharCode(65 + index); // A, B, C, D
+                  const isSelected = selectedAnswer === choiceLetter || selectedAnswer === choice;
+                  const isCorrectChoice = currentQuestion.correctAnswer === choiceLetter;
+                  
+                  return (
+                    <div
+                      key={index}
+                      onClick={() => checkAnswer(choiceLetter)}
+                      className={`p-4 border-1 cursor-pointer transition-all duration-300 bg-transparent shadow-md hover:shadow-large py-[10px] px-[16px] rounded-full relative overflow-hidden ${
+                        isSelected && isCorrect 
+                          ? 'border-green-500 bg-green-50 animate-pulse' 
+                          : isSelected && !isCorrect 
+                          ? 'border-red-500 bg-red-50' 
+                          : 'border-gray-300'
+                      }`}
+                      style={{
+                        fontFamily: displaySettings.fontFamily,
+                        fontSize: `${displaySettings.fontSize}px`,
+                        color: colorSettings.content,
+                      }}
+                    >
+                      {/* Green animation overlay for correct answer */}
+                      {isSelected && isCorrect && (
+                        <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 via-green-500/30 to-green-400/20 animate-ping rounded-full"></div>
+                      )}
+                      
+                      <span className="mr-2 text-gray-500 font-bold">{choiceLetter}.</span>
+                      <span className={isSelected ? "font-medium relative z-10" : "relative z-10"}>
+                        {choice}
                       </span>
-                    )}
-                  </div>
-                ))}
+                      {isSelected && (
+                        <span className="float-right relative z-10">
+                          {isCorrect ? (
+                            <Check className="h-5 w-5 text-green-600 animate-bounce" />
+                          ) : (
+                            <X className="h-5 w-5 text-red-600" />
+                          )}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <div className="space-y-4">
@@ -242,15 +245,15 @@ const PracticeDisplay = ({
                 </div>
                 {selectedAnswer && (
                   <div
-                    className={`p-4 mt-2 rounded-md ${
+                    className={`p-4 mt-2 rounded-md transition-all duration-300 ${
                       isCorrect
-                        ? 'bg-green-50 text-green-800 border border-green-200'
+                        ? 'bg-green-50 text-green-800 border border-green-200 animate-pulse'
                         : 'bg-red-50 text-red-800 border border-red-200'
                     }`}
                   >
                     {isCorrect ? (
                       <div className="flex items-center">
-                        <Check className="h-5 w-5 text-green-600 mr-2" />
+                        <Check className="h-5 w-5 text-green-600 mr-2 animate-bounce" />
                         <span>Correct answer!</span>
                       </div>
                     ) : (
@@ -272,23 +275,38 @@ const PracticeDisplay = ({
         <div className="w-[30%] min-w-[300px] sticky top-32">
           {activeTab === "solution" && (
             <div className="bg-gray-50 p-6 rounded-lg h-full overflow-y-auto">
-              <h3 className="text-lg font-semibold mb-4">Solution</h3>
-              <div className="mb-4">
-                <p className="text-gray-700 mb-4">{currentQuestion.solution}</p>
+              <h3 className="text-lg font-semibold mb-4 text-blue-600">Solution</h3>
+              
+              {/* Main Solution */}
+              <div className="mb-6 p-4 bg-white rounded-lg border-l-4 border-blue-500">
+                <h4 className="font-medium mb-2 text-gray-800">Explanation:</h4>
+                <p className="text-gray-700 leading-relaxed">{currentQuestion.solution}</p>
               </div>
               
+              {/* Solution Steps */}
               {currentQuestion.solutionSteps && currentQuestion.solutionSteps.length > 0 && (
-                <div>
-                  <h4 className="font-medium mb-2">Step-by-step solution:</h4>
-                  <ol className="list-decimal list-inside space-y-2">
+                <div className="mb-4">
+                  <h4 className="font-medium mb-3 text-gray-800">Step-by-step solution:</h4>
+                  <div className="space-y-3">
                     {currentQuestion.solutionSteps.map((step, index) => (
-                      <li key={index} className="text-sm text-gray-600">
-                        {typeof step === 'string' ? step : step}
-                      </li>
+                      <div key={index} className="flex items-start gap-3 p-3 bg-white rounded-lg border">
+                        <div className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                          {index + 1}
+                        </div>
+                        <div className="text-sm text-gray-700 leading-relaxed">
+                          {typeof step === 'string' ? step : String(step)}
+                        </div>
+                      </div>
                     ))}
-                  </ol>
+                  </div>
                 </div>
               )}
+
+              {/* Correct Answer Display */}
+              <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <h4 className="font-medium text-green-800 mb-1">Correct Answer:</h4>
+                <p className="text-green-700 font-bold text-lg">{currentQuestion.correctAnswer}</p>
+              </div>
             </div>
           )}
 
@@ -296,10 +314,10 @@ const PracticeDisplay = ({
             <div className="bg-gray-50 p-6 rounded-lg h-full overflow-y-auto">
               <h3 className="text-lg font-semibold mb-4">Quote</h3>
               {currentQuestion.quote ? (
-                <blockquote className="text-lg italic text-gray-700">
+                <blockquote className="text-lg italic text-gray-700 border-l-4 border-blue-500 pl-4">
                   "{currentQuestion.quote.text}"
                   {currentQuestion.quote.source && (
-                    <footer className="mt-2 text-gray-500">- {currentQuestion.quote.source}</footer>
+                    <footer className="mt-2 text-gray-500 text-sm">- {currentQuestion.quote.source}</footer>
                   )}
                 </blockquote>
               ) : (
@@ -336,6 +354,27 @@ const PracticeDisplay = ({
           </div>
         </div>
       )}
+
+      {/* Green animation styles */}
+      <style>
+        {`
+          @keyframes green-pulse {
+            0% {
+              box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+            70% {
+              box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+            }
+            100% {
+              box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
+          }
+          
+          .animate-green-pulse {
+            animation: green-pulse 2s infinite;
+          }
+        `}
+      </style>
     </>
   );
 };
