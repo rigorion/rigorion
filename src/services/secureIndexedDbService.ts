@@ -38,12 +38,9 @@ export class SecureAppDB extends Dexie {
     })
 
     // 2) Apply encryption middleware AFTER schema definition
+    // Fix the encryption options structure
     const encryptionOptions = {
-      functionData: {
-        type: cryptoOptions.ENCRYPT_LIST,
-        fields: ['data'],
-        salt: 'lovable-app-salt-2025'
-      }
+      functionData: cryptoOptions.NON_INDEXED_FIELDS
     }
 
     // Provide a proper onKeyChange callback function
@@ -53,7 +50,7 @@ export class SecureAppDB extends Dexie {
       sessionStorage.setItem('secure_storage_active', 'true')
     }
 
-    // Apply encryption middleware with proper callback
+    // Apply encryption middleware with proper callback and simplified options
     applyEncryptionMiddleware(
       this,
       getEncryptionKey(),
