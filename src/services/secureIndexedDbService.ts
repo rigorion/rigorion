@@ -1,3 +1,4 @@
+
 import Dexie from 'dexie'
 import { applyEncryptionMiddleware, cryptoOptions } from 'dexie-encrypted'
 import { FunctionData } from './dexieService'
@@ -38,9 +39,12 @@ export class SecureAppDB extends Dexie {
     })
 
     // 2) Apply encryption middleware AFTER schema definition
-    // Fix the encryption options structure
+    // Configure encryption for non-indexed fields
     const encryptionOptions = {
-      functionData: cryptoOptions.NON_INDEXED_FIELDS
+      functionData: {
+        type: cryptoOptions.NON_INDEXED_FIELDS,
+        fields: ['data', 'integrity']
+      }
     }
 
     // Provide a proper onKeyChange callback function
@@ -50,7 +54,7 @@ export class SecureAppDB extends Dexie {
       sessionStorage.setItem('secure_storage_active', 'true')
     }
 
-    // Apply encryption middleware with proper callback and simplified options
+    // Apply encryption middleware with proper callback and options
     applyEncryptionMiddleware(
       this,
       getEncryptionKey(),
