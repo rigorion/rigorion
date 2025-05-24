@@ -42,23 +42,32 @@ const Practice = () => {
       
       {/* Main Content */}
       {useSecureData ? (
-        <QuestionsProvider>
-          <SecureQuestionProvider>
-            {({
-              questions,
-              currentQuestion,
-              currentIndex,
-              handleNext,
-              handlePrevious,
-              handleJumpToQuestion,
-              isLoading,
-              error,
-              refreshQuestions,
-            }) => (
-              <PracticeContent questions={questions} />
-            )}
-          </SecureQuestionProvider>
-        </QuestionsProvider>
+      <SecureQuestionProvider>
+  {({
+    questions,
+    currentQuestion,
+    currentIndex,
+    handleNext,
+    handlePrevious,
+    handleJumpToQuestion,
+    isLoading,
+    error,
+    refreshQuestions,
+  }) => (
+    <PracticeContent
+      questions={questions}
+      currentQuestion={currentQuestion}
+      currentIndex={currentIndex}
+      onNext={handleNext}
+      onPrev={handlePrevious}
+      onJumpTo={handleJumpToQuestion}
+      isLoading={isLoading}
+      error={error}
+      refreshQuestions={refreshQuestions}
+    />
+  )}
+</SecureQuestionProvider>
+
       ) : (
         <PracticeContent questions={sampleQuestions} />
       )}
