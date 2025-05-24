@@ -16,8 +16,26 @@ let encryptionKey: Uint8Array | null = null
 
 function getEncryptionKey(): Uint8Array {
   if (!encryptionKey) {
-    // In production you might derive this via PBKDF2 or fetch it securely
+    // Try to get a persistent key from localStorage first
+    const storedKey = localStorage.getItem('secure_db_key')
+    if (storedKey) {
+      try {
+        // Convert hex string back to Uint8Array
+        const keyArray = new Uint8Array(storedKey.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16)))
+        encryptionKey = keyArray
+        sessionStorage.setItem('secure_storage_active', 'true')
+        return encryptionKey
+      } catch (e) {
+        console.warn('Failed to restore encryption key, generating new one')
+        localStorage.removeItem('secure_db_key')
+      }
+    }
+    
+    // Generate new key and store it persistently
     encryptionKey = crypto.getRandomValues(new Uint8Array(32))
+    // Store as hex string in localStorage for persistence
+    const hexKey = Array.from(encryptionKey).map(b => b.toString(16).padStart(2, '0')).join('')
+    localStorage.setItem('secure_db_key', hexKey)
     sessionStorage.setItem('secure_storage_active', 'true')
   }
   return encryptionKey
@@ -39,18 +57,14 @@ export class SecureAppDB extends Dexie {
     })
 
     // 2) Apply encryption middleware AFTER schema definition
-    // Configure encryption for non-indexed fields
+    // Use the correct structure for dexie-encrypted
     const encryptionOptions = {
-      functionData: {
-        type: cryptoOptions.NON_INDEXED_FIELDS,
-        fields: ['data', 'integrity']
-      }
+      functionData: cryptoOptions.NON_INDEXED_FIELDS
     }
 
     // Provide a proper onKeyChange callback function
     const onKeyChange = () => {
       console.log('Encryption key changed')
-      // Clear any cached data when key changes
       sessionStorage.setItem('secure_storage_active', 'true')
     }
 
@@ -115,6 +129,14 @@ export async function getSecureLatestFunctionData(
     return record
   } catch (error) {
     console.error('Error accessing secure data:', error)
+    
+    // Handle decryption errors specifically
+    if (error.name === 'DatabaseClosedError' && error.message?.includes('decrypt')) {
+      console.warn('Decryption failed, clearing corrupt data')
+      await handleDecryptionError()
+      return undefined
+    }
+    
     return undefined
   }
 }
@@ -141,7 +163,30 @@ export async function getAllSecureFunctionData(
     )
   } catch (error) {
     console.error('Error accessing secure data collection:', error)
+    
+    // Handle decryption errors specifically
+    if (error.name === 'DatabaseClosedError' && error.message?.includes('decrypt')) {
+      console.warn('Decryption failed, clearing corrupt data')
+      await handleDecryptionError()
+      return []
+    }
+    
     return []
+  }
+}
+
+async function handleDecryptionError(): Promise<void> {
+  try {
+    // Clear the database and reset the key
+    await clearAllSecureData()
+    
+    // Clear the stored key to force regeneration
+    localStorage.removeItem('secure_db_key')
+    encryptionKey = null
+    
+    console.log('Cleared corrupt encrypted data and reset encryption key')
+  } catch (error) {
+    console.error('Error handling decryption failure:', error)
   }
 }
 
@@ -166,14 +211,20 @@ export function isSecureStorageActive(): boolean {
 }
 
 export function regenerateEncryptionKey(): void {
-  encryptionKey = crypto.getRandomValues(new Uint8Array(32))
-  sessionStorage.setItem('secure_storage_active', 'true')
+  // Clear old key
+  localStorage.removeItem('secure_db_key')
+  encryptionKey = null
+  
+  // Generate new key (will be stored automatically by getEncryptionKey)
+  getEncryptionKey()
+  
   // Update version timestamp to reflect the key change
   localStorage.setItem(STORAGE_VERSION_KEY, Date.now().toString())
 }
 
 export function clearEncryptionKey(): void {
   encryptionKey = null
+  localStorage.removeItem('secure_db_key')
   sessionStorage.removeItem('secure_storage_active')
 }
 
