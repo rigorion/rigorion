@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Search, ToggleLeft, ToggleRight, Check, X } from "lucide-react";
 import { Question } from "@/types/QuestionInterface";
-import CommentSection from "./CommentSection";
 import { Input } from "@/components/ui/input";
 
 // NEW: Allow navigation handlers as optional props
@@ -303,10 +302,6 @@ const PracticeDisplay = ({
           </div>
         </div>
       )}
-      {/* Floating Comment Button */}
-      <div className="fixed bottom-20 right-6 z-50">
-        <CommentSection />
-      </div>
     </>
   );
 };

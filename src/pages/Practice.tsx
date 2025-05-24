@@ -1,8 +1,11 @@
+
 import SecureProgressDataButton from "@/components/progress/SecureProgressDataButton";
 import PracticeContent from "@/components/practice/PracticeContent";
 import SecureQuestionProvider from "@/components/practice/SecureQuestionProvider";
+import AIAnalyzer from "@/components/ai/AIAnalyzer";
+import CommentSection from "@/components/practice/CommentSection";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
-import { Lock, RefreshCw } from "lucide-react";
+import { Lock } from "lucide-react";
 import useSecureQuestions from "@/hooks/useSecureQuestions";
 
 const Practice = () => {
@@ -48,17 +51,35 @@ const Practice = () => {
             error,
             refreshQuestions,
           }) => (
-            <PracticeContent
-              questions={questions}
-              currentQuestion={currentQuestion}
-              currentIndex={currentIndex}
-              onNext={handleNext}
-              onPrev={handlePrevious}
-              onJumpTo={handleJumpToQuestion}
-              isLoading={isLoading}
-              error={error}
-              refreshQuestions={refreshQuestions}
-            />
+            <>
+              <PracticeContent
+                questions={questions}
+                currentQuestion={currentQuestion}
+                currentIndex={currentIndex}
+                onNext={handleNext}
+                onPrev={handlePrevious}
+                onJumpTo={handleJumpToQuestion}
+                isLoading={isLoading}
+                error={error}
+                refreshQuestions={refreshQuestions}
+              />
+              
+              {/* AI Analyzer positioned at bottom right */}
+              <AIAnalyzer 
+                context="practice"
+                data={{
+                  currentQuestion,
+                  currentIndex,
+                  totalQuestions: questions.length,
+                  questions: questions.slice(0, 3) // Limited data for context
+                }}
+              />
+              
+              {/* Comment Section positioned at bottom left */}
+              <div className="fixed bottom-6 left-6 z-40">
+                <CommentSection />
+              </div>
+            </>
           )}
         </SecureQuestionProvider>
       </CardContent>
