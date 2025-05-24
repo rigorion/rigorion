@@ -9,7 +9,7 @@ interface CountdownTimerProps {
   mode?: "timer" | "level" | "manual" | "pomodoro" | "exam";
   className?: string;
   onUpdate?: (formattedTime: string) => void;
-  onAutoNext?: () => void; // New prop for auto navigation
+  onAutoNext?: () => void;
 }
 
 const CountdownTimer = ({ 
@@ -57,7 +57,7 @@ const CountdownTimer = ({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isActive, isPaused, onComplete, durationInSeconds, mode, onAutoNext]);
+  }, [isActive, isPaused, onComplete, mode, onAutoNext]);
 
   // Format time as mm:ss
   const formatTime = (seconds: number) => {
@@ -101,7 +101,6 @@ const CountdownTimer = ({
         return {
           text: isCritical ? "text-blue-600" : "text-blue-500",
           glow: "0 0 8px rgba(59,130,246,0.5)",
-          
         };
     }
   };
