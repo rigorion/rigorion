@@ -46,7 +46,8 @@ export default function PracticeContent({
   const questionsContext = useQuestions();
   const isUsingContext = !propQuestions;
   
-  const questions = propQuestions || questionsContext.questions;
+const questions = propQuestions !== undefined ? propQuestions : questionsContext.questions;
+console.log("PracticeContent: questions in use", questions);
   const isLoading = propIsLoading !== undefined ? propIsLoading : (isUsingContext ? questionsContext.isLoading : false);
   const error = propError !== undefined ? propError : (isUsingContext ? questionsContext.error : null);
   const refreshQuestions = propRefreshQuestions || (isUsingContext ? questionsContext.refreshQuestions : () => {});
