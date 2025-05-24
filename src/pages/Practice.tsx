@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Lock, Loader2, RefreshCw, AlertTriangle, KeyRound } from "lucide-react";
+import { Lock, Loader2, RefreshCw, AlertTriangle, KeyRound, Filter } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import {
   storeSecureFunctionData,
@@ -14,18 +14,68 @@ import {
 import PracticeContent from "@/components/practice/PracticeContent";
 import AIAnalyzer from "@/components/ai/AIAnalyzer";
 import CommentSection from "@/components/practice/CommentSection";
-import { mapQuestions, validateQuestion } from "@/utils/mapQuestion";
+import { mapQuestions, validateQuestion, filterQuestions, getUniqueExams, getUniqueChapters } from "@/utils/mapQuestion";
 import { Question } from "@/types/QuestionInterface";
+import { callEdgeFunction } from "@/services/edgeFunctionService";
 
 const ENDPOINT = "my-function"; // Customize this to your questions endpoint
 
 const Practice = () => {
   const { toast } = useToast();
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [filteredQuestions, setFilteredQuestions] = useState<Question[]>([]);
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
   const [loading, setLoading] = useState(false);
   const [isStorageValid, setIsStorageValid] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Filter states
+  const [selectedExam, setSelectedExam] = useState<number | "all">("all");
+  const [selectedChapter, setSelectedChapter] = useState<string | "all">("all");
+  const [showFilters, setShowFilters] = useState(false);
+  
+  // Progress data
+  const [progressData, setProgressData] = useState<any>(null);
+  const [progressLoading, setProgressLoading] = useState(false);
+
+  // Fetch progress data
+  const fetchProgressData = async () => {
+    setProgressLoading(true);
+    try {
+      const { data, error } = await callEdgeFunction('get-user-progress');
+      
+      if (!error && data && Array.isArray(data) && data.length > 0) {
+        setProgressData(data[0]);
+        console.log('[PRACTICE] Progress data loaded:', data[0]);
+        toast({
+          title: "Progress Data Loaded",
+          description: "User progress information updated successfully.",
+        });
+      } else {
+        console.warn('[PRACTICE] No progress data available');
+      }
+    } catch (e: any) {
+      console.error('[PRACTICE] Progress fetch error:', e);
+      toast({
+        title: "Progress Error",
+        description: "Could not load progress data.",
+        variant: "destructive",
+      });
+    } finally {
+      setProgressLoading(false);
+    }
+  };
+
+  // Filter questions when filters change
+  useEffect(() => {
+    const filtered = filterQuestions(questions, selectedExam, selectedChapter);
+    setFilteredQuestions(filtered);
+    console.log('[PRACTICE] Filtered questions:', filtered.length, 'of', questions.length);
+  }, [questions, selectedExam, selectedChapter]);
+
+  // Get unique values for filters
+  const availableExams = getUniqueExams(questions);
+  const availableChapters = getUniqueChapters(questions);
 
   // Fetch from API and store securely
   const fetchAndStoreQuestions = async () => {
@@ -131,6 +181,7 @@ const Practice = () => {
   const handleClearStorage = async () => {
     await clearAllSecureData();
     setQuestions([]);
+    setFilteredQuestions([]);
     setLastFetched(null);
     setIsStorageValid(true);
     toast({
@@ -143,6 +194,7 @@ const Practice = () => {
   useEffect(() => {
     setIsStorageValid(isSecureStorageValid());
     loadLatestQuestions();
+    fetchProgressData();
   }, []);
 
   return (
@@ -153,12 +205,41 @@ const Practice = () => {
             <CardTitle className="flex items-center gap-2">
               <Lock className="h-5 w-5 text-green-600" />
               Practice Questions
+              {progressData && (
+                <span className="text-sm text-gray-500 ml-2">
+                  Score: {progressData.avg_score}% | Streak: {progressData.streak_days} days
+                </span>
+              )}
             </CardTitle>
             <CardDescription>
               Questions are securely encrypted and mapped to ensure consistent UI display.
+              {filteredQuestions.length !== questions.length && (
+                <span className="text-blue-600 font-medium ml-2">
+                  Showing {filteredQuestions.length} of {questions.length} questions
+                </span>
+              )}
             </CardDescription>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            <Button
+              size="sm"
+              onClick={() => setShowFilters(!showFilters)}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Filter className="h-4 w-4" />
+              Filters
+            </Button>
+            <Button
+              size="sm"
+              onClick={fetchProgressData}
+              disabled={progressLoading}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              {progressLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              Progress
+            </Button>
             <Button
               size="sm"
               onClick={fetchAndStoreQuestions}
@@ -186,10 +267,55 @@ const Practice = () => {
               variant="destructive"
             >
               <KeyRound className="h-4 w-4" />
-              Clear Secure Cache
+              Clear Cache
             </Button>
           </div>
         </div>
+
+        {/* Filter Controls */}
+        {showFilters && (
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium">Exam:</label>
+                <select 
+                  value={selectedExam} 
+                  onChange={(e) => setSelectedExam(e.target.value === "all" ? "all" : parseInt(e.target.value))}
+                  className="px-3 py-1 border rounded-md text-sm"
+                >
+                  <option value="all">All Exams</option>
+                  {availableExams.map(exam => (
+                    <option key={exam} value={exam}>Exam {exam}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium">Chapter:</label>
+                <select 
+                  value={selectedChapter} 
+                  onChange={(e) => setSelectedChapter(e.target.value)}
+                  className="px-3 py-1 border rounded-md text-sm"
+                >
+                  <option value="all">All Chapters</option>
+                  {availableChapters.map(chapter => (
+                    <option key={chapter} value={chapter}>{chapter}</option>
+                  ))}
+                </select>
+              </div>
+              <Button
+                size="sm"
+                onClick={() => {
+                  setSelectedExam("all");
+                  setSelectedChapter("all");
+                }}
+                variant="outline"
+              >
+                Clear Filters
+              </Button>
+            </div>
+          </div>
+        )}
+
         <p className="text-xs text-green-600 mt-2 flex items-center">
           <Lock className="h-3 w-3 inline mr-1" />
           Secure mode: Questions are mapped and validated for consistent display.
@@ -212,30 +338,34 @@ const Practice = () => {
             <div className="text-red-600 mb-2">{error}</div>
             <Button onClick={fetchAndStoreQuestions}>Retry</Button>
           </div>
-        ) : questions && questions.length > 0 ? (
+        ) : filteredQuestions && filteredQuestions.length > 0 ? (
           <>
-            <PracticeContent questions={questions} />
+            <PracticeContent questions={filteredQuestions} />
             <AIAnalyzer
               context="practice"
               data={{
-                currentQuestion: questions[0],
+                currentQuestion: filteredQuestions[0],
                 currentIndex: 0,
-                totalQuestions: questions.length,
-                questions: questions.slice(0, 3),
+                totalQuestions: filteredQuestions.length,
+                questions: filteredQuestions.slice(0, 3),
+                progressData: progressData,
               }}
             />
-            <div className="fixed bottom-6 left-6 z-40">
-              <CommentSection />
-            </div>
+            <CommentSection />
           </>
         ) : (
           <div className="flex justify-center items-center h-64 text-gray-400">
-            No secure questions available. Please fetch data.
+            No questions match the current filters. Please adjust filters or fetch new data.
           </div>
         )}
         {lastFetched && (
           <div className="text-xs text-gray-500 p-2">
             Last updated: {lastFetched.toLocaleTimeString()}
+            {progressData && (
+              <span className="ml-4">
+                Progress: {progressData.total_attempted}/{progressData.total_questions} questions
+              </span>
+            )}
           </div>
         )}
       </CardContent>

@@ -204,7 +204,13 @@ const PracticeDisplay = ({
                       fontSize: `${displaySettings.fontSize}px`,
                       color: colorSettings.content,
                     }}
-                    className="p-4 border-1 cursor-pointer transition-colors bg-transparent shadow-md hover:shadow-large py-[10px] px-[16px] rounded-full"
+                    className={`p-4 border-1 cursor-pointer transition-all bg-transparent shadow-md hover:shadow-large py-[10px] px-[16px] rounded-full ${
+                      selectedAnswer === choice && isCorrect
+                        ? 'animate-pulse border-green-500 bg-green-50 shadow-[0_0_20px_rgba(34,197,94,0.3)]'
+                        : selectedAnswer === choice && !isCorrect
+                        ? 'animate-pulse border-red-500 bg-red-50'
+                        : ''
+                    }`}
                   >
                     <span className="mr-2 text-gray-500">{index + 1}.</span>
                     <span className={selectedAnswer === choice ? "font-medium" : ""}>
@@ -213,7 +219,7 @@ const PracticeDisplay = ({
                     {selectedAnswer === choice && (
                       <span className="float-right">
                         {isCorrect ? (
-                          <Check className="h-5 w-5 text-green-600" />
+                          <Check className="h-5 w-5 text-green-600 animate-bounce" />
                         ) : (
                           <X className="h-5 w-5 text-red-600" />
                         )}
@@ -242,15 +248,15 @@ const PracticeDisplay = ({
                 </div>
                 {selectedAnswer && (
                   <div
-                    className={`p-4 mt-2 rounded-md ${
+                    className={`p-4 mt-2 rounded-md transition-all ${
                       isCorrect
-                        ? 'bg-green-50 text-green-800 border border-green-200'
+                        ? 'bg-green-50 text-green-800 border border-green-200 animate-pulse shadow-[0_0_20px_rgba(34,197,94,0.3)]'
                         : 'bg-red-50 text-red-800 border border-red-200'
                     }`}
                   >
                     {isCorrect ? (
                       <div className="flex items-center">
-                        <Check className="h-5 w-5 text-green-600 mr-2" />
+                        <Check className="h-5 w-5 text-green-600 mr-2 animate-bounce" />
                         <span>Correct answer!</span>
                       </div>
                     ) : (
@@ -272,21 +278,52 @@ const PracticeDisplay = ({
         <div className="w-[30%] min-w-[300px] sticky top-32">
           {activeTab === "solution" && (
             <div className="bg-gray-50 p-6 rounded-lg h-full overflow-y-auto">
-              <h3 className="text-lg font-semibold mb-4">Solution</h3>
-              <div className="mb-4">
-                <p className="text-gray-700 mb-4">{currentQuestion.solution}</p>
+              <h3 className="text-lg font-semibold mb-4 text-gray-800">Solution</h3>
+              
+              {/* Main solution content */}
+              <div className="mb-6">
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                  <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                    {currentQuestion.solution}
+                  </p>
+                </div>
               </div>
               
+              {/* Step-by-step solution */}
               {currentQuestion.solutionSteps && currentQuestion.solutionSteps.length > 0 && (
-                <div>
-                  <h4 className="font-medium mb-2">Step-by-step solution:</h4>
-                  <ol className="list-decimal list-inside space-y-2">
+                <div className="mb-4">
+                  <h4 className="font-semibold mb-3 text-gray-800 flex items-center">
+                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-sm mr-2">
+                      Steps
+                    </span>
+                    Step-by-step solution
+                  </h4>
+                  <div className="space-y-3">
                     {currentQuestion.solutionSteps.map((step, index) => (
-                      <li key={index} className="text-sm text-gray-600">
-                        {typeof step === 'string' ? step : step}
-                      </li>
+                      <div key={index} className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                        <div className="flex items-start gap-3">
+                          <span className="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full min-w-[24px] text-center">
+                            {index + 1}
+                          </span>
+                          <p className="text-sm text-gray-700 leading-relaxed flex-1">
+                            {typeof step === 'string' ? step : String(step)}
+                          </p>
+                        </div>
+                      </div>
                     ))}
-                  </ol>
+                  </div>
+                </div>
+              )}
+
+              {/* Additional explanation if available */}
+              {currentQuestion.explanation && currentQuestion.explanation !== currentQuestion.solution && (
+                <div className="mt-4">
+                  <h4 className="font-semibold mb-2 text-gray-800">Additional Explanation</h4>
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <p className="text-blue-800 text-sm leading-relaxed">
+                      {currentQuestion.explanation}
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
@@ -296,14 +333,20 @@ const PracticeDisplay = ({
             <div className="bg-gray-50 p-6 rounded-lg h-full overflow-y-auto">
               <h3 className="text-lg font-semibold mb-4">Quote</h3>
               {currentQuestion.quote ? (
-                <blockquote className="text-lg italic text-gray-700">
-                  "{currentQuestion.quote.text}"
-                  {currentQuestion.quote.source && (
-                    <footer className="mt-2 text-gray-500">- {currentQuestion.quote.source}</footer>
-                  )}
-                </blockquote>
+                <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                  <blockquote className="text-lg italic text-gray-700 leading-relaxed">
+                    "{currentQuestion.quote.text}"
+                    {currentQuestion.quote.source && (
+                      <footer className="mt-4 text-gray-500 text-base not-italic font-medium">
+                        — {currentQuestion.quote.source}
+                      </footer>
+                    )}
+                  </blockquote>
+                </div>
               ) : (
-                <p className="text-gray-500 italic">No quote available for this question.</p>
+                <div className="bg-white p-6 rounded-lg border border-gray-200">
+                  <p className="text-gray-500 italic text-center">No quote available for this question.</p>
+                </div>
               )}
             </div>
           )}
@@ -336,6 +379,19 @@ const PracticeDisplay = ({
           </div>
         </div>
       )}
+
+      {/* Add CSS for animations */}
+      <style jsx>{`
+        @keyframes correct-glow {
+          0% { box-shadow: 0 0 5px rgba(34,197,94,0.3); }
+          50% { box-shadow: 0 0 20px rgba(34,197,94,0.8), 0 0 30px rgba(34,197,94,0.4); }
+          100% { box-shadow: 0 0 5px rgba(34,197,94,0.3); }
+        }
+        
+        .animate-correct {
+          animation: correct-glow 1s ease-in-out;
+        }
+      `}</style>
     </>
   );
 };

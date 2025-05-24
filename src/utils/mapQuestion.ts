@@ -38,14 +38,26 @@ export function mapQuestion(raw: any, index?: number): Question {
     choices = ["Option A", "Option B", "Option C", "Option D"];
   }
 
-  // Map correct answer
-  const correctAnswer = questionData.correctAnswer || 
-                       questionData.correct_answer || 
-                       questionData.answer || 
-                       choices[0] || 
-                       "";
+  // Map correct answer - handle character fields like "A", "B", "C", "D"
+  let correctAnswer = questionData.correctAnswer || 
+                     questionData.correct_answer || 
+                     questionData.answer || 
+                     "";
 
-  // Map solution/explanation
+  // If the correct answer is a character (A, B, C, D), map it to the actual choice text
+  if (correctAnswer && correctAnswer.length === 1 && /[A-D]/i.test(correctAnswer)) {
+    const answerIndex = correctAnswer.toUpperCase().charCodeAt(0) - 65; // A=0, B=1, C=2, D=3
+    if (answerIndex >= 0 && answerIndex < choices.length) {
+      correctAnswer = choices[answerIndex];
+    }
+  }
+
+  // Fallback to first choice if no correct answer found
+  if (!correctAnswer && choices.length > 0) {
+    correctAnswer = choices[0];
+  }
+
+  // Map solution/explanation with proper formatting
   const solution = questionData.solution || 
                   questionData.explanation || 
                   questionData.answer_explanation ||
@@ -60,15 +72,40 @@ export function mapQuestion(raw: any, index?: number): Question {
   // Map other fields
   const hint = questionData.hint || 
               questionData.help_text || 
-              "Think about the problem carefully";
+              "Think about the problem step by step";
 
-  const solutionSteps = Array.isArray(questionData.solutionSteps) 
-    ? questionData.solutionSteps 
-    : Array.isArray(questionData.solution_steps)
-    ? questionData.solution_steps
-    : Array.isArray(questionData.steps)
-    ? questionData.steps
-    : [solution];
+  // Map solution steps - handle various formats
+  let solutionSteps: string[] = [];
+  if (Array.isArray(questionData.solutionSteps)) {
+    solutionSteps = questionData.solutionSteps.map((step: any) => 
+      typeof step === 'string' ? step : String(step)
+    );
+  } else if (Array.isArray(questionData.solution_steps)) {
+    solutionSteps = questionData.solution_steps.map((step: any) => 
+      typeof step === 'string' ? step : String(step)
+    );
+  } else if (Array.isArray(questionData.steps)) {
+    solutionSteps = questionData.steps.map((step: any) => 
+      typeof step === 'string' ? step : String(step)
+    );
+  } else if (solution && solution !== "Solution not available") {
+    // Split solution into steps if no explicit steps provided
+    solutionSteps = solution.split('\n').filter((step: string) => step.trim().length > 0);
+  } else {
+    solutionSteps = ["Follow the standard approach for this type of problem"];
+  }
+
+  // Map chapter and exam fields for filtering
+  const chapter = questionData.chapter || 
+                 questionData.chapter_name ||
+                 questionData.unit ||
+                 "General";
+
+  const examNumber = questionData.examNumber || 
+                    questionData.exam_number ||
+                    questionData.exam ||
+                    questionData.test_number ||
+                    1;
 
   // Create the normalized question object
   const mappedQuestion: Question = {
@@ -76,9 +113,9 @@ export function mapQuestion(raw: any, index?: number): Question {
     content: content,
     solution: solution,
     difficulty: difficulty,
-    chapter: questionData.chapter || "Secure Chapter",
+    chapter: chapter,
     bookmarked: questionData.bookmarked || false,
-    examNumber: questionData.examNumber || 1,
+    examNumber: examNumber,
     choices: choices,
     correctAnswer: correctAnswer,
     explanation: questionData.explanation || solution,
@@ -116,6 +153,7 @@ export function validateQuestion(question: Question): boolean {
   const hasContent = typeof question.content === 'string' && question.content.length > 0;
   const hasChoices = Array.isArray(question.choices) && question.choices.length > 0;
   const hasCorrectAnswer = typeof question.correctAnswer === 'string' && question.correctAnswer.length > 0;
+  const hasSolution = typeof question.solution === 'string' && question.solution.length > 0;
   
   if (!hasContent) {
     console.error('[MAPPER] Question missing content:', question);
@@ -126,6 +164,40 @@ export function validateQuestion(question: Question): boolean {
   if (!hasCorrectAnswer) {
     console.error('[MAPPER] Question missing correct answer:', question);
   }
+  if (!hasSolution) {
+    console.warn('[MAPPER] Question missing solution:', question);
+  }
   
   return hasContent && hasChoices && hasCorrectAnswer;
+}
+
+/**
+ * Filters questions by exam and chapter
+ */
+export function filterQuestions(
+  questions: Question[], 
+  examFilter?: number | "all", 
+  chapterFilter?: string | "all"
+): Question[] {
+  return questions.filter(question => {
+    const examMatch = examFilter === "all" || examFilter === undefined || question.examNumber === examFilter;
+    const chapterMatch = chapterFilter === "all" || chapterFilter === undefined || question.chapter === chapterFilter;
+    return examMatch && chapterMatch;
+  });
+}
+
+/**
+ * Get unique exams from questions array
+ */
+export function getUniqueExams(questions: Question[]): number[] {
+  const exams = questions.map(q => q.examNumber).filter(exam => exam !== undefined);
+  return [...new Set(exams)].sort((a, b) => a - b);
+}
+
+/**
+ * Get unique chapters from questions array
+ */
+export function getUniqueChapters(questions: Question[]): string[] {
+  const chapters = questions.map(q => q.chapter).filter(chapter => chapter !== undefined);
+  return [...new Set(chapters)].sort();
 }
