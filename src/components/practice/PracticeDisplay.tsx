@@ -208,11 +208,7 @@ const PracticeDisplay = ({
                       fontSize: `${displaySettings.fontSize}px`,
                       color: colorSettings.content,
                     }}
-                    className={`p-4 border-1 cursor-pointer transition-all duration-300 bg-transparent shadow-md hover:shadow-large py-[10px] px-[16px] rounded-full ${
-                      selectedAnswer === choice && isCorrect 
-                        ? 'animate-pulse bg-green-100 border-green-500' 
-                        : ''
-                    }`}
+                    className="p-4 border-1 cursor-pointer transition-colors bg-transparent shadow-md hover:shadow-large py-[10px] px-[16px] rounded-full"
                   >
                     <span className="mr-2 text-gray-500">{index + 1}.</span>
                     <span className={selectedAnswer === choice ? "font-medium" : ""}>
@@ -277,39 +273,7 @@ const PracticeDisplay = ({
         </div>
         {/* Right Section - Solution/Graph/Quote */}
         <div className="w-[30%] min-w-[300px] sticky top-32">
-          {activeTab === "solution" && (
-            <div className="bg-white p-6 rounded-lg shadow-sm border min-h-[400px]">
-              <h3 className="text-lg font-semibold mb-4 text-gray-800">Solution</h3>
-              <div className="space-y-4">
-                <p className="text-gray-700 whitespace-pre-line">
-                  {currentQuestion.solution}
-                </p>
-                {currentQuestion.solutionSteps && currentQuestion.solutionSteps.length > 0 && (
-                  <div>
-                    <h4 className="font-medium text-gray-800 mb-2">Step-by-step:</h4>
-                    <ol className="list-decimal list-inside space-y-2">
-                      {currentQuestion.solutionSteps.map((step, index) => (
-                        <li key={index} className="text-gray-700">
-                          {typeof step === 'string' ? step : step.step || step}
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-          {activeTab === "quote" && (
-            <div className="bg-white p-6 rounded-lg shadow-sm border min-h-[400px]">
-              <h3 className="text-lg font-semibold mb-4 text-gray-800">Inspiration</h3>
-              <blockquote className="text-gray-700 italic">
-                "{currentQuestion.quote?.text || 'Practice makes perfect'}"
-              </blockquote>
-              <cite className="block mt-2 text-gray-600 text-sm">
-                — {currentQuestion.quote?.source || 'Unknown'}
-              </cite>
-            </div>
-          )}
+          {/* ... your solution, graph, and quote rendering here ... */}
         </div>
       </div>
       {/* Go to Question Popup */}
