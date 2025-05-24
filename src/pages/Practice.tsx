@@ -7,6 +7,7 @@ import useSecureQuestions from "@/hooks/useSecureQuestions";
 import SecureProgressDataButton from "@/components/progress/SecureProgressDataButton";
 import { QuestionsProvider } from "@/contexts/QuestionsContext";
 import PracticeContent from "@/components/practice/PracticeContent";
+import SecureQuestionProvider from "@/components/practice/SecureQuestionProvider";
 
 const Practice = () => {
   const [useSecureData, setUseSecureData] = useState(false);
@@ -40,36 +41,27 @@ const Practice = () => {
       </div>
       
       {/* Main Content */}
-     {useSecureData ? (
-  <SecureQuestionProvider>
-    {({
-      questions,
-      currentQuestion,
-      currentIndex,
-      handleNext,
-      handlePrevious,
-      handleJumpToQuestion,
-      isLoading,
-      error,
-      refreshQuestions,
-    }) => (
-      <PracticeContent
-        questions={questions}
-        currentQuestion={currentQuestion}
-        currentIndex={currentIndex}
-        onNext={handleNext}
-        onPrev={handlePrevious}
-        onJumpTo={handleJumpToQuestion}
-        isLoading={isLoading}
-        error={error}
-        refreshQuestions={refreshQuestions}
-      />
-    )}
-  </SecureQuestionProvider>
-) : (
-  <PracticeContent questions={sampleQuestions} />
-)}
-
+      {useSecureData ? (
+        <QuestionsProvider>
+          <SecureQuestionProvider>
+            {({
+              questions,
+              currentQuestion,
+              currentIndex,
+              handleNext,
+              handlePrevious,
+              handleJumpToQuestion,
+              isLoading,
+              error,
+              refreshQuestions,
+            }) => (
+              <PracticeContent questions={questions} />
+            )}
+          </SecureQuestionProvider>
+        </QuestionsProvider>
+      ) : (
+        <PracticeContent questions={sampleQuestions} />
+      )}
     </div>
   );
 };

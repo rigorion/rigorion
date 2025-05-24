@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Question } from "@/types/QuestionInterface";
 import { useQuestions } from "@/contexts/QuestionsContext";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
@@ -20,21 +20,39 @@ import SettingsDialog from "@/components/practice/SettingsDialog";
 
 interface PracticeContentProps {
   questions?: Question[];
+  currentQuestion?: Question | null;
+  currentIndex?: number;
+  onNext?: () => void;
+  onPrev?: () => void;
+  onJumpTo?: (index: number) => void;
+  isLoading?: boolean;
+  error?: Error | null;
+  refreshQuestions?: () => Promise<void>;
 }
 
-export default function PracticeContent({ questions: propQuestions }: PracticeContentProps) {
+export default function PracticeContent({ 
+  questions: propQuestions,
+  currentQuestion: propCurrentQuestion,
+  currentIndex: propCurrentIndex,
+  onNext: propOnNext,
+  onPrev: propOnPrev,
+  onJumpTo: propOnJumpTo,
+  isLoading: propIsLoading,
+  error: propError,
+  refreshQuestions: propRefreshQuestions
+}: PracticeContentProps) {
   const { toast } = useToast();
   // Use questions from props or from context
   const questionsContext = useQuestions();
   const isUsingContext = !propQuestions;
   
   const questions = propQuestions || questionsContext.questions;
-  const isLoading = isUsingContext ? questionsContext.isLoading : false;
-  const error = isUsingContext ? questionsContext.error : null;
-  const refreshQuestions = isUsingContext ? questionsContext.refreshQuestions : () => {};
+  const isLoading = propIsLoading !== undefined ? propIsLoading : (isUsingContext ? questionsContext.isLoading : false);
+  const error = propError !== undefined ? propError : (isUsingContext ? questionsContext.error : null);
+  const refreshQuestions = propRefreshQuestions || (isUsingContext ? questionsContext.refreshQuestions : () => {});
   
   // Basic question and UI states
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(propCurrentIndex || 0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedChapter, setSelectedChapter] = useState(0);
   const [mode, setMode] = useState<"timer" | "level" | "manual" | "pomodoro" | "exam">("manual");
@@ -84,10 +102,12 @@ export default function PracticeContent({ questions: propQuestions }: PracticeCo
     formula: '#dc2626'
   });
 
-  // Get current question
-  const currentQuestion = questions.length > 0 && currentQuestionIndex < questions.length 
-    ? questions[currentQuestionIndex]
-    : null;
+  // Get current question - use prop if available, otherwise use local state
+  const currentQuestion = propCurrentQuestion !== undefined 
+    ? propCurrentQuestion 
+    : (questions.length > 0 && currentQuestionIndex < questions.length 
+      ? questions[currentQuestionIndex]
+      : null);
 
   // Update progress effect
   useEffect(() => {
@@ -96,6 +116,13 @@ export default function PracticeContent({ questions: propQuestions }: PracticeCo
       setProgress(Math.round(totalAnswered / objective.value * 100));
     }
   }, [correctAnswers, incorrectAnswers, objective]);
+
+  // Sync with prop changes
+  useEffect(() => {
+    if (propCurrentIndex !== undefined) {
+      setCurrentQuestionIndex(propCurrentIndex);
+    }
+  }, [propCurrentIndex]);
 
   // Mode and objective handlers
   const handleSetMode = (selectedMode: "timer" | "level" | "manual" | "pomodoro" | "exam", duration?: number) => {
@@ -202,19 +229,27 @@ export default function PracticeContent({ questions: propQuestions }: PracticeCo
   };
   
   const nextQuestion = () => {
-    const maxIndex = questions.length > 0 ? questions.length - 1 : 0;
-    if (currentQuestionIndex < maxIndex) {
-      setCurrentQuestionIndex(prev => prev + 1);
-      setSelectedAnswer(null);
-      setIsCorrect(null);
+    if (propOnNext) {
+      propOnNext();
+    } else {
+      const maxIndex = questions.length > 0 ? questions.length - 1 : 0;
+      if (currentQuestionIndex < maxIndex) {
+        setCurrentQuestionIndex(prev => prev + 1);
+        setSelectedAnswer(null);
+        setIsCorrect(null);
+      }
     }
   };
   
   const prevQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
-      setSelectedAnswer(null);
-      setIsCorrect(null);
+    if (propOnPrev) {
+      propOnPrev();
+    } else {
+      if (currentQuestionIndex > 0) {
+        setCurrentQuestionIndex(prev => prev - 1);
+        setSelectedAnswer(null);
+        setIsCorrect(null);
+      }
     }
   };
   
@@ -237,10 +272,14 @@ export default function PracticeContent({ questions: propQuestions }: PracticeCo
       return;
     }
 
-    // Set new current question index
-    setCurrentQuestionIndex(questionNumber - 1);
-    setSelectedAnswer(null);
-    setIsCorrect(null);
+    if (propOnJumpTo) {
+      propOnJumpTo(questionNumber - 1);
+    } else {
+      // Set new current question index
+      setCurrentQuestionIndex(questionNumber - 1);
+      setSelectedAnswer(null);
+      setIsCorrect(null);
+    }
 
     // Reset UI states
     setTargetQuestion('');
@@ -337,6 +376,13 @@ export default function PracticeContent({ questions: propQuestions }: PracticeCo
             selectedAnswer={selectedAnswer} 
             isCorrect={isCorrect} 
             checkAnswer={checkAnswer} 
+            onNext={propOnNext || nextQuestion}
+            onPrev={propOnPrev || prevQuestion}
+            onJumpTo={propOnJumpTo || ((index: number) => {
+              setCurrentQuestionIndex(index);
+              setSelectedAnswer(null);
+              setIsCorrect(null);
+            })}
             currentQuestionIndex={currentQuestionIndex} 
             totalQuestions={questions.length} 
             displaySettings={displaySettings}
@@ -408,6 +454,3 @@ export default function PracticeContent({ questions: propQuestions }: PracticeCo
     </>
   );
 }
-
-// Needed for useEffect
-import { useEffect } from 'react';
