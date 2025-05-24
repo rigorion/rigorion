@@ -57,7 +57,7 @@ export class SecureAppDB extends Dexie {
 
     // 2) Apply encryption middleware AFTER schema definition
     try {
-      // Fix: Use the correct format for encryption options
+      // Fix: Use the correct format for encryption options - direct cryptoOptions value
       applyEncryptionMiddleware(
         this,
         getEncryptionKey(),
