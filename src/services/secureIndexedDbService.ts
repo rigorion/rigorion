@@ -1,4 +1,3 @@
-
 import Dexie from 'dexie';
 import { applyEncryptionMiddleware, cryptoOptions } from 'dexie-encrypted';
 import { FunctionData } from './dexieService';

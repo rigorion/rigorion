@@ -54,23 +54,18 @@ const PracticeDisplay = ({
   const [isMultipleChoice, setIsMultipleChoice] = useState(true);
   const [fillInAnswer, setFillInAnswer] = useState('');
 
-  // Use either prop or local state
   const selectedAnswer = propSelectedAnswer !== undefined ? propSelectedAnswer : localSelectedAnswer;
   const isCorrect = propIsCorrect !== undefined ? propIsCorrect : localIsCorrect;
 
-  // Local answer check if not provided via props
   const localCheckAnswer = (answer: string) => {
     if (!currentQuestion) return;
     const correct = answer === currentQuestion.correctAnswer;
     setLocalSelectedAnswer(answer);
     setLocalIsCorrect(correct);
-    // Optionally: toast messages or custom logic
   };
 
-  // Use propCheckAnswer or fallback to local
   const checkAnswer = propCheckAnswer || localCheckAnswer;
 
-  // Navigation logic: use provided handler or fallback
   const nextQuestion = () => {
     if (onNext) onNext();
     else setLocalSelectedAnswer(null), setLocalIsCorrect(null);
@@ -109,7 +104,6 @@ const PracticeDisplay = ({
     );
   }
 
-  // --- UI Below ---
   return (
     <>
       {/* Main Content Container */}
@@ -158,6 +152,7 @@ const PracticeDisplay = ({
                 )}
               </div>
             </div>
+
             {/* Question Content */}
             <p
               className="mb-6 leading-relaxed"
@@ -184,6 +179,7 @@ const PracticeDisplay = ({
                 )
               )}
             </p>
+
             {/* Answer Choices or Fill-in Input */}
             {isMultipleChoice ? (
               <div className="space-y-4">
@@ -271,11 +267,49 @@ const PracticeDisplay = ({
             )}
           </div>
         </div>
+
         {/* Right Section - Solution/Graph/Quote */}
         <div className="w-[30%] min-w-[300px] sticky top-32">
-          {/* ... your solution, graph, and quote rendering here ... */}
+          {activeTab === "solution" && (
+            <div className="bg-gray-50 p-6 rounded-lg h-full overflow-y-auto">
+              <h3 className="text-lg font-semibold mb-4">Solution</h3>
+              <div className="mb-4">
+                <p className="text-gray-700 mb-4">{currentQuestion.solution}</p>
+              </div>
+              
+              {currentQuestion.solutionSteps && currentQuestion.solutionSteps.length > 0 && (
+                <div>
+                  <h4 className="font-medium mb-2">Step-by-step solution:</h4>
+                  <ol className="list-decimal list-inside space-y-2">
+                    {currentQuestion.solutionSteps.map((step, index) => (
+                      <li key={index} className="text-sm text-gray-600">
+                        {typeof step === 'string' ? step : step}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === "quote" && (
+            <div className="bg-gray-50 p-6 rounded-lg h-full overflow-y-auto">
+              <h3 className="text-lg font-semibold mb-4">Quote</h3>
+              {currentQuestion.quote ? (
+                <blockquote className="text-lg italic text-gray-700">
+                  "{currentQuestion.quote.text}"
+                  {currentQuestion.quote.source && (
+                    <footer className="mt-2 text-gray-500">- {currentQuestion.quote.source}</footer>
+                  )}
+                </blockquote>
+              ) : (
+                <p className="text-gray-500 italic">No quote available for this question.</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
+
       {/* Go to Question Popup */}
       {showGoToInput && (
         <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-white border rounded-lg shadow-lg p-4 w-64 animate-in fade-in slide-in-from-bottom-5 z-20">
