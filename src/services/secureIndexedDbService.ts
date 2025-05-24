@@ -56,7 +56,7 @@ export class SecureAppDB extends Dexie {
         getEncryptionKey(),
         {
           functionData: cryptoOptions.NON_INDEXED_FIELDS
-        } as any,
+        },
         () => {
           console.log('[SECURE DB] Encryption key changed (middleware callback)');
           sessionStorage.setItem('secure_storage_active', 'true');

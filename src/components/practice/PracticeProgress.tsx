@@ -158,25 +158,10 @@ const PracticeProgress = ({
             <span className="text-blue-600 font-medium">Target Progress: {objective?.value ? Math.round(progress) : totalPercentage}%</span>
           </div>
 
-          {/* Timer with auto-navigation support */}
+          {/* Timer */}
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-blue-600" />
-            {timerDuration > 0 ? (
-              <CountdownTimer 
-                durationInSeconds={timerDuration} 
-                onComplete={handleTimerComplete} 
-                isActive={isTimerActive} 
-                mode={mode} 
-                onUpdate={(remaining: string) => setTimeRemaining(remaining)}
-                autoNavigate={mode === "timer"}
-                onAutoNavigate={() => {
-                  // This will be handled by parent component
-                  console.log('[TIMER] Auto-navigating to next question');
-                }}
-              />
-            ) : (
-              <span>{timeRemaining}</span>
-            )}
+            {timerDuration > 0 ? <CountdownTimer durationInSeconds={timerDuration} onComplete={handleTimerComplete} isActive={isTimerActive} mode={mode} onUpdate={(remaining: string) => setTimeRemaining(remaining)} /> : <span>{timeRemaining}</span>}
           </div>
         </div>
       </div>
@@ -210,5 +195,4 @@ const PracticeProgress = ({
       </style>
     </div>;
 };
-
 export default PracticeProgress;

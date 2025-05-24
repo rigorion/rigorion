@@ -17,7 +17,7 @@ const CommentSection = () => {
   };
 
   return (
-    <div className="fixed bottom-6 left-6 z-50">
+    <div className="relative w-full">
       {/* Trigger Button */}
       {!isOpen && (
         <Button
@@ -28,15 +28,14 @@ const CommentSection = () => {
         </Button>
       )}
 
-      {/* Comment Input Area (positioned to stay within viewport) */}
+      {/* Comment Input Area (opens upward) */}
       {isOpen && (
-        <div className="absolute bottom-16 left-0 w-96 max-w-[calc(100vw-3rem)] bg-white rounded-lg shadow-[0_0_10px_rgba(59,130,246,0.7)] transition-all duration-500 ease-in-out p-4 border">
+        <div className="absolute bottom-full mb-2 right-0 w-96 bg-white rounded-lg shadow-[0_0_10px_rgba(59,130,246,0.7)] transition-all duration-500 ease-in-out p-4">
           <div className="flex items-center justify-between mb-2">
             <h4 className="text-sm font-medium">Write your comment</h4>
             <Button
               onClick={handleToggle}
-              variant="ghost"
-              className="p-1 h-6 w-6 rounded-full bg-gray-100 hover:bg-gray-200"
+              className="p-1 h-6 w-6 rounded-full bg-gray-100"
               size="sm"
             >
               <X className="h-3 w-3" />
@@ -47,7 +46,7 @@ const CommentSection = () => {
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="Share your thoughts..."
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 max-h-[7.5rem] overflow-y-auto resize-none"
+            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 max-h-[7.5rem] overflow-y-auto"
             rows={5}
           />
           
@@ -56,7 +55,6 @@ const CommentSection = () => {
             {/* Image Upload (Plus Icon) */}
             <Button
               onClick={() => console.log("Upload image")}
-              variant="ghost"
               className="bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full p-2 h-8 w-8"
               size="sm"
             >
