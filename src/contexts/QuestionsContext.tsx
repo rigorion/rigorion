@@ -40,6 +40,14 @@ interface SecureQuestionData {
   }>;
 }
 
+// Helper function to validate difficulty
+const validateDifficulty = (difficulty: string | undefined): "easy" | "medium" | "hard" => {
+  if (difficulty === "easy" || difficulty === "hard") {
+    return difficulty;
+  }
+  return "medium"; // Default to medium if not specified or invalid
+};
+
 export const QuestionsProvider: React.FC<QuestionsProviderProps> = ({ children }) => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -70,7 +78,7 @@ export const QuestionsProvider: React.FC<QuestionsProviderProps> = ({ children }
           id: q.id?.toString() || `secure-${index}`,
           content: q.text || "",
           solution: q.answer || "",
-          difficulty: q.difficulty || "medium",
+          difficulty: validateDifficulty(q.difficulty), // Use the helper function
           chapter: "Secure Chapter",
           bookmarked: false,
           examNumber: 1,
