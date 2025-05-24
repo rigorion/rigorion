@@ -5,15 +5,17 @@ import { Lock, RefreshCw, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { storeSecureFunctionData } from "@/services/secureIndexedDbService";
 import { useQueryClient } from "@tanstack/react-query";
+import { useProgress } from "@/contexts/ProgressContext";
 
 interface SecureProgressDataButtonProps {
-  onRefresh: () => void;
+  onRefresh?: () => void;
 }
 
 const SecureProgressDataButton = ({ onRefresh }: SecureProgressDataButtonProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { refreshProgress } = useProgress();
 
   const fetchAndStoreProgressData = async () => {
     setLoading(true);
@@ -48,8 +50,13 @@ const SecureProgressDataButton = ({ onRefresh }: SecureProgressDataButtonProps) 
       queryClient.invalidateQueries({ queryKey: ['mathQuestions'] });
       queryClient.invalidateQueries({ queryKey: ['secureQuestions'] });
       
-      // Trigger a refresh of the progress data
-      onRefresh();
+      // Refresh the progress context data
+      await refreshProgress();
+      
+      // Call additional onRefresh if provided
+      if (onRefresh) {
+        onRefresh();
+      }
       
     } catch (error) {
       console.error("Error fetching or storing data:", error);
@@ -76,7 +83,7 @@ const SecureProgressDataButton = ({ onRefresh }: SecureProgressDataButtonProps) 
       ) : (
         <Lock className="h-3.5 w-3.5" />
       )}
-      <span>Secure Questions</span>
+      <span>Secure Data</span>
     </Button>
   );
 };

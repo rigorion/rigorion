@@ -7,7 +7,8 @@ import { FullPageLoader } from "@/components/progress/FullPageLoader";
 import type { TimePeriod, ProgressTab } from "@/types/progress";
 import { TrendingUp, Trophy, Navigation, Bell } from "lucide-react";
 import { ProgressNavigation } from "@/components/progress/ProgressNavigation";
-import { ProgressDataProvider } from "@/components/progress/ProgressDataProvider";
+import { SecureProgressProvider } from "@/components/progress/SecureProgressProvider";
+import { useProgress } from "@/contexts/ProgressContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import SecureProgressDataButton from "@/components/progress/SecureProgressDataButton";
@@ -196,6 +197,46 @@ const DUMMY_PROGRESS = {
   }]
 };
 
+// Create a wrapper component to use the context
+const ProgressContent = () => {
+  const { progressData } = useProgress();
+  const [period, setPeriod] = useState<TimePeriod>("weekly");
+  const [activeTab, setActiveTab] = useState<ProgressTab>("performance");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [visibleSections, setVisibleSections] = useState<VisibleSections>({
+    totalProgress: true,
+    performanceGraph: true,
+    difficultyStats: true,
+    chapterProgress: true,
+    timeManagement: true,
+    goals: true
+  });
+  
+  // Create a handler that matches the expected type
+  const handleSetVisibleSections = (sections: Record<string, boolean>) => {
+    setVisibleSections(prev => ({
+      ...prev,
+      ...sections
+    }));
+  };
+  
+  if (!progressData) {
+    return <FullPageLoader />;
+  }
+  
+  return (
+    <TabsContent value="performance">
+      <ProgressDashboard 
+        period={period} 
+        type="performance" 
+        userData={progressData} 
+        className="[&_path]:stroke-mono-accent [&_.recharts-area]:fill-gradient-to-b [&_.recharts-area]:from-mono-hover [&_.recharts-area]:to-mono-bg [&_.recharts-bar]:fill-gradient-to-b [&_.recharts-bar]:from-mono-text [&_.recharts-bar]:to-mono-accent [&_.recharts-line]:stroke-mono-accent" 
+        visibleSections={visibleSections} 
+      />
+    </TabsContent>
+  );
+};
+
 const Progress = () => {
   const navigate = useNavigate();
   const { session } = useAuth();
@@ -232,14 +273,6 @@ const Progress = () => {
     navigate(path);
     setIsNavDropdownOpen(false);
   };
-
-  // Create a handler that matches the expected type
-  const handleSetVisibleSections = (sections: Record<string, boolean>) => {
-    setVisibleSections(prev => ({
-      ...prev,
-      ...sections
-    }));
-  };
   
   const [visibleSections, setVisibleSections] = useState<VisibleSections>({
     totalProgress: true,
@@ -250,6 +283,14 @@ const Progress = () => {
     timeManagement: true,
     goals: true
   });
+  
+  // Create a handler that matches the expected type
+  const handleSetVisibleSections = (sections: Record<string, boolean>) => {
+    setVisibleSections(prev => ({
+      ...prev,
+      ...sections
+    }));
+  };
   
   if (!isAuthenticated) {
     return (
@@ -263,142 +304,130 @@ const Progress = () => {
   }
   
   return (
-    <div className="flex min-h-screen w-full bg-mono-bg">
-      <main className="flex-1 bg-mono-bg">
-        <header className="sticky top-0 z-50 bg-white border-b px-4 py-3">
-          <div className="container mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <DropdownMenu open={isNavDropdownOpen} onOpenChange={setIsNavDropdownOpen}>
-                <DropdownMenuTrigger className="rounded-lg p-2 hover:bg-gray-100 transition-colors">
-                  <Navigation className="h-5 w-5 text-blue-500" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-56 bg-white border border-gray-200 shadow-lg rounded-lg p-2">
-                  <ScrollArea className="h-auto max-h-[300px]">
-                    {navigationItems.map((item, index) => (
-                      <DropdownMenuItem 
-                        key={index}
-                        className="cursor-pointer py-2 hover:bg-gray-100 rounded-sm transition-colors"
-                        onClick={() => handleNavigation(item.path)}
-                      >
-                        <span className="font-source-sans text-[#304455]">{item.name}</span>
-                      </DropdownMenuItem>
-                    ))}
-                  </ScrollArea>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <h2 className="text-xl font-bold text-gray-800">Progress Dashboard</h2>
-            </div>
+    <SecureProgressProvider fallbackData={DUMMY_PROGRESS} showLoadingState={true}>
+      <div className="flex min-h-screen w-full bg-mono-bg">
+        <main className="flex-1 bg-mono-bg">
+          <header className="sticky top-0 z-50 bg-white border-b px-4 py-3">
+            <div className="container mx-auto flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <DropdownMenu open={isNavDropdownOpen} onOpenChange={setIsNavDropdownOpen}>
+                  <DropdownMenuTrigger className="rounded-lg p-2 hover:bg-gray-100 transition-colors">
+                    <Navigation className="h-5 w-5 text-blue-500" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56 bg-white border border-gray-200 shadow-lg rounded-lg p-2">
+                    <ScrollArea className="h-auto max-h-[300px]">
+                      {navigationItems.map((item, index) => (
+                        <DropdownMenuItem 
+                          key={index}
+                          className="cursor-pointer py-2 hover:bg-gray-100 rounded-sm transition-colors"
+                          onClick={() => handleNavigation(item.path)}
+                        >
+                          <span className="font-source-sans text-[#304455]">{item.name}</span>
+                        </DropdownMenuItem>
+                      ))}
+                    </ScrollArea>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <h2 className="text-xl font-bold text-gray-800">Progress Dashboard</h2>
+              </div>
 
-            <div className="flex items-center gap-3">
-              {/* Notification Bell */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="relative rounded-full hover:bg-gray-100"
-                  >
-                    <Bell className="h-5 w-5 text-gray-600" />
-                    {hasNotifications && (
-                      <span className="absolute top-1 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-80 bg-white border border-gray-200 shadow-lg rounded-lg p-2">
-                  <div className="flex justify-between items-center mb-2 px-2">
-                    <h3 className="font-semibold">Notifications</h3>
-                    <Button variant="ghost" size="sm" className="text-xs text-blue-500 hover:text-blue-700">
-                      Mark all as read
+              <div className="flex items-center gap-3">
+                {/* Notification Bell */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="relative rounded-full hover:bg-gray-100"
+                    >
+                      <Bell className="h-5 w-5 text-gray-600" />
+                      {hasNotifications && (
+                        <span className="absolute top-1 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+                      )}
                     </Button>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <ScrollArea className="h-64">
-                    <div className="p-2 text-sm bg-blue-50 rounded-md mb-2">
-                      <p className="font-medium">Progress milestone reached!</p>
-                      <p className="text-gray-600">You've completed 75% of your course material.</p>
-                      <p className="text-xs text-gray-500 mt-1">1 hour ago</p>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-80 bg-white border border-gray-200 shadow-lg rounded-lg p-2">
+                    <div className="flex justify-between items-center mb-2 px-2">
+                      <h3 className="font-semibold">Notifications</h3>
+                      <Button variant="ghost" size="sm" className="text-xs text-blue-500 hover:text-blue-700">
+                        Mark all as read
+                      </Button>
                     </div>
-                    <div className="p-2 text-sm mb-2">
-                      <p className="font-medium">Weekly report available</p>
-                      <p className="text-gray-600">Your performance report for this week is ready.</p>
-                      <p className="text-xs text-gray-500 mt-1">1 day ago</p>
-                    </div>
-                    <div className="p-2 text-sm mb-2">
-                      <p className="font-medium">New goal suggestion</p>
-                      <p className="text-gray-600">We've suggested a new goal based on your progress.</p>
-                      <p className="text-xs text-gray-500 mt-1">2 days ago</p>
-                    </div>
-                  </ScrollArea>
-                  <DropdownMenuSeparator />
-                  <Button variant="ghost" size="sm" className="w-full text-center text-sm mt-1">
-                    View all notifications
-                  </Button>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              
-              <ProgressNavigation 
-                sidebarOpen={sidebarOpen}
-                setSidebarOpen={setSidebarOpen}
-                setPeriod={(value: TimePeriod) => setPeriod(value)}
-                visibleSections={visibleSections}
-                setVisibleSections={handleSetVisibleSections}
-                selectedCourse={selectedCourse}
-                setSelectedCourse={setSelectedCourse}
-                courses={courses}
-              />
-            </div>
-          </div>
-        </header>
-
-        <Tabs defaultValue={activeTab} value={activeTab} onValueChange={value => setActiveTab(value as ProgressTab)} className="w-full">
-          <div className="container mx-auto p-6">
-            <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-              <div className="flex items-center gap-2">
-                <h1 className="font-bold text-lg">Progress Dashboard</h1>
+                    <DropdownMenuSeparator />
+                    <ScrollArea className="h-64">
+                      <div className="p-2 text-sm bg-blue-50 rounded-md mb-2">
+                        <p className="font-medium">Progress milestone reached!</p>
+                        <p className="text-gray-600">You've completed 75% of your course material.</p>
+                        <p className="text-xs text-gray-500 mt-1">1 hour ago</p>
+                      </div>
+                      <div className="p-2 text-sm mb-2">
+                        <p className="font-medium">Weekly report available</p>
+                        <p className="text-gray-600">Your performance report for this week is ready.</p>
+                        <p className="text-xs text-gray-500 mt-1">1 day ago</p>
+                      </div>
+                      <div className="p-2 text-sm mb-2">
+                        <p className="font-medium">New goal suggestion</p>
+                        <p className="text-gray-600">We've suggested a new goal based on your progress.</p>
+                        <p className="text-xs text-gray-500 mt-1">2 days ago</p>
+                      </div>
+                    </ScrollArea>
+                    <DropdownMenuSeparator />
+                    <Button variant="ghost" size="sm" className="w-full text-center text-sm mt-1">
+                      View all notifications
+                    </Button>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 
-                {/* Add Secure Sync button */}
-                <SecureProgressDataButton onRefresh={refreshProgressData} />
-              </div>
-              
-              <div className="flex items-center">
-                <TabsList>
-                  <TabsTrigger value="performance" className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4" />
-                    <span className="hidden sm:inline">Performance</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="leaderboard" className="flex items-center gap-2">
-                    <Trophy className="h-4 w-4" />
-                    <span className="hidden sm:inline">Leaderboard</span>
-                  </TabsTrigger>
-                </TabsList>
+                <ProgressNavigation 
+                  sidebarOpen={sidebarOpen}
+                  setSidebarOpen={setSidebarOpen}
+                  setPeriod={(value: TimePeriod) => setPeriod(value)}
+                  visibleSections={visibleSections}
+                  setVisibleSections={handleSetVisibleSections}
+                  selectedCourse={selectedCourse}
+                  setSelectedCourse={setSelectedCourse}
+                  courses={courses}
+                />
               </div>
             </div>
-            
-            <TabsContent value="performance">
-              <ProgressDataProvider 
-                fallbackData={DUMMY_PROGRESS} 
-                showLoadingState={true}
-                timePeriod={period}
-              >
-                {(userData) => (
-                  <ProgressDashboard 
-                    period={period} 
-                    type="performance" 
-                    userData={userData} 
-                    className="[&_path]:stroke-mono-accent [&_.recharts-area]:fill-gradient-to-b [&_.recharts-area]:from-mono-hover [&_.recharts-area]:to-mono-bg [&_.recharts-bar]:fill-gradient-to-b [&_.recharts-bar]:from-mono-text [&_.recharts-bar]:to-mono-accent [&_.recharts-line]:stroke-mono-accent" 
-                    visibleSections={visibleSections} 
-                  />
-                )}
-              </ProgressDataProvider>
-            </TabsContent>
-            
-            <TabsContent value="leaderboard">
-              {userId ? <LeaderboardData userId={userId} /> : null}
-            </TabsContent>
-          </div>
-        </Tabs>
-      </main>
-    </div>
+          </header>
+
+          <Tabs defaultValue={activeTab} value={activeTab} onValueChange={value => setActiveTab(value as ProgressTab)} className="w-full">
+            <div className="container mx-auto p-6">
+              <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <h1 className="font-bold text-lg">Progress Dashboard</h1>
+                  
+                  {/* Add Secure Sync button */}
+                  <SecureProgressDataButton />
+                </div>
+                
+                <div className="flex items-center">
+                  <TabsList>
+                    <TabsTrigger value="performance" className="flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4" />
+                      <span className="hidden sm:inline">Performance</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="leaderboard" className="flex items-center gap-2">
+                      <Trophy className="h-4 w-4" />
+                      <span className="hidden sm:inline">Leaderboard</span>
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+              </div>
+              
+              <TabsContent value="performance">
+                <ProgressContent />
+              </TabsContent>
+              
+              <TabsContent value="leaderboard">
+                {userId ? <LeaderboardData userId={userId} /> : null}
+              </TabsContent>
+            </div>
+          </Tabs>
+        </main>
+      </div>
+    </SecureProgressProvider>
   );
 };
 
