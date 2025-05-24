@@ -1,4 +1,3 @@
-
 import { Clock, Flag, Lamp, Sparkles } from "lucide-react";
 import CountdownTimer from "./CountDownTimer";
 import HintDialog from "./HintDialog";
@@ -6,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import PracticeTabSelector from "./PracticeTabSelector";
 import { useState } from "react";
 import SettingsDialog from "./SettingsDialog";
-
 interface PracticeProgressProps {
   correctAnswers: number;
   incorrectAnswers: number;
@@ -21,10 +19,12 @@ interface PracticeProgressProps {
   setActiveTab: (tab: "problem" | "solution" | "quote") => void;
   currentQuestionIndex: number;
   currentQuestionHint?: string;
-  objective?: { type: "questions" | "time", value: number } | null;
+  objective?: {
+    type: "questions" | "time";
+    value: number;
+  } | null;
   progress?: number;
 }
-
 const PracticeProgress = ({
   correctAnswers,
   incorrectAnswers,
@@ -47,9 +47,8 @@ const PracticeProgress = ({
     fontFamily: 'inter',
     fontSize: 14,
     colorStyle: 'plain' as const,
-    textColor: '#374151',
+    textColor: '#374151'
   });
-
   const handleSettingsChange = (key: string, value: string | number) => {
     if (key === 'fontFamily') {
       setSettings(prev => ({
@@ -68,43 +67,41 @@ const PracticeProgress = ({
       }));
     }
   };
-  
   const calculateProgress = () => {
     const total = totalQuestions;
     const totalAnswered = correctAnswers + incorrectAnswers;
-    
     return {
-      correct: (correctAnswers / total) * 100,
-      incorrect: (incorrectAnswers / total) * 100,
-      unattempted: ((total - totalAnswered) / total) * 100,
-      totalPercentage: Math.round((totalAnswered / total) * 100)
+      correct: correctAnswers / total * 100,
+      incorrect: incorrectAnswers / total * 100,
+      unattempted: (total - totalAnswered) / total * 100,
+      totalPercentage: Math.round(totalAnswered / total * 100)
     };
   };
-
-  const { correct, incorrect, unattempted, totalPercentage } = calculateProgress();
-
-  return (
-    <div className="px-3 py-2 border-b bg-white">
+  const {
+    correct,
+    incorrect,
+    unattempted,
+    totalPercentage
+  } = calculateProgress();
+  return <div className="px-3 py-2 border-b bg-white">
       <div className="flex items-center justify-between mb-2">
         {/* Progress bar with percentage indicator */}
         <div className="relative h-2.5 bg-gray-100 rounded-full overflow-hidden flex-grow">
           {/* Correct answers - green */}
-          <div 
-            className="absolute left-0 top-0 h-full bg-green-500 rounded-l-full transition-all duration-500 ease-out shine-animation"
-            style={{ width: `${correct}%` }}
-          />
+          <div className="absolute left-0 top-0 h-full bg-green-500 rounded-l-full transition-all duration-500 ease-out shine-animation" style={{
+          width: `${correct}%`
+        }} />
           
           {/* Incorrect answers - red */}
-          <div 
-            className="absolute top-0 h-full bg-red-500 transition-all duration-500 ease-out"
-            style={{ left: `${correct}%`, width: `${incorrect}%` }}
-          />
+          <div className="absolute top-0 h-full bg-red-500 transition-all duration-500 ease-out" style={{
+          left: `${correct}%`,
+          width: `${incorrect}%`
+        }} />
           
           {/* Unattempted - grey */}
-          <div 
-            className="absolute top-0 right-0 h-full bg-gray-300 rounded-r-full transition-all duration-500 ease-out"
-            style={{ width: `${unattempted}%` }}
-          />
+          <div className="absolute top-0 right-0 h-full bg-gray-300 rounded-r-full transition-all duration-500 ease-out" style={{
+          width: `${unattempted}%`
+        }} />
           
           {/* Progress percentage */}
           <div className="absolute right-0 top-0 -translate-y-1/2 translate-x-full mt-1.5 ml-2 text-xs font-medium text-blue-600">
@@ -136,42 +133,22 @@ const PracticeProgress = ({
         {/* Center - Hint, Style, Flag, and Tab selector */}
         <div className="flex items-center gap-2">
           {/* Hint button */}
-          <HintDialog 
-            hint={currentQuestionHint} 
-            currentQuestionIndex={currentQuestionIndex} 
-          />
+          <HintDialog hint={currentQuestionHint} currentQuestionIndex={currentQuestionIndex} />
           
           {/* Star icon for styling - Next to hint */}
-          <SettingsDialog
-            open={showSettings}
-            onOpenChange={setShowSettings}
-            settings={settings}
-            onApply={handleSettingsChange}
-          >
-            <Button
-              variant="ghost"
-              size="sm"
-              className="p-1 h-6 rounded-full"
-            >
+          <SettingsDialog open={showSettings} onOpenChange={setShowSettings} settings={settings} onApply={handleSettingsChange}>
+            <Button variant="ghost" size="sm" className="p-1 h-6 rounded-full">
               <Sparkles className="h-4 w-4 text-amber-500" />
             </Button>
           </SettingsDialog>
 
           {/* Flag icon for "review later" */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="p-1 h-6 rounded-full"
-          >
+          <Button variant="ghost" size="sm" className="p-1 h-6 rounded-full">
             <Flag className="h-4 w-4 text-blue-600" />
           </Button>
           
           {/* Tab selector */}
-          <PracticeTabSelector
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            className="h-8 min-h-0"
-          />
+          <PracticeTabSelector activeTab={activeTab} setActiveTab={setActiveTab} className="h-8 min-h-0" />
         </div>
 
         {/* Right side - Target Progress and Timer */}
@@ -184,36 +161,13 @@ const PracticeProgress = ({
           {/* Timer */}
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-blue-600" />
-            {timerDuration > 0 ? (
-              <CountdownTimer
-                durationInSeconds={timerDuration}
-                onComplete={handleTimerComplete}
-                isActive={isTimerActive}
-                mode={mode}
-                onUpdate={(remaining: string) => setTimeRemaining(remaining)}
-              />
-            ) : (
-              <span>{timeRemaining}</span>
-            )}
+            {timerDuration > 0 ? <CountdownTimer durationInSeconds={timerDuration} onComplete={handleTimerComplete} isActive={isTimerActive} mode={mode} onUpdate={(remaining: string) => setTimeRemaining(remaining)} /> : <span>{timeRemaining}</span>}
           </div>
         </div>
       </div>
 
       {/* Add a condensed stats display only for mobile views */}
-      <div className="flex justify-center gap-4 text-xs mt-2 md:hidden">
-        <div className="flex items-center gap-1">
-          <div className="w-2 h-2 bg-green-500 rounded-full" />
-          <span>Correct: {correctAnswers}</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-2 h-2 bg-red-500 rounded-full" />
-          <span>Incorrect: {incorrectAnswers}</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-2 h-2 bg-gray-300 rounded-full" />
-          <span>Unattempted: {totalQuestions - correctAnswers - incorrectAnswers}</span>
-        </div>
-      </div>
+      
 
       {/* Add the keyframes animation for the shining effect */}
       <style>
@@ -239,8 +193,6 @@ const PracticeProgress = ({
         }
         `}
       </style>
-    </div>
-  );
+    </div>;
 };
-
 export default PracticeProgress;
