@@ -1,4 +1,3 @@
-
 import SecureProgressDataButton from "@/components/progress/SecureProgressDataButton";
 import PracticeContent from "@/components/practice/PracticeContent";
 import SecureQuestionProvider from "@/components/practice/SecureQuestionProvider";
@@ -63,18 +62,18 @@ const Practice = () => {
                 error={error}
                 refreshQuestions={refreshQuestions}
               />
-              
+
               {/* AI Analyzer positioned at bottom right */}
-              <AIAnalyzer 
+              <AIAnalyzer
                 context="practice"
                 data={{
                   currentQuestion,
                   currentIndex,
                   totalQuestions: questions.length,
-                  questions: questions.slice(0, 3) // Limited data for context
+                  questions: questions.slice(0, 3), // limited context for AI
                 }}
               />
-              
+
               {/* Comment Section positioned at bottom left */}
               <div className="fixed bottom-6 left-6 z-40">
                 <CommentSection />
