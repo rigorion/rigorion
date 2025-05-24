@@ -1,4 +1,3 @@
-
 import Dexie from 'dexie'
 import { applyEncryptionMiddleware, cryptoOptions } from 'dexie-encrypted'
 import { FunctionData } from './dexieService'
@@ -58,18 +57,20 @@ export class SecureAppDB extends Dexie {
 
     // 2) Apply encryption middleware AFTER schema definition
     try {
-      // Fix: Use the correct format for encryption options
+      // ----------------- THE FIX IS HERE -----------------
       applyEncryptionMiddleware(
         this,
         getEncryptionKey(),
         {
           functionData: { type: cryptoOptions.NON_INDEXED_FIELDS }
+          //             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         },
         () => {
           console.log('Encryption key changed')
           sessionStorage.setItem('secure_storage_active', 'true')
         }
       )
+      // ---------------------------------------------------
     } catch (error) {
       console.error('Failed to apply encryption middleware:', error)
       // Continue without encryption if it fails
