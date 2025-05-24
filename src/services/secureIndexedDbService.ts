@@ -1,4 +1,3 @@
-
 import Dexie from 'dexie'
 import { applyEncryptionMiddleware, cryptoOptions } from 'dexie-encrypted'
 import { FunctionData } from './dexieService'
@@ -57,9 +56,13 @@ export class SecureAppDB extends Dexie {
     })
 
     // 2) Apply encryption middleware AFTER schema definition
-    // Use the correct structure for dexie-encrypted
+    // Use the correct format for dexie-encrypted
     const encryptionOptions = {
-      functionData: cryptoOptions.NON_INDEXED_FIELDS
+      functionData: {
+        type: cryptoOptions.ENCRYPT_LIST,
+        fields: ['data'],
+        salt: 'lovable-app-salt-2025'
+      }
     }
 
     // Provide a proper onKeyChange callback function
