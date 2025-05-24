@@ -24,6 +24,22 @@ interface QuestionsProviderProps {
   children: React.ReactNode;
 }
 
+// Define the shape of the data we expect from the secure storage
+interface SecureQuestionData {
+  questions?: Array<{
+    id?: string | number;
+    text?: string;
+    answer?: string;
+    difficulty?: string;
+    choices?: string[];
+    explanation?: string;
+    steps?: string[];
+    hint?: string;
+    quote?: string;
+    source?: string;
+  }>;
+}
+
 export const QuestionsProvider: React.FC<QuestionsProviderProps> = ({ children }) => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -45,9 +61,12 @@ export const QuestionsProvider: React.FC<QuestionsProviderProps> = ({ children }
       
       console.log("Found secure question data:", record.data);
       
+      // Cast to the expected type
+      const secureData = record.data as SecureQuestionData;
+      
       // Transform the data into Question format
-      if (record.data.questions && Array.isArray(record.data.questions)) {
-        const mappedQuestions: Question[] = record.data.questions.map((q: any, index: number) => ({
+      if (secureData.questions && Array.isArray(secureData.questions)) {
+        const mappedQuestions: Question[] = secureData.questions.map((q, index) => ({
           id: q.id?.toString() || `secure-${index}`,
           content: q.text || "",
           solution: q.answer || "",

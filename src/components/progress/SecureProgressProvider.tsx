@@ -9,6 +9,25 @@ import { getSecureLatestFunctionData, storeSecureFunctionData } from "@/services
 import { useQueryClient } from "@tanstack/react-query";
 import { callEdgeFunction } from "@/services/edgeFunctionService";
 
+// Define types for the data structure we expect from the my-function endpoint
+interface SecureDataResponse {
+  user?: {
+    id: string;
+    progress?: number;
+    lastActive?: string;
+  };
+  stats?: {
+    totalQuestions: number;
+    answeredCorrect: number;
+    accuracy: number;
+    averageTime: number;
+  };
+  questions?: Array<any>;
+  id?: string;
+  name?: string;
+  timestamp?: string;
+}
+
 interface SecureProgressProviderProps {
   children: React.ReactNode;
   fallbackData?: UserProgressData;
@@ -37,22 +56,25 @@ export const SecureProgressProvider: React.FC<SecureProgressProviderProps> = ({
       if (secureRecord && secureRecord.data) {
         console.log("Found raw secure data:", secureRecord.data);
         
+        // Type assertion for the secure data
+        const secureData = secureRecord.data as SecureDataResponse;
+        
         // If the secure data has user and stats properties, process it
-        if (secureRecord.data.user && secureRecord.data.stats) {
+        if (secureData.user && secureData.stats) {
           console.log("Processing secure data from my-function endpoint");
           
           const userData: UserProgressData = {
-            userId: secureRecord.data.user.id || "secure-user",
-            totalProgressPercent: secureRecord.data.stats.accuracy * 100 || 75,
-            correctAnswers: secureRecord.data.stats.answeredCorrect || 53,
-            incorrectAnswers: secureRecord.data.stats.totalQuestions - secureRecord.data.stats.answeredCorrect || 21,
+            userId: secureData.user.id || "secure-user",
+            totalProgressPercent: secureData.stats.accuracy * 100 || 75,
+            correctAnswers: secureData.stats.answeredCorrect || 53,
+            incorrectAnswers: secureData.stats.totalQuestions - secureData.stats.answeredCorrect || 21,
             unattemptedQuestions: 56, // Placeholder
             questionsAnsweredToday: 12, // Placeholder
             streak: 7, // Placeholder
-            averageScore: secureRecord.data.stats.accuracy * 100 || 92,
+            averageScore: secureData.stats.accuracy * 100 || 92,
             rank: 120, // Placeholder
             projectedScore: 92, // Placeholder
-            speed: secureRecord.data.stats.averageTime ? 100 - (secureRecord.data.stats.averageTime / 60) : 85,
+            speed: secureData.stats.averageTime ? 100 - (secureData.stats.averageTime / 60) : 85,
             easyAccuracy: 90, // Placeholder
             easyAvgTime: 1.5, // Placeholder
             easyCompleted: 45, // Placeholder
@@ -66,7 +88,7 @@ export const SecureProgressProvider: React.FC<SecureProgressProviderProps> = ({
             hardCompleted: 25, // Placeholder
             hardTotal: 30, // Placeholder
             goalAchievementPercent: 75, // Placeholder
-            averageTime: secureRecord.data.stats.averageTime / 60 || 2.5, // Convert to minutes
+            averageTime: secureData.stats.averageTime / 60 || 2.5, // Convert to minutes
             correctAnswerAvgTime: 2.0, // Placeholder
             incorrectAnswerAvgTime: 3.5, // Placeholder
             longestQuestionTime: 8.0, // Placeholder
@@ -78,8 +100,8 @@ export const SecureProgressProvider: React.FC<SecureProgressProviderProps> = ({
               {
                 chapterId: 'secure-1',
                 chapterName: 'Secure Chapter',
-                correct: secureRecord.data.stats.answeredCorrect || 12,
-                incorrect: secureRecord.data.stats.totalQuestions - secureRecord.data.stats.answeredCorrect || 3,
+                correct: secureData.stats.answeredCorrect || 12,
+                incorrect: secureData.stats.totalQuestions - secureData.stats.answeredCorrect || 3,
                 unattempted: 5
               }
             ],
@@ -112,20 +134,22 @@ export const SecureProgressProvider: React.FC<SecureProgressProviderProps> = ({
         // Store the new data securely
         await storeSecureFunctionData('my-function', edgeData);
         
-        // Process the data
-        if (edgeData.user && edgeData.stats) {
+        // Process the data - using type assertion
+        const secureData = edgeData as SecureDataResponse;
+        
+        if (secureData.user && secureData.stats) {
           const userData: UserProgressData = {
-            userId: edgeData.user.id || "edge-user",
-            totalProgressPercent: edgeData.stats.accuracy * 100 || 75,
-            correctAnswers: edgeData.stats.answeredCorrect || 53,
-            incorrectAnswers: edgeData.stats.totalQuestions - edgeData.stats.answeredCorrect || 21,
+            userId: secureData.user.id || "edge-user",
+            totalProgressPercent: secureData.stats.accuracy * 100 || 75,
+            correctAnswers: secureData.stats.answeredCorrect || 53,
+            incorrectAnswers: secureData.stats.totalQuestions - secureData.stats.answeredCorrect || 21,
             unattemptedQuestions: 56,
             questionsAnsweredToday: 12,
             streak: 7,
-            averageScore: edgeData.stats.accuracy * 100 || 92,
+            averageScore: secureData.stats.accuracy * 100 || 92,
             rank: 120,
             projectedScore: 92,
-            speed: edgeData.stats.averageTime ? 100 - (edgeData.stats.averageTime / 60) : 85,
+            speed: secureData.stats.averageTime ? 100 - (secureData.stats.averageTime / 60) : 85,
             easyAccuracy: 90,
             easyAvgTime: 1.5,
             easyCompleted: 45,
@@ -139,7 +163,7 @@ export const SecureProgressProvider: React.FC<SecureProgressProviderProps> = ({
             hardCompleted: 25,
             hardTotal: 30,
             goalAchievementPercent: 75,
-            averageTime: edgeData.stats.averageTime / 60 || 2.5,
+            averageTime: secureData.stats.averageTime / 60 || 2.5,
             correctAnswerAvgTime: 2.0,
             incorrectAnswerAvgTime: 3.5,
             longestQuestionTime: 8.0,
@@ -151,8 +175,8 @@ export const SecureProgressProvider: React.FC<SecureProgressProviderProps> = ({
               {
                 chapterId: 'edge-1',
                 chapterName: 'Edge Function Chapter',
-                correct: edgeData.stats.answeredCorrect || 12,
-                incorrect: edgeData.stats.totalQuestions - edgeData.stats.answeredCorrect || 3,
+                correct: secureData.stats.answeredCorrect || 12,
+                incorrect: secureData.stats.totalQuestions - secureData.stats.answeredCorrect || 3,
                 unattempted: 5
               }
             ],
