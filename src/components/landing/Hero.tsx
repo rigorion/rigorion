@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import AISearchBar from "@/components/ui/AISearchBar";
@@ -7,6 +8,7 @@ export const Hero = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState('');
+  const [isAIMode, setIsAIMode] = useState(true);
   
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -26,8 +28,8 @@ export const Hero = () => {
     
     // Network nodes
     const nodes: Node[] = [];
-    const nodeCount = 80;
-    const connectionDistance = 150;
+    const nodeCount = isAIMode ? 120 : 80;
+    const connectionDistance = isAIMode ? 180 : 150;
     
     // Mouse position
     let mouseX = 0;
@@ -49,39 +51,68 @@ export const Hero = () => {
       speedX: number;
       speedY: number;
       color: string;
+      pulse: number;
+      pulsing: boolean;
       
       constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 2 + 1;
-        this.speedX = (Math.random() - 0.5) * 0.5;
-        this.speedY = (Math.random() - 0.5) * 0.5;
+        this.size = Math.random() * (isAIMode ? 3 : 2) + 1;
+        this.speedX = (Math.random() - 0.5) * (isAIMode ? 0.8 : 0.5);
+        this.speedY = (Math.random() - 0.5) * (isAIMode ? 0.8 : 0.5);
+        this.pulse = Math.random() * Math.PI * 2;
+        this.pulsing = Math.random() > 0.7;
         
-        // Randomly assign white, grey or gold color
-        const colorType = Math.random();
-        if (colorType < 0.4) {
-          this.color = '#FFFFFF'; // White
-        } else if (colorType < 0.8) {
-          this.color = '#C8C8C9'; // Light Grey
+        if (isAIMode) {
+          // AI Mode: Blue, white, and intelligent colors
+          const colorType = Math.random();
+          if (colorType < 0.3) {
+            this.color = '#3B82F6'; // Blue
+          } else if (colorType < 0.6) {
+            this.color = '#FFFFFF'; // White
+          } else if (colorType < 0.8) {
+            this.color = '#8B5CF6'; // Purple
+          } else {
+            this.color = '#06B6D4'; // Cyan
+          }
         } else {
-          this.color = '#FEF7CD'; // Soft gold
+          // Search Mode: Grey and neutral colors
+          const colorType = Math.random();
+          if (colorType < 0.4) {
+            this.color = '#FFFFFF'; // White
+          } else if (colorType < 0.8) {
+            this.color = '#C8C8C9'; // Light Grey
+          } else {
+            this.color = '#9CA3AF'; // Medium Grey
+          }
         }
       }
       
       update() {
-        // Move slightly toward mouse with subtle effect
+        // Move toward mouse with mode-specific effect
         const dx = mouseX - this.x;
         const dy = mouseY - this.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         
-        if (dist < 300) {
-          this.x += dx * 0.01;
-          this.y += dy * 0.01;
+        const attractionForce = isAIMode ? 0.015 : 0.01;
+        const attractionRange = isAIMode ? 400 : 300;
+        
+        if (dist < attractionRange) {
+          this.x += dx * attractionForce;
+          this.y += dy * attractionForce;
         }
         
-        // Regular movement
-        this.x += this.speedX;
-        this.y += this.speedY;
+        // Regular movement with mode-specific patterns
+        if (isAIMode) {
+          // AI mode: more dynamic, intelligent-looking movement
+          this.pulse += 0.05;
+          this.x += this.speedX + Math.sin(this.pulse) * 0.3;
+          this.y += this.speedY + Math.cos(this.pulse) * 0.3;
+        } else {
+          // Search mode: calmer, more structured movement
+          this.x += this.speedX;
+          this.y += this.speedY;
+        }
         
         // Wrap around edges
         if (this.x < 0) this.x = canvas.width;
@@ -92,10 +123,30 @@ export const Hero = () => {
       
       draw() {
         if (!ctx) return;
+        
+        let currentSize = this.size;
+        let alpha = 1;
+        
+        if (isAIMode && this.pulsing) {
+          currentSize += Math.sin(this.pulse * 2) * 0.5;
+          alpha = 0.8 + Math.sin(this.pulse * 2) * 0.2;
+        }
+        
+        ctx.save();
+        ctx.globalAlpha = alpha;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, currentSize, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
         ctx.fill();
+        
+        // Add glow effect for AI mode
+        if (isAIMode && (this.color === '#3B82F6' || this.color === '#8B5CF6')) {
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = this.color;
+          ctx.fill();
+        }
+        
+        ctx.restore();
       }
       
       connect() {
@@ -107,24 +158,27 @@ export const Hero = () => {
           const distance = Math.sqrt(dx * dx + dy * dy);
           
           if (distance < connectionDistance) {
-            // Calculate opacity based on distance
             const opacity = 1 - (distance / connectionDistance);
             
-            // Create gold-tinged connections
             let connectionColor;
-            if (this.color === '#FEF7CD' || node.color === '#FEF7CD') {
-              // If either node is gold, make connection gold
-              connectionColor = `rgba(254, 247, 205, ${opacity * 0.7})`;
+            if (isAIMode) {
+              // AI mode: intelligent blue connections
+              if (this.color === '#3B82F6' || node.color === '#3B82F6' || 
+                  this.color === '#8B5CF6' || node.color === '#8B5CF6') {
+                connectionColor = `rgba(59, 130, 246, ${opacity * 0.6})`;
+              } else {
+                connectionColor = `rgba(139, 92, 246, ${opacity * 0.4})`;
+              }
             } else {
-              // Otherwise make it grey
-              connectionColor = `rgba(200, 200, 201, ${opacity * 0.5})`;
+              // Search mode: neutral grey connections
+              connectionColor = `rgba(156, 163, 175, ${opacity * 0.4})`;
             }
             
             ctx.beginPath();
             ctx.moveTo(this.x, this.y);
             ctx.lineTo(node.x, node.y);
             ctx.strokeStyle = connectionColor;
-            ctx.lineWidth = 0.5;
+            ctx.lineWidth = isAIMode ? 0.8 : 0.5;
             ctx.stroke();
           }
         }
@@ -132,6 +186,7 @@ export const Hero = () => {
     }
     
     // Initialize nodes
+    nodes.length = 0; // Clear existing nodes
     for (let i = 0; i < nodeCount; i++) {
       nodes.push(new Node());
     }
@@ -161,10 +216,15 @@ export const Hero = () => {
       window.removeEventListener('resize', setCanvasSize);
       window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, []);
+  }, [isAIMode]); // Re-run animation when mode changes
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
+  };
+
+  const handleModeChange = (aiMode: boolean) => {
+    setIsAIMode(aiMode);
+    setAnalysisResult(''); // Clear results when switching modes
   };
 
   const handleAIAnalyze = async (query: string) => {
@@ -204,38 +264,67 @@ export const Hero = () => {
     <section className="relative py-32 overflow-hidden">
       <canvas 
         ref={canvasRef} 
-        className="absolute inset-0 bg-[#f9f9f9]"
+        className={cn(
+          "absolute inset-0 transition-all duration-1000 ease-out",
+          isAIMode ? "bg-gradient-to-br from-blue-50 via-white to-purple-50" : "bg-gradient-to-br from-gray-50 via-white to-slate-50"
+        )}
         style={{ zIndex: -1 }}
       />
-      <div className="absolute inset-0 bg-white/40 mix-blend-overlay" />
+      <div className={cn(
+        "absolute inset-0 transition-all duration-1000",
+        isAIMode ? "bg-white/20 mix-blend-overlay" : "bg-white/40 mix-blend-overlay"
+      )} />
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col items-center justify-center text-center">
-          <div className="mb-8">
+          <div className="mb-12">
             <AISearchBar
               onSearch={handleSearch}
               onAIAnalyze={handleAIAnalyze}
+              onModeChange={handleModeChange}
               placeholder="Tell me about your study goals..."
-              className="w-full max-w-2xl"
+              className="w-full"
             />
           </div>
           
           {analysisResult && (
-            <div className="mb-8 max-w-2xl">
-              <div className="bg-white/90 backdrop-blur-sm rounded-lg p-6 shadow-lg border border-gray-200">
-                <h3 className="text-lg font-semibold text-[#333333] mb-3">Your AI Study Plan</h3>
-                <p className="text-gray-700 leading-relaxed">{analysisResult}</p>
+            <div className="mb-12 max-w-3xl w-full">
+              <div className={cn(
+                "backdrop-blur-md rounded-3xl p-8 shadow-2xl border transition-all duration-700 ease-out transform",
+                "animate-in slide-in-from-bottom-4 fade-in duration-500",
+                isAIMode 
+                  ? "bg-white/90 border-blue-200/50 shadow-blue-100/50" 
+                  : "bg-white/95 border-gray-200/50"
+              )}>
+                <div className="flex items-center gap-3 mb-4">
+                  {isAIMode ? (
+                    <div className="p-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600">
+                      <Sparkles className="h-5 w-5 text-white" />
+                    </div>
+                  ) : (
+                    <div className="p-2 rounded-full bg-gradient-to-r from-gray-500 to-slate-600">
+                      <Search className="h-5 w-5 text-white" />
+                    </div>
+                  )}
+                  <h3 className={cn(
+                    "text-xl font-bold",
+                    isAIMode ? "text-blue-700" : "text-gray-700"
+                  )}>
+                    {isAIMode ? "Your AI Study Plan" : "Search Results"}
+                  </h3>
+                </div>
+                <p className="text-gray-700 leading-relaxed text-left whitespace-pre-line">{analysisResult}</p>
               </div>
             </div>
           )}
           
           <div className="flex items-center justify-center mb-8">
-            <div className="backdrop-blur-sm rounded-full px-5 py-2 flex items-center space-x-2 bg-transparent">
+            <div className="backdrop-blur-sm rounded-full px-6 py-3 flex items-center space-x-2 bg-white/80 border border-gray-200/50 shadow-lg">
               <span className="font-semibold text-[#8A0303]">#1 Global Ranking</span>
             </div>
           </div>
           
-          <Button className="bg-[#8A0303] hover:bg-[#6a0202] text-white font-medium px-8 py-1 rounded-full h-auto text-lg">
+          <Button className="bg-[#8A0303] hover:bg-[#6a0202] text-white font-medium px-8 py-4 rounded-full h-auto text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
             {isAnalyzing ? 'Analyzing...' : 'Join us'}
           </Button>
         </div>
