@@ -31,9 +31,7 @@ const AISearchBar: React.FC<AISearchBarProps> = ({
         {/* AI Mode Header */}
         <div className="flex items-center justify-center gap-3 mb-2">
           
-          <h3 className="text-xl font-semibold bg-gradient-to-r from-[#8A0303] to-red-600 bg-clip-text text-transparent">
-            AI Study Planner
-          </h3>
+          <h3 className="font-semibold bg-gradient-to-r from-[#8A0303] to-red-600 bg-clip-text text-transparent text-sm">SAT AI Study Planner</h3>
           <Sparkles className="h-5 w-5 text-red-500 animate-pulse" />
         </div>
 
