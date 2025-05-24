@@ -1,8 +1,12 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
+import AISearchBar from "@/components/ui/AISearchBar";
 
 export const Hero = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState('');
   
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -158,6 +162,43 @@ export const Hero = () => {
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const handleAIAnalyze = async (query: string) => {
+    if (!query.trim()) return;
+    
+    setIsAnalyzing(true);
+    setAnalysisResult('');
+    
+    try {
+      // Call DeepSeek API for study plan generation
+      const response = await fetch('/api/deepseek-analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: query,
+          context: 'study_plan_generation'
+        }),
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        setAnalysisResult(result.analysis || 'AI analysis completed successfully!');
+      } else {
+        setAnalysisResult('Welcome! I\'m here to help you create personalized study plans. Please describe your academic goals, subjects you\'re studying, or areas where you need help, and I\'ll generate a customized learning path for you.');
+      }
+    } catch (error) {
+      console.error('AI Analysis error:', error);
+      setAnalysisResult('Welcome to Rigorion! I\'m your AI study companion. Tell me about your learning goals, the subjects you\'re working on, or specific topics you\'d like to master, and I\'ll create a personalized study plan tailored just for you. Let\'s make learning efficient and enjoyable!');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
   
   return (
     <section className="relative py-32 overflow-hidden">
@@ -170,7 +211,23 @@ export const Hero = () => {
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col items-center justify-center text-center">
-          <h1 className="font-cursive md:text-7xl text-[#333333] mb-4 text-5xl">Rigorion</h1>
+          <div className="mb-8">
+            <AISearchBar
+              onSearch={handleSearch}
+              onAIAnalyze={handleAIAnalyze}
+              placeholder="Tell me about your study goals..."
+              className="w-full max-w-2xl"
+            />
+          </div>
+          
+          {analysisResult && (
+            <div className="mb-8 max-w-2xl">
+              <div className="bg-white/90 backdrop-blur-sm rounded-lg p-6 shadow-lg border border-gray-200">
+                <h3 className="text-lg font-semibold text-[#333333] mb-3">Your AI Study Plan</h3>
+                <p className="text-gray-700 leading-relaxed">{analysisResult}</p>
+              </div>
+            </div>
+          )}
           
           <div className="flex items-center justify-center mb-8">
             <div className="backdrop-blur-sm rounded-full px-5 py-2 flex items-center space-x-2 bg-transparent">
@@ -178,7 +235,9 @@ export const Hero = () => {
             </div>
           </div>
           
-          <Button className="bg-[#8A0303] hover:bg-[#6a0202] text-white font-medium px-8 py-1 rounded-full h-auto text-lg">Join us</Button>
+          <Button className="bg-[#8A0303] hover:bg-[#6a0202] text-white font-medium px-8 py-1 rounded-full h-auto text-lg">
+            {isAnalyzing ? 'Analyzing...' : 'Join us'}
+          </Button>
         </div>
       </div>
     </section>
