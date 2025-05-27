@@ -1,4 +1,3 @@
-
 import {
   Popover,
   PopoverContent,
@@ -15,21 +14,8 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import { Star } from "lucide-react";
+import { Star, Palette, Text } from "lucide-react";
 import { ReactNode } from "react";
-
-interface SettingsDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  settings: {
-    fontFamily: string;
-    fontSize: number;
-    colorStyle: 'plain';
-    textColor?: string;
-  };
-  onApply: (key: string, value: string | number) => void;
-  children?: ReactNode;
-}
 
 const FONT_OPTIONS = [
   { value: "inter", label: "Inter", class: "font-sans" },
@@ -49,37 +35,49 @@ const SettingsDialog = ({
   settings,
   onApply,
   children,
-}: SettingsDialogProps) => {
+}) => {
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         {children}
       </PopoverTrigger>
-      <PopoverContent className="w-[240px] p-3 bg-white shadow-md rounded-lg border" side="bottom" align="end">
-        <div className="flex items-center mb-2 pb-1 border-b">
+      <PopoverContent className="w-[260px] p-4 bg-white shadow-xl rounded-2xl border border-gray-100" side="bottom" align="end">
+        <div className="flex items-center mb-3 pb-2 border-b border-gray-100">
           <Star className="mr-2 h-4 w-4 text-amber-500" fill="#F59E0B" />
-          <h3 className="text-sm font-medium text-gray-800">Text Settings</h3>
+          <h3 className="text-base font-semibold text-gray-800 tracking-wide">
+            Text Personalization
+          </h3>
         </div>
-        
-        <div className="grid gap-3 py-1">
+
+        <div className="grid gap-4 py-1">
           {/* Font Family Selection */}
           <div className="space-y-1">
-            <Label className="text-xs font-medium text-gray-700">Font</Label>
+            <Label className="text-xs font-semibold text-gray-700 flex items-center gap-1">
+              <Text className="w-3 h-3 text-gray-400" />
+              Font
+            </Label>
             <Select
               value={settings.fontFamily}
               onValueChange={(v) => onApply("fontFamily", v)}
             >
-              <SelectTrigger className="w-full h-8 text-xs bg-white">
+              <SelectTrigger className="w-full h-8 text-xs bg-white border rounded-md">
                 <SelectValue placeholder="Select font" />
               </SelectTrigger>
-              <SelectContent className="max-h-[180px] bg-white">
+              <SelectContent className="max-h-[200px] bg-white rounded-xl shadow-md">
                 {FONT_OPTIONS.map((font) => (
-                  <SelectItem 
-                    key={font.value} 
+                  <SelectItem
+                    key={font.value}
                     value={font.value}
-                    className={cn("text-xs", font.class)}
+                    className={cn(
+                      "text-xs px-2 py-1 rounded font-medium flex items-center gap-2",
+                      font.class,
+                      settings.fontFamily === font.value ? "bg-blue-50 text-blue-600" : ""
+                    )}
                   >
-                    {font.label}
+                    <span className={font.class}>{font.label}</span>
+                    {settings.fontFamily === font.value && (
+                      <span className="ml-auto text-blue-500 text-xs rounded px-2 py-0.5 bg-blue-100">Selected</span>
+                    )}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -88,8 +86,8 @@ const SettingsDialog = ({
 
           {/* Font Size Slider */}
           <div className="space-y-1">
-            <div className="flex justify-between">
-              <Label className="text-xs font-medium text-gray-700">Size</Label>
+            <div className="flex justify-between items-center">
+              <Label className="text-xs font-semibold text-gray-700">Size</Label>
               <span className="text-xs text-gray-500">
                 {settings.fontSize}px
               </span>
@@ -106,30 +104,34 @@ const SettingsDialog = ({
 
           {/* Text Color */}
           <div className="space-y-1">
-            <Label className="text-xs font-medium text-gray-700">Text Color</Label>
-            <div className="flex">
+            <Label className="text-xs font-semibold text-gray-700 flex items-center gap-1">
+              <Palette className="w-3 h-3 text-gray-400" />
+              Text Color
+            </Label>
+            <div className="flex items-center gap-2">
               <Input
                 type="color"
                 value={settings.textColor || '#374151'}
                 onChange={(e) => onApply("textColor", e.target.value)}
-                className="h-8 w-full cursor-pointer p-0"
+                className="h-8 w-10 cursor-pointer border-0 p-0 bg-transparent"
               />
+              <span className="text-xs text-gray-700 ml-1">{settings.textColor}</span>
             </div>
           </div>
 
           {/* Preview */}
-          <div className="mt-1 p-2 rounded-md border border-gray-100 bg-gray-50">
-            <div 
-              className={cn(
-                "p-2 rounded-md",
-                `font-${settings.fontFamily}`
-              )}
+          <div className="mt-1 p-3 rounded-lg border border-gray-100 bg-gray-50 shadow-inner">
+            <div
+              className={cn("p-2 rounded", `font-${settings.fontFamily}`)}
               style={{
                 fontSize: `${settings.fontSize}px`,
-                color: settings.textColor || '#374151'
+                color: settings.textColor || '#374151',
+                background: "#fff",
+                borderRadius: "8px",
+                transition: "all 0.2s"
               }}
             >
-              Sample text
+              <span>Sample text</span>
             </div>
           </div>
         </div>
