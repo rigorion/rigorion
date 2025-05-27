@@ -1,12 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Lock, Loader2, RefreshCw, AlertTriangle, KeyRound } from "lucide-react";
+import { Lock, Loader2, RefreshCw, AlertTriangle, KeyRound, Sparkles } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import {
   storeSecureFunctionData,
-  getSecureLatestFunctionData,
   safeGetSecureData,
   clearAllSecureData,
   isSecureStorageValid,
@@ -14,13 +12,35 @@ import {
 import PracticeContent from "@/components/practice/PracticeContent";
 import AIAnalyzer from "@/components/ai/AIAnalyzer";
 import CommentSection from "@/components/practice/CommentSection";
+import SettingsDialog from "@/components/practice/SettingsDialog";
 import { mapQuestions, validateQuestion } from "@/utils/mapQuestion";
 import { Question } from "@/types/QuestionInterface";
 
-const ENDPOINT = "my-function"; // Customize this to your questions endpoint
+const ENDPOINT = "my-function";
 
 const Practice = () => {
   const { toast } = useToast();
+
+  // 🟢 Text settings state (global for the practice session)
+  const [settings, setSettings] = useState({
+    fontFamily: "inter",
+    fontSize: 14,
+    colorStyle: "plain",
+    textColor: "#374151"
+  });
+
+  // 🟢 Settings dialog visibility
+  const [showSettings, setShowSettings] = useState(false);
+
+  // 🟢 Settings handler
+  const handleSettingsChange = (key, value) => {
+    setSettings((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  // 🟢 Practice state
   const [questions, setQuestions] = useState<Question[]>([]);
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
   const [loading, setLoading] = useState(false);
@@ -42,11 +62,8 @@ const Practice = () => {
       if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
       const result = await response.json();
 
-      console.log('[PRACTICE] Raw API response:', result);
-
-      // Store the raw data
       await storeSecureFunctionData(ENDPOINT, result);
-      
+
       // Extract and map questions
       let rawQuestions: any[] = [];
       if (result.questions && Array.isArray(result.questions)) {
@@ -57,12 +74,9 @@ const Practice = () => {
         rawQuestions = result.data;
       }
 
-      // Map the questions using our mapping utility
       const mappedQuestions = mapQuestions(rawQuestions);
       const validQuestions = mappedQuestions.filter(validateQuestion);
-      
-      console.log('[PRACTICE] Mapped and validated questions:', validQuestions);
-      
+
       setQuestions(validQuestions);
       setLastFetched(new Date());
       toast({
@@ -81,16 +95,13 @@ const Practice = () => {
     }
   };
 
-  // Load latest from encrypted storage (with fallback fetch if needed)
+  // Load latest from encrypted storage
   const loadLatestQuestions = async () => {
     setLoading(true);
     setError(null);
     try {
       const { data, fromCache } = await safeGetSecureData(ENDPOINT, fetchAndStoreQuestions);
       if (data) {
-        console.log('[PRACTICE] Loaded raw data from cache:', data);
-        
-        // Extract and map questions from cached data
         let rawQuestions: any[] = [];
         if (data.questions && Array.isArray(data.questions)) {
           rawQuestions = data.questions;
@@ -100,12 +111,9 @@ const Practice = () => {
           rawQuestions = data.data;
         }
 
-        // Map and validate the questions
         const mappedQuestions = mapQuestions(rawQuestions);
         const validQuestions = mappedQuestions.filter(validateQuestion);
-        
-        console.log('[PRACTICE] Mapped cached questions:', validQuestions);
-        
+
         setQuestions(validQuestions);
         setLastFetched(new Date());
         setError(null);
@@ -127,7 +135,7 @@ const Practice = () => {
     }
   };
 
-  // Clear secure cache (optional, for manual testing)
+  // Clear secure cache
   const handleClearStorage = async () => {
     await clearAllSecureData();
     setQuestions([]);
@@ -145,8 +153,34 @@ const Practice = () => {
     loadLatestQuestions();
   }, []);
 
+  // 🟢 Style for main content area using settings
+  const mainStyle = {
+    fontFamily: `var(--${settings.fontFamily}, ${settings.fontFamily})`,
+    fontSize: `${settings.fontSize}px`,
+    color: settings.textColor,
+    transition: "all 0.2s"
+  };
+
   return (
-    <Card className="min-h-screen bg-white">
+    <Card className="min-h-screen bg-white relative">
+      {/* 🟢 Floating Settings Button */}
+      <div className="absolute top-4 right-4 z-50">
+        <SettingsDialog
+          open={showSettings}
+          onOpenChange={setShowSettings}
+          settings={settings}
+          onApply={handleSettingsChange}
+        >
+          <Button
+            variant="outline"
+            className="rounded-full p-2 shadow hover:shadow-lg transition"
+            aria-label="Open Text Settings"
+          >
+            <Sparkles className="h-5 w-5 text-amber-500" />
+          </Button>
+        </SettingsDialog>
+      </div>
+
       <CardHeader>
         <div className="flex justify-between items-center">
           <div>
@@ -201,7 +235,8 @@ const Practice = () => {
           </div>
         )}
       </CardHeader>
-      <CardContent className="p-0">
+      {/* 🟢 Apply the mainStyle to content area */}
+      <CardContent className="p-0" style={mainStyle}>
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
@@ -214,7 +249,8 @@ const Practice = () => {
           </div>
         ) : questions && questions.length > 0 ? (
           <>
-            <PracticeContent questions={questions} />
+            {/* 🟢 Pass settings down to all children needing text settings */}
+            <PracticeContent questions={questions} settings={settings} />
             <AIAnalyzer
               context="practice"
               data={{
