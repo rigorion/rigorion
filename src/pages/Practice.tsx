@@ -1,4 +1,5 @@
 
+
 import { useState, useEffect } from "react";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -182,6 +183,7 @@ const Practice = () => {
         </SettingsDialog>
       </div>
 
+      {/* Header section - NO styling applied */}
       <CardHeader>
         <div className="flex justify-between items-center">
           <div>
@@ -236,8 +238,9 @@ const Practice = () => {
           </div>
         )}
       </CardHeader>
-      {/* 🟢 Apply the mainStyle to content area */}
-      <CardContent className="p-0" style={mainStyle}>
+
+      {/* Content area - NO inline styling here */}
+      <CardContent className="p-0">
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
@@ -250,7 +253,7 @@ const Practice = () => {
           </div>
         ) : questions && questions.length > 0 ? (
           <>
-            {/* 🟢 Pass settings down to all children needing text settings */}
+            {/* 🟢 Pass settings down to PracticeContent which handles text styling */}
             <PracticeContent questions={questions} settings={settings} />
             <AIAnalyzer
               context="practice"
