@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from "react";
 import { Question } from "@/types/QuestionInterface";
 import { useQuestions } from "@/contexts/QuestionsContext";
@@ -18,6 +17,13 @@ import ObjectiveDialog from "@/components/practice/ObjectiveDialogue";
 import { Sidebar } from "@/components/practice/Sidebar";
 import SettingsDialog from "@/components/practice/SettingsDialog";
 
+interface TextSettings {
+  fontFamily: string;
+  fontSize: number;
+  colorStyle: 'plain';
+  textColor: string;
+}
+
 interface PracticeContentProps {
   questions?: Question[];
   currentQuestion?: Question | null;
@@ -28,6 +34,7 @@ interface PracticeContentProps {
   isLoading?: boolean;
   error?: Error | null;
   refreshQuestions?: () => Promise<void>;
+  settings?: TextSettings;
 }
 
 export default function PracticeContent({ 
@@ -39,7 +46,8 @@ export default function PracticeContent({
   onJumpTo: propOnJumpTo,
   isLoading: propIsLoading,
   error: propError,
-  refreshQuestions: propRefreshQuestions
+  refreshQuestions: propRefreshQuestions,
+  settings: propSettings
 }: PracticeContentProps) {
   const { toast } = useToast();
   // Use questions from props or from context
@@ -69,10 +77,27 @@ console.log("PracticeContent: questions in use", questions);
   const [activeTab, setActiveTab] = useState<"problem" | "solution" | "quote">("problem");
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [timeRemaining, setTimeRemaining] = useState<string>("00:00");
+  const [timeRemaining, setTimeRemaining] useState<string>("00:00");
   const [showGoToInput, setShowGoToInput] = useState(false);
   const [targetQuestion, setTargetQuestion] = useState('');
   const [inputError, setInputError] = useState('');
+
+  // Use settings from props or initialize default
+  const [displaySettings, setDisplaySettings] = useState<TextSettings>(
+    propSettings || {
+      fontFamily: 'inter',
+      fontSize: 14,
+      colorStyle: 'plain' as const,
+      textColor: '#374151'
+    }
+  );
+
+  // Sync with prop settings changes
+  useEffect(() => {
+    if (propSettings) {
+      setDisplaySettings(propSettings);
+    }
+  }, [propSettings]);
 
   // Style states
   const [fontFamily, setFontFamily] = useState<string>('inter');
@@ -84,13 +109,7 @@ console.log("PracticeContent: questions in use", questions);
   
   // New settings dialog state
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
-  const [displaySettings, setDisplaySettings] = useState({
-    fontFamily: 'inter',
-    fontSize: 14,
-    colorStyle: 'plain' as const,
-    textColor: '#374151'
-  });
-
+  
   // Stats and feedback states
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [incorrectAnswers, setIncorrectAnswers] = useState(0);
@@ -424,13 +443,15 @@ console.log("PracticeContent: questions in use", questions);
         onSetObjective={handleSetObjective} 
       />
 
-      {/* Settings Dialog */}
+      {/* Settings Dialog with dummy button for children */}
       <SettingsDialog 
         open={settingsDialogOpen}
         onOpenChange={setSettingsDialogOpen}
         settings={displaySettings}
         onApply={handleUpdateStyle}
-      />
+      >
+        <div />
+      </SettingsDialog>
 
       {/* Global styles for animations */}
       <style>
