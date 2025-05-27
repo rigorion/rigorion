@@ -1,8 +1,13 @@
-
-// components/practice/ContentSection.tsx
 import { Question } from "@/types/QuestionInterface";
 import { CheckCircle, XCircle } from "lucide-react";
 import React from "react";
+
+interface TextSettings {
+  fontFamily: string;
+  fontSize: number;
+  colorStyle: 'plain';
+  textColor?: string;
+}
 
 interface ContentSectionProps {
   activeTab: "problem" | "solution" | "quote";
@@ -10,6 +15,7 @@ interface ContentSectionProps {
   selectedAnswer: string | null;
   isCorrect: boolean | null;
   onAnswerSelected: (answer: string) => void;
+  settings: TextSettings;
 }
 
 const ContentSection = ({
@@ -17,27 +23,45 @@ const ContentSection = ({
   question,
   selectedAnswer,
   isCorrect,
-  onAnswerSelected
+  onAnswerSelected,
+  settings
 }: ContentSectionProps) => {
+  // Get font family class (tailwind utility or fallback to default)
+  const fontFamilyClass = `font-${settings.fontFamily}`;
+
+  // Shared style for all content
+  const contentStyle = {
+    fontSize: `${settings.fontSize}px`,
+    color: settings.textColor || "#374151",
+    transition: "all 0.2s"
+  };
+
   const getAnswerButtonStyles = (answer: string) => {
     if (selectedAnswer !== answer)
-      return "border-2 border-gray-200 rounded-full p-4 hover:bg-gray-50 transition-all text-left flex justify-between items-center";
+      return `${fontFamilyClass} border-2 border-gray-200 rounded-full p-4 hover:bg-gray-50 transition-all text-left flex justify-between items-center`;
     if (answer === question.correctAnswer)
-      return "border-2 border-emerald-500 bg-emerald-50 rounded-full p-4 transition-all text-left flex justify-between items-center animate-pulse";
-    return "border-2 border-red-500 bg-red-50 rounded-full p-4 transition-all text-left flex justify-between items-center animate-pulse";
+      return `${fontFamilyClass} border-2 border-emerald-500 bg-emerald-50 rounded-full p-4 transition-all text-left flex justify-between items-center animate-pulse`;
+    return `${fontFamilyClass} border-2 border-red-500 bg-red-50 rounded-full p-4 transition-all text-left flex justify-between items-center animate-pulse`;
   };
 
   // Create choices array if it doesn't exist
   const choices = question.choices || ["Option A", "Option B", "Option C", "Option D"];
 
   return (
-    <div className="flex-1 p-8 max-w-3xl mx-auto">
+    <div
+      className={`flex-1 p-8 max-w-3xl mx-auto ${fontFamilyClass} transition-all`}
+      style={contentStyle}
+    >
       {/* Question Content */}
       <div className="mb-8 text-center">
         <div className="text-sm text-gray-500 mb-2 flex items-center justify-center gap-2">
           <span>Problem Solution Quote</span>
         </div>
-        <h2 className="text-2xl font-medium" dangerouslySetInnerHTML={{ __html: question.content || "Question content not available" }} />
+        <h2
+          className="text-2xl font-medium"
+          style={contentStyle}
+          dangerouslySetInnerHTML={{ __html: question.content || "Question content not available" }}
+        />
       </div>
 
       {/* Dynamic Content based on Tab */}
@@ -47,11 +71,14 @@ const ContentSection = ({
             <button
               key={answer}
               className={getAnswerButtonStyles(answer)}
+              style={contentStyle}
               onClick={() => onAnswerSelected(answer)}
             >
               <span dangerouslySetInnerHTML={{ __html: answer }} />
               {selectedAnswer === answer && isCorrect !== null && (
-                isCorrect ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />
+                isCorrect
+                  ? <CheckCircle className="h-5 w-5 text-green-500" />
+                  : <XCircle className="h-5 w-5 text-red-500" />
               )}
             </button>
           ))}
@@ -59,11 +86,14 @@ const ContentSection = ({
       )}
 
       {activeTab === "solution" && (
-        <div className="prose max-w-none mb-12 p-6 bg-gray-50 rounded-lg">
+        <div
+          className="prose max-w-none mb-12 p-6 bg-gray-50 rounded-lg"
+          style={contentStyle}
+        >
           <h3 className="text-lg font-semibold mb-4">Step-by-Step Solution</h3>
           <div dangerouslySetInnerHTML={{ __html: question.solution || "Solution not available" }} />
           {question.explanation && (
-            <div className="mt-4 p-4 bg-white rounded-lg border">
+            <div className="mt-4 p-4 bg-white rounded-lg border" style={contentStyle}>
               <h4 className="font-medium mb-2">Explanation</h4>
               <p>{question.explanation}</p>
             </div>
@@ -72,7 +102,10 @@ const ContentSection = ({
       )}
 
       {activeTab === "quote" && (
-        <div className="prose max-w-none mb-12 p-6 pt-24 bg-gray-50 rounded-lg">
+        <div
+          className="prose max-w-none mb-12 p-6 pt-24 bg-gray-50 rounded-lg"
+          style={contentStyle}
+        >
           {question.quote ? (
             <blockquote className="text-xl italic text-gray-700">
               "{question.quote.text}"
