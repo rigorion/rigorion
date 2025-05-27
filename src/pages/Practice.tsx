@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,7 @@ const Practice = () => {
   const [settings, setSettings] = useState({
     fontFamily: "inter",
     fontSize: 14,
-    colorStyle: "plain",
+    colorStyle: "plain" as const,
     textColor: "#374151"
   });
 
