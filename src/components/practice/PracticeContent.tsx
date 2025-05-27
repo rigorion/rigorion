@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from "react";
 import { Question } from "@/types/QuestionInterface";
 import { useQuestions } from "@/contexts/QuestionsContext";
@@ -77,7 +78,7 @@ console.log("PracticeContent: questions in use", questions);
   const [activeTab, setActiveTab] = useState<"problem" | "solution" | "quote">("problem");
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [timeRemaining, setTimeRemaining] useState<string>("00:00");
+  const [timeRemaining, setTimeRemaining] = useState<string>("00:00");
   const [showGoToInput, setShowGoToInput] = useState(false);
   const [targetQuestion, setTargetQuestion] = useState('');
   const [inputError, setInputError] = useState('');
