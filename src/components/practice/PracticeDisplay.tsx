@@ -205,8 +205,8 @@ const PracticeDisplay = ({
                 <img
                   src={graphUrl}
                   alt="Question graph"
-                  className="max-w-full h-auto"
-                  style={{ border: 'none' }}
+                  className="max-w-full max-h-64"
+                  style={{ border: 'none', height: 'auto' }}
                   onError={(e) => {
                     // Hide the image if it fails to load
                     (e.target as HTMLImageElement).style.display = 'none';
