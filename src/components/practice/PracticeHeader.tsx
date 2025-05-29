@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -53,11 +52,11 @@ export const PracticeHeader = ({
 
   const chapters = [
     "All Chapters",
-    "Chapter 1: Introduction to Mathematics",
-    "Chapter 2: Basic Algebra", 
-    "Chapter 3: Geometry Fundamentals",
-    "Chapter 4: Probability & Statistics",
-    "Chapter 5: Advanced Functions"
+    "Chapter 1",
+    "Chapter 2", 
+    "Chapter 3",
+    "Chapter 4",
+    "Chapter 5"
   ];
 
   const exams = [
@@ -82,8 +81,15 @@ export const PracticeHeader = ({
     setIsChapterDropdownOpen(false);
     
     if (onFilterChange) {
+      // Extract chapter number for filtering
+      let chapterNumber: string | undefined;
+      if (chapter !== "All Chapters") {
+        const match = chapter.match(/Chapter (\d+)/);
+        chapterNumber = match ? match[1] : undefined;
+      }
+      
       onFilterChange({
-        chapter: chapter === "All Chapters" ? undefined : chapter,
+        chapter: chapterNumber,
         examNumber: selectedExam === "All Exams" ? undefined : Number(selectedExam)
       });
     }
@@ -94,8 +100,15 @@ export const PracticeHeader = ({
     setIsExamDropdownOpen(false);
     
     if (onFilterChange) {
+      // Extract chapter number for current chapter selection
+      let chapterNumber: string | undefined;
+      if (selectedChapter !== "All Chapters") {
+        const match = selectedChapter.match(/Chapter (\d+)/);
+        chapterNumber = match ? match[1] : undefined;
+      }
+      
       onFilterChange({
-        chapter: selectedChapter === "All Chapters" ? undefined : selectedChapter,
+        chapter: chapterNumber,
         examNumber: examId === "All Exams" ? undefined : Number(examId)
       });
     }

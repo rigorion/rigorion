@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from "react";
 import { Question } from "@/types/QuestionInterface";
 import { useQuestions } from "@/contexts/QuestionsContext";
@@ -8,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { filterQuestionsByChapter, getUniqueChapters } from "@/utils/mapQuestion";
 import { saveObjective, loadObjective } from "@/services/objectivePersistence";
-import { ChapterFilter } from "./ChapterFilter";
 
 // Import refactored components
 import PracticeHeader from "@/components/practice/PracticeHeader";
@@ -60,8 +58,7 @@ export default function PracticeContent({
   const allQuestions = propQuestions !== undefined ? propQuestions : questionsContext.questions;
   console.log("PracticeContent: questions in use", allQuestions);
   
-  // Chapter filtering state
-  const [selectedChapter, setSelectedChapter] = useState<string>("All Chapters");
+  // Chapter filtering state - removed selectedChapter state as it's now handled in header
   const [filteredQuestions, setFilteredQuestions] = useState<Question[]>(allQuestions);
   
   const isLoading = propIsLoading !== undefined ? propIsLoading : (isUsingContext ? questionsContext.isLoading : false);
@@ -107,19 +104,31 @@ export default function PracticeContent({
     }
   }, []);
 
-  // Filter questions when chapter selection changes
-  useEffect(() => {
-    const filtered = filterQuestionsByChapter(allQuestions, selectedChapter);
+  // Handle filtering from header
+  const handleFilterChange = useCallback((filters: { chapter?: string; examNumber?: number }) => {
+    let filtered = allQuestions;
+    
+    // Filter by chapter number if specified
+    if (filters.chapter) {
+      filtered = filtered.filter(q => {
+        const chapterMatch = q.chapter.match(/Chapter (\d+)/i);
+        return chapterMatch && chapterMatch[1] === filters.chapter;
+      });
+    }
+    
+    // Filter by exam number if specified
+    if (filters.examNumber) {
+      filtered = filtered.filter(q => q.examNumber === filters.examNumber);
+    }
+    
     setFilteredQuestions(filtered);
     setCurrentQuestionIndex(0); // Reset to first question when filtering
-  }, [allQuestions, selectedChapter]);
+  }, [allQuestions]);
 
-  // Sync with prop settings changes
+  // Update filtered questions when allQuestions changes
   useEffect(() => {
-    if (propSettings) {
-      setDisplaySettings(propSettings);
-    }
-  }, [propSettings]);
+    setFilteredQuestions(allQuestions);
+  }, [allQuestions]);
 
   // Style states
   const [fontFamily, setFontFamily] = useState<string>('inter');
@@ -349,14 +358,8 @@ export default function PracticeContent({
       <div className="flex flex-col items-center justify-center min-h-screen">
         <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
           <strong className="font-bold">No Questions!</strong>
-          <span className="block sm:inline"> No questions available for the selected chapter.</span>
+          <span className="block sm:inline"> No questions available for the selected filters.</span>
         </div>
-        <ChapterFilter
-          chapters={getUniqueChapters(allQuestions)}
-          selectedChapter={selectedChapter}
-          onChapterChange={setSelectedChapter}
-          className="mt-4"
-        />
       </div>
     );
   }
@@ -371,17 +374,12 @@ export default function PracticeContent({
         mode={mode} 
         sidebarOpen={sidebarOpen} 
         setSidebarOpen={setSidebarOpen}
+        onFilterChange={handleFilterChange}
       />
 
-      {/* Progress Bar with Stats, Tabs, and Chapter Filter */}
+      {/* Progress Bar with Stats and Tabs - removed ChapterFilter */}
       <div className="border-b border-gray-200 bg-white">
         <div className="flex items-center justify-between px-6 py-2">
-          <ChapterFilter
-            chapters={getUniqueChapters(allQuestions)}
-            selectedChapter={selectedChapter}
-            onChapterChange={setSelectedChapter}
-          />
-          
           <PracticeProgress 
             correctAnswers={correctAnswers} 
             incorrectAnswers={incorrectAnswers} 
