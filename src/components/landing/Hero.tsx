@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Sparkles } from 'lucide-react';
@@ -232,12 +231,15 @@ Always respond with practical, encouraging advice formatted in a clear, organize
       
       <div className="container mx-auto px-4 relative" style={{ zIndex: 10 }}>
         <div className="flex flex-col items-center justify-center text-center">
-          <div className="mb-8">
-            <AISearchBar
-              onAIAnalyze={handleAIAnalyze}
-              placeholder="Tell me about your study goals..."
-              className="w-full"
-            />
+          {/* Longer search bar without container background - Google style */}
+          <div className="mb-8 w-full max-w-2xl">
+            <div className="w-full">
+              <AISearchBar
+                onAIAnalyze={handleAIAnalyze}
+                placeholder="Tell me about your study goals..."
+                className="w-full max-w-none"
+              />
+            </div>
           </div>
           
           {!analysisResult && !isAnalyzing && (
@@ -279,15 +281,16 @@ Always respond with practical, encouraging advice formatted in a clear, organize
             </div>
           )}
           
-          <div className="flex items-center justify-center mb-8">
+          {/* Two buttons side by side */}
+          <div className="flex items-center justify-center gap-4 mb-8">
             <div className="backdrop-blur-sm rounded-full px-6 py-3 flex items-center space-x-2 bg-white/90 border border-gray-200 shadow-lg">
               <span className="font-semibold text-[#8A0303]">#1 Global Ranking</span>
             </div>
+            
+            <Button className="bg-[#8A0303] hover:bg-[#6a0202] text-white font-medium px-8 py-4 rounded-full h-auto text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+              {isAnalyzing ? 'Analyzing...' : 'Join us'}
+            </Button>
           </div>
-          
-          <Button className="bg-[#8A0303] hover:bg-[#6a0202] text-white font-medium px-8 py-4 rounded-full h-auto text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-            {isAnalyzing ? 'Analyzing...' : 'Join us'}
-          </Button>
         </div>
       </div>
     </section>
