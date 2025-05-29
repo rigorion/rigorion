@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { TabsList, Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs";
@@ -13,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import SecureProgressDataButton from "@/components/progress/SecureProgressDataButton";
 import { useQueryClient } from "@tanstack/react-query";
+import AIAnalyzer from "@/components/ai/AIAnalyzer";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -424,6 +426,17 @@ const Progress = () => {
               </TabsContent>
             </div>
           </Tabs>
+
+          {/* AI Assistant for Progress Page */}
+          <AIAnalyzer
+            context="progress"
+            data={{
+              userId,
+              progressData: progressData || DUMMY_PROGRESS,
+              activeTab,
+              period
+            }}
+          />
         </main>
       </div>
     </SecureProgressDataProvider>
