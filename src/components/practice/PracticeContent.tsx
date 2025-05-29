@@ -72,6 +72,7 @@ export default function PracticeContent({
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(propCurrentIndex || 0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mode, setMode] = useState<"timer" | "level" | "manual" | "pomodoro" | "exam">("manual");
+  const [selectedLevel, setSelectedLevel] = useState<"easy" | "medium" | "hard" | null>(null);
   const [timerDuration, setTimerDuration] = useState<number>(0);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [objective, setObjective] = useState<{
@@ -99,6 +100,26 @@ export default function PracticeContent({
     }
   );
 
+  // Style states
+  const [fontFamily, setFontFamily] = useState<string>('inter');
+  const [fontSize, setFontSize] = useState<number>(14);
+  const [contentColor, setContentColor] = useState<string>('#374151');
+  const [keyPhraseColor, setKeyPhraseColor] = useState<string>('#2563eb');
+  const [formulaColor, setFormulaColor] = useState<string>('#dc2626');
+  const [styleCollapsed, setStyleCollapsed] = useState(true);
+  
+  // Stats and feedback states
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [incorrectAnswers, setIncorrectAnswers] = useState(0);
+  const [showCommunityStats, setShowCommunityStats] = useState(false);
+  
+  const [boardColor, setBoardColor] = useState('white');
+  const [colorSettings, setColorSettings] = useState({
+    content: '#374151',
+    keyPhrase: '#2563eb',
+    formula: '#dc2626'
+  });
+
   // Load objective from localStorage on mount
   useEffect(() => {
     const savedObjective = loadObjective();
@@ -124,34 +145,26 @@ export default function PracticeContent({
       filtered = filtered.filter(q => q.module === filters.module);
     }
     
+    // Filter by difficulty level if in level mode
+    if (mode === "level" && selectedLevel) {
+      filtered = filtered.filter(q => q.difficulty === selectedLevel);
+    }
+    
     setFilteredQuestions(filtered);
     setCurrentQuestionIndex(0); // Reset to first question when filtering
-  }, [allQuestions]);
+  }, [allQuestions, mode, selectedLevel]);
 
-  // Update filtered questions when allQuestions changes
+  // Update filtered questions when allQuestions or level selection changes
   useEffect(() => {
-    setFilteredQuestions(allQuestions);
-  }, [allQuestions]);
-
-  // Style states
-  const [fontFamily, setFontFamily] = useState<string>('inter');
-  const [fontSize, setFontSize] = useState<number>(14);
-  const [contentColor, setContentColor] = useState<string>('#374151');
-  const [keyPhraseColor, setKeyPhraseColor] = useState<string>('#2563eb');
-  const [formulaColor, setFormulaColor] = useState<string>('#dc2626');
-  const [styleCollapsed, setStyleCollapsed] = useState(true);
-  
-  // Stats and feedback states
-  const [correctAnswers, setCorrectAnswers] = useState(0);
-  const [incorrectAnswers, setIncorrectAnswers] = useState(0);
-  const [showCommunityStats, setShowCommunityStats] = useState(false);
-  
-  const [boardColor, setBoardColor] = useState('white');
-  const [colorSettings, setColorSettings] = useState({
-    content: '#374151',
-    keyPhrase: '#2563eb',
-    formula: '#dc2626'
-  });
+    let filtered = allQuestions;
+    
+    // Apply level filtering if in level mode
+    if (mode === "level" && selectedLevel) {
+      filtered = filtered.filter(q => q.difficulty === selectedLevel);
+    }
+    
+    setFilteredQuestions(filtered);
+  }, [allQuestions, mode, selectedLevel]);
 
   // Get current question from filtered questions
   const currentQuestion = propCurrentQuestion !== undefined 
@@ -176,8 +189,10 @@ export default function PracticeContent({
   }, [propCurrentIndex]);
 
   // Mode and objective handlers
-  const handleSetMode = (selectedMode: "timer" | "level" | "manual" | "pomodoro" | "exam", duration?: number) => {
+  const handleSetMode = (selectedMode: "timer" | "level" | "manual" | "pomodoro" | "exam", duration?: number, level?: "easy" | "medium" | "hard") => {
     setMode(selectedMode);
+    setSelectedLevel(level || null);
+    
     if (duration) {
       setTimerDuration(duration);
       setIsTimerActive(true);
@@ -201,6 +216,14 @@ export default function PracticeContent({
   const handleTimerComplete = () => {
     setIsTimerActive(false);
     console.log("Time's up!");
+  };
+
+  const handlePomodoroBreak = () => {
+    // Reset timer for next pomodoro session
+    setIsTimerActive(false);
+    setTimeout(() => {
+      setTimerDuration(1500); // Reset to 25 minutes
+    }, 5 * 60 * 1000); // 5 minute break
   };
 
   // Update displaySettings when settings change
@@ -288,6 +311,11 @@ export default function PracticeContent({
         setCurrentQuestionIndex(prev => prev + 1);
         setSelectedAnswer(null);
         setIsCorrect(null);
+        
+        // Reset timer for next question in timer mode
+        if (mode === "timer" && timerDuration > 0) {
+          setIsTimerActive(true);
+        }
       }
     }
   };
@@ -399,6 +427,8 @@ export default function PracticeContent({
             currentQuestionHint={currentQuestion?.hint} 
             objective={objective} 
             progress={progress} 
+            onAutoNext={nextQuestion}
+            onPomodoroBreak={handlePomodoroBreak}
           />
         </div>
       </div>

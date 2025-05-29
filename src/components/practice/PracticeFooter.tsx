@@ -1,13 +1,9 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { 
-  Bookmark, ChevronLeft, ChevronRight, ArrowRight, 
-  Mail, MessageCircle, Music, Music2, Music4, 
-  Share2, Users, Star, Clock
-} from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Search, ChevronLeft, ChevronRight, BarChart2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface PracticeFooterProps {
   onToggleCommunityStats: () => void;
@@ -18,13 +14,13 @@ interface PracticeFooterProps {
   showGoToInput: boolean;
   setShowGoToInput: (show: boolean) => void;
   targetQuestion: string;
-  setTargetQuestion: (value: string) => void;
+  setTargetQuestion: (target: string) => void;
   handleGoToQuestion: () => void;
   inputError: string;
 }
 
-const PracticeFooter = ({ 
-  onToggleCommunityStats, 
+const PracticeFooter = ({
+  onToggleCommunityStats,
   onPrevious,
   onNext,
   currentQuestionIndex,
@@ -34,315 +30,152 @@ const PracticeFooter = ({
   targetQuestion,
   setTargetQuestion,
   handleGoToQuestion,
-  inputError
+  inputError,
 }: PracticeFooterProps) => {
-  const [isMusicMenuOpen, setIsMusicMenuOpen] = useState(false);
-  const [currentTrack, setCurrentTrack] = useState<string | null>(null);
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
-  const [showShareDialog, setShowShareDialog] = useState(false);
-  const [showCommentsPopover, setShowCommentsPopover] = useState(false);
-  const [showCommunityStats, setShowCommunityStats] = useState(false);
-
-  // Community stats data
-  const communityStats = {
-    totalAttempts: 2450,
-    accuracy: 68,
-    avgTime: "2m 15s",
-    difficultyRating: {
-      easy: 45,
-      medium: 35,
-      hard: 20
-    }
-  };
-
-  const handleMusicSelect = (trackPath: string) => {
-    if (audioElement) {
-      audioElement.pause();
-      setAudioElement(null);
-    }
-    const newAudio = new Audio(trackPath);
-    newAudio.loop = true;
-    newAudio.play().catch(e => console.log("Audio playback failed:", e));
-    setAudioElement(newAudio);
-    setCurrentTrack(trackPath);
-    setIsMusicMenuOpen(false);
-  };
-
-  const handleShare = (platform: string) => {
-    const currentUrl = window.location.href;
-    const message = "Check out this practice platform: ";
-    switch(platform) {
-      case 'whatsapp':
-        window.open(`whatsapp://send?text=${encodeURIComponent(message + currentUrl)}`);
-        break;
-      case 'email':
-        window.open(`mailto:?body=${encodeURIComponent(message + currentUrl)}`);
-        break;
-      case 'copy':
-        navigator.clipboard.writeText(currentUrl);
-        break;
-      default:
-        window.open(`https://${platform}.com/share?url=${encodeURIComponent(currentUrl)}`);
-    }
-    setShowShareDialog(false);
-  };
-
-  const toggleCommunityStats = () => {
-    setShowCommunityStats(!showCommunityStats);
-    onToggleCommunityStats();
-  };
-
-  useEffect(() => {
-    // Clean up audio on component unmount
-    return () => {
-      if (audioElement) {
-        audioElement.pause();
-        setAudioElement(null);
-      }
-    };
-  }, []);
+  const { isDarkMode } = useTheme();
 
   return (
-    <div className="border-t px-6 py-4 flex flex-col bg-gray-50">
-      <div className="flex items-center justify-between gap-4">
-        {/* Left Side - Previous Button */}
-        <div className="flex items-center gap-4">
+    <>
+      {/* Footer Navigation */}
+      <div className={`fixed bottom-0 left-0 right-0 border-t transition-colors duration-300 ${
+        isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+      } z-10`}>
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3">
+          {/* Left: Community Stats */}
           <Button
             variant="ghost"
-            className="rounded-full"
-            onClick={onPrevious}
-            disabled={currentQuestionIndex <= 0}
+            size="sm"
+            onClick={onToggleCommunityStats}
+            className={`flex items-center gap-2 transition-colors ${
+              isDarkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+            }`}
           >
-            <ChevronLeft className="h-4 w-4 text-blue-600 mr-1" />
-            Previous
+            <BarChart2 className={`h-4 w-4 ${
+              isDarkMode 
+                ? 'text-gradient bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent' 
+                : 'text-blue-600'
+            }`} />
+            <span className={isDarkMode ? 'text-white' : 'text-gray-700'}>Community Stats</span>
           </Button>
-          
-          {/* Community Stats Toggle Button */}
-          <Popover open={showCommunityStats} onOpenChange={toggleCommunityStats}>
-            <PopoverTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="rounded-full bg-transparent hover:bg-blue-50 flex items-center"
+
+          {/* Center: Navigation Controls */}
+          <div className="flex items-center gap-3">
+            {/* Previous Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onPrevious}
+              disabled={currentQuestionIndex === 0}
+              className={`flex items-center gap-2 transition-colors ${
+                isDarkMode 
+                  ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500' 
+                  : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
+              }`}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Previous
+            </Button>
+
+            {/* Question Counter & Go To */}
+            <div className="flex items-center gap-2">
+              <span className={`text-sm font-medium px-3 py-1 rounded-full ${
+                isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-700'
+              }`}>
+                {currentQuestionIndex + 1} of {totalQuestions}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowGoToInput(!showGoToInput)}
+                className={`p-2 transition-colors ${
+                  isDarkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
               >
-                <Users className="h-4 w-4 text-blue-600" />
-                {showCommunityStats && (
-                  <span className="ml-2 text-sm">Stats</span>
-                )}
+                <Search className={`h-4 w-4 ${
+                  isDarkMode 
+                    ? 'text-gradient bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent' 
+                    : 'text-blue-600'
+                }`} />
               </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-2">
-              <div className="flex items-center gap-4 bg-white px-4 py-2 rounded-lg">
-                <div className="flex items-center gap-1">
-                  <Users className="h-4 w-4 text-blue-600" />
-                  <span className="text-sm font-medium">{communityStats.totalAttempts}</span>
-                </div>
-                
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 text-yellow-500" />
-                  <span className="text-sm font-medium">{communityStats.accuracy}%</span>
-                </div>
-                
-                <div className="flex items-center gap-1">
-                  <Clock className="h-4 w-4 text-green-600" />
-                  <span className="text-sm font-medium">{communityStats.avgTime}</span>
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
+            </div>
+
+            {/* Next Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onNext}
+              disabled={currentQuestionIndex === totalQuestions - 1}
+              className={`flex items-center gap-2 transition-colors ${
+                isDarkMode 
+                  ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500' 
+                  : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
+              }`}
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Right: Empty space for balance */}
+          <div className="w-24"></div>
         </div>
-
-        {/* Center Section with Features */}
-        <div className="flex items-center gap-3 justify-center">
-          {/* Music Menu Button */}
-          <Popover open={isMusicMenuOpen} onOpenChange={setIsMusicMenuOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="rounded-full bg-transparent hover:bg-blue-50"
-              >
-                <Music className="h-4 w-4 text-blue-600" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-48 p-2 bg-white border rounded-lg shadow-lg animate-in fade-in-80 slide-in-from-bottom-5">
-              <div className="text-sm text-gray-700 px-3 py-1">Background Music</div>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMusicSelect("/music/ambient.mp3")}
-              >
-                <Music2 className="h-4 w-4 mr-2 text-blue-600" />
-                Ambient Study
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMusicSelect("/music/classical.mp3")}
-              >
-                <Music4 className="h-4 w-4 mr-2 text-blue-600" />
-                Classical
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => {
-                  if (audioElement) {
-                    audioElement.pause();
-                    setAudioElement(null);
-                    setCurrentTrack(null);
-                  }
-                }}
-              >
-                <Music className="h-4 w-4 mr-2 text-blue-600" />
-                Off
-              </Button>
-            </PopoverContent>
-          </Popover>
-          
-          {/* Comments/Review Button with Popover */}
-          <Popover open={showCommentsPopover} onOpenChange={setShowCommentsPopover}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="rounded-full bg-transparent hover:bg-blue-50"
-              >
-                <MessageCircle className="h-4 w-4 text-blue-600" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80 p-4 bg-white border rounded-lg shadow-lg animate-in fade-in-80 slide-in-from-bottom-5">
-              <div className="space-y-4">
-                <h3 className="text-sm font-medium text-gray-700">Reviews</h3>
-                <div className="max-h-80 overflow-y-auto space-y-4">
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-medium text-sm">John D.</span>
-                      <span className="text-xs text-gray-500">2 days ago</span>
-                    </div>
-                    <p className="text-sm text-gray-700">This question was really helpful for understanding the concept!</p>
-                  </div>
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-
-          {/* Go to Question Button */}
-          <Popover open={showGoToInput} onOpenChange={setShowGoToInput}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="rounded-full flex items-center bg-transparent hover:bg-blue-50 px-3"
-              >
-                <span className="text-sm text-blue-600 mr-2">Go to</span>
-                <ArrowRight className="h-4 w-4 text-blue-600" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-64 p-4 bg-white border rounded-lg shadow-lg animate-in fade-in slide-in-from-bottom-5">
-              <div className="flex flex-col space-y-2">
-                <label className="text-sm text-gray-700">Go to Question</label>
-                <div className="flex gap-2">
-                  <Input
-                    type="number"
-                    min="1"
-                    max={totalQuestions}
-                    value={targetQuestion}
-                    onChange={(e) => setTargetQuestion(e.target.value)}
-                    className="w-full"
-                    placeholder={`Enter (1-${totalQuestions})`}
-                    onKeyPress={(e) => e.key === 'Enter' && handleGoToQuestion()}
-                  />
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="bg-blue-600 hover:bg-blue-700"
-                    onClick={handleGoToQuestion}
-                  >
-                    Go
-                  </Button>
-                </div>
-                {inputError && (
-                  <div className="text-sm text-red-500">{inputError}</div>
-                )}
-              </div>
-            </PopoverContent>
-          </Popover>
-
-          {/* Share Button */}
-          <Popover open={showShareDialog} onOpenChange={setShowShareDialog}>
-            <PopoverTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="rounded-full bg-transparent hover:bg-blue-50"
-              >
-                <Share2 className="h-4 w-4 text-blue-600" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-48 p-2 bg-white border rounded-lg shadow-lg animate-in fade-in-80 slide-in-from-bottom-5">
-              <div className="text-sm font-medium text-gray-700 p-2">Share Session</div>
-              <div className="flex flex-col space-y-1">
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                  onClick={() => handleShare('whatsapp')}
-                >
-                  <MessageCircle className="h-4 w-4 mr-2 text-blue-600" />
-                  WhatsApp
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                  onClick={() => handleShare('email')}
-                >
-                  <Mail className="h-4 w-4 mr-2 text-blue-600" />
-                  Email
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                  onClick={() => handleShare('copy')}
-                >
-                  <Share2 className="h-4 w-4 mr-2 text-blue-600" />
-                  Copy Link
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
-
-          {/* Bookmark Button */}
-          <Button variant="ghost" size="sm" className="rounded-full bg-transparent hover:bg-blue-50">
-            <Bookmark className="h-4 w-4 text-blue-600" />
-          </Button>
-        </div>
-
-        {/* Right Side - Next Button */}
-        <Button
-          variant="ghost"
-          className="rounded-full"
-          onClick={onNext}
-          disabled={currentQuestionIndex >= totalQuestions - 1}
-        >
-          Next
-          <ChevronRight className="h-4 w-4 text-blue-600 ml-1" />
-        </Button>
       </div>
 
-      {/* Global Animation Styles */}
+      {/* Go to Question Popup */}
+      {showGoToInput && (
+        <div className={`fixed bottom-24 left-1/2 -translate-x-1/2 border rounded-lg shadow-lg p-4 w-64 animate-in fade-in slide-in-from-bottom-5 z-20 transition-colors ${
+          isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-300'
+        }`}>
+          <div className="flex flex-col space-y-2">
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                min="1"
+                max={totalQuestions}
+                value={targetQuestion}
+                onChange={(e) => {
+                  setTargetQuestion(e.target.value);
+                }}
+                className={`w-full px-3 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+                  isDarkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                }`}
+                placeholder={`Enter question (1-${totalQuestions})`}
+                onKeyPress={(e) => e.key === 'Enter' && handleGoToQuestion()}
+              />
+            </div>
+            {inputError && (
+              <div className="text-sm text-red-500">{inputError}</div>
+            )}
+            <Button 
+              variant="default" 
+              size="sm" 
+              className={`w-full transition-colors ${
+                isDarkMode 
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
+              onClick={handleGoToQuestion}
+            >
+              Go
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* CSS for gradient text effect in dark mode */}
       <style>
         {`
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          
-          .fade-in-animation {
-            animation: fadeIn 0.3s ease-out forwards;
+          .text-gradient {
+            background: linear-gradient(45deg, #60a5fa, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
           }
         `}
       </style>
-    </div>
+    </>
   );
 };
 

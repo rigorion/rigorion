@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import PracticeTabSelector from "./PracticeTabSelector";
 import { useState } from "react";
 import SettingsDialog from "./SettingsDialog";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface PracticeProgressProps {
   correctAnswers: number;
@@ -27,6 +28,7 @@ interface PracticeProgressProps {
   } | null;
   progress?: number;
   onAutoNext?: () => void;
+  onPomodoroBreak?: () => void;
 }
 
 const PracticeProgress = ({
@@ -45,8 +47,10 @@ const PracticeProgress = ({
   currentQuestionHint = "Try breaking down the problem into smaller parts.",
   objective = null,
   progress = 0,
-  onAutoNext
+  onAutoNext,
+  onPomodoroBreak
 }: PracticeProgressProps) => {
+  const { isDarkMode } = useTheme();
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState({
     fontFamily: 'inter',
@@ -101,10 +105,12 @@ const PracticeProgress = ({
   };
 
   return (
-    <div className="px-3 py-2 border-b bg-white">
+    <div className={`px-3 py-2 border-b transition-colors duration-300 ${
+      isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+    }`}>
       <div className="flex items-center justify-between mb-2">
         {/* Progress bar with percentage indicator */}
-        <div className="relative h-2.5 bg-gray-100 rounded-full overflow-hidden flex-grow progress-bar">
+        <div className="relative h-2.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden flex-grow progress-bar">
           {/* Correct answers - green */}
           <div
             className="absolute left-0 top-0 h-full bg-green-500 rounded-l-full transition-all duration-500 ease-out shine-animation"
@@ -121,11 +127,13 @@ const PracticeProgress = ({
           />
           {/* Unattempted - grey */}
           <div
-            className="absolute top-0 right-0 h-full bg-gray-300 rounded-r-full transition-all duration-500 ease-out"
+            className="absolute top-0 right-0 h-full bg-gray-300 dark:bg-gray-600 rounded-r-full transition-all duration-500 ease-out"
             style={{ width: unattemptedWidth, zIndex: 1 }}
           />
           {/* Progress percentage */}
-          <div className="absolute right-0 top-0 -translate-y-1/2 translate-x-full mt-1.5 ml-2 text-xs font-medium text-blue-600">
+          <div className={`absolute right-0 top-0 -translate-y-1/2 translate-x-full mt-1.5 ml-2 text-xs font-medium ${
+            isDarkMode ? 'text-blue-400' : 'text-blue-600'
+          }`}>
             {totalPercentage}%
           </div>
         </div>
@@ -137,15 +145,15 @@ const PracticeProgress = ({
           <div className="flex gap-2 text-xs">
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 bg-green-500 rounded-full" />
-              <span>Correct</span>
+              <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>Correct</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 bg-red-500 rounded-full" />
-              <span>Incorrect</span>
+              <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>Incorrect</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-gray-300 rounded-full" />
-              <span>Unattempted</span>
+              <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full" />
+              <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>Unattempted</span>
             </div>
           </div>
         </div>
@@ -154,15 +162,23 @@ const PracticeProgress = ({
         <div className="flex items-center gap-2">
           {/* Hint button */}
           <HintDialog hint={currentQuestionHint} currentQuestionIndex={currentQuestionIndex} />
-          {/* Settings button - moved next to hint, border removed */}
+          {/* Settings button */}
           <SettingsDialog open={showSettings} onOpenChange={setShowSettings} settings={settings} onApply={handleSettingsChange}>
             <Button variant="ghost" size="sm" className="p-1 h-6 rounded-full border-none">
-              <Sparkles className="h-4 w-4 text-amber-500" />
+              <Sparkles className={`h-4 w-4 ${
+                isDarkMode 
+                  ? 'text-gradient bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent' 
+                  : 'text-amber-500'
+              }`} />
             </Button>
           </SettingsDialog>
-          {/* Flag button (for review later) */}
+          {/* Flag button */}
           <Button variant="ghost" size="sm" className="p-1 h-6 rounded-full">
-            <Flag className="h-4 w-4 text-blue-600" />
+            <Flag className={`h-4 w-4 ${
+              isDarkMode 
+                ? 'text-gradient bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent' 
+                : 'text-blue-600'
+            }`} />
           </Button>
           {/* Tab selector */}
           <PracticeTabSelector activeTab={activeTab} setActiveTab={setActiveTab} className="h-8 min-h-0" />
@@ -172,13 +188,19 @@ const PracticeProgress = ({
         <div className="flex items-center gap-4">
           {/* Target Progress indicator */}
           <div className="flex items-center text-sm">
-            <span className="text-blue-600 font-medium">
+            <span className={`font-medium ${
+              isDarkMode ? 'text-blue-400' : 'text-blue-600'
+            }`}>
               Target Progress: {targetProgressPercentage}%
             </span>
           </div>
           {/* Timer */}
           <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-blue-600" />
+            <Clock className={`h-4 w-4 ${
+              isDarkMode 
+                ? 'text-gradient bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent' 
+                : 'text-blue-600'
+            }`} />
             {timerDuration > 0 ? (
               <CountdownTimer
                 durationInSeconds={timerDuration}
@@ -187,9 +209,10 @@ const PracticeProgress = ({
                 mode={mode}
                 onUpdate={(remaining: string) => setTimeRemaining(remaining)}
                 onAutoNext={onAutoNext}
+                onPomodoroBreak={onPomodoroBreak}
               />
             ) : (
-              <span>{timeRemaining}</span>
+              <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>{timeRemaining}</span>
             )}
           </div>
         </div>

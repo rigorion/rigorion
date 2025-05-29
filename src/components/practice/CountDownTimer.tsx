@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/components/ui/use-toast";
 
 interface CountdownTimerProps {
   durationInSeconds: number;
@@ -10,6 +11,7 @@ interface CountdownTimerProps {
   className?: string;
   onUpdate?: (formattedTime: string) => void;
   onAutoNext?: () => void;
+  onPomodoroBreak?: () => void;
 }
 
 const CountdownTimer = ({ 
@@ -19,10 +21,12 @@ const CountdownTimer = ({
   mode = "timer",
   className,
   onUpdate,
-  onAutoNext
+  onAutoNext,
+  onPomodoroBreak
 }: CountdownTimerProps) => {
   const [timeLeft, setTimeLeft] = useState(durationInSeconds);
   const [isPaused, setIsPaused] = useState(false);
+  const { toast } = useToast();
 
   // Full reset when duration changes
   useEffect(() => {
@@ -42,11 +46,23 @@ const CountdownTimer = ({
           clearInterval(timer);
           onComplete();
           
-          // Auto-navigate to next question in timer mode
-          if (mode === "timer" && onAutoNext) {
-            setTimeout(() => {
-              onAutoNext();
-            }, 1000); // Small delay to show timer completion
+          if (mode === "timer") {
+            // Auto-navigate to next question in timer mode
+            if (onAutoNext) {
+              setTimeout(() => {
+                onAutoNext();
+              }, 1000);
+            }
+          } else if (mode === "pomodoro") {
+            // Show break notification for Pomodoro
+            toast({
+              title: "Pomodoro Complete!",
+              description: "Time for a 5-minute break. Click to start next session.",
+              duration: 10000,
+            });
+            if (onPomodoroBreak) {
+              onPomodoroBreak();
+            }
           }
           
           return 0;
@@ -57,7 +73,7 @@ const CountdownTimer = ({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isActive, isPaused, onComplete, mode, onAutoNext]);
+  }, [isActive, isPaused, onComplete, mode, onAutoNext, onPomodoroBreak, toast]);
 
   // Format time as mm:ss
   const formatTime = (seconds: number) => {

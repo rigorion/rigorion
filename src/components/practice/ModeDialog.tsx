@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -10,13 +11,13 @@ import { Timer, Layers, Hand, Clock, FileText, X } from "lucide-react";
 interface ModeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSetMode: (mode: "timer" | "level" | "manual" | "pomodoro" | "exam", duration?: number) => void;
+  onSetMode: (mode: "timer" | "level" | "manual" | "pomodoro" | "exam", duration?: number, level?: "easy" | "medium" | "hard") => void;
 }
 
 const ModeDialog = ({ open, onOpenChange, onSetMode }: ModeDialogProps) => {
   const [selectedMode, setSelectedMode] = useState<"timer" | "level" | "manual" | "pomodoro" | "exam">("timer");
   const [timerDuration, setTimerDuration] = useState(30); // Default minutes
-  const [selectedLevel, setSelectedLevel] = useState("beginner");
+  const [selectedLevel, setSelectedLevel] = useState<"easy" | "medium" | "hard">("easy");
 
   const handleSetMode = () => {
     let finalDuration: number | undefined;
@@ -35,14 +36,14 @@ const ModeDialog = ({ open, onOpenChange, onSetMode }: ModeDialogProps) => {
         finalDuration = undefined;
     }
     
-    onSetMode(selectedMode, finalDuration);
+    onSetMode(selectedMode, finalDuration, selectedMode === "level" ? selectedLevel : undefined);
     onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-<DialogContent className="sm:max-w-xl p-0 overflow-hidden rounded-xl bg-white">
-<div className="p-6">
+      <DialogContent className="sm:max-w-xl p-0 overflow-hidden rounded-xl bg-white">
+        <div className="p-6">
           <div className="flex justify-between items-center mb-3">
             <DialogTitle className="text-xl font-medium">Select Practice Mode</DialogTitle>
             <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="rounded-full h-8 w-8">
@@ -104,28 +105,53 @@ const ModeDialog = ({ open, onOpenChange, onSetMode }: ModeDialogProps) => {
                   min="1"
                   className="w-full rounded-xl"
                 />
+                <p className="text-sm text-gray-500 mt-2">Auto-advances to next question when timer expires</p>
               </div>
             )}
 
             {selectedMode === "level" && (
-              <RadioGroup 
-                value={selectedLevel} 
-                onValueChange={setSelectedLevel}
-                className="flex flex-col space-y-3"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="beginner" id="beginner" />
-                  <Label htmlFor="beginner">Beginner</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="medium" id="medium" />
-                  <Label htmlFor="medium">Medium</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="difficult" id="difficult" />
-                  <Label htmlFor="difficult">Difficult</Label>
-                </div>
-              </RadioGroup>
+              <div>
+                <Label className="mb-3 block">Select Difficulty Level</Label>
+                <RadioGroup 
+                  value={selectedLevel} 
+                  onValueChange={(value) => setSelectedLevel(value as "easy" | "medium" | "hard")}
+                  className="flex flex-col space-y-3"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="easy" id="easy" />
+                    <Label htmlFor="easy">Easy - Beginner level questions</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="medium" id="medium" />
+                    <Label htmlFor="medium">Medium - Intermediate level questions</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="hard" id="hard" />
+                    <Label htmlFor="hard">Hard - Advanced level questions</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+            )}
+
+            {selectedMode === "pomodoro" && (
+              <div>
+                <Label className="mb-2 block">Pomodoro Session</Label>
+                <p className="text-sm text-gray-600">25-minute focused study sessions with 5-minute breaks</p>
+              </div>
+            )}
+
+            {selectedMode === "exam" && (
+              <div>
+                <Label className="mb-2 block">Exam Mode</Label>
+                <p className="text-sm text-gray-600">1-hour timed practice session</p>
+              </div>
+            )}
+
+            {selectedMode === "manual" && (
+              <div>
+                <Label className="mb-2 block">Manual Mode</Label>
+                <p className="text-sm text-gray-600">Navigate questions at your own pace</p>
+              </div>
             )}
           </div>
 
@@ -134,7 +160,7 @@ const ModeDialog = ({ open, onOpenChange, onSetMode }: ModeDialogProps) => {
               onClick={handleSetMode}
               className="bg-emerald-400 hover:bg-emerald-500 text-black rounded-xl px-16 py-2"
             >
-              Set Mode blu
+              Set Mode
             </Button>
           </div>
         </div>
