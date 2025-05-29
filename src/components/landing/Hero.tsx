@@ -1,10 +1,11 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AISearchBar from "@/components/ui/AISearchBar";
 import AnimatedPrompts from "@/components/ui/AnimatedPrompts";
-import { analyzeWithDeepSeek } from "@/services/deepseekService";
+import { analyzeWithAIML } from "@/services/aimlApi";
 
 export const Hero = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -29,8 +30,8 @@ export const Hero = () => {
     
     // Network nodes
     const nodes: Node[] = [];
-    const nodeCount = 100;
-    const connectionDistance = 160;
+    const nodeCount = 80;
+    const connectionDistance = 150;
     
     // Mouse position
     let mouseX = 0;
@@ -58,22 +59,22 @@ export const Hero = () => {
       constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 2.5 + 1;
-        this.speedX = (Math.random() - 0.5) * 0.6;
-        this.speedY = (Math.random() - 0.5) * 0.6;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = (Math.random() - 0.5) * 0.4;
+        this.speedY = (Math.random() - 0.5) * 0.4;
         this.pulse = Math.random() * Math.PI * 2;
-        this.pulsing = Math.random() > 0.7;
+        this.pulsing = Math.random() > 0.8;
         
-        // Red/white theme colors
+        // Subtle gray/blue theme colors for white background
         const colorType = Math.random();
         if (colorType < 0.4) {
-          this.color = '#FFFFFF'; // White
+          this.color = '#E5E7EB'; // Light gray
         } else if (colorType < 0.7) {
-          this.color = '#EF4444'; // Red
+          this.color = '#9CA3AF'; // Medium gray
         } else if (colorType < 0.9) {
-          this.color = '#DC2626'; // Dark Red
+          this.color = '#6B7280'; // Dark gray
         } else {
-          this.color = '#8A0303'; // Our brand red
+          this.color = '#8A0303'; // Brand red accent
         }
       }
       
@@ -83,8 +84,8 @@ export const Hero = () => {
         const dy = mouseY - this.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         
-        const attractionForce = 0.012;
-        const attractionRange = 350;
+        const attractionForce = 0.008;
+        const attractionRange = 300;
         
         if (dist < attractionRange) {
           this.x += dx * attractionForce;
@@ -92,9 +93,9 @@ export const Hero = () => {
         }
         
         // Dynamic movement with pulse
-        this.pulse += 0.04;
-        this.x += this.speedX + Math.sin(this.pulse) * 0.2;
-        this.y += this.speedY + Math.cos(this.pulse) * 0.2;
+        this.pulse += 0.03;
+        this.x += this.speedX + Math.sin(this.pulse) * 0.1;
+        this.y += this.speedY + Math.cos(this.pulse) * 0.1;
         
         // Wrap around edges
         if (this.x < 0) this.x = canvas.width;
@@ -107,11 +108,11 @@ export const Hero = () => {
         if (!ctx) return;
         
         let currentSize = this.size;
-        let alpha = 1;
+        let alpha = 0.6;
         
         if (this.pulsing) {
-          currentSize += Math.sin(this.pulse * 2) * 0.4;
-          alpha = 0.8 + Math.sin(this.pulse * 2) * 0.2;
+          currentSize += Math.sin(this.pulse * 2) * 0.3;
+          alpha = 0.4 + Math.sin(this.pulse * 2) * 0.2;
         }
         
         ctx.save();
@@ -121,9 +122,9 @@ export const Hero = () => {
         ctx.fillStyle = this.color;
         ctx.fill();
         
-        // Add glow effect for red nodes
-        if (this.color === '#EF4444' || this.color === '#8A0303') {
-          ctx.shadowBlur = 8;
+        // Add subtle glow effect for red nodes
+        if (this.color === '#8A0303') {
+          ctx.shadowBlur = 6;
           ctx.shadowColor = this.color;
           ctx.fill();
         }
@@ -140,21 +141,18 @@ export const Hero = () => {
           const distance = Math.sqrt(dx * dx + dy * dy);
           
           if (distance < connectionDistance) {
-            const opacity = 1 - (distance / connectionDistance);
+            const opacity = (1 - (distance / connectionDistance)) * 0.2;
             
-            let connectionColor;
-            if (this.color === '#EF4444' || node.color === '#EF4444' || 
-                this.color === '#8A0303' || node.color === '#8A0303') {
-              connectionColor = `rgba(239, 68, 68, ${opacity * 0.5})`;
-            } else {
-              connectionColor = `rgba(220, 38, 38, ${opacity * 0.3})`;
+            let connectionColor = `rgba(156, 163, 175, ${opacity})`;
+            if (this.color === '#8A0303' || node.color === '#8A0303') {
+              connectionColor = `rgba(138, 3, 3, ${opacity * 1.5})`;
             }
             
             ctx.beginPath();
             ctx.moveTo(this.x, this.y);
             ctx.lineTo(node.x, node.y);
             ctx.strokeStyle = connectionColor;
-            ctx.lineWidth = 0.6;
+            ctx.lineWidth = 0.5;
             ctx.stroke();
           }
         }
@@ -200,12 +198,21 @@ export const Hero = () => {
     setAnalysisResult('');
     
     try {
-      const result = await analyzeWithDeepSeek({
-        query: query,
-        context: 'study_plan_generation'
+      const systemPrompt = `You are an expert educational AI assistant specialized in creating personalized study plans for students. Your role is to:
+
+1. Analyze the student's goals, subjects, and available time
+2. Create structured, actionable study plans with specific timelines
+3. Provide learning strategies tailored to different subjects (SAT, ACT, AP courses, etc.)
+4. Suggest effective study techniques and resources
+5. Help students balance multiple subjects and extracurricular activities
+
+Always respond with practical, encouraging advice formatted in a clear, organized manner. Include specific recommendations for daily/weekly schedules when appropriate.`;
+
+      const result = await analyzeWithAIML({ 
+        query: `${systemPrompt}\n\nStudent Query: ${query}` 
       });
       
-      setAnalysisResult(result.analysis);
+      setAnalysisResult(result);
     } catch (error) {
       console.error('AI Analysis error:', error);
       setAnalysisResult('Welcome to Rigorion! I\'m your AI study companion. Tell me about your learning goals, the subjects you\'re working on, or specific topics you\'d like to master, and I\'ll create a personalized study plan tailored just for you. Let\'s make learning efficient and enjoyable!');
@@ -215,15 +222,15 @@ export const Hero = () => {
   };
   
   return (
-    <section className="relative py-32 overflow-hidden">
+    <section className="relative py-32 overflow-hidden bg-white">
       <canvas 
         ref={canvasRef} 
-        className="absolute inset-0 bg-gradient-to-br from-red-50 via-white to-pink-50 transition-all duration-1000 ease-out"
-        style={{ zIndex: -1 }}
+        className="absolute inset-0 bg-white"
+        style={{ zIndex: 1 }}
       />
-      <div className="absolute inset-0 bg-white/30 mix-blend-overlay transition-all duration-1000" />
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-50/30 via-white/50 to-blue-50/30 mix-blend-overlay" style={{ zIndex: 2 }} />
       
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-4 relative" style={{ zIndex: 10 }}>
         <div className="flex flex-col items-center justify-center text-center">
           <div className="mb-8">
             <AISearchBar
@@ -237,9 +244,20 @@ export const Hero = () => {
             <AnimatedPrompts />
           )}
           
+          {isAnalyzing && (
+            <div className="mb-12 max-w-3xl w-full">
+              <div className="backdrop-blur-sm rounded-3xl p-8 shadow-xl border bg-white/90 border-gray-200">
+                <div className="flex items-center justify-center gap-3">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red-600"></div>
+                  <span className="text-gray-600">AI is analyzing your request...</span>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {analysisResult && (
             <div className="mb-12 max-w-3xl w-full">
-              <div className="backdrop-blur-md rounded-3xl p-8 shadow-2xl border transition-all duration-700 ease-out transform animate-in slide-in-from-bottom-4 fade-in duration-500 bg-white/90 border-red-200/50 shadow-red-100/50">
+              <div className="backdrop-blur-sm rounded-3xl p-8 shadow-xl border transition-all duration-700 ease-out transform animate-in slide-in-from-bottom-4 fade-in duration-500 bg-white/95 border-gray-200">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-2 rounded-full bg-gradient-to-r from-[#8A0303] to-red-600">
                     <Sparkles className="h-5 w-5 text-white" />
@@ -247,12 +265,22 @@ export const Hero = () => {
                   <h3 className="text-xl font-bold text-red-700">Your AI Study Plan</h3>
                 </div>
                 <p className="text-gray-700 leading-relaxed text-left whitespace-pre-line">{analysisResult}</p>
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setAnalysisResult('')}
+                    className="text-gray-600 hover:text-gray-800"
+                  >
+                    Clear Analysis
+                  </Button>
+                </div>
               </div>
             </div>
           )}
           
           <div className="flex items-center justify-center mb-8">
-            <div className="backdrop-blur-sm rounded-full px-6 py-3 flex items-center space-x-2 bg-white/80 border border-red-200/50 shadow-lg">
+            <div className="backdrop-blur-sm rounded-full px-6 py-3 flex items-center space-x-2 bg-white/90 border border-gray-200 shadow-lg">
               <span className="font-semibold text-[#8A0303]">#1 Global Ranking</span>
             </div>
           </div>

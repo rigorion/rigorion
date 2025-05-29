@@ -25,20 +25,21 @@ const AISearchBar: React.FC<AISearchBarProps> = ({
     
     if (onAIAnalyze) {
       onAIAnalyze(query);
+      setQuery(''); // Clear input after submission
     }
   };
 
   return (
     <div className={cn('relative w-full max-w-6xl mx-auto', className)}>
-      {/* Animated Background Glow */}
-      <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-red-500/10 via-pink-500/10 to-red-600/10 blur-xl transition-all duration-700 ease-out" />
+      {/* Subtle Background Glow */}
+      <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-gray-100/20 via-blue-50/20 to-red-50/20 blur-xl transition-all duration-700 ease-out" />
       
       <div className={cn(
         'relative flex flex-col gap-3 p-4 transition-all duration-500 ease-out',
-        'backdrop-blur-sm rounded-3xl border',
+        'backdrop-blur-sm rounded-3xl border bg-white/95',
         isFocused 
           ? 'shadow-2xl border-red-300/50 scale-[1.01]' 
-          : 'shadow-lg border-red-200/30'
+          : 'shadow-lg border-gray-200/50'
       )}>
         
         {/* AI Mode Header */}
@@ -60,16 +61,16 @@ const AISearchBar: React.FC<AISearchBarProps> = ({
               onBlur={() => setIsFocused(false)}
               placeholder={placeholder}
               className={cn(
-                'border-2 bg-white/80 h-12 px-5 rounded-2xl text-base',
+                'border-2 bg-white h-12 px-5 rounded-2xl text-base',
                 'focus:ring-0 focus:outline-none transition-all duration-300',
                 'placeholder:text-gray-400 focus:placeholder:text-gray-500',
                 'font-medium resize-none',
-                'border-red-200 focus:border-red-400'
+                'border-gray-200 focus:border-red-400'
               )}
             />
           </div>
 
-          {/* Send Button - reduced size by half */}
+          {/* Send Button */}
           <Button
             type="submit"
             disabled={!query.trim()}
