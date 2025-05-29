@@ -1,3 +1,4 @@
+
 import { Clock, Flag, Sparkles } from "lucide-react";
 import CountdownTimer from "./CountDownTimer";
 import HintDialog from "./HintDialog";
@@ -153,9 +154,9 @@ const PracticeProgress = ({
         <div className="flex items-center gap-2">
           {/* Hint button */}
           <HintDialog hint={currentQuestionHint} currentQuestionIndex={currentQuestionIndex} />
-          {/* Settings button */}
+          {/* Settings button - moved next to hint, border removed */}
           <SettingsDialog open={showSettings} onOpenChange={setShowSettings} settings={settings} onApply={handleSettingsChange}>
-            <Button variant="ghost" size="sm" className="p-1 h-6 rounded-full">
+            <Button variant="ghost" size="sm" className="p-1 h-6 rounded-full border-none">
               <Sparkles className="h-4 w-4 text-amber-500" />
             </Button>
           </SettingsDialog>
