@@ -1,5 +1,4 @@
 
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Search, ToggleLeft, ToggleRight, Check, X } from "lucide-react";
@@ -101,13 +100,18 @@ const PracticeDisplay = ({
 
   // Helper function to get graph URL from the graph field
   const getGraphUrl = (question: Question) => {
-    if (question.graph?.url) {
+    if (!question.graph) return null;
+    
+    // If graph is an object with url property
+    if (typeof question.graph === 'object' && question.graph.url) {
       return question.graph.url;
     }
-    // Check if graph field exists and has a valid URL
-    if (question.graph && typeof question.graph === 'string' && question.graph.trim() !== '') {
+    
+    // If graph is a string URL
+    if (typeof question.graph === 'string' && question.graph.trim() !== '') {
       return question.graph.trim();
     }
+    
     return null;
   };
 
@@ -474,4 +478,3 @@ const PracticeDisplay = ({
 };
 
 export default PracticeDisplay;
-
