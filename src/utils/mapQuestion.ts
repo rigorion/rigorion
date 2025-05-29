@@ -157,6 +157,23 @@ export function mapQuestion(raw: any, index?: number): Question {
               questionData.clue ||
               "Think about the problem step by step";
 
+  // Enhanced graph mapping to handle text links
+  let graph: { url: string; alt?: string; caption?: string } | string | undefined;
+  
+  if (questionData.graph) {
+    if (typeof questionData.graph === 'string' && questionData.graph.trim() !== '') {
+      // If graph is a string URL, store it directly
+      graph = questionData.graph.trim();
+    } else if (typeof questionData.graph === 'object' && questionData.graph.url) {
+      // If graph is an object with URL property
+      graph = {
+        url: questionData.graph.url,
+        alt: questionData.graph.alt || "Question graph",
+        caption: questionData.graph.caption
+      };
+    }
+  }
+
   // Create the normalized question object
   const mappedQuestion: Question = {
     id: questionData.id?.toString() || `mapped-${index || Date.now()}`,
@@ -172,6 +189,7 @@ export function mapQuestion(raw: any, index?: number): Question {
     explanation: questionData.explanation || solution,
     solutionSteps: solutionSteps,
     hint: hint,
+    graph: graph,
     quote: questionData.quote ? {
       text: questionData.quote.text || questionData.quote,
       source: questionData.quote.source || "Unknown"

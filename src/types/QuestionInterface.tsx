@@ -1,4 +1,5 @@
 
+
 // types/QuestionInterface.ts
 export interface Question {
     id: string;
@@ -16,7 +17,7 @@ export interface Question {
         url: string;
         alt?: string;
         caption?: string;
-    };
+    } | string;
     solutionSteps: string[];
     quote?: {
         text: string;
@@ -26,3 +27,4 @@ export interface Question {
 }
 
 export default interface QuestionInterface {} // Or remove if unnecessary
+

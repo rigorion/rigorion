@@ -1,4 +1,5 @@
 
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Search, ToggleLeft, ToggleRight, Check, X } from "lucide-react";
@@ -98,11 +99,25 @@ const PracticeDisplay = ({
     setLocalIsCorrect(null);
   };
 
+  // Helper function to get graph URL from the graph field
+  const getGraphUrl = (question: Question) => {
+    if (question.graph?.url) {
+      return question.graph.url;
+    }
+    // Check if graph field exists and has a valid URL
+    if (question.graph && typeof question.graph === 'string' && question.graph.trim() !== '') {
+      return question.graph.trim();
+    }
+    return null;
+  };
+
   if (!currentQuestion) {
     return (
       <div className={`w-full p-8 text-center ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>No question selected</div>
     );
   }
+
+  const graphUrl = getGraphUrl(currentQuestion);
 
   return (
     <>
@@ -180,20 +195,19 @@ const PracticeDisplay = ({
               )}
             </p>
 
-            {/* Graph Display - Only if graph exists */}
-            {currentQuestion.graph?.url && (
+            {/* Graph Display - Only if graph URL exists */}
+            {graphUrl && (
               <div className="mb-6 flex justify-center">
                 <img
-                  src={currentQuestion.graph.url}
-                  alt={currentQuestion.graph.alt || "Question graph"}
-                  className="max-w-full h-auto rounded-lg shadow-sm"
+                  src={graphUrl}
+                  alt="Question graph"
+                  className="max-w-full h-auto"
                   style={{ border: 'none' }}
+                  onError={(e) => {
+                    // Hide the image if it fails to load
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
                 />
-                {currentQuestion.graph.caption && (
-                  <p className={`text-center text-sm mt-2 italic ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    {currentQuestion.graph.caption}
-                  </p>
-                )}
               </div>
             )}
 
@@ -460,3 +474,4 @@ const PracticeDisplay = ({
 };
 
 export default PracticeDisplay;
+
