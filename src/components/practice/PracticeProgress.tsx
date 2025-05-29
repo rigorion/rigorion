@@ -1,4 +1,3 @@
-
 import { Clock, Flag, Sparkles } from "lucide-react";
 import CountdownTimer from "./CountDownTimer";
 import HintDialog from "./HintDialog";
@@ -106,7 +105,7 @@ const PracticeProgress = ({
 
   return (
     <div className={`px-3 py-2 border-b transition-colors duration-300 ${
-      isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+      isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'
     }`}>
       <div className="flex items-center justify-between mb-2">
         {/* Progress bar with percentage indicator */}
@@ -132,7 +131,7 @@ const PracticeProgress = ({
           />
           {/* Progress percentage */}
           <div className={`absolute right-0 top-0 -translate-y-1/2 translate-x-full mt-1.5 ml-2 text-xs font-medium ${
-            isDarkMode ? 'text-blue-400' : 'text-blue-600'
+            isDarkMode ? 'text-green-400' : 'text-blue-600'
           }`}>
             {totalPercentage}%
           </div>
@@ -145,15 +144,15 @@ const PracticeProgress = ({
           <div className="flex gap-2 text-xs">
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 bg-green-500 rounded-full" />
-              <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>Correct</span>
+              <span className={isDarkMode ? 'text-green-400' : 'text-gray-700'}>Correct</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 bg-red-500 rounded-full" />
-              <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>Incorrect</span>
+              <span className={isDarkMode ? 'text-green-400' : 'text-gray-700'}>Incorrect</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full" />
-              <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>Unattempted</span>
+              <span className={isDarkMode ? 'text-green-400' : 'text-gray-700'}>Unattempted</span>
             </div>
           </div>
         </div>
@@ -167,7 +166,7 @@ const PracticeProgress = ({
             <Button variant="ghost" size="sm" className="p-1 h-6 rounded-full border-none">
               <Sparkles className={`h-4 w-4 ${
                 isDarkMode 
-                  ? 'text-gradient bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent' 
+                  ? 'text-green-400' 
                   : 'text-amber-500'
               }`} />
             </Button>
@@ -176,7 +175,7 @@ const PracticeProgress = ({
           <Button variant="ghost" size="sm" className="p-1 h-6 rounded-full">
             <Flag className={`h-4 w-4 ${
               isDarkMode 
-                ? 'text-gradient bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent' 
+                ? 'text-green-400' 
                 : 'text-blue-600'
             }`} />
           </Button>
@@ -189,7 +188,7 @@ const PracticeProgress = ({
           {/* Target Progress indicator */}
           <div className="flex items-center text-sm">
             <span className={`font-medium ${
-              isDarkMode ? 'text-blue-400' : 'text-blue-600'
+              isDarkMode ? 'text-green-400' : 'text-blue-600'
             }`}>
               Target Progress: {targetProgressPercentage}%
             </span>
@@ -198,7 +197,7 @@ const PracticeProgress = ({
           <div className="flex items-center gap-2">
             <Clock className={`h-4 w-4 ${
               isDarkMode 
-                ? 'text-gradient bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent' 
+                ? 'text-green-400' 
                 : 'text-blue-600'
             }`} />
             {timerDuration > 0 ? (
@@ -212,7 +211,7 @@ const PracticeProgress = ({
                 onPomodoroBreak={onPomodoroBreak}
               />
             ) : (
-              <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>{timeRemaining}</span>
+              <span className={isDarkMode ? 'text-green-400' : 'text-gray-700'}>{timeRemaining}</span>
             )}
           </div>
         </div>

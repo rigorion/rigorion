@@ -38,7 +38,7 @@ const PracticeFooter = ({
     <>
       {/* Footer Navigation */}
       <div className={`fixed bottom-0 left-0 right-0 border-t transition-colors duration-300 ${
-        isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+        isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'
       } z-10`}>
         <div className="flex items-center justify-between px-4 sm:px-6 py-3">
           {/* Left: Community Stats */}
@@ -47,15 +47,15 @@ const PracticeFooter = ({
             size="sm"
             onClick={onToggleCommunityStats}
             className={`flex items-center gap-2 transition-colors ${
-              isDarkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              isDarkMode ? 'text-green-400 hover:text-green-300 hover:bg-gray-800' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
             }`}
           >
             <BarChart2 className={`h-4 w-4 ${
               isDarkMode 
-                ? 'text-gradient bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent' 
+                ? 'text-green-400' 
                 : 'text-blue-600'
             }`} />
-            <span className={isDarkMode ? 'text-white' : 'text-gray-700'}>Community Stats</span>
+            <span className={isDarkMode ? 'text-green-400' : 'text-gray-700'}>Community Stats</span>
           </Button>
 
           {/* Center: Navigation Controls */}
@@ -68,7 +68,7 @@ const PracticeFooter = ({
               disabled={currentQuestionIndex === 0}
               className={`flex items-center gap-2 transition-colors ${
                 isDarkMode 
-                  ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500' 
+                  ? 'border-gray-600 bg-gray-800 text-green-400 hover:bg-gray-700 disabled:bg-gray-900 disabled:text-gray-600' 
                   : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
               }`}
             >
@@ -79,7 +79,7 @@ const PracticeFooter = ({
             {/* Question Counter & Go To */}
             <div className="flex items-center gap-2">
               <span className={`text-sm font-medium px-3 py-1 rounded-full ${
-                isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-700'
+                isDarkMode ? 'bg-gray-800 text-green-400' : 'bg-gray-100 text-gray-700'
               }`}>
                 {currentQuestionIndex + 1} of {totalQuestions}
               </span>
@@ -88,12 +88,12 @@ const PracticeFooter = ({
                 size="sm"
                 onClick={() => setShowGoToInput(!showGoToInput)}
                 className={`p-2 transition-colors ${
-                  isDarkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  isDarkMode ? 'text-green-400 hover:text-green-300 hover:bg-gray-800' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                 }`}
               >
                 <Search className={`h-4 w-4 ${
                   isDarkMode 
-                    ? 'text-gradient bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent' 
+                    ? 'text-green-400' 
                     : 'text-blue-600'
                 }`} />
               </Button>
@@ -107,7 +107,7 @@ const PracticeFooter = ({
               disabled={currentQuestionIndex === totalQuestions - 1}
               className={`flex items-center gap-2 transition-colors ${
                 isDarkMode 
-                  ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500' 
+                  ? 'border-gray-600 bg-gray-800 text-green-400 hover:bg-gray-700 disabled:bg-gray-900 disabled:text-gray-600' 
                   : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
               }`}
             >
@@ -124,7 +124,7 @@ const PracticeFooter = ({
       {/* Go to Question Popup */}
       {showGoToInput && (
         <div className={`fixed bottom-24 left-1/2 -translate-x-1/2 border rounded-lg shadow-lg p-4 w-64 animate-in fade-in slide-in-from-bottom-5 z-20 transition-colors ${
-          isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-300'
+          isDarkMode ? 'bg-gray-900 border-gray-600' : 'bg-white border-gray-300'
         }`}>
           <div className="flex flex-col space-y-2">
             <div className="flex items-center gap-2">
@@ -136,9 +136,9 @@ const PracticeFooter = ({
                 onChange={(e) => {
                   setTargetQuestion(e.target.value);
                 }}
-                className={`w-full px-3 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+                className={`w-full px-3 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors ${
                   isDarkMode 
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                    ? 'bg-gray-800 border-gray-600 text-green-400 placeholder-gray-500' 
                     : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                 }`}
                 placeholder={`Enter question (1-${totalQuestions})`}
@@ -153,7 +153,7 @@ const PracticeFooter = ({
               size="sm" 
               className={`w-full transition-colors ${
                 isDarkMode 
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                  ? 'bg-green-600 hover:bg-green-700 text-white' 
                   : 'bg-blue-600 hover:bg-blue-700 text-white'
               }`}
               onClick={handleGoToQuestion}
@@ -163,18 +163,6 @@ const PracticeFooter = ({
           </div>
         </div>
       )}
-
-      {/* CSS for gradient text effect in dark mode */}
-      <style>
-        {`
-          .text-gradient {
-            background: linear-gradient(45deg, #60a5fa, #a855f7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-          }
-        `}
-      </style>
     </>
   );
 };
