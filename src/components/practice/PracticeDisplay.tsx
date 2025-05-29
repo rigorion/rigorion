@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Search, ToggleLeft, ToggleRight, Check, X } from "lucide-react";
@@ -179,9 +180,26 @@ const PracticeDisplay = ({
               )}
             </p>
 
-            {/* Answer Choices or Fill-in Input - Made responsive */}
+            {/* Graph Display - Only if graph exists */}
+            {currentQuestion.graph?.url && (
+              <div className="mb-6 flex justify-center">
+                <img
+                  src={currentQuestion.graph.url}
+                  alt={currentQuestion.graph.alt || "Question graph"}
+                  className="max-w-full h-auto rounded-lg shadow-sm"
+                  style={{ border: 'none' }}
+                />
+                {currentQuestion.graph.caption && (
+                  <p className={`text-center text-sm mt-2 italic ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {currentQuestion.graph.caption}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Answer Choices or Fill-in Input - Made responsive with 2 rows */}
             {isMultipleChoice ? (
-              <div className="space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {(currentQuestion.choices || []).map((choice, index) => {
                   const choiceLetter = String.fromCharCode(65 + index); // A, B, C, D
                   const isSelected = selectedAnswer === choiceLetter || selectedAnswer === choice;
