@@ -9,58 +9,87 @@ interface DeepSeekRequest {
   context: string;
 }
 
+const DEEPSEEK_API_KEY = "f6a4c847a62a4ea5a260c013913c286b";
+const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
+
 export const analyzeWithDeepSeek = async (request: DeepSeekRequest): Promise<DeepSeekResponse> => {
   try {
-    // For now, return a mock response until DeepSeek API is properly configured
-    const welcomeMessages = [
-      `Welcome to Rigorion! Based on your query "${request.query}", I recommend starting with a structured approach. Here's your personalized study plan:
+    const systemPrompt = getSystemPrompt(request.context);
+    
+    const response = await fetch(DEEPSEEK_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "deepseek-chat",
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt
+          },
+          {
+            role: "user",
+            content: request.query
+          }
+        ],
+        max_tokens: 1000,
+        temperature: 0.7,
+        stream: false
+      })
+    });
 
-1. **Assessment Phase** (Week 1): Identify your current knowledge level and specific learning objectives
-2. **Foundation Building** (Weeks 2-3): Focus on core concepts and fundamental principles
-3. **Practice & Application** (Weeks 4-5): Apply knowledge through exercises and real-world examples
-4. **Review & Mastery** (Week 6): Consolidate learning and prepare for assessments
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
 
-Let's make your learning journey efficient and enjoyable!`,
-
-      `Great question! For your study goals around "${request.query}", I suggest this adaptive learning approach:
-
-**Daily Schedule:**
-- 30 minutes morning review
-- 2 hours focused study sessions
-- 15 minutes evening reflection
-
-**Weekly Targets:**
-- Complete 3 major topics
-- Practice with 50+ questions
-- Review previous week's material
-
-This plan adapts to your pace and ensures steady progress toward your academic goals.`,
-
-      `Perfect! Let me create a tailored study plan for "${request.query}":
-
-**Phase 1: Foundation** 
-Build strong conceptual understanding through interactive lessons and visual aids.
-
-**Phase 2: Practice**
-Apply knowledge with progressively challenging exercises and real-time feedback.
-
-**Phase 3: Mastery**
-Test your skills with mock exams and performance analytics.
-
-Your success is our priority - let's achieve your academic dreams together!`
-    ];
-
-    const randomMessage = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
-
-    return {
-      analysis: randomMessage,
-      success: true
-    };
+    const data = await response.json();
+    
+    if (data.choices && data.choices.length > 0) {
+      return {
+        analysis: data.choices[0].message.content,
+        success: true
+      };
+    } else {
+      throw new Error('No response from AI');
+    }
   } catch (error) {
-    console.error('DeepSeek analysis failed:', error);
+    console.error('DeepSeek API error:', error);
+    
+    // Fallback response
     return {
-      analysis: 'Welcome to Rigorion! I\'m here to help you create effective study plans. Please tell me more about your learning goals, and I\'ll provide personalized recommendations.',
+      analysis: `I'm here to help you with your ${request.context === 'study_plan_generation' ? 'study planning' : 'learning'} needs! While I'm having trouble connecting right now, I can still provide guidance. Please describe your learning goals, subjects you're working on, or specific challenges you're facing, and I'll do my best to help you create an effective study plan.`,
       success: false
     };
   }
 };
+
+function getSystemPrompt(context: string): string {
+  switch (context) {
+    case 'study_plan_generation':
+      return `You are an expert educational AI assistant specialized in creating personalized study plans for students. Your role is to:
+
+1. Analyze the student's goals, subjects, and available time
+2. Create structured, actionable study plans with specific timelines
+3. Provide learning strategies tailored to different subjects (SAT, ACT, AP courses, etc.)
+4. Suggest effective study techniques and resources
+5. Help students balance multiple subjects and extracurricular activities
+
+Always respond with practical, encouraging advice formatted in a clear, organized manner. Include specific recommendations for daily/weekly schedules when appropriate.`;
+
+    case 'practice':
+      return `You are an AI tutor helping students with practice questions and learning. Provide:
+
+1. Explanations for concepts students are struggling with
+2. Study strategies for improving performance
+3. Tips for time management during practice
+4. Encouragement and motivation
+5. Suggestions for areas that need more focus
+
+Keep responses concise but helpful, focusing on actionable advice.`;
+
+    default:
+      return `You are a helpful AI educational assistant. Provide clear, encouraging, and practical advice to help students achieve their learning goals.`;
+  }
+}

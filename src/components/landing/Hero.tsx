@@ -1,10 +1,10 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AISearchBar from "@/components/ui/AISearchBar";
 import AnimatedPrompts from "@/components/ui/AnimatedPrompts";
+import { analyzeWithDeepSeek } from "@/services/deepseekService";
 
 export const Hero = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -200,24 +200,12 @@ export const Hero = () => {
     setAnalysisResult('');
     
     try {
-      // Call DeepSeek API for study plan generation
-      const response = await fetch('/api/deepseek-analyze', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          query: query,
-          context: 'study_plan_generation'
-        }),
+      const result = await analyzeWithDeepSeek({
+        query: query,
+        context: 'study_plan_generation'
       });
       
-      if (response.ok) {
-        const result = await response.json();
-        setAnalysisResult(result.analysis || 'AI analysis completed successfully!');
-      } else {
-        setAnalysisResult('Welcome! I\'m here to help you create personalized study plans. Please describe your academic goals, subjects you\'re studying, or areas where you need help, and I\'ll generate a customized learning path for you.');
-      }
+      setAnalysisResult(result.analysis);
     } catch (error) {
       console.error('AI Analysis error:', error);
       setAnalysisResult('Welcome to Rigorion! I\'m your AI study companion. Tell me about your learning goals, the subjects you\'re working on, or specific topics you\'d like to master, and I\'ll create a personalized study plan tailored just for you. Let\'s make learning efficient and enjoyable!');
