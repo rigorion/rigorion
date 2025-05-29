@@ -6,6 +6,9 @@ import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/component
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { filterQuestionsByChapter, getUniqueChapters } from "@/utils/mapQuestion";
+import { saveObjective, loadObjective } from "@/services/objectivePersistence";
+import { ChapterFilter } from "./ChapterFilter";
 
 // Import refactored components
 import PracticeHeader from "@/components/practice/PracticeHeader";
@@ -16,7 +19,6 @@ import ContentSection from "@/components/practice/ContentSection";
 import ModeDialog from "@/components/practice/ModeDialog";
 import ObjectiveDialog from "@/components/practice/ObjectiveDialogue";
 import { Sidebar } from "@/components/practice/Sidebar";
-import SettingsDialog from "@/components/practice/SettingsDialog";
 
 interface TextSettings {
   fontFamily: string;
@@ -55,8 +57,13 @@ export default function PracticeContent({
   const questionsContext = useQuestions();
   const isUsingContext = !propQuestions;
   
-const questions = propQuestions !== undefined ? propQuestions : questionsContext.questions;
-console.log("PracticeContent: questions in use", questions);
+  const allQuestions = propQuestions !== undefined ? propQuestions : questionsContext.questions;
+  console.log("PracticeContent: questions in use", allQuestions);
+  
+  // Chapter filtering state
+  const [selectedChapter, setSelectedChapter] = useState<string>("All Chapters");
+  const [filteredQuestions, setFilteredQuestions] = useState<Question[]>(allQuestions);
+  
   const isLoading = propIsLoading !== undefined ? propIsLoading : (isUsingContext ? questionsContext.isLoading : false);
   const error = propError !== undefined ? propError : (isUsingContext ? questionsContext.error : null);
   const refreshQuestions = propRefreshQuestions || (isUsingContext ? questionsContext.refreshQuestions : () => {});
@@ -64,7 +71,6 @@ console.log("PracticeContent: questions in use", questions);
   // Basic question and UI states
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(propCurrentIndex || 0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [selectedChapter, setSelectedChapter] = useState(0);
   const [mode, setMode] = useState<"timer" | "level" | "manual" | "pomodoro" | "exam">("manual");
   const [timerDuration, setTimerDuration] = useState<number>(0);
   const [isTimerActive, setIsTimerActive] = useState(false);
@@ -93,6 +99,21 @@ console.log("PracticeContent: questions in use", questions);
     }
   );
 
+  // Load objective from localStorage on mount
+  useEffect(() => {
+    const savedObjective = loadObjective();
+    if (savedObjective) {
+      setObjective(savedObjective);
+    }
+  }, []);
+
+  // Filter questions when chapter selection changes
+  useEffect(() => {
+    const filtered = filterQuestionsByChapter(allQuestions, selectedChapter);
+    setFilteredQuestions(filtered);
+    setCurrentQuestionIndex(0); // Reset to first question when filtering
+  }, [allQuestions, selectedChapter]);
+
   // Sync with prop settings changes
   useEffect(() => {
     if (propSettings) {
@@ -108,9 +129,6 @@ console.log("PracticeContent: questions in use", questions);
   const [formulaColor, setFormulaColor] = useState<string>('#dc2626');
   const [styleCollapsed, setStyleCollapsed] = useState(true);
   
-  // New settings dialog state
-  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
-  
   // Stats and feedback states
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [incorrectAnswers, setIncorrectAnswers] = useState(0);
@@ -123,11 +141,11 @@ console.log("PracticeContent: questions in use", questions);
     formula: '#dc2626'
   });
 
-  // Get current question - use prop if available, otherwise use local state
+  // Get current question from filtered questions
   const currentQuestion = propCurrentQuestion !== undefined 
     ? propCurrentQuestion 
-    : (questions.length > 0 && currentQuestionIndex < questions.length 
-      ? questions[currentQuestionIndex]
+    : (filteredQuestions.length > 0 && currentQuestionIndex < filteredQuestions.length 
+      ? filteredQuestions[currentQuestionIndex]
       : null);
 
   // Update progress effect
@@ -158,10 +176,10 @@ console.log("PracticeContent: questions in use", questions);
   };
   
   const handleSetObjective = (type: "questions" | "time", value: number) => {
-    setObjective({
-      type,
-      value
-    });
+    const newObjective = { type, value };
+    setObjective(newObjective);
+    saveObjective(newObjective); // Persist to localStorage
+    
     if (type === "time" && value > 0) {
       setTimerDuration(value);
       setIsTimerActive(true);
@@ -223,7 +241,7 @@ console.log("PracticeContent: questions in use", questions);
     }
   };
 
-  // Answer checking
+  // Answer checking and navigation functions
   const checkAnswer = (answer: string) => {
     if (!currentQuestion) return;
     const correct = answer === currentQuestion.correctAnswer;
@@ -244,7 +262,7 @@ console.log("PracticeContent: questions in use", questions);
         variant: "destructive"
       });
     }
-    if (correct && currentQuestionIndex < questions.length - 1) {
+    if (correct && currentQuestionIndex < filteredQuestions.length - 1) {
       setTimeout(nextQuestion, 1500);
     }
   };
@@ -253,7 +271,7 @@ console.log("PracticeContent: questions in use", questions);
     if (propOnNext) {
       propOnNext();
     } else {
-      const maxIndex = questions.length > 0 ? questions.length - 1 : 0;
+      const maxIndex = filteredQuestions.length > 0 ? filteredQuestions.length - 1 : 0;
       if (currentQuestionIndex < maxIndex) {
         setCurrentQuestionIndex(prev => prev + 1);
         setSelectedAnswer(null);
@@ -273,44 +291,31 @@ console.log("PracticeContent: questions in use", questions);
       }
     }
   };
-  
-  const selectChapter = (index: number) => {
-    setSelectedChapter(index);
-    setSidebarOpen(false);
-  };
 
   // Handler for "Go to Question"
   const handleGoToQuestion = () => {
     const questionNumber = parseInt(targetQuestion);
 
-    // Validate input
     if (isNaN(questionNumber)) {
       setInputError('Please enter a valid number');
       return;
     }
-    if (questionNumber < 1 || questionNumber > questions.length) {
-      setInputError(`Please enter a number between 1 and ${questions.length}`);
+    if (questionNumber < 1 || questionNumber > filteredQuestions.length) {
+      setInputError(`Please enter a number between 1 and ${filteredQuestions.length}`);
       return;
     }
 
     if (propOnJumpTo) {
       propOnJumpTo(questionNumber - 1);
     } else {
-      // Set new current question index
       setCurrentQuestionIndex(questionNumber - 1);
       setSelectedAnswer(null);
       setIsCorrect(null);
     }
 
-    // Reset UI states
     setTargetQuestion('');
     setShowGoToInput(false);
     setInputError('');
-  };
-
-  // Handler for opening the settings dialog
-  const handleOpenSettings = () => {
-    setSettingsDialogOpen(true);
   };
 
   // Loading state
@@ -339,13 +344,19 @@ console.log("PracticeContent: questions in use", questions);
   }
 
   // No questions state
-  if (questions.length === 0) {
+  if (filteredQuestions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
           <strong className="font-bold">No Questions!</strong>
-          <span className="block sm:inline"> No questions available.</span>
+          <span className="block sm:inline"> No questions available for the selected chapter.</span>
         </div>
+        <ChapterFilter
+          chapters={getUniqueChapters(allQuestions)}
+          selectedChapter={selectedChapter}
+          onChapterChange={setSelectedChapter}
+          className="mt-4"
+        />
       </div>
     );
   }
@@ -362,24 +373,34 @@ console.log("PracticeContent: questions in use", questions);
         setSidebarOpen={setSidebarOpen}
       />
 
-      {/* Progress Bar with Stats and Tabs */}
-      <PracticeProgress 
-        correctAnswers={correctAnswers} 
-        incorrectAnswers={incorrectAnswers} 
-        totalQuestions={questions.length} 
-        timerDuration={timerDuration} 
-        isTimerActive={isTimerActive} 
-        handleTimerComplete={handleTimerComplete} 
-        mode={mode} 
-        timeRemaining={timeRemaining} 
-        setTimeRemaining={setTimeRemaining} 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        currentQuestionIndex={currentQuestionIndex} 
-        currentQuestionHint={currentQuestion?.hint} 
-        objective={objective} 
-        progress={progress} 
-      />
+      {/* Progress Bar with Stats, Tabs, and Chapter Filter */}
+      <div className="border-b border-gray-200 bg-white">
+        <div className="flex items-center justify-between px-6 py-2">
+          <ChapterFilter
+            chapters={getUniqueChapters(allQuestions)}
+            selectedChapter={selectedChapter}
+            onChapterChange={setSelectedChapter}
+          />
+          
+          <PracticeProgress 
+            correctAnswers={correctAnswers} 
+            incorrectAnswers={incorrectAnswers} 
+            totalQuestions={filteredQuestions.length} 
+            timerDuration={timerDuration} 
+            isTimerActive={isTimerActive} 
+            handleTimerComplete={handleTimerComplete} 
+            mode={mode} 
+            timeRemaining={timeRemaining} 
+            setTimeRemaining={setTimeRemaining} 
+            activeTab={activeTab} 
+            setActiveTab={setActiveTab} 
+            currentQuestionIndex={currentQuestionIndex} 
+            currentQuestionHint={currentQuestion?.hint} 
+            objective={objective} 
+            progress={progress} 
+          />
+        </div>
+      </div>
 
       {/* Sidebar */}
       <Collapsible open={sidebarOpen}>
@@ -405,7 +426,7 @@ console.log("PracticeContent: questions in use", questions);
               setIsCorrect(null);
             })}
             currentQuestionIndex={currentQuestionIndex} 
-            totalQuestions={questions.length} 
+            totalQuestions={filteredQuestions.length} 
             displaySettings={displaySettings}
             boardColor={boardColor} 
             colorSettings={colorSettings}
@@ -422,7 +443,7 @@ console.log("PracticeContent: questions in use", questions);
         onPrevious={prevQuestion} 
         onNext={nextQuestion} 
         currentQuestionIndex={currentQuestionIndex} 
-        totalQuestions={questions.length} 
+        totalQuestions={filteredQuestions.length} 
         showGoToInput={showGoToInput} 
         setShowGoToInput={setShowGoToInput} 
         targetQuestion={targetQuestion} 
@@ -443,16 +464,6 @@ console.log("PracticeContent: questions in use", questions);
         onOpenChange={setObjectiveDialogOpen} 
         onSetObjective={handleSetObjective} 
       />
-
-      {/* Settings Dialog with dummy button for children */}
-      <SettingsDialog 
-        open={settingsDialogOpen}
-        onOpenChange={setSettingsDialogOpen}
-        settings={displaySettings}
-        onApply={handleUpdateStyle}
-      >
-        <div />
-      </SettingsDialog>
 
       {/* Global styles for animations */}
       <style>

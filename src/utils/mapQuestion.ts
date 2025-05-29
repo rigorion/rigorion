@@ -44,13 +44,23 @@ export function mapQuestion(raw: any, index?: number): Question {
                        questionData.answer || 
                        "A";
 
-  // Enhanced solution mapping with better structure
-  const solution = questionData.solution || 
-                  questionData.explanation || 
-                  questionData.answer_explanation ||
-                  questionData.rationale ||
-                  questionData.detailed_solution ||
-                  "Solution not available";
+  // Enhanced solution mapping with better structure and formatting
+  let solution = questionData.solution || 
+                questionData.explanation || 
+                questionData.answer_explanation ||
+                questionData.rationale ||
+                questionData.detailed_solution ||
+                "Solution not available";
+
+  // Format solution content with proper HTML structure
+  if (solution && solution !== "Solution not available") {
+    // Convert line breaks to proper HTML
+    solution = solution.replace(/\n/g, '<br>');
+    // Add proper formatting for mathematical expressions
+    solution = solution.replace(/(\d+\.\s)/g, '<strong>$1</strong>');
+    // Format formulas and equations
+    solution = solution.replace(/([A-Z]\s*=\s*[^<\n]+)/g, '<span class="formula">$1</span>');
+  }
 
   // Map solution steps with more comprehensive handling
   let solutionSteps: string[] = [];
@@ -81,11 +91,22 @@ export function mapQuestion(raw: any, index?: number): Question {
     ? questionData.difficulty 
     : "medium";
 
-  // Enhanced chapter and exam mapping
-  const chapter = questionData.chapter || 
-                 questionData.chapter_name ||
-                 questionData.section ||
-                 "General";
+  // Enhanced chapter mapping with normalization
+  let chapter = questionData.chapter || 
+               questionData.chapter_name ||
+               questionData.section ||
+               questionData.unit ||
+               "General";
+
+  // Normalize chapter format to "Chapter X" if it's just a number
+  if (/^\d+$/.test(chapter)) {
+    chapter = `Chapter ${chapter}`;
+  } else if (!chapter.toLowerCase().includes('chapter') && /\d+/.test(chapter)) {
+    const chapterNum = chapter.match(/\d+/)?.[0];
+    if (chapterNum) {
+      chapter = `Chapter ${chapterNum}`;
+    }
+  }
 
   const examNumber = questionData.examNumber || 
                     questionData.exam_number ||
@@ -136,6 +157,28 @@ export function mapQuestions(rawQuestions: any[]): Question[] {
   }
 
   return rawQuestions.map((raw, index) => mapQuestion(raw, index));
+}
+
+/**
+ * Filter questions by chapter
+ */
+export function filterQuestionsByChapter(questions: Question[], chapter?: string): Question[] {
+  if (!chapter || chapter === "All Chapters") {
+    return questions;
+  }
+  
+  return questions.filter(q => 
+    q.chapter === chapter || 
+    q.chapter.toLowerCase().includes(chapter.toLowerCase())
+  );
+}
+
+/**
+ * Get unique chapters from questions array
+ */
+export function getUniqueChapters(questions: Question[]): string[] {
+  const chapters = questions.map(q => q.chapter);
+  return Array.from(new Set(chapters)).sort();
 }
 
 /**

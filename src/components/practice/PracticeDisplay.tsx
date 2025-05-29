@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Search, ToggleLeft, ToggleRight, Check, X } from "lucide-react";
@@ -277,10 +276,17 @@ const PracticeDisplay = ({
             <div className="bg-gray-50 p-6 rounded-lg h-full overflow-y-auto">
               <h3 className="text-lg font-semibold mb-4 text-blue-600">Solution</h3>
               
-              {/* Main Solution */}
+              {/* Enhanced Solution with HTML formatting */}
               <div className="mb-6 p-4 bg-white rounded-lg border-l-4 border-blue-500">
                 <h4 className="font-medium mb-2 text-gray-800">Explanation:</h4>
-                <p className="text-gray-700 leading-relaxed">{currentQuestion.solution}</p>
+                <div 
+                  className="text-gray-700 leading-relaxed solution-content"
+                  dangerouslySetInnerHTML={{ __html: currentQuestion.solution }}
+                  style={{
+                    fontFamily: displaySettings.fontFamily,
+                    fontSize: `${displaySettings.fontSize}px`,
+                  }}
+                />
               </div>
               
               {/* Solution Steps */}
@@ -293,7 +299,13 @@ const PracticeDisplay = ({
                         <div className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
                           {index + 1}
                         </div>
-                        <div className="text-sm text-gray-700 leading-relaxed">
+                        <div 
+                          className="text-sm text-gray-700 leading-relaxed"
+                          style={{
+                            fontFamily: displaySettings.fontFamily,
+                            fontSize: `${Math.max(displaySettings.fontSize - 2, 12)}px`,
+                          }}
+                        >
                           {typeof step === 'string' ? step : String(step)}
                         </div>
                       </div>
@@ -358,6 +370,40 @@ const PracticeDisplay = ({
       {/* Green animation styles */}
       <style>
         {`
+          @keyframes green-pulse {
+            0% {
+              box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+            70% {
+              box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+            }
+            100% {
+              box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
+          }
+          
+          .animate-green-pulse {
+            animation: green-pulse 2s infinite;
+          }
+        `}
+      </style>
+
+      {/* Additional CSS for solution content formatting */}
+      <style>
+        {`
+          .solution-content .formula {
+            background-color: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #dc2626;
+            font-weight: 600;
+          }
+          
+          .solution-content strong {
+            color: #2563eb;
+          }
+          
           @keyframes green-pulse {
             0% {
               box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
