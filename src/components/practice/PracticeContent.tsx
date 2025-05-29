@@ -5,8 +5,9 @@ import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/component
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { filterQuestionsByChapter, getUniqueChapters } from "@/utils/mapQuestion";
+import { filterQuestionsByChapter, getUniqueChapters, filterQuestionsByModule } from "@/utils/mapQuestion";
 import { saveObjective, loadObjective } from "@/services/objectivePersistence";
+import { useTheme } from "@/contexts/ThemeContext";
 
 // Import refactored components
 import PracticeHeader from "@/components/practice/PracticeHeader";
@@ -51,6 +52,8 @@ export default function PracticeContent({
   settings: propSettings
 }: PracticeContentProps) {
   const { toast } = useToast();
+  const { isDarkMode } = useTheme();
+  
   // Use questions from props or from context
   const questionsContext = useQuestions();
   const isUsingContext = !propQuestions;
@@ -58,7 +61,7 @@ export default function PracticeContent({
   const allQuestions = propQuestions !== undefined ? propQuestions : questionsContext.questions;
   console.log("PracticeContent: questions in use", allQuestions);
   
-  // Chapter filtering state - removed selectedChapter state as it's now handled in header
+  // Chapter and module filtering state
   const [filteredQuestions, setFilteredQuestions] = useState<Question[]>(allQuestions);
   
   const isLoading = propIsLoading !== undefined ? propIsLoading : (isUsingContext ? questionsContext.isLoading : false);
@@ -104,8 +107,8 @@ export default function PracticeContent({
     }
   }, []);
 
-  // Handle filtering from header
-  const handleFilterChange = useCallback((filters: { chapter?: string; examNumber?: number }) => {
+  // Handle filtering from header for both chapter and module
+  const handleFilterChange = useCallback((filters: { chapter?: string; module?: string }) => {
     let filtered = allQuestions;
     
     // Filter by chapter number if specified
@@ -116,9 +119,9 @@ export default function PracticeContent({
       });
     }
     
-    // Filter by exam number if specified
-    if (filters.examNumber) {
-      filtered = filtered.filter(q => q.examNumber === filters.examNumber);
+    // Filter by module if specified
+    if (filters.module) {
+      filtered = filtered.filter(q => q.module === filters.module);
     }
     
     setFilteredQuestions(filtered);
@@ -330,7 +333,7 @@ export default function PracticeContent({
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className={`flex justify-center items-center h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
         <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
         <span className="ml-2">Loading secure questions...</span>
       </div>
@@ -340,8 +343,8 @@ export default function PracticeContent({
   // Error state
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+      <div className={`flex flex-col items-center justify-center min-h-screen px-4 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
+        <div className={`border px-4 py-3 rounded relative ${isDarkMode ? 'bg-red-900 border-red-600 text-red-200' : 'bg-red-100 border-red-400 text-red-700'}`} role="alert">
           <strong className="font-bold">Error!</strong>
           <span className="block sm:inline"> {error.message}</span>
         </div>
@@ -355,8 +358,8 @@ export default function PracticeContent({
   // No questions state
   if (filteredQuestions.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
+      <div className={`flex flex-col items-center justify-center min-h-screen px-4 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
+        <div className={`border px-4 py-3 rounded relative ${isDarkMode ? 'bg-yellow-900 border-yellow-600 text-yellow-200' : 'bg-yellow-100 border-yellow-400 text-yellow-700'}`} role="alert">
           <strong className="font-bold">No Questions!</strong>
           <span className="block sm:inline"> No questions available for the selected filters.</span>
         </div>
@@ -365,7 +368,7 @@ export default function PracticeContent({
   }
 
   return (
-    <>
+    <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
       {/* Header */}
       <PracticeHeader 
         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} 
@@ -377,9 +380,9 @@ export default function PracticeContent({
         onFilterChange={handleFilterChange}
       />
 
-      {/* Progress Bar with Stats and Tabs - removed ChapterFilter */}
-      <div className="border-b border-gray-200 bg-white">
-        <div className="flex items-center justify-between px-6 py-2">
+      {/* Progress Bar with Stats and Tabs */}
+      <div className={`border-b transition-colors duration-300 ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'}`}>
+        <div className="flex items-center justify-between px-4 sm:px-6 py-2">
           <PracticeProgress 
             correctAnswers={correctAnswers} 
             incorrectAnswers={incorrectAnswers} 
@@ -408,7 +411,7 @@ export default function PracticeContent({
       </Collapsible>
 
       {/* Main Content Container */}
-      <div className="flex max-w-full mx-auto w-full flex-grow py-[28px]">
+      <div className="flex max-w-full mx-auto w-full flex-grow py-4 sm:py-[28px] px-2 sm:px-0">
         {/* Main Content */}
         {currentQuestion ? (
           <PracticeDisplay 
@@ -431,7 +434,7 @@ export default function PracticeContent({
             activeTab={activeTab} 
           />
         ) : (
-          <div className="w-full p-8 text-center">No question selected</div>
+          <div className={`w-full p-8 text-center ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>No question selected</div>
         )}
       </div>
 
@@ -483,6 +486,6 @@ export default function PracticeContent({
           }
         `}
       </style>
-    </>
+    </div>
   );
 }

@@ -6,6 +6,7 @@ export interface Question {
     solution: string;
     difficulty: "easy" | "medium" | "hard";
     chapter: string;
+    module?: string;
     bookmarked: boolean;
     examNumber: number;
     choices: string[];

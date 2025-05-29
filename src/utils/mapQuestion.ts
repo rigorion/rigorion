@@ -1,4 +1,3 @@
-
 import { Question } from '@/types/QuestionInterface';
 
 /**
@@ -62,18 +61,49 @@ export function mapQuestion(raw: any, index?: number): Question {
     solution = solution.replace(/([A-Z]\s*=\s*[^<\n]+)/g, '<span class="formula">$1</span>');
   }
 
-  // Map solution steps with more comprehensive handling
+  // Enhanced solution steps mapping with proper handling of objects and arrays
   let solutionSteps: string[] = [];
+  
   if (Array.isArray(questionData.solutionSteps)) {
-    solutionSteps = questionData.solutionSteps;
+    solutionSteps = questionData.solutionSteps.map((step: any) => {
+      if (typeof step === 'string') {
+        return step;
+      } else if (typeof step === 'object' && step !== null) {
+        // Handle step objects like {"step": "Identify fixed cost: $50"}
+        return step.step || step.description || step.text || String(step);
+      }
+      return String(step);
+    });
   } else if (Array.isArray(questionData.solution_steps)) {
-    solutionSteps = questionData.solution_steps;
+    solutionSteps = questionData.solution_steps.map((step: any) => {
+      if (typeof step === 'string') {
+        return step;
+      } else if (typeof step === 'object' && step !== null) {
+        return step.step || step.description || step.text || String(step);
+      }
+      return String(step);
+    });
   } else if (Array.isArray(questionData.steps)) {
-    solutionSteps = questionData.steps;
+    solutionSteps = questionData.steps.map((step: any) => {
+      if (typeof step === 'string') {
+        return step;
+      } else if (typeof step === 'object' && step !== null) {
+        return step.step || step.description || step.text || String(step);
+      }
+      return String(step);
+    });
   } else if (questionData.step_by_step) {
-    solutionSteps = Array.isArray(questionData.step_by_step) 
+    const stepData = Array.isArray(questionData.step_by_step) 
       ? questionData.step_by_step 
       : [questionData.step_by_step];
+    solutionSteps = stepData.map((step: any) => {
+      if (typeof step === 'string') {
+        return step;
+      } else if (typeof step === 'object' && step !== null) {
+        return step.step || step.description || step.text || String(step);
+      }
+      return String(step);
+    });
   } else if (solution && solution !== "Solution not available") {
     // Try to split solution into steps if it contains numbered steps
     const stepPattern = /\d+\./g;
@@ -108,6 +138,13 @@ export function mapQuestion(raw: any, index?: number): Question {
     }
   }
 
+  // Map module field for filtering
+  const module = questionData.module || 
+                questionData.module_name ||
+                questionData.exam_module ||
+                questionData.test_module ||
+                "General";
+
   const examNumber = questionData.examNumber || 
                     questionData.exam_number ||
                     questionData.exam_id ||
@@ -127,6 +164,7 @@ export function mapQuestion(raw: any, index?: number): Question {
     solution: solution,
     difficulty: difficulty,
     chapter: chapter,
+    module: module,
     bookmarked: questionData.bookmarked || false,
     examNumber: examNumber,
     choices: choices,
@@ -143,7 +181,7 @@ export function mapQuestion(raw: any, index?: number): Question {
     }
   };
 
-  console.log('[MAPPER] Mapped question with enhanced solution:', mappedQuestion);
+  console.log('[MAPPER] Mapped question with enhanced solution steps:', mappedQuestion);
   return mappedQuestion;
 }
 
@@ -200,4 +238,26 @@ export function validateQuestion(question: Question): boolean {
   }
   
   return hasContent && hasChoices && hasCorrectAnswer;
+}
+
+/**
+ * Filter questions by module
+ */
+export function filterQuestionsByModule(questions: Question[], module?: string): Question[] {
+  if (!module || module === "All Modules") {
+    return questions;
+  }
+  
+  return questions.filter(q => 
+    q.module === module || 
+    q.module?.toLowerCase().includes(module.toLowerCase())
+  );
+}
+
+/**
+ * Get unique modules from questions array
+ */
+export function getUniqueModules(questions: Question[]): string[] {
+  const modules = questions.map(q => q.module).filter(Boolean);
+  return Array.from(new Set(modules)).sort();
 }

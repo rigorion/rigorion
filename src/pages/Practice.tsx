@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect } from "react";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,6 +15,7 @@ import CommentSection from "@/components/practice/CommentSection";
 import SettingsDialog from "@/components/practice/SettingsDialog";
 import { mapQuestions, validateQuestion } from "@/utils/mapQuestion";
 import { Question } from "@/types/QuestionInterface";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 const ENDPOINT = "my-function";
 
@@ -164,122 +163,123 @@ const Practice = () => {
   };
 
   return (
-    <Card className="min-h-screen bg-white relative">
-      {/* 🟢 Floating Settings Button */}
-      <div className="absolute top-4 right-4 z-50">
-        <SettingsDialog
-          open={showSettings}
-          onOpenChange={setShowSettings}
-          settings={settings}
-          onApply={handleSettingsChange}
-        >
-          <Button
-            variant="outline"
-            className="rounded-full p-2 shadow hover:shadow-lg transition"
-            aria-label="Open Text Settings"
+    <ThemeProvider>
+      <Card className="min-h-screen bg-white dark:bg-gray-900 relative transition-colors duration-300">
+        {/* 🟢 Floating Settings Button */}
+        <div className="absolute top-4 right-4 z-50">
+          <SettingsDialog
+            open={showSettings}
+            onOpenChange={setShowSettings}
+            settings={settings}
+            onApply={handleSettingsChange}
           >
-            <Sparkles className="h-5 w-5 text-amber-500" />
-          </Button>
-        </SettingsDialog>
-      </div>
-
-      {/* Header section - NO styling applied */}
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <Lock className="h-5 w-5 text-green-600" />
-              Practice Questions
-            </CardTitle>
-            <CardDescription>
-              Questions are securely encrypted and mapped to ensure consistent UI display.
-            </CardDescription>
-          </div>
-          <div className="flex items-center space-x-4">
             <Button
-              size="sm"
-              onClick={fetchAndStoreQuestions}
-              disabled={loading}
-              className="flex items-center gap-2"
-            >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-              Fetch & Encrypt
-            </Button>
-            <Button
-              size="sm"
-              onClick={loadLatestQuestions}
-              disabled={loading}
-              className="flex items-center gap-2"
               variant="outline"
+              className="rounded-full p-2 shadow hover:shadow-lg transition"
+              aria-label="Open Text Settings"
             >
-              <RefreshCw className="h-4 w-4" />
-              Load Latest
+              <Sparkles className="h-5 w-5 text-amber-500" />
             </Button>
-            <Button
-              size="sm"
-              onClick={handleClearStorage}
-              disabled={loading}
-              className="flex items-center gap-2"
-              variant="destructive"
-            >
-              <KeyRound className="h-4 w-4" />
-              Clear Secure Cache
-            </Button>
-          </div>
+          </SettingsDialog>
         </div>
-        <p className="text-xs text-green-600 mt-2 flex items-center">
-          <Lock className="h-3 w-3 inline mr-1" />
-          Secure mode: Questions are mapped and validated for consistent display.
-        </p>
-        {!isStorageValid && (
-          <div className="mt-2 flex items-center text-red-600 text-xs">
-            <AlertTriangle className="h-4 w-4 mr-1" />
-            Storage integrity check failed. Please clear cache and refetch.
-          </div>
-        )}
-      </CardHeader>
 
-      {/* Content area - NO inline styling here */}
-      <CardContent className="p-0">
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-            <span className="ml-2">Loading and mapping secure questions...</span>
-          </div>
-        ) : error ? (
-          <div className="flex flex-col items-center py-8">
-            <div className="text-red-600 mb-2">{error}</div>
-            <Button onClick={fetchAndStoreQuestions}>Retry</Button>
-          </div>
-        ) : questions && questions.length > 0 ? (
-          <>
-            {/* 🟢 Pass settings down to PracticeContent which handles text styling */}
-            <PracticeContent questions={questions} settings={settings} />
-            <AIAnalyzer
-              context="practice"
-              data={{
-                currentQuestion: questions[0],
-                currentIndex: 0,
-                totalQuestions: questions.length,
-                questions: questions.slice(0, 3),
-              }}
-            />
-            <div className="fixed bottom-6 left-6 z-40">
-              <CommentSection />
+        {/* Header section - NO styling applied */}
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Lock className="h-5 w-5 text-green-600" />
+                Practice Questions
+              </CardTitle>
+              <CardDescription>
+                Questions are securely encrypted and mapped to ensure consistent UI display.
+              </CardDescription>
             </div>
-          </>
-        ) : (
-          <div className="flex justify-center items-center h-64 text-gray-400">
-            No secure questions available. Please fetch data.
+            <div className="flex items-center space-x-4">
+              <Button
+                size="sm"
+                onClick={fetchAndStoreQuestions}
+                disabled={loading}
+                className="flex items-center gap-2"
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                Fetch & Encrypt
+              </Button>
+              <Button
+                size="sm"
+                onClick={loadLatestQuestions}
+                disabled={loading}
+                className="flex items-center gap-2"
+                variant="outline"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Load Latest
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleClearStorage}
+                disabled={loading}
+                className="flex items-center gap-2"
+                variant="destructive"
+              >
+                <KeyRound className="h-4 w-4" />
+                Clear Secure Cache
+              </Button>
+            </div>
           </div>
-        )}
-        {lastFetched && (
-          <div className="text-xs text-gray-500 p-2">
-            Last updated: {lastFetched.toLocaleTimeString()}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          <p className="text-xs text-green-600 mt-2 flex items-center">
+            <Lock className="h-3 w-3 inline mr-1" />
+            Secure mode: Questions are mapped and validated for consistent display.
+          </p>
+          {!isStorageValid && (
+            <div className="mt-2 flex items-center text-red-600 text-xs">
+              <AlertTriangle className="h-4 w-4 mr-1" />
+              Storage integrity check failed. Please clear cache and refetch.
+            </div>
+          )}
+        </CardHeader>
+        
+        {/* Content area */}
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+              <span className="ml-2 dark:text-gray-300">Loading and mapping secure questions...</span>
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center py-8">
+              <div className="text-red-600 dark:text-red-400 mb-2">{error}</div>
+              <Button onClick={fetchAndStoreQuestions}>Retry</Button>
+            </div>
+          ) : questions && questions.length > 0 ? (
+            <>
+              <PracticeContent questions={questions} settings={settings} />
+              <AIAnalyzer
+                context="practice"
+                data={{
+                  currentQuestion: questions[0],
+                  currentIndex: 0,
+                  totalQuestions: questions.length,
+                  questions: questions.slice(0, 3),
+                }}
+              />
+              <div className="fixed bottom-6 left-6 z-40">
+                <CommentSection />
+              </div>
+            </>
+          ) : (
+            <div className="flex justify-center items-center h-64 text-gray-400 dark:text-gray-500">
+              No secure questions available. Please fetch data.
+            </div>
+          )}
+          {lastFetched && (
+            <div className="text-xs text-gray-500 dark:text-gray-400 p-2">
+              Last updated: {lastFetched.toLocaleTimeString()}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </ThemeProvider>
   );
 };
 
