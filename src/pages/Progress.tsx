@@ -1,4 +1,5 @@
 
+
 import { useState, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { TabsList, Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs";
@@ -241,6 +242,7 @@ const ProgressContent = () => {
 const Progress = () => {
   const navigate = useNavigate();
   const { session } = useAuth();
+  const { progressData } = useProgress();
   const [period, setPeriod] = useState<TimePeriod>("weekly");
   const [activeTab, setActiveTab] = useState<ProgressTab>("performance");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -444,3 +446,4 @@ const Progress = () => {
 };
 
 export default Progress;
+

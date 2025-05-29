@@ -1,4 +1,3 @@
-
 import Dexie, { Table } from 'dexie';
 import CryptoJS from 'crypto-js';
 
@@ -10,7 +9,7 @@ interface SecureFunctionData {
   hash: string;
 }
 
-const SECRET_KEY = process.env.NEXT_PUBLIC_DB_ENCRYPTION_KEY || 'default_secret_key';
+const SECRET_KEY = import.meta.env.VITE_DB_ENCRYPTION_KEY || 'default_secret_key';
 
 // Encryption function
 const encrypt = (data: string): string => {
