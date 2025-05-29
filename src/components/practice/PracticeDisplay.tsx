@@ -117,7 +117,7 @@ const PracticeDisplay = ({
 
   if (!currentQuestion) {
     return (
-      <div className={`w-full p-8 text-center ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>No question selected</div>
+      <div className={`w-full p-8 text-center ${isDarkMode ? 'text-green-300' : 'text-gray-700'}`}>No question selected</div>
     );
   }
 
@@ -132,7 +132,7 @@ const PracticeDisplay = ({
           className="flex-1 w-full lg:w-[70%] overflow-y-auto"
           style={{
             backgroundColor: boardColor === 'black' ? '#000' : boardColor === 'green' ? '#f0fdf4' : (isDarkMode ? '#1f2937' : '#fff'),
-            color: boardColor === 'black' ? '#fff' : (isDarkMode ? '#f3f4f6' : colorSettings.content),
+            color: boardColor === 'black' ? '#fff' : (isDarkMode ? '#fff' : colorSettings.content),
           }}
         >
           <div
@@ -140,7 +140,7 @@ const PracticeDisplay = ({
             style={{
               fontFamily: displaySettings.fontFamily,
               fontSize: `${displaySettings.fontSize}px`,
-              color: isDarkMode ? '#f3f4f6' : colorSettings.content,
+              color: isDarkMode ? '#fff' : colorSettings.content,
               background:
                 displaySettings.colorStyle === 'gradient'
                   ? (isDarkMode ? 'linear-gradient(145deg, #374151 0%, #1f2937 100%)' : 'linear-gradient(145deg, #f8fafc 0%, #f0fdf4 100%)')
@@ -152,7 +152,7 @@ const PracticeDisplay = ({
                 className="text-xl sm:text-2xl font-semibold"
                 style={{
                   fontFamily: displaySettings.fontFamily,
-                  color: isDarkMode ? '#f3f4f6' : colorSettings.content,
+                  color: isDarkMode ? '#fff' : colorSettings.content,
                 }}
               >
                 Question {currentQuestionIndex + 1}
@@ -161,13 +161,13 @@ const PracticeDisplay = ({
                 className="flex items-center gap-2 cursor-pointer"
                 onClick={toggleQuestionType}
               >
-                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                <span className={`text-sm ${isDarkMode ? 'text-green-400' : 'text-gray-500'}`}>
                   {isMultipleChoice ? "Multiple Choice" : "Fill-in"}
                 </span>
                 {isMultipleChoice ? (
-                  <ToggleRight className="h-6 w-6 text-blue-600" />
+                  <ToggleRight className={`h-6 w-6 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
                 ) : (
-                  <ToggleLeft className={`h-6 w-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                  <ToggleLeft className={`h-6 w-6 ${isDarkMode ? 'text-green-400' : 'text-gray-500'}`} />
                 )}
               </div>
             </div>
@@ -178,7 +178,7 @@ const PracticeDisplay = ({
               style={{
                 fontFamily: displaySettings.fontFamily,
                 fontSize: `${displaySettings.fontSize}px`,
-                color: isDarkMode ? '#f3f4f6' : colorSettings.content,
+                color: isDarkMode ? '#fff' : colorSettings.content,
               }}
             >
               {currentQuestion.content.split('**').map((part, i) =>
@@ -205,7 +205,7 @@ const PracticeDisplay = ({
                 <img
                   src={graphUrl}
                   alt="Question graph"
-                  className="max-w-full max-h-64"
+                  className="max-w-full max-h-32"
                   style={{ border: 'none', height: 'auto' }}
                   onError={(e) => {
                     // Hide the image if it fails to load
@@ -237,7 +237,7 @@ const PracticeDisplay = ({
                       style={{
                         fontFamily: displaySettings.fontFamily,
                         fontSize: `${Math.max(displaySettings.fontSize - 2, 12)}px`,
-                        color: isDarkMode ? '#f3f4f6' : colorSettings.content,
+                        color: isDarkMode ? '#fff' : colorSettings.content,
                       }}
                     >
                       {/* Green animation overlay for correct answer */}
@@ -245,7 +245,7 @@ const PracticeDisplay = ({
                         <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 via-green-500/30 to-green-400/20 animate-ping rounded-full"></div>
                       )}
                       
-                      <span className="mr-2 text-gray-500 font-bold">{choiceLetter}.</span>
+                      <span className={`mr-2 font-bold ${isDarkMode ? 'text-green-400' : 'text-gray-500'}`}>{choiceLetter}.</span>
                       <span className={isSelected ? "font-medium relative z-10" : "relative z-10"}>
                         {choice}
                       </span>
@@ -270,7 +270,7 @@ const PracticeDisplay = ({
                     onChange={(e) => setFillInAnswer(e.target.value)}
                     placeholder="Type your answer here..."
                     className={`flex-1 p-3 sm:p-4 border shadow-md rounded-md text-sm sm:text-base ${
-                      isDarkMode ? 'bg-gray-800 text-gray-100 border-gray-600' : 'bg-white text-gray-800 border-gray-300'
+                      isDarkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-800 border-gray-300'
                     }`}
                     style={{
                       fontFamily: displaySettings.fontFamily,
@@ -316,15 +316,15 @@ const PracticeDisplay = ({
             <div className={`p-4 sm:p-6 rounded-lg h-full overflow-y-auto ${
               isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
             }`}>
-              <h3 className="text-lg font-semibold mb-4 text-blue-600">Solution</h3>
+              <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-green-300' : 'text-blue-600'}`}>Solution</h3>
               
               {/* Enhanced Solution with HTML formatting */}
-              <div className={`mb-6 p-4 rounded-lg border-l-4 border-blue-500 ${
-                isDarkMode ? 'bg-gray-700' : 'bg-white'
+              <div className={`mb-6 p-4 rounded-lg border-l-4 ${
+                isDarkMode ? 'border-green-400 bg-gray-700' : 'border-blue-500 bg-white'
               }`}>
-                <h4 className={`font-medium mb-2 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Explanation:</h4>
+                <h4 className={`font-medium mb-2 ${isDarkMode ? 'text-green-300' : 'text-gray-800'}`}>Explanation:</h4>
                 <div 
-                  className={`leading-relaxed solution-content text-sm sm:text-base ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                  className={`leading-relaxed solution-content text-sm sm:text-base ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}
                   dangerouslySetInnerHTML={{ __html: currentQuestion.solution }}
                   style={{
                     fontFamily: displaySettings.fontFamily,
@@ -336,17 +336,19 @@ const PracticeDisplay = ({
               {/* Solution Steps */}
               {currentQuestion.solutionSteps && currentQuestion.solutionSteps.length > 0 && (
                 <div className="mb-4">
-                  <h4 className={`font-medium mb-3 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Step-by-step solution:</h4>
+                  <h4 className={`font-medium mb-3 ${isDarkMode ? 'text-green-300' : 'text-gray-800'}`}>Step-by-step solution:</h4>
                   <div className="space-y-3">
                     {currentQuestion.solutionSteps.map((step, index) => (
                       <div key={index} className={`flex items-start gap-3 p-3 rounded-lg border ${
                         isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'
                       }`}>
-                        <div className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                        <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold ${
+                          isDarkMode ? 'bg-green-500 text-white' : 'bg-blue-500 text-white'
+                        }`}>
                           {index + 1}
                         </div>
                         <div 
-                          className={`text-sm leading-relaxed ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                          className={`text-sm leading-relaxed ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}
                           style={{
                             fontFamily: displaySettings.fontFamily,
                             fontSize: `${Math.max(displaySettings.fontSize - 2, 12)}px`,
@@ -374,18 +376,18 @@ const PracticeDisplay = ({
             <div className={`p-4 sm:p-6 rounded-lg h-full overflow-y-auto ${
               isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
             }`}>
-              <h3 className="text-lg font-semibold mb-4">Quote</h3>
+              <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-green-300' : 'text-gray-900'}`}>Quote</h3>
               {currentQuestion.quote ? (
-                <blockquote className={`text-lg italic border-l-4 border-blue-500 pl-4 ${
-                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                <blockquote className={`text-lg italic border-l-4 pl-4 ${
+                  isDarkMode ? 'border-green-400 text-green-400' : 'border-blue-500 text-gray-700'
                 }`}>
                   "{currentQuestion.quote.text}"
                   {currentQuestion.quote.source && (
-                    <footer className={`mt-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>- {currentQuestion.quote.source}</footer>
+                    <footer className={`mt-2 text-sm ${isDarkMode ? 'text-green-500' : 'text-gray-500'}`}>- {currentQuestion.quote.source}</footer>
                   )}
                 </blockquote>
               ) : (
-                <p className={`italic ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>No quote available for this question.</p>
+                <p className={`italic ${isDarkMode ? 'text-green-500' : 'text-gray-500'}`}>No quote available for this question.</p>
               )}
             </div>
           )}
@@ -394,7 +396,9 @@ const PracticeDisplay = ({
 
       {/* Go to Question Popup */}
       {showGoToInput && (
-        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-white border rounded-lg shadow-lg p-4 w-64 animate-in fade-in slide-in-from-bottom-5 z-20">
+        <div className={`fixed bottom-24 left-1/2 -translate-x-1/2 border rounded-lg shadow-lg p-4 w-64 animate-in fade-in slide-in-from-bottom-5 z-20 ${
+          isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-300'
+        }`}>
           <div className="flex flex-col space-y-2">
             <div className="flex items-center gap-2">
               <input
@@ -406,7 +410,9 @@ const PracticeDisplay = ({
                   setTargetQuestion(e.target.value);
                   setInputError('');
                 }}
-                className="w-full px-3 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-3 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  isDarkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                }`}
                 placeholder={`Enter question (1-${totalQuestions})`}
                 onKeyPress={(e) => e.key === 'Enter' && handleGoToQuestion()}
               />

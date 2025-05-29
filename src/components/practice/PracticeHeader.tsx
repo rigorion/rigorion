@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -136,7 +137,9 @@ export const PracticeHeader = ({
       <div className="flex items-center gap-2 sm:gap-4">
         <DropdownMenu open={isNavDropdownOpen} onOpenChange={setIsNavDropdownOpen}>
           <DropdownMenuTrigger className="rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-            <Navigation className="h-5 w-5 text-blue-500" />
+            <Navigation className={`h-5 w-5 ${
+              isDarkMode ? 'text-green-400' : 'text-blue-500'
+            }`} />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-lg p-2 z-50">
             <ScrollArea className="h-auto max-h-[300px]">
@@ -146,13 +149,13 @@ export const PracticeHeader = ({
                   className="cursor-pointer py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm transition-colors"
                   onClick={() => handleNavigation(page.path)}
                 >
-                  <span className={`font-source-sans ${isDarkMode ? 'text-gray-200' : 'text-[#304455]'}`}>{page.name}</span>
+                  <span className={`font-source-sans ${isDarkMode ? 'text-green-300' : 'text-[#304455]'}`}>{page.name}</span>
                 </DropdownMenuItem>
               ))}
             </ScrollArea>
           </DropdownMenuContent>
         </DropdownMenu>
-        <h1 className={`text-lg sm:text-xl font-bold font-cursive ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>
+        <h1 className={`text-lg sm:text-xl font-bold font-cursive ${isDarkMode ? 'text-green-300' : 'text-gray-800'}`}>
           Academic Arc
         </h1>
       </div>
@@ -166,7 +169,7 @@ export const PracticeHeader = ({
           className="rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
         >
           {isDarkMode ? (
-            <Sun className="h-5 w-5 text-yellow-500" />
+            <Sun className="h-5 w-5 text-green-400" />
           ) : (
             <Moon className="h-5 w-5 text-gray-600" />
           )}
@@ -180,7 +183,7 @@ export const PracticeHeader = ({
               size="icon"
               className="relative rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
             >
-              <Bell className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+              <Bell className={`h-5 w-5 ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`} />
               {hasNotifications && (
                 <span className="absolute top-1 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
               )}
@@ -188,31 +191,31 @@ export const PracticeHeader = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-lg p-2 z-50">
             <div className="flex justify-between items-center mb-2 px-2">
-              <h3 className="font-semibold">Notifications</h3>
-              <Button variant="ghost" size="sm" className="text-xs text-blue-500 hover:text-blue-700">
+              <h3 className={`font-semibold ${isDarkMode ? 'text-green-300' : 'text-gray-900'}`}>Notifications</h3>
+              <Button variant="ghost" size="sm" className={`text-xs ${isDarkMode ? 'text-green-400 hover:text-green-300' : 'text-blue-500 hover:text-blue-700'}`}>
                 Mark all as read
               </Button>
             </div>
             <DropdownMenuSeparator />
             <ScrollArea className="h-64">
-              <div className="p-2 text-sm bg-blue-50 rounded-md mb-2">
-                <p className="font-medium">New chapter available!</p>
-                <p className="text-gray-600">Advanced Calculus chapter is now available.</p>
-                <p className="text-xs text-gray-500 mt-1">2 hours ago</p>
+              <div className="p-2 text-sm bg-blue-50 dark:bg-gray-700 rounded-md mb-2">
+                <p className={`font-medium ${isDarkMode ? 'text-green-300' : 'text-gray-900'}`}>New chapter available!</p>
+                <p className={`${isDarkMode ? 'text-green-400' : 'text-gray-600'}`}>Advanced Calculus chapter is now available.</p>
+                <p className={`text-xs mt-1 ${isDarkMode ? 'text-green-500' : 'text-gray-500'}`}>2 hours ago</p>
               </div>
               <div className="p-2 text-sm mb-2">
-                <p className="font-medium">Practice reminder</p>
-                <p className="text-gray-600">You haven't practiced in 2 days.</p>
-                <p className="text-xs text-gray-500 mt-1">1 day ago</p>
+                <p className={`font-medium ${isDarkMode ? 'text-green-300' : 'text-gray-900'}`}>Practice reminder</p>
+                <p className={`${isDarkMode ? 'text-green-400' : 'text-gray-600'}`}>You haven't practiced in 2 days.</p>
+                <p className={`text-xs mt-1 ${isDarkMode ? 'text-green-500' : 'text-gray-500'}`}>1 day ago</p>
               </div>
               <div className="p-2 text-sm mb-2">
-                <p className="font-medium">Achievement unlocked!</p>
-                <p className="text-gray-600">You've completed 50 practice problems!</p>
-                <p className="text-xs text-gray-500 mt-1">3 days ago</p>
+                <p className={`font-medium ${isDarkMode ? 'text-green-300' : 'text-gray-900'}`}>Achievement unlocked!</p>
+                <p className={`${isDarkMode ? 'text-green-400' : 'text-gray-600'}`}>You've completed 50 practice problems!</p>
+                <p className={`text-xs mt-1 ${isDarkMode ? 'text-green-500' : 'text-gray-500'}`}>3 days ago</p>
               </div>
             </ScrollArea>
             <DropdownMenuSeparator />
-            <Button variant="ghost" size="sm" className="w-full text-center text-sm mt-1">
+            <Button variant="ghost" size="sm" className={`w-full text-center text-sm mt-1 ${isDarkMode ? 'text-green-400 hover:text-green-300' : 'text-gray-700'}`}>
               View all notifications
             </Button>
           </DropdownMenuContent>
@@ -226,10 +229,10 @@ export const PracticeHeader = ({
               size="sm"
               className="rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors hidden sm:flex"
             >
-              <Filter className="h-4 w-4 mr-1.5 text-blue-500" />
-              <span className="hidden md:inline">{selectedModule}</span>
-              <span className="md:hidden">Module</span>
-              <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isModuleDropdownOpen ? "rotate-180" : ""}`} />
+              <Filter className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
+              <span className={`hidden md:inline ${isDarkMode ? 'text-green-300' : 'text-gray-700'}`}>{selectedModule}</span>
+              <span className={`md:hidden ${isDarkMode ? 'text-green-300' : 'text-gray-700'}`}>Module</span>
+              <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isModuleDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-lg p-2 z-50">
@@ -240,7 +243,7 @@ export const PracticeHeader = ({
                   className="cursor-pointer py-2 px-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
                   onClick={() => handleModuleFilter(module)}
                 >
-                  <span className={`font-source-sans text-sm ${isDarkMode ? 'text-gray-200' : 'text-[#304455]'}`}>{module}</span>
+                  <span className={`font-source-sans text-sm ${isDarkMode ? 'text-green-300' : 'text-[#304455]'}`}>{module}</span>
                 </DropdownMenuItem>
               ))}
             </ScrollArea>
@@ -258,9 +261,11 @@ export const PracticeHeader = ({
               size="sm"
               className="rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors hidden lg:flex"
             >
-              <Target className="h-4 w-4 mr-1.5 text-blue-500" />
-              {selectedChapter === "All Chapters" ? "Chapters" : selectedChapter.split(":")[0]}
-              <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isChapterDropdownOpen ? "rotate-180" : ""}`} />
+              <Target className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
+              <span className={isDarkMode ? 'text-green-300' : 'text-gray-700'}>
+                {selectedChapter === "All Chapters" ? "Chapters" : selectedChapter.split(":")[0]}
+              </span>
+              <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isChapterDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-lg p-2 z-50">
@@ -271,7 +276,7 @@ export const PracticeHeader = ({
                   className="cursor-pointer py-2 px-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
                   onClick={() => handleChapterFilter(chapter)}
                 >
-                  <span className={`font-source-sans text-sm ${isDarkMode ? 'text-gray-200' : 'text-[#304455]'}`}>{chapter}</span>
+                  <span className={`font-source-sans text-sm ${isDarkMode ? 'text-green-300' : 'text-[#304455]'}`}>{chapter}</span>
                 </DropdownMenuItem>
               ))}
             </ScrollArea>
@@ -284,8 +289,8 @@ export const PracticeHeader = ({
           onClick={onOpenObjective}
           className="rounded-full bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         >
-          <Target className="h-4 w-4 mr-1.5 text-blue-500" />
-          Set Objectives
+          <Target className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
+          <span className={isDarkMode ? 'text-green-300' : 'text-gray-700'}>Set Objectives</span>
         </Button>
         
         <Button
@@ -304,12 +309,14 @@ export const PracticeHeader = ({
             strokeWidth="2" 
             strokeLinecap="round" 
             strokeLinejoin="round"
-            className="h-4 w-4 mr-1.5"
+            className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`}
           >
             <circle cx="12" cy="12" r="10"/>
             <polyline points="12 6 12 12 16 14"/>
           </svg>
-          {mode === "manual" ? "Manual" : mode.charAt(0).toUpperCase() + mode.slice(1)}
+          <span className={isDarkMode ? 'text-green-300' : 'text-gray-700'}>
+            {mode === "manual" ? "Manual" : mode.charAt(0).toUpperCase() + mode.slice(1)}
+          </span>
         </Button>
 
         <div className="ml-2 flex items-center">
