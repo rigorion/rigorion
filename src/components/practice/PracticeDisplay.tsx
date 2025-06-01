@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Search, ToggleLeft, ToggleRight, Check, X, Bot } from "lucide-react";
@@ -63,9 +62,8 @@ const PracticeDisplay = ({
   const isCorrect = propIsCorrect !== undefined ? propIsCorrect : localIsCorrect;
 
   // Check if this is a SAT Writing module
-  const isSATWriting = currentQuestion?.topic?.toLowerCase().includes('writing') || 
-                      currentQuestion?.module?.toLowerCase().includes('writing') ||
-                      currentQuestion?.subject?.toLowerCase().includes('writing');
+  const isSATWriting = currentQuestion?.chapter?.toLowerCase().includes('writing') || 
+                      currentQuestion?.module?.toLowerCase().includes('writing');
 
   const localCheckAnswer = (answer: string) => {
     if (!currentQuestion) return;
