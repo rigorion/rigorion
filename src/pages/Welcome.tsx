@@ -124,7 +124,7 @@ export default function Welcome() {
             </div>
           </section>
           
-          {/* Quick links section - keeping the original navigation cards */}
+          {/* Quick links section */}
           <section className="mb-12">
             <h2 className="text-2xl font-bold mb-6">Quick Navigation</h2>
             <div className="p-6 bg-white rounded-xl shadow-sm">              
