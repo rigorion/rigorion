@@ -38,7 +38,7 @@ const PracticeFooter = ({
     <>
       {/* Footer Navigation */}
       <div className={`fixed bottom-0 left-0 right-0 border-t transition-colors duration-300 ${
-        isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'
+        isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
       } z-10`}>
         <div className="flex items-center justify-between px-4 sm:px-6 py-3">
           {/* Left: Community Stats */}
@@ -68,7 +68,7 @@ const PracticeFooter = ({
               disabled={currentQuestionIndex === 0}
               className={`flex items-center gap-2 transition-colors ${
                 isDarkMode 
-                  ? 'border-gray-600 bg-gray-800 text-green-400 hover:bg-gray-700 disabled:bg-gray-900 disabled:text-gray-600' 
+                  ? 'border-green-500/30 bg-gray-900 text-green-400 hover:bg-gray-800 disabled:bg-gray-900 disabled:text-green-600/50' 
                   : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
               }`}
             >
@@ -78,8 +78,8 @@ const PracticeFooter = ({
 
             {/* Question Counter & Go To */}
             <div className="flex items-center gap-2">
-              <span className={`text-sm font-medium px-3 py-1 rounded-full ${
-                isDarkMode ? 'bg-gray-800 text-green-400' : 'bg-gray-100 text-gray-700'
+              <span className={`text-sm font-medium px-3 py-1 rounded-full border ${
+                isDarkMode ? 'bg-gray-900 text-green-400 border-green-500/30' : 'bg-gray-100 text-gray-700'
               }`}>
                 {currentQuestionIndex + 1} of {totalQuestions}
               </span>
@@ -107,7 +107,7 @@ const PracticeFooter = ({
               disabled={currentQuestionIndex === totalQuestions - 1}
               className={`flex items-center gap-2 transition-colors ${
                 isDarkMode 
-                  ? 'border-gray-600 bg-gray-800 text-green-400 hover:bg-gray-700 disabled:bg-gray-900 disabled:text-gray-600' 
+                  ? 'border-green-500/30 bg-gray-900 text-green-400 hover:bg-gray-800 disabled:bg-gray-900 disabled:text-green-600/50' 
                   : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
               }`}
             >
@@ -124,7 +124,7 @@ const PracticeFooter = ({
       {/* Go to Question Popup */}
       {showGoToInput && (
         <div className={`fixed bottom-24 left-1/2 -translate-x-1/2 border rounded-lg shadow-lg p-4 w-64 animate-in fade-in slide-in-from-bottom-5 z-20 transition-colors ${
-          isDarkMode ? 'bg-gray-900 border-gray-600' : 'bg-white border-gray-300'
+          isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-300'
         }`}>
           <div className="flex flex-col space-y-2">
             <div className="flex items-center gap-2">
@@ -138,7 +138,7 @@ const PracticeFooter = ({
                 }}
                 className={`w-full px-3 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors ${
                   isDarkMode 
-                    ? 'bg-gray-800 border-gray-600 text-green-400 placeholder-gray-500' 
+                    ? 'bg-gray-900 border-green-500/30 text-green-400 placeholder-green-600' 
                     : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                 }`}
                 placeholder={`Enter question (1-${totalQuestions})`}
@@ -153,7 +153,7 @@ const PracticeFooter = ({
               size="sm" 
               className={`w-full transition-colors ${
                 isDarkMode 
-                  ? 'bg-green-600 hover:bg-green-700 text-white' 
+                  ? 'bg-green-600 hover:bg-green-700 text-white border-green-500/30' 
                   : 'bg-blue-600 hover:bg-blue-700 text-white'
               }`}
               onClick={handleGoToQuestion}

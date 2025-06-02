@@ -22,7 +22,6 @@ const ENDPOINT = "my-function";
 const Practice = () => {
   const { toast } = useToast();
 
-  // 🟢 Text settings state (global for the practice session)
   const [settings, setSettings] = useState({
     fontFamily: "inter",
     fontSize: 14,
@@ -30,25 +29,21 @@ const Practice = () => {
     textColor: "#374151"
   });
 
-  // 🟢 Settings dialog visibility
   const [showSettings, setShowSettings] = useState(false);
 
-  // 🟢 Settings handler
-  const handleSettingsChange = (key, value) => {
+  const handleSettingsChange = (key: any, value: any) => {
     setSettings((prev) => ({
       ...prev,
       [key]: value,
     }));
   };
 
-  // 🟢 Practice state
   const [questions, setQuestions] = useState<Question[]>([]);
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
   const [loading, setLoading] = useState(false);
   const [isStorageValid, setIsStorageValid] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch from API and store securely
   const fetchAndStoreQuestions = async () => {
     setLoading(true);
     setError(null);
@@ -65,7 +60,6 @@ const Practice = () => {
 
       await storeSecureFunctionData(ENDPOINT, result);
 
-      // Extract and map questions
       let rawQuestions: any[] = [];
       if (result.questions && Array.isArray(result.questions)) {
         rawQuestions = result.questions;
@@ -96,7 +90,6 @@ const Practice = () => {
     }
   };
 
-  // Load latest from encrypted storage
   const loadLatestQuestions = async () => {
     setLoading(true);
     setError(null);
@@ -136,7 +129,6 @@ const Practice = () => {
     }
   };
 
-  // Clear secure cache
   const handleClearStorage = async () => {
     await clearAllSecureData();
     setQuestions([]);
@@ -148,13 +140,11 @@ const Practice = () => {
     });
   };
 
-  // Check validity on mount
   useEffect(() => {
     setIsStorageValid(isSecureStorageValid());
     loadLatestQuestions();
   }, []);
 
-  // 🟢 Style for main content area using settings
   const mainStyle = {
     fontFamily: `var(--${settings.fontFamily}, ${settings.fontFamily})`,
     fontSize: `${settings.fontSize}px`,
@@ -164,8 +154,8 @@ const Practice = () => {
 
   return (
     <ThemeProvider>
-      <Card className="min-h-screen bg-white dark:bg-gray-900 relative transition-colors duration-300">
-        {/* 🟢 Floating Settings Button */}
+      <Card className="min-h-screen bg-white dark:bg-gray-900 relative transition-colors duration-300 dark:border-green-500/30">
+        {/* Floating Settings Button */}
         <div className="absolute top-4 right-4 z-50">
           <SettingsDialog
             open={showSettings}
@@ -175,23 +165,23 @@ const Practice = () => {
           >
             <Button
               variant="outline"
-              className="rounded-full p-2 shadow hover:shadow-lg transition"
+              className="rounded-full p-2 shadow hover:shadow-lg transition dark:border-green-500/30 dark:bg-gray-900 dark:hover:bg-gray-800"
               aria-label="Open Text Settings"
             >
-              <Sparkles className="h-5 w-5 text-amber-500" />
+              <Sparkles className="h-5 w-5 text-amber-500 dark:text-green-400" />
             </Button>
           </SettingsDialog>
         </div>
 
-        {/* Header section - NO styling applied */}
-        <CardHeader>
+        {/* Header section */}
+        <CardHeader className="dark:border-b dark:border-green-500/30">
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <Lock className="h-5 w-5 text-green-600" />
+              <CardTitle className="flex items-center gap-2 dark:text-green-400">
+                <Lock className="h-5 w-5 text-green-600 dark:text-green-400" />
                 Practice Questions
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="dark:text-green-500">
                 Questions are securely encrypted and mapped to ensure consistent UI display.
               </CardDescription>
             </div>
@@ -200,7 +190,7 @@ const Practice = () => {
                 size="sm"
                 onClick={fetchAndStoreQuestions}
                 disabled={loading}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 dark:bg-green-600 dark:hover:bg-green-700 dark:border-green-500/30"
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                 Fetch & Encrypt
@@ -209,7 +199,7 @@ const Practice = () => {
                 size="sm"
                 onClick={loadLatestQuestions}
                 disabled={loading}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 dark:border-green-500/30 dark:text-green-400 dark:hover:bg-gray-800"
                 variant="outline"
               >
                 <RefreshCw className="h-4 w-4" />
@@ -227,7 +217,7 @@ const Practice = () => {
               </Button>
             </div>
           </div>
-          <p className="text-xs text-green-600 mt-2 flex items-center">
+          <p className="text-xs text-green-600 dark:text-green-400 mt-2 flex items-center">
             <Lock className="h-3 w-3 inline mr-1" />
             Secure mode: Questions are mapped and validated for consistent display.
           </p>
@@ -243,13 +233,13 @@ const Practice = () => {
         <CardContent className="p-0">
           {loading ? (
             <div className="flex justify-center items-center h-64">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-              <span className="ml-2 dark:text-gray-300">Loading and mapping secure questions...</span>
+              <Loader2 className="h-8 w-8 animate-spin text-blue-500 dark:text-green-400" />
+              <span className="ml-2 dark:text-green-400">Loading and mapping secure questions...</span>
             </div>
           ) : error ? (
             <div className="flex flex-col items-center py-8">
               <div className="text-red-600 dark:text-red-400 mb-2">{error}</div>
-              <Button onClick={fetchAndStoreQuestions}>Retry</Button>
+              <Button onClick={fetchAndStoreQuestions} className="dark:bg-green-600 dark:hover:bg-green-700">Retry</Button>
             </div>
           ) : questions && questions.length > 0 ? (
             <>
@@ -268,12 +258,12 @@ const Practice = () => {
               </div>
             </>
           ) : (
-            <div className="flex justify-center items-center h-64 text-gray-400 dark:text-gray-500">
+            <div className="flex justify-center items-center h-64 text-gray-400 dark:text-green-500">
               No secure questions available. Please fetch data.
             </div>
           )}
           {lastFetched && (
-            <div className="text-xs text-gray-500 dark:text-gray-400 p-2">
+            <div className="text-xs text-gray-500 dark:text-green-500 p-2 border-t dark:border-green-500/30">
               Last updated: {lastFetched.toLocaleTimeString()}
             </div>
           )}

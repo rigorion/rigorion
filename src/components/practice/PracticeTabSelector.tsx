@@ -14,17 +14,17 @@ const PracticeTabSelector = ({ activeTab, setActiveTab, className = "" }: Practi
 
   return (
     <div className={`inline-flex rounded-lg p-0.5 border ${
-      isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'
+      isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
     } ${className}`}>
       <Button
         variant="ghost"
         size="sm"
         className={`px-3 py-0 rounded-md transition-all h-7 ${activeTab === "problem" 
           ? isDarkMode 
-            ? "text-green-400 bg-gray-700 shadow-sm" 
+            ? "text-green-400 bg-gray-800 shadow-sm border border-green-500/30" 
             : "text-red-500 bg-white shadow-sm shadow-red-100"
           : isDarkMode
-            ? "text-green-500 hover:text-green-400"
+            ? "text-green-400 hover:text-green-300 hover:bg-gray-800"
             : "text-gray-500 hover:text-red-400"}`}
         onClick={() => setActiveTab("problem")}
       >
@@ -38,10 +38,10 @@ const PracticeTabSelector = ({ activeTab, setActiveTab, className = "" }: Practi
         size="sm"
         className={`px-3 py-0 rounded-md transition-all h-7 ${activeTab === "solution" 
           ? isDarkMode 
-            ? "text-green-400 bg-gray-700 shadow-sm" 
+            ? "text-green-400 bg-gray-800 shadow-sm border border-green-500/30" 
             : "text-yellow-500 bg-white shadow-sm shadow-yellow-100"
           : isDarkMode
-            ? "text-green-500 hover:text-green-400"
+            ? "text-green-400 hover:text-green-300 hover:bg-gray-800"
             : "text-gray-500 hover:text-yellow-400"}`}
         onClick={() => setActiveTab("solution")}
       >
@@ -55,10 +55,10 @@ const PracticeTabSelector = ({ activeTab, setActiveTab, className = "" }: Practi
         size="sm"
         className={`px-3 py-0 rounded-md transition-all h-7 ${activeTab === "quote" 
           ? isDarkMode 
-            ? "text-green-400 bg-gray-700 shadow-sm" 
+            ? "text-green-400 bg-gray-800 shadow-sm border border-green-500/30" 
             : "text-green-500 bg-white shadow-sm shadow-green-100"
           : isDarkMode
-            ? "text-green-500 hover:text-green-400"
+            ? "text-green-400 hover:text-green-300 hover:bg-gray-800"
             : "text-gray-500 hover:text-green-400"}`}
         onClick={() => setActiveTab("quote")}
       >

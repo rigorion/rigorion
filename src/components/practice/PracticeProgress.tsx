@@ -1,3 +1,4 @@
+
 import { Clock, Flag, Sparkles } from "lucide-react";
 import CountdownTimer from "./CountDownTimer";
 import HintDialog from "./HintDialog";
@@ -60,15 +61,12 @@ const PracticeProgress = ({
 
   // Updated: Progress calculation is now relative to the objective (if set), or totalQuestions.
   const calculateProgress = () => {
-    // Use objective.value as "target" if type is questions and value is set, else totalQuestions
     const targetTotal = (objective?.type === "questions" && objective?.value)
       ? objective.value
       : totalQuestions;
 
-    // Clamp the totalAnswered to the targetTotal to never exceed 100%
     const totalAnswered = Math.min(correctAnswers + incorrectAnswers, targetTotal);
 
-    // Calculate each percentage based on the targetTotal (objective or totalQuestions)
     return {
       correct: Math.min((correctAnswers / targetTotal) * 100, 100),
       incorrect: Math.min((incorrectAnswers / targetTotal) * 100, 100),
@@ -84,13 +82,11 @@ const PracticeProgress = ({
     totalPercentage
   } = calculateProgress();
 
-  // Target progress for display: If "objective" is set, use its progress, else use totalPercentage.
   const targetProgressPercentage =
     (objective?.type === "questions" && typeof progress === "number")
       ? Math.round(progress)
       : totalPercentage;
 
-  // Style helpers for the progress bar
   const correctWidth = `${correct}%`;
   const incorrectWidth = `${incorrect}%`;
   const unattemptedWidth = `${unattempted}%`;
@@ -105,11 +101,13 @@ const PracticeProgress = ({
 
   return (
     <div className={`px-3 py-2 border-b transition-colors duration-300 ${
-      isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'
+      isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
     }`}>
       <div className="flex items-center justify-between mb-2">
         {/* Progress bar with percentage indicator */}
-        <div className="relative h-2.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden flex-grow progress-bar">
+        <div className={`relative h-2.5 rounded-full overflow-hidden flex-grow progress-bar ${
+          isDarkMode ? 'bg-gray-800 border border-green-500/20' : 'bg-gray-100'
+        }`}>
           {/* Correct answers - green */}
           <div
             className="absolute left-0 top-0 h-full bg-green-500 rounded-l-full transition-all duration-500 ease-out shine-animation"
@@ -126,7 +124,9 @@ const PracticeProgress = ({
           />
           {/* Unattempted - grey */}
           <div
-            className="absolute top-0 right-0 h-full bg-gray-300 dark:bg-gray-600 rounded-r-full transition-all duration-500 ease-out"
+            className={`absolute top-0 right-0 h-full rounded-r-full transition-all duration-500 ease-out ${
+              isDarkMode ? 'bg-gray-700' : 'bg-gray-300'
+            }`}
             style={{ width: unattemptedWidth, zIndex: 1 }}
           />
           {/* Progress percentage */}
@@ -151,7 +151,7 @@ const PracticeProgress = ({
               <span className={isDarkMode ? 'text-green-400' : 'text-gray-700'}>Incorrect</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full" />
+              <div className={`w-2 h-2 rounded-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-300'}`} />
               <span className={isDarkMode ? 'text-green-400' : 'text-gray-700'}>Unattempted</span>
             </div>
           </div>
