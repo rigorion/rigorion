@@ -25,10 +25,16 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
+    
+    const root = document.documentElement;
     if (isDarkMode) {
-      document.documentElement.classList.add('dark');
+      root.classList.add('dark');
+      root.style.backgroundColor = '#111827'; // gray-900
+      root.style.color = '#22c55e'; // green-400
     } else {
-      document.documentElement.classList.remove('dark');
+      root.classList.remove('dark');
+      root.style.backgroundColor = '#ffffff';
+      root.style.color = '#1f2937'; // gray-800
     }
   }, [isDarkMode]);
 

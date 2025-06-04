@@ -1,97 +1,107 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Sans+Pro:wght@300;400;600;700&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  html {
-    font-family: 'Source Sans Pro', system-ui, sans-serif;
-    font-size: 16px;
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', system-ui, sans-serif;
-    font-weight: 600;
-    line-height: 1.4;
-    color: #304455;
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 142 76% 36%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 142 76% 36%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 142 76% 36%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 142 76% 36%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 142 52% 45%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 142 76% 36%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 142 30% 25%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 142 76% 36%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
   }
 }
 
-@layer components {
-  .glow-button {
-    box-shadow: 0 0 5px rgba(239, 68, 68, 0.4), 0 0 10px rgba(239, 68, 68, 0.2);
-    animation: glow 2s infinite ease-in-out;
+@layer base {
+  * {
+    @apply border-border;
   }
   
-  .font-cursive {
-    font-family: 'Dancing Script', cursive;
+  body {
+    @apply bg-background text-foreground transition-colors duration-300;
   }
   
-  .smooth-icon {
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    transition: all 0.3s ease;
-  }
-  
-  /* Add badge styling for the course expiry */
-  .course-expiry-badge {
-    background-color: #F2FCE2;
-    color: #166534;
-    font-size: 0.75rem;
-    padding: 0.125rem 0.375rem;
-    border-radius: 9999px;
-  }
-
-  /* Vue.js style components */
-  .vue-heading {
-    color: #304455;
-    font-weight: 600;
-    margin-bottom: 1rem;
-  }
-  
-  .vue-card {
-    border-radius: 8px;
-    border: 1px solid #eaecef;
-    background-color: #fff;
-    box-shadow: 0 3px 8px 0 rgba(116, 129, 141, 0.1);
-    transition: all 0.3s ease;
-  }
-  
-  .vue-card:hover {
-    box-shadow: 0 8px 16px 0 rgba(116, 129, 141, 0.2);
-  }
-  
-  .vue-button {
-    background-color: #42b883;
-    color: white;
-    padding: 0.5rem 1.25rem;
-    border-radius: 4px;
-    font-weight: 500;
-    transition: background-color 0.3s ease;
-  }
-  
-  .vue-button:hover {
-    background-color: #33a06f;
+  .dark body {
+    @apply bg-gray-900 text-green-400;
   }
 }
 
-@keyframes pulse-subtle {
-  0% {
-    opacity: 0.8;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0.8;
-  }
+/* Custom scrollbar for dark mode */
+.dark ::-webkit-scrollbar {
+  width: 8px;
 }
 
-.animate-pulse-subtle {
-  animation: pulse-subtle 3s infinite ease-in-out;
+.dark ::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #22c55e;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #16a34a;
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
