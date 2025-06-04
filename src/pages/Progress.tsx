@@ -1,5 +1,3 @@
-
-
 import { useState, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { TabsList, Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs";
@@ -24,6 +22,7 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useTheme } from "@/contexts/ThemeContext";
 
 // Define the VisibleSections type to match the structure
 type VisibleSections = {
@@ -243,11 +242,12 @@ const Progress = () => {
   const navigate = useNavigate();
   const { session } = useAuth();
   const { progressData } = useProgress();
+  const { isDarkMode } = useTheme();
   const [period, setPeriod] = useState<TimePeriod>("weekly");
   const [activeTab, setActiveTab] = useState<ProgressTab>("performance");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isNavDropdownOpen, setIsNavDropdownOpen] = useState(false);
-  const [hasNotifications, setHasNotifications] = useState(true); // Demo state to show notification dot
+  const [hasNotifications, setHasNotifications] = useState(true);
   const [courses, setCourses] = useState<Course[]>([
     { id: '1', name: 'GMAT Preparation', status: 'active', expiresIn: 30 },
     { id: '2', name: 'SAT Advanced', status: 'active', expiresIn: 25 },
@@ -297,10 +297,16 @@ const Progress = () => {
   
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-mono-bg">
+      <div className={`min-h-screen flex items-center justify-center transition-colors duration-300 ${
+        isDarkMode ? 'bg-gray-900' : 'bg-mono-bg'
+      }`}>
         <div className="text-center p-8 max-w-md">
-          <h2 className="text-2xl font-bold mb-4">Authentication Required</h2>
-          <p className="text-gray-600 mb-6">Please sign in to view your progress dashboard.</p>
+          <h2 className={`text-2xl font-bold mb-4 ${
+            isDarkMode ? 'text-green-400' : 'text-gray-900'
+          }`}>Authentication Required</h2>
+          <p className={`mb-6 ${
+            isDarkMode ? 'text-green-300' : 'text-gray-600'
+          }`}>Please sign in to view your progress dashboard.</p>
         </div>
       </div>
     );
@@ -308,30 +314,48 @@ const Progress = () => {
   
   return (
     <SecureProgressDataProvider fallbackData={DUMMY_PROGRESS} showLoadingState={true}>
-      <div className="flex min-h-screen w-full bg-mono-bg">
-        <main className="flex-1 bg-mono-bg">
-          <header className="sticky top-0 z-50 bg-white border-b px-4 py-3">
+      <div className={`flex min-h-screen w-full transition-colors duration-300 ${
+        isDarkMode ? 'bg-gray-900' : 'bg-mono-bg'
+      }`}>
+        <main className={`flex-1 transition-colors duration-300 ${
+          isDarkMode ? 'bg-gray-900' : 'bg-mono-bg'
+        }`}>
+          <header className={`sticky top-0 z-50 border-b px-4 py-3 transition-colors duration-300 ${
+            isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
+          }`}>
             <div className="container mx-auto flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <DropdownMenu open={isNavDropdownOpen} onOpenChange={setIsNavDropdownOpen}>
-                  <DropdownMenuTrigger className="rounded-lg p-2 hover:bg-gray-100 transition-colors">
-                    <Navigation className="h-5 w-5 text-blue-500" />
+                  <DropdownMenuTrigger className={`rounded-lg p-2 ${
+                    isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
+                  } transition-colors`}>
+                    <Navigation className={`h-5 w-5 ${
+                      isDarkMode ? 'text-green-400' : 'text-blue-500'
+                    }`} />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-56 bg-white border border-gray-200 shadow-lg rounded-lg p-2">
+                  <DropdownMenuContent align="start" className={`w-56 border shadow-lg rounded-lg p-2 ${
+                    isDarkMode ? 'bg-gray-800 border-green-500/30' : 'bg-white border-gray-200'
+                  }`}>
                     <ScrollArea className="h-auto max-h-[300px]">
                       {navigationItems.map((item, index) => (
                         <DropdownMenuItem 
                           key={index}
-                          className="cursor-pointer py-2 hover:bg-gray-100 rounded-sm transition-colors"
+                          className={`cursor-pointer py-2 rounded-sm transition-colors ${
+                            isDarkMode ? 'hover:bg-gray-700 text-green-400' : 'hover:bg-gray-100 text-[#304455]'
+                          }`}
                           onClick={() => handleNavigation(item.path)}
                         >
-                          <span className="font-source-sans text-[#304455]">{item.name}</span>
+                          <span className={`font-source-sans ${
+                            isDarkMode ? 'text-green-400' : 'text-[#304455]'
+                          }`}>{item.name}</span>
                         </DropdownMenuItem>
                       ))}
                     </ScrollArea>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <h2 className="text-xl font-bold text-gray-800">Progress Dashboard</h2>
+                <h2 className={`text-xl font-bold ${
+                  isDarkMode ? 'text-green-400' : 'text-gray-800'
+                }`}>Progress Dashboard</h2>
               </div>
 
               <div className="flex items-center gap-3">
@@ -341,41 +365,77 @@ const Progress = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="relative rounded-full hover:bg-gray-100"
+                      className={`relative rounded-full ${
+                        isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
+                      }`}
                     >
-                      <Bell className="h-5 w-5 text-gray-600" />
+                      <Bell className={`h-5 w-5 ${
+                        isDarkMode ? 'text-green-400' : 'text-gray-600'
+                      }`} />
                       {hasNotifications && (
                         <span className="absolute top-1 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
                       )}
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-80 bg-white border border-gray-200 shadow-lg rounded-lg p-2">
+                  <DropdownMenuContent align="end" className={`w-80 border shadow-lg rounded-lg p-2 ${
+                    isDarkMode ? 'bg-gray-800 border-green-500/30' : 'bg-white border-gray-200'
+                  }`}>
                     <div className="flex justify-between items-center mb-2 px-2">
-                      <h3 className="font-semibold">Notifications</h3>
-                      <Button variant="ghost" size="sm" className="text-xs text-blue-500 hover:text-blue-700">
+                      <h3 className={`font-semibold ${
+                        isDarkMode ? 'text-green-400' : 'text-gray-900'
+                      }`}>Notifications</h3>
+                      <Button variant="ghost" size="sm" className={`text-xs ${
+                        isDarkMode ? 'text-green-400 hover:text-green-300' : 'text-blue-500 hover:text-blue-700'
+                      }`}>
                         Mark all as read
                       </Button>
                     </div>
-                    <DropdownMenuSeparator />
+                    <DropdownMenuSeparator className={isDarkMode ? 'bg-green-500/30' : 'bg-gray-200'} />
                     <ScrollArea className="h-64">
-                      <div className="p-2 text-sm bg-blue-50 rounded-md mb-2">
-                        <p className="font-medium">Progress milestone reached!</p>
-                        <p className="text-gray-600">You've completed 75% of your course material.</p>
-                        <p className="text-xs text-gray-500 mt-1">1 hour ago</p>
+                      <div className={`p-2 text-sm rounded-md mb-2 ${
+                        isDarkMode ? 'bg-gray-700' : 'bg-blue-50'
+                      }`}>
+                        <p className={`font-medium ${
+                          isDarkMode ? 'text-green-400' : ''
+                        }`}>Progress milestone reached!</p>
+                        <p className={
+                          isDarkMode ? 'text-green-300' : 'text-gray-600'
+                        }>You've completed 75% of your course material.</p>
+                        <p className={`text-xs mt-1 ${
+                          isDarkMode ? 'text-green-400/70' : 'text-gray-500'
+                        }`}>1 hour ago</p>
                       </div>
-                      <div className="p-2 text-sm mb-2">
-                        <p className="font-medium">Weekly report available</p>
-                        <p className="text-gray-600">Your performance report for this week is ready.</p>
-                        <p className="text-xs text-gray-500 mt-1">1 day ago</p>
+                      <div className={`p-2 text-sm mb-2 ${
+                        isDarkMode ? '' : ''
+                      }`}>
+                        <p className={`font-medium ${
+                          isDarkMode ? 'text-green-400' : ''
+                        }`}>Weekly report available</p>
+                        <p className={
+                          isDarkMode ? 'text-green-300' : 'text-gray-600'
+                        }>Your performance report for this week is ready.</p>
+                        <p className={`text-xs mt-1 ${
+                          isDarkMode ? 'text-green-400/70' : 'text-gray-500'
+                        }`}>1 day ago</p>
                       </div>
-                      <div className="p-2 text-sm mb-2">
-                        <p className="font-medium">New goal suggestion</p>
-                        <p className="text-gray-600">We've suggested a new goal based on your progress.</p>
-                        <p className="text-xs text-gray-500 mt-1">2 days ago</p>
+                      <div className={`p-2 text-sm mb-2 ${
+                        isDarkMode ? '' : ''
+                      }`}>
+                        <p className={`font-medium ${
+                          isDarkMode ? 'text-green-400' : ''
+                        }`}>New goal suggestion</p>
+                        <p className={
+                          isDarkMode ? 'text-green-300' : 'text-gray-600'
+                        }>We've suggested a new goal based on your progress.</p>
+                        <p className={`text-xs mt-1 ${
+                          isDarkMode ? 'text-green-400/70' : 'text-gray-500'
+                        }`}>2 days ago</p>
                       </div>
                     </ScrollArea>
-                    <DropdownMenuSeparator />
-                    <Button variant="ghost" size="sm" className="w-full text-center text-sm mt-1">
+                    <DropdownMenuSeparator className={isDarkMode ? 'bg-green-500/30' : 'bg-gray-200'} />
+                    <Button variant="ghost" size="sm" className={`w-full text-center text-sm mt-1 ${
+                      isDarkMode ? 'text-green-400 hover:text-green-300' : ''
+                    }`}>
                       View all notifications
                     </Button>
                   </DropdownMenuContent>
@@ -399,20 +459,44 @@ const Progress = () => {
             <div className="container mx-auto p-6">
               <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <h1 className="font-bold text-lg">Progress Dashboard</h1>
+                  <h1 className={`font-bold text-lg ${
+                    isDarkMode ? 'text-green-400' : ''
+                  }`}>Progress Dashboard</h1>
                   
                   {/* Add Secure Sync button */}
                   <SecureProgressDataButton />
                 </div>
                 
                 <div className="flex items-center">
-                  <TabsList>
-                    <TabsTrigger value="performance" className="flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4" />
+                  <TabsList className={isDarkMode ? 'bg-gray-800 border border-green-500/30' : ''}>
+                    <TabsTrigger 
+                      value="performance" 
+                      className={`flex items-center gap-2 ${
+                        isDarkMode && activeTab === "performance" 
+                          ? 'bg-gray-700 text-green-400 data-[state=active]:bg-gray-700 data-[state=active]:text-green-400' 
+                          : isDarkMode 
+                            ? 'text-green-400 data-[state=active]:bg-white' 
+                            : ''
+                      }`}
+                    >
+                      <TrendingUp className={`h-4 w-4 ${
+                        isDarkMode ? 'text-green-400' : ''
+                      }`} />
                       <span className="hidden sm:inline">Performance</span>
                     </TabsTrigger>
-                    <TabsTrigger value="leaderboard" className="flex items-center gap-2">
-                      <Trophy className="h-4 w-4" />
+                    <TabsTrigger 
+                      value="leaderboard" 
+                      className={`flex items-center gap-2 ${
+                        isDarkMode && activeTab === "leaderboard" 
+                          ? 'bg-gray-700 text-green-400 data-[state=active]:bg-gray-700 data-[state=active]:text-green-400' 
+                          : isDarkMode 
+                            ? 'text-green-400 data-[state=active]:bg-white' 
+                            : ''
+                      }`}
+                    >
+                      <Trophy className={`h-4 w-4 ${
+                        isDarkMode ? 'text-green-400' : ''
+                      }`} />
                       <span className="hidden sm:inline">Leaderboard</span>
                     </TabsTrigger>
                   </TabsList>
@@ -446,4 +530,3 @@ const Progress = () => {
 };
 
 export default Progress;
-

@@ -15,6 +15,7 @@ import { UserProgressData } from "@/types/progress";
 import { useState, useEffect } from "react";
 import { Footer } from "@/components/Footer";
 import { GlobalAnalysisCard } from "./GlobalAnalysisCard";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface ProgressDashboardProps {
   period: string;
@@ -36,6 +37,7 @@ export const ProgressDashboard = ({
     chapterProgress: true
   }
 }: ProgressDashboardProps) => {
+  const { isDarkMode } = useTheme();
   const [examDate, setExamDate] = useState<Date | null>(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000));
   const daysToExam = examDate ? Math.ceil((examDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 30;
   
@@ -76,7 +78,7 @@ export const ProgressDashboard = ({
     title: "Days to Exam",
     value: `${daysToExam} days`,
     icon: Calendar,
-    color: "text-blue-500",
+    color: isDarkMode ? "text-green-400" : "text-blue-500",
     isCalendar: true,
     onSelect: setExamDate,
     selectedDate: examDate
@@ -84,17 +86,17 @@ export const ProgressDashboard = ({
     title: "Streak",
     value: `${userData.streak} days`,
     icon: Zap,
-    color: "text-blue-500"
+    color: isDarkMode ? "text-green-400" : "text-blue-500"
   }, {
     title: "Recommended Problems/Day",
     value: "25",
     icon: Target,
-    color: "text-blue-500"
+    color: isDarkMode ? "text-green-400" : "text-blue-500"
   }, {
     title: "Rank",
     value: `#${userData.rank}`,
     icon: Trophy,
-    color: "text-blue-500"
+    color: isDarkMode ? "text-green-400" : "text-blue-500"
   }, {
     component: () => <ProjectedScore score={userData.projectedScore} />
   }];
@@ -105,19 +107,19 @@ export const ProgressDashboard = ({
     correct: userData.easyCompleted,
     total: userData.easyTotal,
     avgTime: `${userData.easyAvgTime.toFixed(1)} min`,
-    color: "bg-blue-100"
+    color: isDarkMode ? "bg-gray-800 border border-green-500/30" : "bg-blue-100"
   }, {
     title: "Medium Questions",
     correct: userData.mediumCompleted,
     total: userData.mediumTotal,
     avgTime: `${userData.mediumAvgTime.toFixed(1)} min`,
-    color: "bg-blue-200"
+    color: isDarkMode ? "bg-gray-800 border border-green-500/30" : "bg-blue-200"
   }, {
     title: "Hard Questions",
     correct: userData.hardCompleted,
     total: userData.hardTotal,
     avgTime: `${userData.hardAvgTime.toFixed(1)} min`,
-    color: "bg-blue-300"
+    color: isDarkMode ? "bg-gray-800 border border-green-500/30" : "bg-blue-300"
   }];
 
   return (
@@ -145,7 +147,9 @@ export const ProgressDashboard = ({
         {/* Chapter Progress - now placed beside the total progress */}
         {visibleSections.chapterProgress && (
           <AnimatedItem>
-            <Card className="p-6 bg-white border border-gray-50 h-full overflow-auto">
+            <Card className={`p-6 border h-full overflow-auto ${
+              isDarkMode ? 'bg-gray-900 border-green-500/30 text-green-400' : 'bg-white border-gray-50'
+            }`}>
               <ChapterProgress chapters={userData.chapterPerformance} />
             </Card>
           </AnimatedItem>
