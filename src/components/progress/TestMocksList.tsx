@@ -3,6 +3,7 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { callEdgeFunction } from '@/services/edgeFunctionService';
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface TestMockData {
   id: string;
@@ -27,6 +28,7 @@ const defaultTests: TestMockData[] = [
 ];
 
 export const TestMocksList = ({ tests: propTests }: { tests?: TestMockData[] }) => {
+  const { isDarkMode } = useTheme();
   const [tests, setTests] = useState<TestMockData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -73,15 +75,15 @@ export const TestMocksList = ({ tests: propTests }: { tests?: TestMockData[] }) 
 
   const getStatusStyles = (status: string, score?: number) => {
     if (status === 'completed' && score) {
-      return 'text-green-600 font-medium';
+      return isDarkMode ? 'text-green-400 font-medium' : 'text-green-600 font-medium';
     }
     switch(status) {
       case 'in-progress': 
-        return 'text-orange-500';
+        return isDarkMode ? 'text-yellow-400' : 'text-orange-500';
       case 'incomplete': 
-        return 'text-red-500';
+        return isDarkMode ? 'text-red-400' : 'text-red-500';
       case 'unattempted': 
-        return 'text-gray-400';
+        return isDarkMode ? 'text-green-400/50' : 'text-gray-400';
       default: 
         return '';
     }
@@ -114,28 +116,46 @@ export const TestMocksList = ({ tests: propTests }: { tests?: TestMockData[] }) 
   }
 
   if (loading) {
-    return <div className="h-[480px] flex items-center justify-center">Loading mock tests...</div>;
+    return (
+      <div className={`h-[480px] flex items-center justify-center ${
+        isDarkMode ? 'text-green-400' : ''
+      }`}>Loading mock tests...</div>
+    );
   }
 
   if (error) {
-    return <div className="h-[480px] flex items-center justify-center text-red-500">{error}</div>;
+    return (
+      <div className={`h-[480px] flex items-center justify-center ${
+        isDarkMode ? 'text-red-400' : 'text-red-500'
+      }`}>{error}</div>
+    );
   }
 
   return (
-    <div className="bg-white rounded-lg p-6 border border-gray-100 h-[480px]">
-      <h3 className="text-lg font-semibold mb-4">Mock Exams</h3>
+    <div className={`rounded-lg p-6 border h-[480px] ${
+      isDarkMode 
+        ? 'bg-transparent border-green-500/30 text-green-400' 
+        : 'bg-white border-gray-100'
+    }`}>
+      <h3 className={`text-lg font-semibold mb-4 ${
+        isDarkMode ? 'text-green-400' : ''
+      }`}>Mock Exams</h3>
       <div className="overflow-auto" style={{ height: 'calc(100% - 48px)' }}>
         <Table>
-          <TableHeader className="sticky top-0 bg-white shadow-sm z-10">
-            <TableRow>
-              <TableHead>Test Name</TableHead>
-              <TableHead>Status</TableHead>
+          <TableHeader className={`sticky top-0 z-10 ${
+            isDarkMode ? 'bg-gray-900' : 'bg-white shadow-sm'
+          }`}>
+            <TableRow className={isDarkMode ? 'border-green-500/30' : ''}>
+              <TableHead className={isDarkMode ? 'text-green-400' : ''}>Test Name</TableHead>
+              <TableHead className={isDarkMode ? 'text-green-400' : ''}>Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {fullTestList.map((test) => (
-              <TableRow key={test.id}>
-                <TableCell className="font-medium">{test.name}</TableCell>
+              <TableRow key={test.id} className={isDarkMode ? 'border-green-500/30 hover:bg-gray-800/50' : ''}>
+                <TableCell className={`font-medium ${
+                  isDarkMode ? 'text-green-400' : ''
+                }`}>{test.name}</TableCell>
                 <TableCell className={cn(getStatusStyles(test.status, test.score))}>
                   {getStatusText(test.status, test.score)}
                 </TableCell>

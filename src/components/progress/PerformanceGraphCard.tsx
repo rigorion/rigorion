@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { ProgressChart } from "./ProgressChart";
 import { motion } from "framer-motion";
@@ -7,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { supabase } from '@/lib/supabase';
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface PerformanceDataPoint {
   date: string;
@@ -20,6 +20,7 @@ interface PerformanceGraphCardProps {
 export const PerformanceGraphCard = ({
   data: propData
 }: PerformanceGraphCardProps) => {
+  const { isDarkMode } = useTheme();
   const [performanceData, setPerformanceData] = useState<PerformanceDataPoint[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { session } = useAuth();
@@ -171,14 +172,22 @@ export const PerformanceGraphCard = ({
   // Update the loading state UI
   if (isLoading) {
     return (
-      <Card className="p-6 hover:shadow-lg transition-all duration-300 h-[480px]">
+      <Card className={`p-6 transition-all duration-300 h-[480px] ${
+        isDarkMode 
+          ? 'bg-transparent border-green-500/30 text-green-400' 
+          : 'bg-white hover:shadow-lg'
+      }`}>
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-semibold text-gray-800">Performance Analysis</h3>
+          <h3 className={`text-lg font-semibold ${
+            isDarkMode ? 'text-green-400' : 'text-gray-800'
+          }`}>Performance Analysis</h3>
         </div>
         <div className="h-64 flex items-center justify-center">
           <div className="flex flex-col items-center gap-2">
-            <div className="w-8 h-8 border-4 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-gray-500">Loading performance data...</p>
+            <div className={`w-8 h-8 border-4 border-t-transparent rounded-full animate-spin ${
+              isDarkMode ? 'border-green-400' : 'border-gray-400'
+            }`}></div>
+            <p className={isDarkMode ? 'text-green-400/70' : 'text-gray-500'}>Loading performance data...</p>
           </div>
         </div>
       </Card>
@@ -197,17 +206,29 @@ export const PerformanceGraphCard = ({
       }}
       initial="hidden"
       animate="visible"
-      className="h-[480px]" // Match height with TotalProgressCard
+      className="h-[480px]"
     >
-      <Card className="p-6 hover:shadow-lg transition-all duration-300 bg-white/50 backdrop-blur-sm h-full">
+      <Card className={`p-6 transition-all duration-300 h-full ${
+        isDarkMode 
+          ? 'bg-transparent border-green-500/30 text-green-400' 
+          : 'bg-white/50 backdrop-blur-sm hover:shadow-lg'
+      }`}>
         <div className="flex justify-between items-center mb-4">
-          <div className="text-sm font-medium text-gray-600">
+          <div className={`text-sm font-medium ${
+            isDarkMode ? 'text-green-400' : 'text-gray-600'
+          }`}>
             Avg: {averageQuestions} questions/day
           </div>
           
           {trend.trend !== 0 && (
             <div className={`flex items-center gap-1 text-sm font-medium px-2 py-0.5 rounded-full ${
-              trend.trend > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
+              trend.trend > 0 
+                ? isDarkMode 
+                  ? 'bg-green-500/20 text-green-400' 
+                  : 'bg-emerald-100 text-emerald-700'
+                : isDarkMode 
+                  ? 'bg-red-500/20 text-red-400' 
+                  : 'bg-rose-100 text-rose-700'
             }`}>
               {trend.trend > 0 ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
               <span>{trend.percentage}%</span>
