@@ -137,8 +137,8 @@ export default function PracticeContent({
     }
   }, []);
 
-  // Handle filtering from header for both chapter and module
-  const handleFilterChange = useCallback((filters: { chapter?: string; module?: string }) => {
+  // Handle filtering from header for chapter, module, and exam
+  const handleFilterChange = useCallback((filters: { chapter?: string; module?: string; exam?: number }) => {
     let filtered = allQuestions;
     
     // Filter by chapter number if specified
@@ -152,6 +152,11 @@ export default function PracticeContent({
     // Filter by module if specified
     if (filters.module) {
       filtered = filtered.filter(q => q.module === filters.module);
+    }
+
+    // Filter by exam number if specified
+    if (filters.exam) {
+      filtered = filtered.filter(q => q.examNumber === filters.exam);
     }
     
     // Filter by difficulty level if in level mode
