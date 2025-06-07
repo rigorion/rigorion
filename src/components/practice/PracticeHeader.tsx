@@ -306,21 +306,21 @@ export const PracticeHeader = ({
           )}
         </div>
 
-        {/* Module Filter */}
+        {/* Module Filter - Make visible on all screen sizes */}
         <DropdownMenu open={isModuleDropdownOpen} onOpenChange={setIsModuleDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
               size="sm"
-              className={`rounded-full bg-transparent transition-colors hidden lg:flex ${
+              className={`rounded-full bg-transparent transition-colors flex ${
                 isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
               } ${selectedModule !== "All SAT Math" ? (isDarkMode ? 'text-green-300 bg-green-900/20' : 'text-blue-600 bg-blue-50') : ''}`}
             >
               <Filter className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
-              <span className={`hidden md:inline ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>
+              <span className={`hidden sm:inline ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>
                 {selectedModule.replace("SAT ", "")}
               </span>
-              <span className={`md:hidden ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Module</span>
+              <span className={`sm:hidden ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Module</span>
               <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isModuleDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`} />
             </Button>
           </DropdownMenuTrigger>
@@ -344,26 +344,27 @@ export const PracticeHeader = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Exams Filter */}
+        {/* Exams Filter - Make visible on all screen sizes */}
         <ModulesDialog 
           onExamFilter={handleExamFilter} 
           currentExamFilter={selectedExam}
         />
 
-        {/* Chapters Filter */}
+        {/* Chapters Filter - Make visible on all screen sizes */}
         <DropdownMenu open={isChapterDropdownOpen} onOpenChange={setIsChapterDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
               size="sm"
-              className={`rounded-full bg-transparent transition-colors hidden xl:flex ${
+              className={`rounded-full bg-transparent transition-colors flex ${
                 isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
               } ${selectedChapter !== "All Chapters" ? (isDarkMode ? 'text-green-300 bg-green-900/20' : 'text-blue-600 bg-blue-50') : ''}`}
             >
               <Target className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
-              <span className={isDarkMode ? 'text-green-400' : 'text-gray-700'}>
+              <span className={`hidden sm:inline ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>
                 {selectedChapter === "All Chapters" ? "Chapters" : selectedChapter.split(":")[0]}
               </span>
+              <span className={`sm:hidden ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Ch</span>
               <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isChapterDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`} />
             </Button>
           </DropdownMenuTrigger>
