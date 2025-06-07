@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Lock, Loader2, RefreshCw, AlertTriangle, KeyRound } from "lucide-react";
+import { Lock, Loader2, AlertTriangle, KeyRound, CheckCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import {
   storeSecureFunctionData,
@@ -37,24 +37,28 @@ const Practice = () => {
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isStorageValid, setIsStorageValid] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loadingMessage, setLoadingMessage] = useState("Initializing secure question system...");
 
   const fetchAndStoreQuestions = async () => {
-    setLoading(true);
-    setError(null);
     try {
+      setLoadingMessage("Connecting to secure server...");
       const baseUrl = "https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1";
       const url = `${baseUrl}/${ENDPOINT}`;
+      
+      setLoadingMessage("Downloading encrypted question data...");
       const response = await fetch(url, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
         mode: "cors",
       });
-      if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+      
+      if (!response.ok) throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+      
+      setLoadingMessage("Encrypting and securing data...");
       const result = await response.json();
-
       await storeSecureFunctionData(ENDPOINT, result);
 
       let rawQuestions: any[] = [];
@@ -66,33 +70,33 @@ const Practice = () => {
         rawQuestions = result.data;
       }
 
+      setLoadingMessage("Processing and validating questions...");
       const mappedQuestions = mapQuestions(rawQuestions);
       const validQuestions = mappedQuestions.filter(validateQuestion);
 
       setQuestions(validQuestions);
       setLastFetched(new Date());
-      toast({
-        title: "Questions Fetched & Encrypted",
-        description: `Fetched ${validQuestions.length} questions and stored securely.`,
-      });
+      setError(null);
+      
+      return validQuestions.length;
     } catch (e: any) {
-      setError(e.message || "Unknown error");
-      toast({
-        title: "Error",
-        description: e.message || "Failed to fetch or store questions.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
+      console.error("Error in fetchAndStoreQuestions:", e);
+      throw new Error(e.message || "Failed to fetch questions from server");
     }
   };
 
   const loadLatestQuestions = async () => {
-    setLoading(true);
-    setError(null);
     try {
-      const { data, fromCache } = await safeGetSecureData(ENDPOINT, fetchAndStoreQuestions);
+      setLoadingMessage("Accessing secure storage...");
+      
+      const { data, fromCache } = await safeGetSecureData(ENDPOINT, async () => {
+        setLoadingMessage("No cached data found. Fetching fresh data...");
+        return await fetchAndStoreQuestions();
+      });
+      
       if (data) {
+        setLoadingMessage("Decrypting and processing questions...");
+        
         let rawQuestions: any[] = [];
         if (data.questions && Array.isArray(data.questions)) {
           rawQuestions = data.questions;
@@ -108,112 +112,174 @@ const Practice = () => {
         setQuestions(validQuestions);
         setLastFetched(new Date());
         setError(null);
-        toast({
-          title: "Questions Loaded",
-          description: fromCache
-            ? `Loaded ${validQuestions.length} questions from secure storage.`
-            : `Fetched ${validQuestions.length} questions from server and stored securely.`,
-        });
+        
+        // Show success message
+        if (!fromCache) {
+          toast({
+            title: "Questions Updated",
+            description: `Successfully loaded ${validQuestions.length} questions and secured them locally.`,
+            duration: 3000,
+          });
+        }
+        
+        return validQuestions;
       } else {
-        setQuestions([]);
-        setError("No secure questions found.");
+        throw new Error("No question data available");
       }
     } catch (e: any) {
-      setQuestions([]);
-      setError(e.message || "Failed to load questions.");
+      console.error("Error in loadLatestQuestions:", e);
+      setError(e.message || "Unable to load questions at this time");
+      throw e;
+    }
+  };
+
+  const initializeQuestions = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setIsStorageValid(isSecureStorageValid());
+      
+      await loadLatestQuestions();
+    } catch (e: any) {
+      setError(e.message || "Failed to initialize question system");
     } finally {
       setLoading(false);
     }
   };
 
   const handleClearStorage = async () => {
-    await clearAllSecureData();
-    setQuestions([]);
-    setLastFetched(null);
-    setIsStorageValid(true);
-    toast({
-      title: "Storage Cleared",
-      description: "All secure questions have been removed.",
-    });
+    try {
+      await clearAllSecureData();
+      setQuestions([]);
+      setLastFetched(null);
+      setIsStorageValid(true);
+      toast({
+        title: "Storage Cleared",
+        description: "All secure data has been removed. The system will fetch fresh data automatically.",
+      });
+      // Automatically reload after clearing
+      await initializeQuestions();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to clear storage. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   useEffect(() => {
-    setIsStorageValid(isSecureStorageValid());
-    loadLatestQuestions();
+    initializeQuestions();
   }, []);
+
+  // Show loading state with professional message
+  if (loading) {
+    return (
+      <ThemeProvider>
+        <Card className="min-h-screen bg-white dark:bg-gray-900 relative transition-colors duration-300 dark:border-green-500/30">
+          <CardContent className="flex flex-col items-center justify-center min-h-screen p-8">
+            <div className="text-center space-y-6">
+              <div className="flex items-center justify-center">
+                <Loader2 className="h-12 w-12 animate-spin text-blue-500 dark:text-green-400" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold dark:text-green-400">Loading Practice Questions</h2>
+                <p className="text-gray-600 dark:text-green-500 animate-pulse">{loadingMessage}</p>
+              </div>
+              <div className="flex items-center justify-center text-sm text-gray-500 dark:text-green-600">
+                <Lock className="h-4 w-4 mr-2" />
+                All data is encrypted and secured during transfer
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </ThemeProvider>
+    );
+  }
+
+  // Show error state with professional message
+  if (error) {
+    return (
+      <ThemeProvider>
+        <Card className="min-h-screen bg-white dark:bg-gray-900 relative transition-colors duration-300 dark:border-red-500/30">
+          <CardContent className="flex flex-col items-center justify-center min-h-screen p-8">
+            <div className="text-center space-y-6 max-w-md">
+              <div className="flex items-center justify-center">
+                <AlertTriangle className="h-12 w-12 text-red-500 dark:text-red-400" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold text-red-600 dark:text-red-400">Service Temporarily Unavailable</h2>
+                <p className="text-gray-600 dark:text-gray-300">{error}</p>
+              </div>
+              <div className="space-y-3">
+                <Button 
+                  onClick={initializeQuestions} 
+                  className="w-full dark:bg-green-600 dark:hover:bg-green-700"
+                >
+                  Retry Connection
+                </Button>
+                {!isStorageValid && (
+                  <Button 
+                    onClick={handleClearStorage} 
+                    variant="outline"
+                    className="w-full dark:border-green-500/30 dark:text-green-400 dark:hover:bg-gray-800"
+                  >
+                    Reset Storage & Retry
+                  </Button>
+                )}
+              </div>
+              <div className="text-xs text-gray-500 dark:text-green-600">
+                If this issue persists, please check your internet connection or contact support.
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </ThemeProvider>
+    );
+  }
 
   return (
     <ThemeProvider>
       <Card className="min-h-screen bg-white dark:bg-gray-900 relative transition-colors duration-300 dark:border-green-500/30">
-        {/* Header section */}
+        {/* Header section - simplified */}
         <CardHeader className="dark:border-b dark:border-green-500/30">
           <div className="flex justify-between items-center">
             <div>
               <CardTitle className="flex items-center gap-2 dark:text-green-400">
-                <Lock className="h-5 w-5 text-green-600 dark:text-green-400" />
+                <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
                 Practice Questions
               </CardTitle>
               <CardDescription className="dark:text-green-500">
-                Questions are securely encrypted and mapped to ensure consistent UI display.
+                {questions.length} questions loaded and ready for practice
               </CardDescription>
             </div>
-            <div className="flex items-center space-x-4">
-              <Button
-                size="sm"
-                onClick={fetchAndStoreQuestions}
-                disabled={loading}
-                className="flex items-center gap-2 dark:bg-green-600 dark:hover:bg-green-700 dark:border-green-500/30"
-              >
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                Fetch & Encrypt
-              </Button>
-              <Button
-                size="sm"
-                onClick={loadLatestQuestions}
-                disabled={loading}
-                className="flex items-center gap-2 dark:border-green-500/30 dark:text-green-400 dark:hover:bg-gray-800"
-                variant="outline"
-              >
-                <RefreshCw className="h-4 w-4" />
-                Load Latest
-              </Button>
-              <Button
-                size="sm"
-                onClick={handleClearStorage}
-                disabled={loading}
-                className="flex items-center gap-2"
-                variant="destructive"
-              >
-                <KeyRound className="h-4 w-4" />
-                Clear Secure Cache
-              </Button>
-            </div>
+            {/* Keep only the clear storage button for maintenance */}
+            <Button
+              size="sm"
+              onClick={handleClearStorage}
+              className="flex items-center gap-2"
+              variant="outline"
+            >
+              <KeyRound className="h-4 w-4" />
+              Reset Storage
+            </Button>
           </div>
-          <p className="text-xs text-green-600 dark:text-green-400 mt-2 flex items-center">
-            <Lock className="h-3 w-3 inline mr-1" />
-            Secure mode: Questions are mapped and validated for consistent display.
-          </p>
-          {!isStorageValid && (
-            <div className="mt-2 flex items-center text-red-600 text-xs">
-              <AlertTriangle className="h-4 w-4 mr-1" />
-              Storage integrity check failed. Please clear cache and refetch.
-            </div>
-          )}
+          <div className="flex items-center justify-between text-xs">
+            <p className="text-green-600 dark:text-green-400 flex items-center">
+              <Lock className="h-3 w-3 inline mr-1" />
+              Questions are automatically encrypted and validated for security
+            </p>
+            {lastFetched && (
+              <span className="text-gray-500 dark:text-green-500">
+                Last updated: {lastFetched.toLocaleTimeString()}
+              </span>
+            )}
+          </div>
         </CardHeader>
         
         {/* Content area */}
         <CardContent className="p-0">
-          {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-500 dark:text-green-400" />
-              <span className="ml-2 dark:text-green-400">Loading and mapping secure questions...</span>
-            </div>
-          ) : error ? (
-            <div className="flex flex-col items-center py-8">
-              <div className="text-red-600 dark:text-red-400 mb-2">{error}</div>
-              <Button onClick={fetchAndStoreQuestions} className="dark:bg-green-600 dark:hover:bg-green-700">Retry</Button>
-            </div>
-          ) : questions && questions.length > 0 ? (
+          {questions.length > 0 ? (
             <>
               <PracticeContent 
                 questions={questions} 
@@ -235,12 +301,7 @@ const Practice = () => {
             </>
           ) : (
             <div className="flex justify-center items-center h-64 text-gray-400 dark:text-green-500">
-              No secure questions available. Please fetch data.
-            </div>
-          )}
-          {lastFetched && (
-            <div className="text-xs text-gray-500 dark:text-green-500 p-2 border-t dark:border-green-500/30">
-              Last updated: {lastFetched.toLocaleTimeString()}
+              No questions available. System will automatically retry loading.
             </div>
           )}
         </CardContent>
