@@ -1,4 +1,3 @@
-
 import { Clock, Flag, Sparkles } from "lucide-react";
 import CountdownTimer from "./CountDownTimer";
 import HintDialog from "./HintDialog";
@@ -29,6 +28,13 @@ interface PracticeProgressProps {
   progress?: number;
   onAutoNext?: () => void;
   onPomodoroBreak?: () => void;
+  settings?: {
+    fontFamily: string;
+    fontSize: number;
+    colorStyle: string;
+    textColor: string;
+  };
+  onSettingsChange?: (key: string, value: string | number) => void;
 }
 
 const PracticeProgress = ({
@@ -48,16 +54,17 @@ const PracticeProgress = ({
   objective = null,
   progress = 0,
   onAutoNext,
-  onPomodoroBreak
+  onPomodoroBreak,
+  settings = {
+    fontFamily: 'inter',
+    fontSize: 14,
+    colorStyle: 'plain',
+    textColor: '#374151'
+  },
+  onSettingsChange
 }: PracticeProgressProps) => {
   const { isDarkMode } = useTheme();
   const [showSettings, setShowSettings] = useState(false);
-  const [settings, setSettings] = useState({
-    fontFamily: 'inter',
-    fontSize: 14,
-    colorStyle: 'plain' as const,
-    textColor: '#374151'
-  });
 
   // Updated: Progress calculation is now relative to the objective (if set), or totalQuestions.
   const calculateProgress = () => {
@@ -93,10 +100,9 @@ const PracticeProgress = ({
   const incorrectLeft = `${correct}%`;
 
   const handleSettingsChange = (key: string, value: string | number) => {
-    setSettings(prev => ({
-      ...prev,
-      [key]: value
-    }));
+    if (onSettingsChange) {
+      onSettingsChange(key, value);
+    }
   };
 
   return (
@@ -161,8 +167,14 @@ const PracticeProgress = ({
         <div className="flex items-center gap-2">
           {/* Hint button */}
           <HintDialog hint={currentQuestionHint} currentQuestionIndex={currentQuestionIndex} />
-          {/* Settings button */}
-          <SettingsDialog open={showSettings} onOpenChange={setShowSettings} settings={settings} onApply={handleSettingsChange}>
+          
+          {/* Settings button - positioned right next to hint */}
+          <SettingsDialog 
+            open={showSettings} 
+            onOpenChange={setShowSettings} 
+            settings={settings} 
+            onApply={handleSettingsChange}
+          >
             <Button variant="ghost" size="sm" className="p-1 h-6 rounded-full border-none">
               <Sparkles className={`h-4 w-4 ${
                 isDarkMode 
@@ -171,6 +183,7 @@ const PracticeProgress = ({
               }`} />
             </Button>
           </SettingsDialog>
+          
           {/* Flag button */}
           <Button variant="ghost" size="sm" className="p-1 h-6 rounded-full">
             <Flag className={`h-4 w-4 ${
@@ -179,6 +192,7 @@ const PracticeProgress = ({
                 : 'text-blue-600'
             }`} />
           </Button>
+          
           {/* Tab selector */}
           <PracticeTabSelector activeTab={activeTab} setActiveTab={setActiveTab} className="h-8 min-h-0" />
         </div>
