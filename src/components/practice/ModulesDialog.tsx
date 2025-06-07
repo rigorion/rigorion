@@ -107,7 +107,7 @@ const ModulesDialog = () => {
   const fetchQuestionsForTest = async (testId: number) => {
     setIsLoading(true);
     try {
-      console.log(`Fetching questions for Model Test ${testId}...`);
+      console.log(`Fetching questions for Model Test ${testId} from get-sat-math-questions endpoint...`);
       
       const { data, error } = await callEdgeFunction<any>('get-sat-math-questions');
       
