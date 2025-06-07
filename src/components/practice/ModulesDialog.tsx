@@ -184,7 +184,7 @@ const ModulesDialog = ({ onExamFilter }: ModulesDialogProps) => {
                           ? (isDarkMode ? 'bg-green-600/20 text-green-400' : 'bg-green-50 text-green-600')
                           : (isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-500')
                       }`}>
-                        {questionCount > 0 ? `${questionCount} Q's` : 'No Q's'}
+                        {questionCount > 0 ? `${questionCount} Q's` : 'No Q\'s'}
                       </span>
                     </div>
                   </div>
