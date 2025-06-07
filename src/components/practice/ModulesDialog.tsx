@@ -14,6 +14,7 @@ import { callEdgeFunction } from "@/services/edgeFunctionService";
 import { mapQuestions, validateQuestion } from "@/utils/mapQuestion";
 import { Question } from "@/types/QuestionInterface";
 import { useToast } from "@/components/ui/use-toast";
+import { useQuestions } from "@/contexts/QuestionsContext";
 
 interface ModelTest {
   id: number;
@@ -28,6 +29,7 @@ const ModulesDialog = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { isDarkMode } = useTheme();
   const { toast } = useToast();
+  const { setQuestions } = useQuestions();
   
   const [modelTests, setModelTests] = useState<ModelTest[]>([
     {
@@ -140,9 +142,15 @@ const ModulesDialog = () => {
           : test
       ));
 
+      // Set the questions in the global context to display in practice
+      setQuestions(validQuestions);
+
+      // Close the dropdown after successful load
+      setIsOpen(false);
+
       toast({
-        title: "Questions Loaded",
-        description: `Loaded ${validQuestions.length} questions for Model Test ${testId}`,
+        title: "Exam Questions Loaded",
+        description: `Loaded ${validQuestions.length} questions for Model Test ${testId}. Starting practice session.`,
       });
 
     } catch (error) {
@@ -158,15 +166,8 @@ const ModulesDialog = () => {
   };
 
   const handleTestClick = async (test: ModelTest) => {
-    if (!test.questions) {
-      await fetchQuestionsForTest(test.id);
-    } else {
-      console.log(`Model Test ${test.id} already has ${test.questions.length} questions loaded`);
-      toast({
-        title: "Questions Ready",
-        description: `Model Test ${test.id} has ${test.questions.length} questions ready`,
-      });
-    }
+    console.log(`Starting Model Test ${test.id}...`);
+    await fetchQuestionsForTest(test.id);
   };
 
   return (
@@ -243,7 +244,7 @@ const ModulesDialog = () => {
                         ? `${test.questions.length} Q's` 
                         : test.completionRate > 0 
                           ? `${test.completionRate}%` 
-                          : 'New'}
+                          : 'Start'}
                     </span>
                   </div>
                 </div>
@@ -284,7 +285,7 @@ const ModulesDialog = () => {
             }`}
             disabled={isLoading}
           >
-            {isLoading ? 'Loading...' : 'View all model tests'}
+            {isLoading ? 'Loading questions...' : 'View all model tests'}
           </Button>
         </div>
       </DropdownMenuContent>
