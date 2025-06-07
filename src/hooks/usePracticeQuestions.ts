@@ -9,6 +9,7 @@ import {
 } from "@/services/secureIndexedDbService";
 import { mapQuestions, validateQuestion } from "@/utils/mapQuestion";
 import { Question } from "@/types/QuestionInterface";
+import { callEdgeFunction } from "@/services/edgeFunctionService";
 
 const ENDPOINT = "my-function";
 
@@ -24,20 +25,15 @@ export const usePracticeQuestions = () => {
   const fetchAndStoreQuestions = async () => {
     try {
       setLoadingMessage("Connecting to secure server...");
-      const baseUrl = "https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1";
-      const url = `${baseUrl}/${ENDPOINT}`;
       
-      setLoadingMessage("Downloading encrypted question data...");
-      const response = await fetch(url, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        mode: "cors",
-      });
+      // Use the callEdgeFunction utility instead of direct fetch
+      const { data: result, error: fetchError } = await callEdgeFunction(ENDPOINT);
       
-      if (!response.ok) throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+      if (fetchError || !result) {
+        throw new Error(fetchError?.message || "Failed to fetch questions from server");
+      }
       
       setLoadingMessage("Encrypting and securing data...");
-      const result = await response.json();
       await storeSecureFunctionData(ENDPOINT, result);
 
       let rawQuestions: any[] = [];
@@ -68,10 +64,27 @@ export const usePracticeQuestions = () => {
     try {
       setLoadingMessage("Accessing secure storage...");
       
-      const { data, fromCache } = await safeGetSecureData(ENDPOINT, async () => {
-        setLoadingMessage("No cached data found. Fetching fresh data...");
-        return await fetchAndStoreQuestions();
-      });
+      // Try to get secure data, but handle the case where it might be undefined
+      let data = null;
+      let fromCache = false;
+      
+      try {
+        const result = await safeGetSecureData(ENDPOINT, async () => {
+          setLoadingMessage("No cached data found. Fetching fresh data...");
+          await fetchAndStoreQuestions();
+          return true; // Return a simple success indicator
+        });
+        
+        if (result && typeof result === 'object' && 'data' in result) {
+          data = result.data;
+          fromCache = result.fromCache || false;
+        }
+      } catch (secureDataError) {
+        console.error("Secure data retrieval failed, fetching fresh data:", secureDataError);
+        // If secure data fails, fetch fresh data directly
+        await fetchAndStoreQuestions();
+        return;
+      }
       
       if (data) {
         setLoadingMessage("Decrypting and processing questions...");
@@ -102,7 +115,9 @@ export const usePracticeQuestions = () => {
         
         return validQuestions;
       } else {
-        throw new Error("No question data available");
+        // If no data available, try fetching fresh
+        console.log("No cached data available, fetching fresh data...");
+        await fetchAndStoreQuestions();
       }
     } catch (e: any) {
       console.error("Error in loadLatestQuestions:", e);
@@ -119,7 +134,13 @@ export const usePracticeQuestions = () => {
       
       await loadLatestQuestions();
     } catch (e: any) {
-      setError(e.message || "Failed to initialize question system");
+      console.error("Initialization failed, trying direct fetch as fallback:", e);
+      // If everything fails, try direct fetch as last resort
+      try {
+        await fetchAndStoreQuestions();
+      } catch (fallbackError) {
+        setError(fallbackError.message || "Failed to initialize question system");
+      }
     } finally {
       setLoading(false);
     }
