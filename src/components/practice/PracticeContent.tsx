@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from "react";
 import { Question } from "@/types/QuestionInterface";
 import { useQuestions } from "@/contexts/QuestionsContext";
@@ -63,8 +64,14 @@ export default function PracticeContent({
   const allQuestions = propQuestions !== undefined ? propQuestions : questionsContext.questions;
   console.log("PracticeContent: questions in use", allQuestions);
   
-  // Chapter and module filtering state
+  // Chapter, module, course, and exam filtering state
   const [filteredQuestions, setFilteredQuestions] = useState<Question[]>(allQuestions);
+  const [currentFilters, setCurrentFilters] = useState<{
+    chapter?: string;
+    module?: string;
+    course?: string;
+    examNumber?: string;
+  }>({});
   
   const isLoading = propIsLoading !== undefined ? propIsLoading : (isUsingContext ? questionsContext.isLoading : false);
   const error = propError !== undefined ? propError : (isUsingContext ? questionsContext.error : null);
@@ -137,43 +144,83 @@ export default function PracticeContent({
     }
   }, []);
 
-  // Handle filtering from header for both chapter and module
-  const handleFilterChange = useCallback((filters: { chapter?: string; module?: string }) => {
-    let filtered = allQuestions;
+  // Comprehensive filtering function
+  const applyAllFilters = useCallback((questions: Question[], filters: typeof currentFilters) => {
+    let filtered = [...questions];
     
-    // Filter by chapter number if specified
+    console.log('Applying filters:', filters);
+    console.log('Starting with questions:', filtered.length);
+    
+    // Filter by chapter
     if (filters.chapter) {
       filtered = filtered.filter(q => {
-        const chapterMatch = q.chapter.match(/Chapter (\d+)/i);
-        return chapterMatch && chapterMatch[1] === filters.chapter;
+        const chapterMatch = q.chapter.match(/Chapter (\d+)/i) || q.chapter.match(/(\d+)/);
+        const questionChapter = chapterMatch ? chapterMatch[1] : q.chapter;
+        return questionChapter === filters.chapter;
       });
+      console.log(`After chapter filter (${filters.chapter}):`, filtered.length);
     }
     
-    // Filter by module if specified
+    // Filter by module (course)
     if (filters.module) {
-      filtered = filtered.filter(q => q.module === filters.module);
+      filtered = filtered.filter(q => {
+        return q.module && q.module.toLowerCase().includes(filters.module!.toLowerCase());
+      });
+      console.log(`After module filter (${filters.module}):`, filtered.length);
+    }
+
+    // Filter by course
+    if (filters.course) {
+      filtered = filtered.filter(q => {
+        // Check both course field and module field for course filtering
+        const course = q.course || q.module;
+        return course && course.toLowerCase().includes(filters.course!.toLowerCase());
+      });
+      console.log(`After course filter (${filters.course}):`, filtered.length);
+    }
+    
+    // Filter by exam number
+    if (filters.examNumber) {
+      filtered = filtered.filter(q => {
+        const examNum = q.examNumber || q.Exam;
+        return examNum && examNum.toString() === filters.examNumber;
+      });
+      console.log(`After exam filter (${filters.examNumber}):`, filtered.length);
     }
     
     // Filter by difficulty level if in level mode
     if (mode === "level" && selectedLevel) {
       filtered = filtered.filter(q => q.difficulty === selectedLevel);
+      console.log(`After difficulty filter (${selectedLevel}):`, filtered.length);
     }
     
+    return filtered;
+  }, [mode, selectedLevel]);
+
+  // Handle filtering from header for all filter types
+  const handleFilterChange = useCallback((filters: { 
+    chapter?: string; 
+    module?: string; 
+    course?: string;
+    examNumber?: string; 
+  }) => {
+    console.log('Filter change requested:', filters);
+    
+    const newFilters = { ...currentFilters, ...filters };
+    setCurrentFilters(newFilters);
+    
+    const filtered = applyAllFilters(allQuestions, newFilters);
     setFilteredQuestions(filtered);
     setCurrentQuestionIndex(0); // Reset to first question when filtering
-  }, [allQuestions, mode, selectedLevel]);
+    
+    console.log('Applied filters result:', filtered.length, 'questions');
+  }, [allQuestions, currentFilters, applyAllFilters]);
 
   // Update filtered questions when allQuestions or level selection changes
   useEffect(() => {
-    let filtered = allQuestions;
-    
-    // Apply level filtering if in level mode
-    if (mode === "level" && selectedLevel) {
-      filtered = filtered.filter(q => q.difficulty === selectedLevel);
-    }
-    
+    const filtered = applyAllFilters(allQuestions, currentFilters);
     setFilteredQuestions(filtered);
-  }, [allQuestions, mode, selectedLevel]);
+  }, [allQuestions, currentFilters, applyAllFilters]);
 
   // Get current question from filtered questions
   const currentQuestion = propCurrentQuestion !== undefined 

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,12 @@ interface PracticeHeaderProps {
   mode: string;
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
-  onFilterChange?: (filters: { chapter?: string; module?: string }) => void;
+  onFilterChange?: (filters: { 
+    chapter?: string; 
+    module?: string; 
+    course?: string;
+    examNumber?: string; 
+  }) => void;
 }
 
 export const PracticeHeader = ({ 
@@ -41,9 +45,13 @@ export const PracticeHeader = ({
   const [isNavDropdownOpen, setIsNavDropdownOpen] = useState(false);
   const [isChapterDropdownOpen, setIsChapterDropdownOpen] = useState(false);
   const [isModuleDropdownOpen, setIsModuleDropdownOpen] = useState(false);
+  const [isCourseDropdownOpen, setIsCourseDropdownOpen] = useState(false);
+  const [isExamDropdownOpen, setIsExamDropdownOpen] = useState(false);
   const [hasNotifications, setHasNotifications] = useState(true);
   const [selectedChapter, setSelectedChapter] = useState<string>("All Chapters");
-  const [selectedModule, setSelectedModule] = useState<string>("All SAT Math");
+  const [selectedModule, setSelectedModule] = useState<string>("All Modules");
+  const [selectedCourse, setSelectedCourse] = useState<string>("All Courses");
+  const [selectedExam, setSelectedExam] = useState<string>("All Exams");
 
   const pages = [
     { name: "Home", path: "/" },
@@ -63,9 +71,26 @@ export const PracticeHeader = ({
   ];
 
   const modules = [
-    "All SAT Math",
+    "All Modules",
+    "SAT Math",
     "SAT Reading",
     "SAT Writing"
+  ];
+
+  const courses = [
+    "All Courses",
+    "SAT Math",
+    "SAT Reading", 
+    "SAT Writing"
+  ];
+
+  const exams = [
+    "All Exams",
+    "Exam 1",
+    "Exam 2",
+    "Exam 3",
+    "Exam 4",
+    "Exam 5"
   ];
 
   const handleNavigation = (path: string) => {
@@ -89,8 +114,7 @@ export const PracticeHeader = ({
       }
       
       onFilterChange({
-        chapter: chapterNumber,
-        module: selectedModule === "All SAT Math" ? undefined : selectedModule
+        chapter: chapterNumber
       });
     }
   };
@@ -100,15 +124,36 @@ export const PracticeHeader = ({
     setIsModuleDropdownOpen(false);
     
     if (onFilterChange) {
-      let chapterNumber: string | undefined;
-      if (selectedChapter !== "All Chapters") {
-        const match = selectedChapter.match(/Chapter (\d+)/);
-        chapterNumber = match ? match[1] : undefined;
+      onFilterChange({
+        module: module === "All Modules" ? undefined : module
+      });
+    }
+  };
+
+  const handleCourseFilter = (course: string) => {
+    setSelectedCourse(course);
+    setIsCourseDropdownOpen(false);
+    
+    if (onFilterChange) {
+      onFilterChange({
+        course: course === "All Courses" ? undefined : course
+      });
+    }
+  };
+
+  const handleExamFilter = (exam: string) => {
+    setSelectedExam(exam);
+    setIsExamDropdownOpen(false);
+    
+    if (onFilterChange) {
+      let examNumber: string | undefined;
+      if (exam !== "All Exams") {
+        const match = exam.match(/Exam (\d+)/);
+        examNumber = match ? match[1] : undefined;
       }
       
       onFilterChange({
-        chapter: chapterNumber,
-        module: module === "All SAT Math" ? undefined : module
+        examNumber: examNumber
       });
     }
   };
@@ -226,6 +271,43 @@ export const PracticeHeader = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
+        {/* Course Filter */}
+        <DropdownMenu open={isCourseDropdownOpen} onOpenChange={setIsCourseDropdownOpen}>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`rounded-full bg-transparent transition-colors hidden md:flex ${
+                isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
+              }`}
+            >
+              <Filter className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
+              <span className={`hidden lg:inline ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>
+                {selectedCourse === "All Courses" ? "Course" : selectedCourse}
+              </span>
+              <span className={`lg:hidden ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Course</span>
+              <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isCourseDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className={`w-56 shadow-lg rounded-lg p-2 z-50 ${
+            isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
+          }`}>
+            <ScrollArea className="h-[150px]">
+              {courses.map((course) => (
+                <DropdownMenuItem 
+                  key={course}
+                  className={`cursor-pointer py-2 px-3 rounded-md transition-colors ${
+                    isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
+                  }`}
+                  onClick={() => handleCourseFilter(course)}
+                >
+                  <span className={`font-source-sans text-sm ${isDarkMode ? 'text-green-400' : 'text-[#304455]'}`}>{course}</span>
+                </DropdownMenuItem>
+              ))}
+            </ScrollArea>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         {/* Module Filter */}
         <DropdownMenu open={isModuleDropdownOpen} onOpenChange={setIsModuleDropdownOpen}>
           <DropdownMenuTrigger asChild>
@@ -237,7 +319,9 @@ export const PracticeHeader = ({
               }`}
             >
               <Filter className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
-              <span className={`hidden md:inline ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>{selectedModule}</span>
+              <span className={`hidden md:inline ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>
+                {selectedModule === "All Modules" ? "Module" : selectedModule}
+              </span>
               <span className={`md:hidden ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Module</span>
               <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isModuleDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`} />
             </Button>
@@ -261,8 +345,54 @@ export const PracticeHeader = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Modules Dialog */}
-        <ModulesDialog />
+        {/* Exams Dialog - Using ModulesDialog but for exam filtering */}
+        <DropdownMenu open={isExamDropdownOpen} onOpenChange={setIsExamDropdownOpen}>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`rounded-full bg-transparent transition-colors ${
+                isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
+              }`}
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="16" 
+                height="16" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+                className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`}
+              >
+                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+              </svg>
+              <span className={isDarkMode ? 'text-green-400' : 'text-gray-700'}>
+                {selectedExam === "All Exams" ? "Exams" : selectedExam}
+              </span>
+              <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isExamDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className={`w-56 shadow-lg rounded-lg p-2 z-50 ${
+            isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
+          }`}>
+            <ScrollArea className="h-[150px]">
+              {exams.map((exam) => (
+                <DropdownMenuItem 
+                  key={exam}
+                  className={`cursor-pointer py-2 px-3 rounded-md transition-colors ${
+                    isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
+                  }`}
+                  onClick={() => handleExamFilter(exam)}
+                >
+                  <span className={`font-source-sans text-sm ${isDarkMode ? 'text-green-400' : 'text-[#304455]'}`}>{exam}</span>
+                </DropdownMenuItem>
+              ))}
+            </ScrollArea>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* Chapters Dropdown */}
         <DropdownMenu open={isChapterDropdownOpen} onOpenChange={setIsChapterDropdownOpen}>
