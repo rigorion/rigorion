@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,7 @@ interface PracticeHeaderProps {
   mode: string;
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
-  onFilterChange?: (filters: { chapter?: string; module?: string }) => void;
+  onFilterChange?: (filters: { chapter?: string; module?: string; exam?: number | null }) => void;
 }
 
 export const PracticeHeader = ({ 
@@ -90,7 +89,8 @@ export const PracticeHeader = ({
       
       onFilterChange({
         chapter: chapterNumber,
-        module: selectedModule === "All SAT Math" ? undefined : selectedModule
+        module: selectedModule === "All SAT Math" ? undefined : selectedModule,
+        exam: null
       });
     }
   };
@@ -108,7 +108,24 @@ export const PracticeHeader = ({
       
       onFilterChange({
         chapter: chapterNumber,
-        module: module === "All SAT Math" ? undefined : module
+        module: module === "All SAT Math" ? undefined : module,
+        exam: null
+      });
+    }
+  };
+
+  const handleExamFilter = (examNumber: number | null) => {
+    if (onFilterChange) {
+      let chapterNumber: string | undefined;
+      if (selectedChapter !== "All Chapters") {
+        const match = selectedChapter.match(/Chapter (\d+)/);
+        chapterNumber = match ? match[1] : undefined;
+      }
+      
+      onFilterChange({
+        chapter: chapterNumber,
+        module: selectedModule === "All SAT Math" ? undefined : selectedModule,
+        exam: examNumber
       });
     }
   };
@@ -162,7 +179,6 @@ export const PracticeHeader = ({
       </div>
       
       <div className="flex items-center gap-2 sm:gap-4">
-        {/* Dark Mode Toggle */}
         <Button
           variant="ghost"
           size="icon"
@@ -176,7 +192,6 @@ export const PracticeHeader = ({
           )}
         </Button>
 
-        {/* Notification Bell */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -226,7 +241,6 @@ export const PracticeHeader = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Module Filter */}
         <DropdownMenu open={isModuleDropdownOpen} onOpenChange={setIsModuleDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <Button
@@ -261,10 +275,8 @@ export const PracticeHeader = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Modules Dialog */}
-        <ModulesDialog />
+        <ModulesDialog onExamFilter={handleExamFilter} />
 
-        {/* Chapters Dropdown */}
         <DropdownMenu open={isChapterDropdownOpen} onOpenChange={setIsChapterDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <Button

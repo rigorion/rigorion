@@ -56,21 +56,18 @@ export default function PracticeContent({
   const { toast } = useToast();
   const { isDarkMode } = useTheme();
   
-  // Use questions from props or from context
   const questionsContext = useQuestions();
   const isUsingContext = !propQuestions;
   
   const allQuestions = propQuestions !== undefined ? propQuestions : questionsContext.questions;
   console.log("PracticeContent: questions in use", allQuestions);
   
-  // Chapter and module filtering state
   const [filteredQuestions, setFilteredQuestions] = useState<Question[]>(allQuestions);
   
   const isLoading = propIsLoading !== undefined ? propIsLoading : (isUsingContext ? questionsContext.isLoading : false);
   const error = propError !== undefined ? propError : (isUsingContext ? questionsContext.error : null);
   const refreshQuestions = propRefreshQuestions || (isUsingContext ? questionsContext.refreshQuestions : () => {});
   
-  // Basic question and UI states
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(propCurrentIndex || 0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mode, setMode] = useState<"timer" | "level" | "manual" | "pomodoro" | "exam">("manual");
@@ -92,7 +89,6 @@ export default function PracticeContent({
   const [targetQuestion, setTargetQuestion] = useState('');
   const [inputError, setInputError] = useState('');
 
-  // Use settings from props or initialize default
   const [displaySettings, setDisplaySettings] = useState<TextSettings>(
     propSettings || {
       fontFamily: 'inter',
@@ -102,14 +98,12 @@ export default function PracticeContent({
     }
   );
 
-  // Update displaySettings when propSettings change
   useEffect(() => {
     if (propSettings) {
       setDisplaySettings(propSettings);
     }
   }, [propSettings]);
 
-  // Style states
   const [fontFamily, setFontFamily] = useState<string>('inter');
   const [fontSize, setFontSize] = useState<number>(14);
   const [contentColor, setContentColor] = useState<string>('#374151');
@@ -117,7 +111,6 @@ export default function PracticeContent({
   const [formulaColor, setFormulaColor] = useState<string>('#dc2626');
   const [styleCollapsed, setStyleCollapsed] = useState(true);
   
-  // Stats and feedback states
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [incorrectAnswers, setIncorrectAnswers] = useState(0);
   const [showCommunityStats, setShowCommunityStats] = useState(false);
@@ -129,7 +122,6 @@ export default function PracticeContent({
     formula: '#dc2626'
   });
 
-  // Load objective from localStorage on mount
   useEffect(() => {
     const savedObjective = loadObjective();
     if (savedObjective) {
@@ -137,11 +129,9 @@ export default function PracticeContent({
     }
   }, []);
 
-  // Handle filtering from header for both chapter and module
-  const handleFilterChange = useCallback((filters: { chapter?: string; module?: string }) => {
+  const handleFilterChange = useCallback((filters: { chapter?: string; module?: string; exam?: number | null }) => {
     let filtered = allQuestions;
     
-    // Filter by chapter number if specified
     if (filters.chapter) {
       filtered = filtered.filter(q => {
         const chapterMatch = q.chapter.match(/Chapter (\d+)/i);
@@ -149,25 +139,25 @@ export default function PracticeContent({
       });
     }
     
-    // Filter by module if specified
     if (filters.module) {
       filtered = filtered.filter(q => q.module === filters.module);
     }
     
-    // Filter by difficulty level if in level mode
+    if (filters.exam !== undefined && filters.exam !== null) {
+      filtered = filtered.filter(q => q.examNumber === filters.exam);
+    }
+    
     if (mode === "level" && selectedLevel) {
       filtered = filtered.filter(q => q.difficulty === selectedLevel);
     }
     
     setFilteredQuestions(filtered);
-    setCurrentQuestionIndex(0); // Reset to first question when filtering
+    setCurrentQuestionIndex(0);
   }, [allQuestions, mode, selectedLevel]);
 
-  // Update filtered questions when allQuestions or level selection changes
   useEffect(() => {
     let filtered = allQuestions;
     
-    // Apply level filtering if in level mode
     if (mode === "level" && selectedLevel) {
       filtered = filtered.filter(q => q.difficulty === selectedLevel);
     }
@@ -175,14 +165,12 @@ export default function PracticeContent({
     setFilteredQuestions(filtered);
   }, [allQuestions, mode, selectedLevel]);
 
-  // Get current question from filtered questions
   const currentQuestion = propCurrentQuestion !== undefined 
     ? propCurrentQuestion 
     : (filteredQuestions.length > 0 && currentQuestionIndex < filteredQuestions.length 
       ? filteredQuestions[currentQuestionIndex]
       : null);
 
-  // Update progress effect
   useEffect(() => {
     if (objective?.type === "questions" && objective.value > 0) {
       const totalAnswered = correctAnswers + incorrectAnswers;
@@ -190,19 +178,21 @@ export default function PracticeContent({
     }
   }, [correctAnswers, incorrectAnswers, objective]);
 
-  // Sync with prop changes
   useEffect(() => {
     if (propCurrentIndex !== undefined) {
       setCurrentQuestionIndex(propCurrentIndex);
     }
   }, [propCurrentIndex]);
 
-  // Mode and objective handlers
   const handleSetMode = (selectedMode: "timer" | "level" | "manual" | "pomodoro" | "exam", duration?: number, level?: "easy" | "medium" | "hard") => {
     setMode(selectedMode);
     setSelectedLevel(level || null);
     
-    if (duration) {
+    if (selectedMode === "timer") {
+      const questionDuration = duration || 90;
+      setTimerDuration(questionDuration);
+      setIsTimerActive(true);
+    } else if (duration) {
       setTimerDuration(duration);
       setIsTimerActive(true);
     } else {
@@ -214,7 +204,7 @@ export default function PracticeContent({
   const handleSetObjective = (type: "questions" | "time", value: number) => {
     const newObjective = { type, value };
     setObjective(newObjective);
-    saveObjective(newObjective); // Persist to localStorage
+    saveObjective(newObjective);
     
     if (type === "time" && value > 0) {
       setTimerDuration(value);
@@ -223,19 +213,23 @@ export default function PracticeContent({
   };
   
   const handleTimerComplete = () => {
-    setIsTimerActive(false);
-    console.log("Time's up!");
+    if (mode === "timer") {
+      console.log("Timer completed - auto-advancing to next question");
+      nextQuestion();
+      setIsTimerActive(true);
+    } else {
+      setIsTimerActive(false);
+      console.log("Time's up!");
+    }
   };
 
   const handlePomodoroBreak = () => {
-    // Reset timer for next pomodoro session
     setIsTimerActive(false);
     setTimeout(() => {
-      setTimerDuration(1500); // Reset to 25 minutes
-    }, 5 * 60 * 1000); // 5 minute break
+      setTimerDuration(1500);
+    }, 5 * 60 * 1000);
   };
 
-  // Update displaySettings when settings change
   useEffect(() => {
     if (displaySettings.textColor) {
       setContentColor(displaySettings.textColor);
@@ -246,7 +240,6 @@ export default function PracticeContent({
     }
   }, [displaySettings.textColor]);
 
-  // Answer checking and navigation functions
   const checkAnswer = (answer: string) => {
     if (!currentQuestion) return;
     const correct = answer === currentQuestion.correctAnswer;
@@ -282,7 +275,6 @@ export default function PracticeContent({
         setSelectedAnswer(null);
         setIsCorrect(null);
         
-        // Reset timer for next question in timer mode
         if (mode === "timer" && timerDuration > 0) {
           setIsTimerActive(true);
         }
@@ -302,7 +294,6 @@ export default function PracticeContent({
     }
   };
 
-  // Handler for "Go to Question"
   const handleGoToQuestion = () => {
     const questionNumber = parseInt(targetQuestion);
 
@@ -328,7 +319,6 @@ export default function PracticeContent({
     setInputError('');
   };
 
-  // Loading state
   if (isLoading) {
     return (
       <div className={`flex justify-center items-center h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
@@ -338,7 +328,6 @@ export default function PracticeContent({
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className={`flex flex-col items-center justify-center min-h-screen px-4 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
@@ -353,7 +342,6 @@ export default function PracticeContent({
     );
   }
 
-  // No questions state
   if (filteredQuestions.length === 0) {
     return (
       <div className={`flex flex-col items-center justify-center min-h-screen px-4 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
@@ -378,7 +366,6 @@ export default function PracticeContent({
         onFilterChange={handleFilterChange}
       />
 
-      {/* Progress Bar with Stats and Tabs */}
       <div className={`border-b transition-colors duration-300 ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'}`}>
         <div className="flex items-center justify-between px-4 sm:px-6 py-2">
           <PracticeProgress 
@@ -405,16 +392,13 @@ export default function PracticeContent({
         </div>
       </div>
 
-      {/* Sidebar */}
       <Collapsible open={sidebarOpen}>
         <CollapsibleContent className="absolute left-0 top-[56px] z-50 transform transition-all duration-300 ease-in-out">
           {sidebarOpen && <Sidebar onClose={() => setSidebarOpen(false)} />}
         </CollapsibleContent>
       </Collapsible>
 
-      {/* Main Content Container */}
       <div className="flex max-w-full mx-auto w-full flex-grow py-4 sm:py-[28px] px-2 sm:px-0">
-        {/* Main Content */}
         {currentQuestion ? (
           <PracticeDisplay 
             currentQuestion={currentQuestion} 
@@ -440,7 +424,6 @@ export default function PracticeContent({
         )}
       </div>
 
-      {/* Footer with Navigation Controls */}
       <PracticeFooter 
         onToggleCommunityStats={() => setShowCommunityStats(!showCommunityStats)} 
         onPrevious={prevQuestion} 
@@ -455,7 +438,6 @@ export default function PracticeContent({
         inputError={inputError} 
       />
 
-      {/* Dialogs */}
       <ModeDialog 
         open={modeDialogOpen} 
         onOpenChange={setModeDialogOpen} 
@@ -468,7 +450,6 @@ export default function PracticeContent({
         onSetObjective={handleSetObjective} 
       />
 
-      {/* Global styles for animations */}
       <style>
         {`
           @keyframes style-pulse {
