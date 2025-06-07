@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -42,7 +43,7 @@ export const PracticeHeader = ({
   const [isModuleDropdownOpen, setIsModuleDropdownOpen] = useState(false);
   const [hasNotifications, setHasNotifications] = useState(true);
   const [selectedChapter, setSelectedChapter] = useState<string>("All Chapters");
-  const [selectedModule, setSelectedModule] = useState<string>("All Modules");
+  const [selectedModule, setSelectedModule] = useState<string>("All SAT Math");
 
   const pages = [
     { name: "Home", path: "/" },
@@ -62,12 +63,9 @@ export const PracticeHeader = ({
   ];
 
   const modules = [
-    "All Modules",
-    "Algebra",
-    "Geometry", 
-    "Calculus",
-    "Statistics",
-    "Trigonometry"
+    "All SAT Math",
+    "SAT Reading",
+    "SAT Writing"
   ];
 
   const handleNavigation = (path: string) => {
@@ -92,7 +90,7 @@ export const PracticeHeader = ({
       
       onFilterChange({
         chapter: chapterNumber,
-        module: selectedModule === "All Modules" ? undefined : selectedModule
+        module: selectedModule === "All SAT Math" ? undefined : selectedModule
       });
     }
   };
@@ -110,7 +108,7 @@ export const PracticeHeader = ({
       
       onFilterChange({
         chapter: chapterNumber,
-        module: module === "All Modules" ? undefined : module
+        module: module === "All SAT Math" ? undefined : module
       });
     }
   };
@@ -247,7 +245,7 @@ export const PracticeHeader = ({
           <DropdownMenuContent align="end" className={`w-56 shadow-lg rounded-lg p-2 z-50 ${
             isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
           }`}>
-            <ScrollArea className="h-[200px]">
+            <ScrollArea className="h-[150px]">
               {modules.map((module) => (
                 <DropdownMenuItem 
                   key={module}
