@@ -26,6 +26,12 @@ interface TextSettings {
   textColor: string;
 }
 
+interface FilterState {
+  chapter?: string;
+  module?: string;
+  exam?: number | null;
+}
+
 interface PracticeContentProps {
   questions?: Question[];
   currentQuestion?: Question | null;
@@ -62,6 +68,8 @@ export default function PracticeContent({
   const allQuestions = propQuestions !== undefined ? propQuestions : questionsContext.questions;
   console.log("PracticeContent: questions in use", allQuestions);
   
+  // Enhanced filtering state
+  const [activeFilters, setActiveFilters] = useState<FilterState>({});
   const [filteredQuestions, setFilteredQuestions] = useState<Question[]>(allQuestions);
   
   const isLoading = propIsLoading !== undefined ? propIsLoading : (isUsingContext ? questionsContext.isLoading : false);
@@ -129,41 +137,124 @@ export default function PracticeContent({
     }
   }, []);
 
-  const handleFilterChange = useCallback((filters: { chapter?: string; module?: string; exam?: number | null }) => {
-    let filtered = allQuestions;
+  // Enhanced filter function with proper exam filtering
+  const applyFilters = useCallback((filters: FilterState, questionsList: Question[]) => {
+    let filtered = [...questionsList];
     
+    console.log("Applying filters:", filters);
+    console.log("Total questions before filtering:", filtered.length);
+    
+    // Apply chapter filter
     if (filters.chapter) {
       filtered = filtered.filter(q => {
-        const chapterMatch = q.chapter.match(/Chapter (\d+)/i);
-        return chapterMatch && chapterMatch[1] === filters.chapter;
+        const chapterMatch = q.chapter?.match(/Chapter (\d+)/i);
+        const matchedChapterNumber = chapterMatch ? chapterMatch[1] : null;
+        return matchedChapterNumber === filters.chapter;
+      });
+      console.log(`After chapter filter (${filters.chapter}):`, filtered.length);
+    }
+    
+    // Apply module filter
+    if (filters.module) {
+      filtered = filtered.filter(q => {
+        // Handle both exact match and case-insensitive match
+        return q.module === filters.module || 
+               q.module?.toLowerCase().includes(filters.module.toLowerCase());
+      });
+      console.log(`After module filter (${filters.module}):`, filtered.length);
+    }
+    
+    // Apply exam filter (this should take precedence and clear other filters)
+    if (filters.exam !== undefined && filters.exam !== null) {
+      filtered = filtered.filter(q => {
+        // Handle both examNumber and exam properties
+        const questionExam = q.examNumber || q.exam;
+        return questionExam === filters.exam;
+      });
+      console.log(`After exam filter (${filters.exam}):`, filtered.length);
+    }
+    
+    // Apply level filter for level mode
+    if (mode === "level" && selectedLevel) {
+      filtered = filtered.filter(q => q.difficulty === selectedLevel);
+      console.log(`After difficulty filter (${selectedLevel}):`, filtered.length);
+    }
+    
+    console.log("Final filtered questions:", filtered.length);
+    return filtered;
+  }, [mode, selectedLevel]);
+
+  // Enhanced filter change handler
+  const handleFilterChange = useCallback((filters: FilterState) => {
+    console.log("Filter change requested:", filters);
+    
+    // Update active filters
+    setActiveFilters(prevFilters => {
+      const newFilters = { ...prevFilters, ...filters };
+      
+      // If exam filter is applied, clear chapter and module
+      if (filters.exam !== undefined) {
+        if (filters.exam === null) {
+          // Clearing exam filter - keep other filters
+          delete newFilters.exam;
+        } else {
+          // Setting exam filter - clear conflicting filters
+          delete newFilters.chapter;
+          delete newFilters.module;
+        }
+      }
+      
+      console.log("New active filters:", newFilters);
+      return newFilters;
+    });
+    
+    // Apply filters and update filtered questions
+    const newFilteredQuestions = applyFilters(filters, allQuestions);
+    setFilteredQuestions(newFilteredQuestions);
+    
+    // Reset to first question
+    setCurrentQuestionIndex(0);
+    setSelectedAnswer(null);
+    setIsCorrect(null);
+    
+    // Show feedback to user
+    if (filters.exam !== undefined && filters.exam !== null) {
+      toast({
+        title: "Exam Filter Applied",
+        description: `Showing ${newFilteredQuestions.length} questions from Exam ${filters.exam}`,
+      });
+    } else if (filters.exam === null) {
+      toast({
+        title: "Filter Cleared",
+        description: `Showing all ${newFilteredQuestions.length} available questions`,
+      });
+    } else {
+      const activeFilterCount = Object.keys(filters).filter(key => filters[key as keyof FilterState] !== undefined).length;
+      toast({
+        title: "Filters Applied",
+        description: `${activeFilterCount} filter(s) active, showing ${newFilteredQuestions.length} questions`,
       });
     }
-    
-    if (filters.module) {
-      filtered = filtered.filter(q => q.module === filters.module);
-    }
-    
-    if (filters.exam !== undefined && filters.exam !== null) {
-      filtered = filtered.filter(q => q.examNumber === filters.exam);
-    }
-    
-    if (mode === "level" && selectedLevel) {
-      filtered = filtered.filter(q => q.difficulty === selectedLevel);
-    }
-    
-    setFilteredQuestions(filtered);
-    setCurrentQuestionIndex(0);
-  }, [allQuestions, mode, selectedLevel]);
+  }, [allQuestions, applyFilters, toast]);
 
+  // Update filtered questions when base questions change
   useEffect(() => {
-    let filtered = allQuestions;
+    console.log("Base questions changed, reapplying filters");
+    const newFiltered = applyFilters(activeFilters, allQuestions);
+    setFilteredQuestions(newFiltered);
     
-    if (mode === "level" && selectedLevel) {
-      filtered = filtered.filter(q => q.difficulty === selectedLevel);
+    // Reset to first question if current index is out of bounds
+    if (currentQuestionIndex >= newFiltered.length) {
+      setCurrentQuestionIndex(0);
     }
-    
-    setFilteredQuestions(filtered);
-  }, [allQuestions, mode, selectedLevel]);
+  }, [allQuestions, activeFilters, applyFilters, currentQuestionIndex]);
+
+  // Update filtered questions when mode or level changes
+  useEffect(() => {
+    console.log("Mode or level changed, reapplying filters");
+    const newFiltered = applyFilters(activeFilters, allQuestions);
+    setFilteredQuestions(newFiltered);
+  }, [mode, selectedLevel, activeFilters, allQuestions, applyFilters]);
 
   const currentQuestion = propCurrentQuestion !== undefined 
     ? propCurrentQuestion 
@@ -319,6 +410,21 @@ export default function PracticeContent({
     setInputError('');
   };
 
+  // Debug info for filtering
+  const getFilterDebugInfo = () => {
+    if (process.env.NODE_ENV === 'development') {
+      return (
+        <div className="fixed bottom-20 right-4 bg-black/80 text-white p-2 rounded text-xs max-w-xs">
+          <div>Total Questions: {allQuestions.length}</div>
+          <div>Filtered Questions: {filteredQuestions.length}</div>
+          <div>Active Filters: {JSON.stringify(activeFilters)}</div>
+          <div>Current Index: {currentQuestionIndex}</div>
+        </div>
+      );
+    }
+    return null;
+  };
+
   if (isLoading) {
     return (
       <div className={`flex justify-center items-center h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
@@ -348,6 +454,18 @@ export default function PracticeContent({
         <div className={`border px-4 py-3 rounded relative ${isDarkMode ? 'bg-yellow-900 border-yellow-600 text-yellow-200' : 'bg-yellow-100 border-yellow-400 text-yellow-700'}`} role="alert">
           <strong className="font-bold">No Questions!</strong>
           <span className="block sm:inline"> No questions available for the selected filters.</span>
+          {Object.keys(activeFilters).length > 0 && (
+            <div className="mt-2">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={() => handleFilterChange({ chapter: undefined, module: undefined, exam: null })}
+                className="text-xs"
+              >
+                Clear Filters
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -449,6 +567,9 @@ export default function PracticeContent({
         onOpenChange={setObjectiveDialogOpen} 
         onSetObjective={handleSetObjective} 
       />
+
+      {/* Debug Info */}
+      {getFilterDebugInfo()}
 
       <style>
         {`
