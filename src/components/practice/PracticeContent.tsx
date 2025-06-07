@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from "react";
 import { Question } from "@/types/QuestionInterface";
 import { useQuestions } from "@/contexts/QuestionsContext";
@@ -161,7 +160,7 @@ export default function PracticeContent({
       console.log(`After chapter filter (${filters.chapter}):`, filtered.length);
     }
     
-    // Filter by module (course)
+    // Filter by module
     if (filters.module) {
       filtered = filtered.filter(q => {
         return q.module && q.module.toLowerCase().includes(filters.module!.toLowerCase());
@@ -169,21 +168,18 @@ export default function PracticeContent({
       console.log(`After module filter (${filters.module}):`, filtered.length);
     }
 
-    // Filter by course
+    // Filter by course - use module field since course doesn't exist on Question type
     if (filters.course) {
       filtered = filtered.filter(q => {
-        // Check both course field and module field for course filtering
-        const course = q.course || q.module;
-        return course && course.toLowerCase().includes(filters.course!.toLowerCase());
+        return q.module && q.module.toLowerCase().includes(filters.course!.toLowerCase());
       });
       console.log(`After course filter (${filters.course}):`, filtered.length);
     }
     
-    // Filter by exam number
+    // Filter by exam number - use examNumber property
     if (filters.examNumber) {
       filtered = filtered.filter(q => {
-        const examNum = q.examNumber || q.Exam;
-        return examNum && examNum.toString() === filters.examNumber;
+        return q.examNumber && q.examNumber.toString() === filters.examNumber;
       });
       console.log(`After exam filter (${filters.examNumber}):`, filtered.length);
     }
