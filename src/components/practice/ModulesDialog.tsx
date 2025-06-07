@@ -179,15 +179,19 @@ const ModulesDialog = () => {
           : test
       ));
 
-      // Set the questions in the global context to display in practice
-      setQuestions(validQuestions);
+      // Clear any existing questions first, then set the new questions
+      console.log('Replacing questions in global context with new exam questions...');
+      setQuestions([]); // Clear first
+      setTimeout(() => {
+        setQuestions(validQuestions); // Then set new questions
+      }, 100);
 
       // Close the dropdown after successful load
       setIsOpen(false);
 
       toast({
         title: "Exam Questions Loaded Successfully!",
-        description: `Loaded ${validQuestions.length} questions for ${modelTests.find(t => t.id === testId)?.title}. Practice session ready.`,
+        description: `Replaced current questions with ${validQuestions.length} questions from ${modelTests.find(t => t.id === testId)?.title}. Practice session ready.`,
       });
 
     } catch (error) {
@@ -342,7 +346,6 @@ const ModulesDialog = () => {
                   {test.description}
                 </p>
                 
-                {/* Progress bar for tests with completion rate */}
                 {test.completionRate > 0 && !test.questions && (
                   <div className={`mt-2 w-full h-1.5 rounded-full ${
                     isDarkMode ? 'bg-gray-700' : 'bg-gray-200'
@@ -356,21 +359,18 @@ const ModulesDialog = () => {
                   </div>
                 )}
 
-                {/* Success message for loaded questions */}
                 {test.questions && test.questions.length > 0 && (
                   <div className={`mt-2 text-xs ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
                     ✓ Questions loaded and ready for practice
                   </div>
                 )}
 
-                {/* Error message */}
                 {test.hasError && (
                   <div className="mt-2 text-xs text-red-500">
                     ✗ Failed to load questions. Click to retry.
                   </div>
                 )}
 
-                {/* Loading indicator */}
                 {test.isLoading && (
                   <div className={`mt-2 text-xs ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>
                     Loading questions from endpoint...
