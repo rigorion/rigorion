@@ -220,18 +220,7 @@ const Practice = () => {
                 settings={settings} 
                 onSettingsChange={handleSettingsChange}
               />
-              <AIAnalyzer
-                context="practice"
-                data={{
-                  currentQuestion: questions[0],
-                  currentIndex: 0,
-                  totalQuestions: questions.length,
-                  questions: questions.slice(0, 3),
-                }}
-              />
-              <div className="fixed bottom-6 left-6 z-40">
-                <CommentSection />
-              </div>
+              {/* Removed AIAnalyzer and CommentSection since they're now in the footer */}
             </>
           ) : (
             <div className="flex justify-center items-center h-64 text-gray-400 dark:text-green-500">

@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Search, ChevronLeft, ChevronRight, BarChart2 } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, BarChart2, MessageCircle, Bot } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -120,6 +120,23 @@ const PracticeFooter = ({
           <div className="w-24"></div>
         </div>
       </div>
+
+      {/* Bottom Corner Buttons */}
+      {/* Comment Button - Left Bottom Corner */}
+      <Button
+        className="fixed bottom-6 left-6 h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg z-30"
+        onClick={() => console.log("Open comments")}
+      >
+        <MessageCircle className="h-5 w-5" />
+      </Button>
+
+      {/* AI Assistance Button - Right Bottom Corner */}
+      <Button
+        className="fixed bottom-6 right-6 h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg z-30"
+        onClick={() => console.log("Open AI assistance")}
+      >
+        <Bot className="h-5 w-5" />
+      </Button>
 
       {/* Go to Question Popup */}
       {showGoToInput && (

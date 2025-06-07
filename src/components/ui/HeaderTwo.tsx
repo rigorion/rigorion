@@ -42,7 +42,7 @@ const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center justify-between">
           <div className="relative flex items-center gap-4">
             <DropdownMenu open={isNavOpen} onOpenChange={setIsNavOpen}>
-              <DropdownMenuTrigger className="rounded-lg p-2 hover:bg-gray-100 transition-colors">
+              <DropdownMenuTrigger className="rounded-full p-2 hover:bg-gray-100 transition-colors">
                 <Menu className="h-5 w-5 text-blue-500" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-48 bg-white border border-gray-100 shadow-sm">
