@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -11,6 +12,8 @@ import { Question } from "@/types/QuestionInterface";
 import { callEdgeFunction } from "@/services/edgeFunctionService";
 
 const ENDPOINT = "my-function";
+const RETRY_DELAY = 2000; // 2 seconds
+const MAX_RETRIES = 3;
 
 export const usePracticeQuestions = () => {
   const { toast } = useToast();
@@ -21,11 +24,10 @@ export const usePracticeQuestions = () => {
   const [error, setError] = useState<string | null>(null);
   const [loadingMessage, setLoadingMessage] = useState("Initializing secure question system...");
 
-  const fetchAndStoreQuestions = async () => {
+  const fetchAndStoreQuestions = async (retryCount = 0): Promise<number> => {
     try {
       setLoadingMessage("Connecting to secure server...");
       
-      // Use the callEdgeFunction utility instead of direct fetch
       const { data: result, error: fetchError } = await callEdgeFunction(ENDPOINT);
       
       if (fetchError || !result) {
@@ -36,7 +38,6 @@ export const usePracticeQuestions = () => {
       await storeSecureFunctionData(ENDPOINT, result);
 
       let rawQuestions: any[] = [];
-      // Add proper type checking for the result object
       if (result && typeof result === 'object') {
         const resultObj = result as any;
         if (resultObj.questions && Array.isArray(resultObj.questions)) {
@@ -59,6 +60,16 @@ export const usePracticeQuestions = () => {
       return validQuestions.length;
     } catch (e: any) {
       console.error("Error in fetchAndStoreQuestions:", e);
+      
+      // Retry logic for network failures
+      if (retryCount < MAX_RETRIES && (e.message.includes("fetch") || e.message.includes("network") || e.message.includes("Failed to fetch"))) {
+        console.log(`Retrying fetch attempt ${retryCount + 1}/${MAX_RETRIES}...`);
+        setLoadingMessage(`Connection failed. Retrying... (${retryCount + 1}/${MAX_RETRIES})`);
+        
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+        return await fetchAndStoreQuestions(retryCount + 1);
+      }
+      
       throw new Error(e.message || "Failed to fetch questions from server");
     }
   };
@@ -67,33 +78,19 @@ export const usePracticeQuestions = () => {
     try {
       setLoadingMessage("Accessing secure storage...");
       
-      // Try to get secure data, but handle the case where it might be undefined
-      let data = null;
-      let fromCache = false;
-      
-      try {
-        const result = await safeGetSecureData(ENDPOINT, async () => {
-          setLoadingMessage("No cached data found. Fetching fresh data...");
-          await fetchAndStoreQuestions();
-          return true; // Return a simple success indicator
-        });
-        
-        if (result && typeof result === 'object' && 'data' in result) {
-          data = result.data;
-          fromCache = result.fromCache || false;
-        }
-      } catch (secureDataError) {
-        console.error("Secure data retrieval failed, fetching fresh data:", secureDataError);
-        // If secure data fails, fetch fresh data directly
+      // First, try to get cached data
+      const cachedData = await safeGetSecureData(ENDPOINT, async () => {
+        setLoadingMessage("No cached data found. Fetching fresh data...");
         await fetchAndStoreQuestions();
-        return;
-      }
+        return null; // Return null since we just want to store, not return data
+      });
       
-      if (data) {
+      if (cachedData && cachedData.data) {
         setLoadingMessage("Decrypting and processing questions...");
         
         let rawQuestions: any[] = [];
-        // Add proper type checking for the data object
+        const data = cachedData.data;
+        
         if (data && typeof data === 'object') {
           const dataObj = data as any;
           if (dataObj.questions && Array.isArray(dataObj.questions)) {
@@ -112,7 +109,7 @@ export const usePracticeQuestions = () => {
         setLastFetched(new Date());
         setError(null);
         
-        if (!fromCache) {
+        if (!cachedData.fromCache) {
           toast({
             title: "Questions Updated",
             description: `Successfully loaded ${validQuestions.length} questions and secured them locally.`,
@@ -121,15 +118,17 @@ export const usePracticeQuestions = () => {
         }
         
         return validQuestions;
-      } else {
-        // If no data available, try fetching fresh
-        console.log("No cached data available, fetching fresh data...");
-        await fetchAndStoreQuestions();
       }
     } catch (e: any) {
       console.error("Error in loadLatestQuestions:", e);
-      setError(e.message || "Unable to load questions at this time");
-      throw e;
+      
+      // If cached data fails, try direct fetch with retry logic
+      try {
+        await fetchAndStoreQuestions();
+      } catch (fetchError: any) {
+        setError(fetchError.message || "Unable to load questions at this time");
+        throw fetchError;
+      }
     }
   };
 
@@ -141,13 +140,14 @@ export const usePracticeQuestions = () => {
       
       await loadLatestQuestions();
     } catch (e: any) {
-      console.error("Initialization failed, trying direct fetch as fallback:", e);
-      // If everything fails, try direct fetch as last resort
-      try {
-        await fetchAndStoreQuestions();
-      } catch (fallbackError) {
-        setError(fallbackError.message || "Failed to initialize question system");
-      }
+      console.error("All initialization attempts failed:", e);
+      setError("Unable to connect to the question service. The system will automatically retry in a few moments.");
+      
+      // Auto-retry after 5 seconds
+      setTimeout(() => {
+        console.log("Auto-retrying initialization...");
+        initializeQuestions();
+      }, 5000);
     } finally {
       setLoading(false);
     }
