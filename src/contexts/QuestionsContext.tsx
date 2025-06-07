@@ -10,6 +10,7 @@ interface QuestionsContextType {
   isLoading: boolean;
   error: Error | null;
   refreshQuestions: () => Promise<void>;
+  setQuestions: (questions: Question[]) => void;
 }
 
 export const QuestionsContext = createContext<QuestionsContextType>({
@@ -17,6 +18,7 @@ export const QuestionsContext = createContext<QuestionsContextType>({
   isLoading: true,
   error: null,
   refreshQuestions: async () => {},
+  setQuestions: () => {},
 });
 
 export const useQuestions = () => useContext(QuestionsContext);
@@ -99,7 +101,7 @@ export const QuestionsProvider: React.FC<QuestionsProviderProps> = ({ children }
   };
 
   return (
-    <QuestionsContext.Provider value={{ questions, isLoading, error, refreshQuestions }}>
+    <QuestionsContext.Provider value={{ questions, isLoading, error, refreshQuestions, setQuestions }}>
       {children}
     </QuestionsContext.Provider>
   );
