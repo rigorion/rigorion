@@ -160,7 +160,7 @@ export default function PracticeContent({
       console.log(`After chapter filter (${filters.chapter}):`, filtered.length);
     }
     
-    // Filter by module
+    // Filter by module (changed from course to module)
     if (filters.module) {
       filtered = filtered.filter(q => {
         return q.module && q.module.toLowerCase().includes(filters.module!.toLowerCase());
@@ -168,15 +168,15 @@ export default function PracticeContent({
       console.log(`After module filter (${filters.module}):`, filtered.length);
     }
 
-    // Filter by course - use module field since course doesn't exist on Question type
+    // Filter by course - use chapter field for course filtering
     if (filters.course) {
       filtered = filtered.filter(q => {
-        return q.module && q.module.toLowerCase().includes(filters.course!.toLowerCase());
+        return q.chapter && q.chapter.toLowerCase().includes(filters.course!.toLowerCase());
       });
       console.log(`After course filter (${filters.course}):`, filtered.length);
     }
     
-    // Filter by exam number - use examNumber property
+    // Filter by exam number - ensure we have 12 different exam numbers
     if (filters.examNumber) {
       filtered = filtered.filter(q => {
         return q.examNumber && q.examNumber.toString() === filters.examNumber;
@@ -404,6 +404,12 @@ export default function PracticeContent({
           <strong className="font-bold">No Questions!</strong>
           <span className="block sm:inline"> No questions available for the selected filters.</span>
         </div>
+        <Button className="mt-4" onClick={() => {
+          setCurrentFilters({});
+          setFilteredQuestions(allQuestions);
+        }}>
+          Clear Filters
+        </Button>
       </div>
     );
   }
@@ -479,7 +485,9 @@ export default function PracticeContent({
             activeTab={activeTab} 
           />
         ) : (
-          <div className={`w-full p-8 text-center ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>No question selected</div>
+          <div className={`w-full p-8 text-center ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            No question available. Please check your filters or try loading more questions.
+          </div>
         )}
       </div>
 

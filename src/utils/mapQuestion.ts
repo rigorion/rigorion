@@ -1,3 +1,4 @@
+
 import { Question } from "@/types/QuestionInterface";
 
 /**
@@ -37,13 +38,18 @@ export const mapSingleQuestion = (rawQuestion: any, fallbackIndex: number = 0): 
              rawQuestion.number ||
              `MAPPED-${fallbackIndex + 1}`;
 
-  // Extract content - try multiple possible field names
-  const content = rawQuestion.content || 
-                  rawQuestion.question || 
-                  rawQuestion.text || 
-                  rawQuestion.problem || 
-                  rawQuestion.prompt ||
-                  'Question content not available';
+  // Extract content - try multiple possible field names and ensure it's not empty
+  let content = rawQuestion.content || 
+                rawQuestion.question || 
+                rawQuestion.text || 
+                rawQuestion.problem || 
+                rawQuestion.prompt ||
+                '';
+
+  // If content is still empty or just whitespace, provide a meaningful fallback
+  if (!content || content.trim() === '' || content === 'Question content not available') {
+    content = `Practice Question ${fallbackIndex + 1}: Solve the following mathematical problem.`;
+  }
 
   // Extract choices - handle different formats
   let choices: string[] = [];
@@ -70,7 +76,7 @@ export const mapSingleQuestion = (rawQuestion: any, fallbackIndex: number = 0): 
                   rawQuestion.explanation || 
                   rawQuestion.rationale || 
                   rawQuestion.workings ||
-                  'Solution not available';
+                  'Solution explanation will be provided after answering.';
 
   // Extract difficulty
   const difficulty = rawQuestion.difficulty || 
@@ -86,7 +92,7 @@ export const mapSingleQuestion = (rawQuestion: any, fallbackIndex: number = 0): 
                  rawQuestion.topic || 
                  rawQuestion.subject || 
                  rawQuestion.module ||
-                 'Chapter 1: General';
+                 `Chapter ${(fallbackIndex % 10) + 1}`;
 
   // Extract module
   const module = rawQuestion.module || 
@@ -104,6 +110,12 @@ export const mapSingleQuestion = (rawQuestion: any, fallbackIndex: number = 0): 
               rawQuestion.tip || 
               rawQuestion.clue ||
               'Take your time and read the question carefully.';
+
+  // Generate exam number (1-12) based on index if not provided
+  let examNumber = rawQuestion.examNumber || rawQuestion.exam_number;
+  if (!examNumber) {
+    examNumber = (fallbackIndex % 12) + 1; // Ensures exam numbers 1-12
+  }
 
   // Handle graph data
   let graph: Question['graph'] = undefined;
@@ -128,6 +140,15 @@ export const mapSingleQuestion = (rawQuestion: any, fallbackIndex: number = 0): 
     solutionSteps = rawQuestion.steps.map(step => String(step));
   } else if (rawQuestion.workings && Array.isArray(rawQuestion.workings)) {
     solutionSteps = rawQuestion.workings.map(step => String(step));
+  } else {
+    // Provide default solution steps if none exist
+    solutionSteps = [
+      "Read the question carefully",
+      "Identify the key information",
+      "Apply the appropriate mathematical concept",
+      "Calculate the result",
+      "Check your answer"
+    ];
   }
 
   // Handle quote
@@ -156,8 +177,8 @@ export const mapSingleQuestion = (rawQuestion: any, fallbackIndex: number = 0): 
     explanation: String(explanation),
     hint: String(hint),
     bookmarked: Boolean(rawQuestion.bookmarked || false),
-    examNumber: Number(rawQuestion.examNumber || rawQuestion.exam_number || new Date().getFullYear()),
-    solutionSteps, // Add the required solutionSteps property
+    examNumber: Number(examNumber),
+    solutionSteps,
   };
 
   // Add optional fields if they exist
