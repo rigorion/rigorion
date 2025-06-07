@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -37,12 +36,16 @@ export const usePracticeQuestions = () => {
       await storeSecureFunctionData(ENDPOINT, result);
 
       let rawQuestions: any[] = [];
-      if (result.questions && Array.isArray(result.questions)) {
-        rawQuestions = result.questions;
-      } else if (Array.isArray(result)) {
-        rawQuestions = result;
-      } else if (result.data && Array.isArray(result.data)) {
-        rawQuestions = result.data;
+      // Add proper type checking for the result object
+      if (result && typeof result === 'object') {
+        const resultObj = result as any;
+        if (resultObj.questions && Array.isArray(resultObj.questions)) {
+          rawQuestions = resultObj.questions;
+        } else if (Array.isArray(result)) {
+          rawQuestions = result as any[];
+        } else if (resultObj.data && Array.isArray(resultObj.data)) {
+          rawQuestions = resultObj.data;
+        }
       }
 
       setLoadingMessage("Processing and validating questions...");
@@ -90,12 +93,16 @@ export const usePracticeQuestions = () => {
         setLoadingMessage("Decrypting and processing questions...");
         
         let rawQuestions: any[] = [];
-        if (data.questions && Array.isArray(data.questions)) {
-          rawQuestions = data.questions;
-        } else if (Array.isArray(data)) {
-          rawQuestions = data;
-        } else if (data.data && Array.isArray(data.data)) {
-          rawQuestions = data.data;
+        // Add proper type checking for the data object
+        if (data && typeof data === 'object') {
+          const dataObj = data as any;
+          if (dataObj.questions && Array.isArray(dataObj.questions)) {
+            rawQuestions = dataObj.questions;
+          } else if (Array.isArray(data)) {
+            rawQuestions = data as any[];
+          } else if (dataObj.data && Array.isArray(dataObj.data)) {
+            rawQuestions = dataObj.data;
+          }
         }
 
         const mappedQuestions = mapQuestions(rawQuestions);
