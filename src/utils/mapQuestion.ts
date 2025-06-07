@@ -1,4 +1,3 @@
-
 import { Question } from "@/types/QuestionInterface";
 
 /**
@@ -144,7 +143,7 @@ export const mapSingleQuestion = (rawQuestion: any, fallbackIndex: number = 0): 
     }
   }
 
-  // Build the mapped question
+  // Build the mapped question - include solutionSteps as required field
   const mappedQuestion: Question = {
     id: String(id),
     content: String(content),
@@ -158,15 +157,12 @@ export const mapSingleQuestion = (rawQuestion: any, fallbackIndex: number = 0): 
     hint: String(hint),
     bookmarked: Boolean(rawQuestion.bookmarked || false),
     examNumber: Number(rawQuestion.examNumber || rawQuestion.exam_number || new Date().getFullYear()),
+    solutionSteps, // Always include this as it's required
   };
 
   // Add optional fields if they exist
   if (graph) {
     mappedQuestion.graph = graph;
-  }
-
-  if (solutionSteps.length > 0) {
-    mappedQuestion.solutionSteps = solutionSteps;
   }
 
   if (quote) {
