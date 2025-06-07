@@ -21,6 +21,7 @@ interface PracticeDisplayProps {
     fontFamily: string;
     fontSize: number;
     colorStyle: string;
+    textColor: string;
   };
   boardColor: string;
   colorSettings: {
@@ -156,6 +157,30 @@ Keep the evaluation constructive and educational.`;
     return null;
   };
 
+  // Font mapping for consistent styling
+  const getFontFamily = () => {
+    switch (displaySettings.fontFamily) {
+      case 'inter': return 'Inter, sans-serif';
+      case 'roboto': return 'Roboto, sans-serif';
+      case 'open-sans': return 'Open Sans, sans-serif';
+      case 'comic-sans': return 'Comic Sans MS, cursive';
+      case 'courier-new': return 'Courier New, monospace';
+      case 'poppins': return 'Poppins, sans-serif';
+      case 'merriweather': return 'Merriweather, serif';
+      case 'dancing-script': return 'Dancing Script, cursive';
+      case 'ubuntu': return 'Ubuntu, sans-serif';
+      default: return 'Inter, sans-serif';
+    }
+  };
+
+  // Main content styling - applies to question content, choices, and solutions
+  const contentTextStyle = {
+    fontFamily: getFontFamily(),
+    fontSize: `${displaySettings.fontSize}px`,
+    color: displaySettings.textColor,
+    lineHeight: '1.6'
+  };
+
   if (!currentQuestion) {
     return (
       <div className={`w-full p-8 text-center ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>No question selected</div>
@@ -176,25 +201,11 @@ Keep the evaluation constructive and educational.`;
             color: boardColor === 'black' ? '#fff' : (isDarkMode ? '#fff' : colorSettings.content),
           }}
         >
-          <div
-            className="mb-6 sm:mb-8 pr-2 sm:pr-4 py-0"
-            style={{
-              fontFamily: displaySettings.fontFamily,
-              fontSize: `${displaySettings.fontSize}px`,
-              color: isDarkMode ? '#fff' : colorSettings.content,
-              background:
-                displaySettings.colorStyle === 'gradient'
-                  ? (isDarkMode ? 'linear-gradient(145deg, #374151 0%, #1f2937 100%)' : 'linear-gradient(145deg, #f8fafc 0%, #f0fdf4 100%)')
-                  : (isDarkMode ? '#1f2937' : '#ffffff'),
-            }}
-          >
+          <div className="mb-6 sm:mb-8 pr-2 sm:pr-4 py-0">
             <div className="flex flex-col sm:flex-row items-start sm:items-center mb-4 justify-between gap-2">
               <h2
                 className="text-xl sm:text-2xl font-semibold"
-                style={{
-                  fontFamily: displaySettings.fontFamily,
-                  color: isDarkMode ? '#fff' : colorSettings.content,
-                }}
+                style={contentTextStyle}
               >
                 Question {currentQuestionIndex + 1}
               </h2>
@@ -222,32 +233,12 @@ Keep the evaluation constructive and educational.`;
               )}
             </div>
 
-            {/* Question Content */}
-            <p
+            {/* Question Content - Apply font settings */}
+            <div
               className="mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base"
-              style={{
-                fontFamily: displaySettings.fontFamily,
-                fontSize: `${displaySettings.fontSize}px`,
-                color: isDarkMode ? '#fff' : colorSettings.content,
-              }}
-            >
-              {currentQuestion.content.split('**').map((part, i) =>
-                i % 2 === 1 ? (
-                  <span
-                    key={i}
-                    className="font-bold"
-                    style={{
-                      color: colorSettings.keyPhrase,
-                      fontFamily: displaySettings.fontFamily,
-                    }}
-                  >
-                    {part}
-                  </span>
-                ) : (
-                  part
-                )
-              )}
-            </p>
+              style={contentTextStyle}
+              dangerouslySetInnerHTML={{ __html: currentQuestion.content }}
+            />
 
             {/* Graph Display - Only if graph URL exists */}
             {graphUrl && (
@@ -281,10 +272,7 @@ Keep the evaluation constructive and educational.`;
                     className={`w-full min-h-[400px] p-4 border shadow-md rounded-md text-sm sm:text-base resize-y ${
                       isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-gray-800 border-gray-300'
                     }`}
-                    style={{
-                      fontFamily: displaySettings.fontFamily,
-                      fontSize: `${displaySettings.fontSize}px`,
-                    }}
+                    style={contentTextStyle}
                   />
                   <div className="flex justify-end mt-4">
                     <Button 
@@ -324,10 +312,7 @@ Keep the evaluation constructive and educational.`;
                       className={`whitespace-pre-wrap leading-relaxed ${
                         isDarkMode ? 'text-green-300' : 'text-gray-700'
                       }`}
-                      style={{
-                        fontFamily: displaySettings.fontFamily,
-                        fontSize: `${Math.max(displaySettings.fontSize - 1, 13)}px`,
-                      }}
+                      style={contentTextStyle}
                     >
                       {aiEvaluation}
                     </div>
@@ -355,11 +340,7 @@ Keep the evaluation constructive and educational.`;
                               ? (isDarkMode ? 'border-red-400 bg-red-900/50' : 'border-red-500 bg-red-50')
                               : (isDarkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-transparent')
                           }`}
-                          style={{
-                            fontFamily: displaySettings.fontFamily,
-                            fontSize: `${Math.max(displaySettings.fontSize - 2, 12)}px`,
-                            color: isDarkMode ? '#fff' : colorSettings.content,
-                          }}
+                          style={contentTextStyle}
                         >
                           {/* Green animation overlay for correct answer */}
                           {isSelected && isCorrect && (
@@ -367,9 +348,10 @@ Keep the evaluation constructive and educational.`;
                           )}
                           
                           <span className={`mr-2 font-bold ${isDarkMode ? 'text-green-400' : 'text-gray-500'}`}>{choiceLetter}.</span>
-                          <span className={isSelected ? "font-medium relative z-10" : "relative z-10"}>
-                            {choice}
-                          </span>
+                          <span 
+                            className={isSelected ? "font-medium relative z-10" : "relative z-10"}
+                            dangerouslySetInnerHTML={{ __html: choice }}
+                          />
                           {isSelected && (
                             <span className="float-right relative z-10">
                               {isCorrect ? (
@@ -393,10 +375,7 @@ Keep the evaluation constructive and educational.`;
                         className={`flex-1 p-3 sm:p-4 border shadow-md rounded-md text-sm sm:text-base ${
                           isDarkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-800 border-gray-300'
                         }`}
-                        style={{
-                          fontFamily: displaySettings.fontFamily,
-                          fontSize: `${displaySettings.fontSize}px`,
-                        }}
+                        style={contentTextStyle}
                         onKeyPress={(e) => e.key === 'Enter' && handleSubmitFillIn()}
                       />
                       <Button onClick={handleSubmitFillIn} className="shadow-md w-full sm:w-auto">
@@ -410,6 +389,7 @@ Keep the evaluation constructive and educational.`;
                             ? (isDarkMode ? 'bg-green-900/10 text-green-300 border border-green-600 animate-pulse' : 'bg-green-50 text-green-800 border border-green-200 animate-pulse')
                             : (isDarkMode ? 'bg-red-900/10 text-red-300 border border-red-600' : 'bg-red-50 text-red-800 border border-red-200')
                         }`}
+                        style={contentTextStyle}
                       >
                         {isCorrect ? (
                           <div className="flex items-center">
@@ -441,7 +421,7 @@ Keep the evaluation constructive and educational.`;
             }`}>
               <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-green-300' : 'text-blue-600'}`}>Solution</h3>
               
-              {/* Enhanced Solution with HTML formatting */}
+              {/* Enhanced Solution with HTML formatting - Apply font settings */}
               <div className={`mb-6 p-4 rounded-lg border-l-4 ${
                 isDarkMode ? 'border-green-400 bg-gray-700' : 'border-blue-500 bg-white'
               }`}>
@@ -449,14 +429,11 @@ Keep the evaluation constructive and educational.`;
                 <div 
                   className={`leading-relaxed solution-content text-sm sm:text-base ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}
                   dangerouslySetInnerHTML={{ __html: currentQuestion.solution }}
-                  style={{
-                    fontFamily: displaySettings.fontFamily,
-                    fontSize: `${displaySettings.fontSize}px`,
-                  }}
+                  style={contentTextStyle}
                 />
               </div>
               
-              {/* Solution Steps */}
+              {/* Solution Steps - Apply font settings */}
               {currentQuestion.solutionSteps && currentQuestion.solutionSteps.length > 0 && (
                 <div className="mb-4">
                   <h4 className={`font-medium mb-3 ${isDarkMode ? 'text-green-300' : 'text-gray-800'}`}>Step-by-step solution:</h4>
@@ -472,10 +449,7 @@ Keep the evaluation constructive and educational.`;
                         </div>
                         <div 
                           className={`text-sm leading-relaxed ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}
-                          style={{
-                            fontFamily: displaySettings.fontFamily,
-                            fontSize: `${Math.max(displaySettings.fontSize - 2, 12)}px`,
-                          }}
+                          style={contentTextStyle}
                         >
                           {typeof step === 'string' ? step : String(step)}
                         </div>
@@ -485,12 +459,17 @@ Keep the evaluation constructive and educational.`;
                 </div>
               )}
 
-              {/* Correct Answer Display */}
+              {/* Correct Answer Display - Apply font settings */}
               <div className={`mt-4 p-3 border rounded-lg ${
                 isDarkMode ? 'bg-green-900/30 border-green-600' : 'bg-green-50 border-green-200'
               }`}>
                 <h4 className={`font-medium mb-1 ${isDarkMode ? 'text-green-300' : 'text-green-800'}`}>Correct Answer:</h4>
-                <p className={`font-bold text-lg ${isDarkMode ? 'text-green-200' : 'text-green-700'}`}>{currentQuestion.correctAnswer}</p>
+                <p 
+                  className={`font-bold text-lg ${isDarkMode ? 'text-green-200' : 'text-green-700'}`}
+                  style={contentTextStyle}
+                >
+                  {currentQuestion.correctAnswer}
+                </p>
               </div>
             </div>
           )}
@@ -501,16 +480,29 @@ Keep the evaluation constructive and educational.`;
             }`}>
               <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-green-300' : 'text-gray-900'}`}>Quote</h3>
               {currentQuestion.quote ? (
-                <blockquote className={`text-lg italic border-l-4 pl-4 ${
-                  isDarkMode ? 'border-green-400 text-green-400' : 'border-blue-500 text-gray-700'
-                }`}>
+                <blockquote 
+                  className={`text-lg italic border-l-4 pl-4 ${
+                    isDarkMode ? 'border-green-400 text-green-400' : 'border-blue-500 text-gray-700'
+                  }`}
+                  style={contentTextStyle}
+                >
                   "{currentQuestion.quote.text}"
                   {currentQuestion.quote.source && (
-                    <footer className={`mt-2 text-sm ${isDarkMode ? 'text-green-500' : 'text-gray-500'}`}>- {currentQuestion.quote.source}</footer>
+                    <footer 
+                      className={`mt-2 text-sm ${isDarkMode ? 'text-green-500' : 'text-gray-500'}`}
+                      style={contentTextStyle}
+                    >
+                      - {currentQuestion.quote.source}
+                    </footer>
                   )}
                 </blockquote>
               ) : (
-                <p className={`italic ${isDarkMode ? 'text-green-500' : 'text-gray-500'}`}>No quote available for this question.</p>
+                <p 
+                  className={`italic ${isDarkMode ? 'text-green-500' : 'text-gray-500'}`}
+                  style={contentTextStyle}
+                >
+                  No quote available for this question.
+                </p>
               )}
             </div>
           )}
