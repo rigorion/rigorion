@@ -1,3 +1,4 @@
+
 import { Question } from '@/types/QuestionInterface';
 
 /**
@@ -145,11 +146,22 @@ export function mapQuestion(raw: any, index?: number): Question {
                 questionData.test_module ||
                 "General";
 
-  const examNumber = questionData.examNumber || 
-                    questionData.exam_number ||
-                    questionData.exam_id ||
-                    questionData.test_id ||
-                    1;
+  // FIXED: Ensure examNumber is always a number
+  let examNumber = questionData.examNumber || 
+                  questionData.exam_number ||
+                  questionData.exam_id ||
+                  questionData.test_id ||
+                  1;
+
+  // Convert string examNumber to number
+  if (typeof examNumber === 'string') {
+    const parsed = parseInt(examNumber, 10);
+    examNumber = isNaN(parsed) ? 1 : parsed;
+  } else if (typeof examNumber !== 'number') {
+    examNumber = 1;
+  }
+
+  console.log('[MAPPER] Mapped examNumber:', examNumber, 'type:', typeof examNumber);
 
   // Map other fields
   const hint = questionData.hint || 
@@ -183,7 +195,7 @@ export function mapQuestion(raw: any, index?: number): Question {
     chapter: chapter,
     module: module,
     bookmarked: questionData.bookmarked || false,
-    examNumber: examNumber,
+    examNumber: examNumber, // Now guaranteed to be a number
     choices: choices,
     correctAnswer: correctAnswer,
     explanation: questionData.explanation || solution,
@@ -199,7 +211,7 @@ export function mapQuestion(raw: any, index?: number): Question {
     }
   };
 
-  console.log('[MAPPER] Mapped question with enhanced solution steps:', mappedQuestion);
+  console.log('[MAPPER] Mapped question with examNumber:', mappedQuestion.examNumber);
   return mappedQuestion;
 }
 

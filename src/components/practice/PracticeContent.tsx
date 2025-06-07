@@ -170,7 +170,7 @@ export default function PracticeContent({
     }
   }, [allQuestions]);
 
-  // Enhanced filter function with detailed logging
+  // Enhanced filter function with detailed logging and type conversion
   const applyFilters = useCallback((filters: FilterState, questionsList: Question[]) => {
     let filtered = [...questionsList];
     
@@ -186,7 +186,14 @@ export default function PracticeContent({
       const beforeFilter = filtered.length;
       
       filtered = filtered.filter(q => {
-        const questionExam = q.examNumber;
+        let questionExam = q.examNumber;
+        
+        // Convert string examNumber to number if needed
+        if (typeof questionExam === 'string') {
+          const parsed = parseInt(questionExam, 10);
+          questionExam = isNaN(parsed) ? null : parsed;
+        }
+        
         const matches = questionExam === filters.exam;
         
         // Log each comparison
@@ -201,7 +208,14 @@ export default function PracticeContent({
       
       // If no results, show what exam numbers are available
       if (filtered.length === 0) {
-        const availableExams = [...new Set(questionsList.map(q => q.examNumber).filter(Boolean))];
+        const availableExams = [...new Set(questionsList.map(q => {
+          let examNum = q.examNumber;
+          if (typeof examNum === 'string') {
+            const parsed = parseInt(examNum, 10);
+            examNum = isNaN(parsed) ? null : parsed;
+          }
+          return examNum;
+        }).filter(Boolean))];
         console.log("❌ NO MATCHES! Available exam numbers:", availableExams);
         console.log("❌ Looking for exam:", filters.exam, typeof filters.exam);
       }

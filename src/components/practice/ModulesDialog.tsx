@@ -60,7 +60,14 @@ const ModulesDialog = ({ onExamFilter, currentExamFilter }: ModulesDialogProps) 
     const examNumbers = new Set<number>();
     
     questions.forEach((q, index) => {
-      const examNum = q.examNumber;
+      let examNum = q.examNumber;
+      
+      // Convert string examNumber to number if needed
+      if (typeof examNum === 'string') {
+        const parsed = parseInt(examNum, 10);
+        examNum = isNaN(parsed) ? null : parsed;
+      }
+      
       if (examNum && typeof examNum === 'number' && examNum > 0) {
         examNumbers.add(examNum);
         if (index < 3) { // Log first few for debugging
@@ -100,7 +107,18 @@ const ModulesDialog = ({ onExamFilter, currentExamFilter }: ModulesDialogProps) 
   const handleExamClick = (exam: ExamTest) => {
     console.log(`ModulesDialog - Filtering by Exam ${exam.examNumber}...`);
     
-    const examQuestions = questions.filter(q => q.examNumber === exam.examNumber);
+    // Enhanced filtering with type conversion
+    const examQuestions = questions.filter(q => {
+      let questionExam = q.examNumber;
+      
+      // Convert string to number if needed
+      if (typeof questionExam === 'string') {
+        const parsed = parseInt(questionExam, 10);
+        questionExam = isNaN(parsed) ? null : parsed;
+      }
+      
+      return questionExam === exam.examNumber;
+    });
     
     console.log(`ModulesDialog - Found ${examQuestions.length} questions for Exam ${exam.examNumber}`);
     
@@ -143,7 +161,18 @@ const ModulesDialog = ({ onExamFilter, currentExamFilter }: ModulesDialogProps) 
   };
 
   const getExamQuestionCount = (examNumber: number) => {
-    const count = questions.filter(q => q.examNumber === examNumber).length;
+    // Enhanced counting with type conversion
+    const count = questions.filter(q => {
+      let questionExam = q.examNumber;
+      
+      // Convert string to number if needed
+      if (typeof questionExam === 'string') {
+        const parsed = parseInt(questionExam, 10);
+        questionExam = isNaN(parsed) ? null : parsed;
+      }
+      
+      return questionExam === examNumber;
+    }).length;
     return count;
   };
 
