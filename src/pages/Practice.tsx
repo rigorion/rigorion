@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Lock, Loader2, RefreshCw, AlertTriangle, KeyRound, Sparkles } from "lucide-react";
+import { Lock, Loader2, RefreshCw, AlertTriangle, KeyRound } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import {
   storeSecureFunctionData,
@@ -12,7 +12,6 @@ import {
 import PracticeContent from "@/components/practice/PracticeContent";
 import AIAnalyzer from "@/components/ai/AIAnalyzer";
 import CommentSection from "@/components/practice/CommentSection";
-import SettingsDialog from "@/components/practice/SettingsDialog";
 import { mapQuestions, validateQuestion } from "@/utils/mapQuestion";
 import { Question } from "@/types/QuestionInterface";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -28,8 +27,6 @@ const Practice = () => {
     colorStyle: "plain" as const,
     textColor: "#374151"
   });
-
-  const [showSettings, setShowSettings] = useState(false);
 
   const handleSettingsChange = (key: any, value: any) => {
     setSettings((prev) => ({
@@ -145,34 +142,9 @@ const Practice = () => {
     loadLatestQuestions();
   }, []);
 
-  const mainStyle = {
-    fontFamily: `var(--${settings.fontFamily}, ${settings.fontFamily})`,
-    fontSize: `${settings.fontSize}px`,
-    color: settings.textColor,
-    transition: "all 0.2s"
-  };
-
   return (
     <ThemeProvider>
       <Card className="min-h-screen bg-white dark:bg-gray-900 relative transition-colors duration-300 dark:border-green-500/30">
-        {/* Floating Settings Button */}
-        <div className="absolute top-4 right-4 z-50">
-          <SettingsDialog
-            open={showSettings}
-            onOpenChange={setShowSettings}
-            settings={settings}
-            onApply={handleSettingsChange}
-          >
-            <Button
-              variant="outline"
-              className="rounded-full p-2 shadow hover:shadow-lg transition dark:border-green-500/30 dark:bg-gray-900 dark:hover:bg-gray-800"
-              aria-label="Open Text Settings"
-            >
-              <Sparkles className="h-5 w-5 text-amber-500 dark:text-green-400" />
-            </Button>
-          </SettingsDialog>
-        </div>
-
         {/* Header section */}
         <CardHeader className="dark:border-b dark:border-green-500/30">
           <div className="flex justify-between items-center">
@@ -243,7 +215,11 @@ const Practice = () => {
             </div>
           ) : questions && questions.length > 0 ? (
             <>
-              <PracticeContent questions={questions} settings={settings} />
+              <PracticeContent 
+                questions={questions} 
+                settings={settings} 
+                onSettingsChange={handleSettingsChange}
+              />
               <AIAnalyzer
                 context="practice"
                 data={{
