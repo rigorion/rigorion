@@ -137,49 +137,104 @@ export default function PracticeContent({
     }
   }, []);
 
-  // Enhanced filter function with proper exam filtering
+  // Add comprehensive debug logging for exam filtering
+  useEffect(() => {
+    console.log("=== EXAM FILTERING DEBUG ===");
+    console.log("Total questions loaded:", allQuestions.length);
+    
+    if (allQuestions.length > 0) {
+      // Check the structure of your questions
+      console.log("Sample question:", allQuestions[0]);
+      console.log("Question keys:", Object.keys(allQuestions[0]));
+      
+      // Check examNumber field specifically
+      const examNumbers = allQuestions.map(q => ({
+        id: q.id,
+        examNumber: q.examNumber,
+        type: typeof q.examNumber
+      }));
+      
+      console.log("ExamNumber field analysis:", examNumbers.slice(0, 5));
+      
+      // Get unique exam numbers
+      const uniqueExams = [...new Set(allQuestions.map(q => q.examNumber).filter(Boolean))];
+      console.log("Unique exam numbers found:", uniqueExams);
+      
+      // Distribution by exam
+      const distribution = allQuestions.reduce((acc, q) => {
+        const exam = q.examNumber || 'null/undefined';
+        acc[exam] = (acc[exam] || 0) + 1;
+        return acc;
+      }, {} as Record<string | number, number>);
+      console.log("Questions per exam:", distribution);
+    }
+  }, [allQuestions]);
+
+  // Enhanced filter function with detailed logging
   const applyFilters = useCallback((filters: FilterState, questionsList: Question[]) => {
     let filtered = [...questionsList];
     
-    console.log("Applying filters:", filters);
-    console.log("Total questions before filtering:", filtered.length);
+    console.log("🔍 APPLYING FILTERS:");
+    console.log("Active filters:", filters);
+    console.log("Starting with questions:", filtered.length);
     
-    // Apply chapter filter - use the actual chapter field from edge function
-    if (filters.chapter) {
+    // Apply exam filter FIRST and with detailed logging
+    if (filters.exam !== undefined && filters.exam !== null) {
+      console.log(`🎯 Filtering by exam: ${filters.exam} (type: ${typeof filters.exam})`);
+      
+      // Log what we're looking for
+      const beforeFilter = filtered.length;
+      
       filtered = filtered.filter(q => {
-        // The chapter field might be "Chapter 1: Title" or just "Chapter 1"
+        const questionExam = q.examNumber;
+        const matches = questionExam === filters.exam;
+        
+        // Log each comparison
+        if (matches) {
+          console.log(`✅ MATCH: Question ${q.id} has examNumber ${questionExam}`);
+        }
+        
+        return matches;
+      });
+      
+      console.log(`📊 Exam filter results: ${beforeFilter} → ${filtered.length}`);
+      
+      // If no results, show what exam numbers are available
+      if (filtered.length === 0) {
+        const availableExams = [...new Set(questionsList.map(q => q.examNumber).filter(Boolean))];
+        console.log("❌ NO MATCHES! Available exam numbers:", availableExams);
+        console.log("❌ Looking for exam:", filters.exam, typeof filters.exam);
+      }
+    }
+    
+    // Apply chapter filter
+    if (filters.chapter) {
+      const beforeFilter = filtered.length;
+      filtered = filtered.filter(q => {
         const chapterMatch = q.chapter?.match(/Chapter (\d+)/i);
         const matchedChapterNumber = chapterMatch ? chapterMatch[1] : null;
         return matchedChapterNumber === filters.chapter;
       });
-      console.log(`After chapter filter (${filters.chapter}):`, filtered.length);
+      console.log(`📚 Chapter filter: ${beforeFilter} → ${filtered.length}`);
     }
     
-    // Apply module filter - use the actual module field from edge function
+    // Apply module filter
     if (filters.module) {
+      const beforeFilter = filtered.length;
       filtered = filtered.filter(q => {
-        // Direct match with the module field from edge function
         return q.module === filters.module;
       });
-      console.log(`After module filter (${filters.module}):`, filtered.length);
-    }
-    
-    // Apply exam filter - use the examNumber field from edge function
-    if (filters.exam !== undefined && filters.exam !== null) {
-      filtered = filtered.filter(q => {
-        // Use the examNumber field directly from the Question interface
-        return q.examNumber === filters.exam;
-      });
-      console.log(`After exam filter (${filters.exam}):`, filtered.length);
+      console.log(`📝 Module filter: ${beforeFilter} → ${filtered.length}`);
     }
     
     // Apply level filter for level mode
     if (mode === "level" && selectedLevel) {
+      const beforeFilter = filtered.length;
       filtered = filtered.filter(q => q.difficulty === selectedLevel);
-      console.log(`After difficulty filter (${selectedLevel}):`, filtered.length);
+      console.log(`⭐ Difficulty filter: ${beforeFilter} → ${filtered.length}`);
     }
     
-    console.log("Final filtered questions:", filtered.length);
+    console.log(`🏁 FINAL RESULT: ${filtered.length} questions after all filters`);
     return filtered;
   }, [mode, selectedLevel]);
 
@@ -313,12 +368,11 @@ export default function PracticeContent({
     }
   };
 
-  const handlePomodoroBreak = () => {
-    setIsTimerActive(false);
-    setTimeout(() => {
-      setTimerDuration(1500);
-    }, 5 * 60 * 1000);
-  };
+  useEffect(() => {
+    if (propSettings) {
+      setDisplaySettings(propSettings);
+    }
+  }, [propSettings]);
 
   useEffect(() => {
     if (displaySettings.textColor) {
@@ -329,6 +383,13 @@ export default function PracticeContent({
       }));
     }
   }, [displaySettings.textColor]);
+
+  const handlePomodoroBreak = () => {
+    setIsTimerActive(false);
+    setTimeout(() => {
+      setTimerDuration(1500);
+    }, 5 * 60 * 1000);
+  };
 
   const checkAnswer = (answer: string) => {
     if (!currentQuestion) return;

@@ -47,17 +47,36 @@ const ModulesDialog = ({ onExamFilter, currentExamFilter }: ModulesDialogProps) 
     { id: 12, title: "Exam 12", description: "Final comprehensive exam", completionRate: 0, examNumber: 12 }
   ]);
 
-  // Get available exam numbers from questions with better error handling
+  // Enhanced getAvailableExams function with detailed debugging
   const getAvailableExams = () => {
-    if (!questions || questions.length === 0) return [];
+    console.log("🔍 ModulesDialog - Getting available exams");
+    console.log("Questions available:", questions?.length || 0);
+    
+    if (!questions || questions.length === 0) {
+      console.log("❌ No questions available for exam filtering");
+      return [];
+    }
     
     const examNumbers = new Set<number>();
-    questions.forEach(q => {
-      if (q.examNumber && typeof q.examNumber === 'number' && q.examNumber > 0) {
-        examNumbers.add(q.examNumber);
+    
+    questions.forEach((q, index) => {
+      const examNum = q.examNumber;
+      if (examNum && typeof examNum === 'number' && examNum > 0) {
+        examNumbers.add(examNum);
+        if (index < 3) { // Log first few for debugging
+          console.log(`✅ Question ${q.id} has examNumber: ${examNum}`);
+        }
+      } else {
+        if (index < 3) { // Log first few problematic ones
+          console.log(`❌ Question ${q.id} has invalid examNumber:`, examNum, typeof examNum);
+        }
       }
     });
-    return Array.from(examNumbers).sort((a, b) => a - b);
+    
+    const availableExams = Array.from(examNumbers).sort((a, b) => a - b);
+    console.log("📋 Available exams found:", availableExams);
+    
+    return availableExams;
   };
 
   const availableExams = getAvailableExams();
