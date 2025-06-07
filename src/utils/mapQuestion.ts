@@ -1,350 +1,281 @@
-
-import { Question } from "@/types/QuestionInterface";
-
-/**
- * Maps raw question data from various sources to standardized Question format
- */
-export const mapQuestions = (rawQuestions: any[]): Question[] => {
-  if (!Array.isArray(rawQuestions)) {
-    console.warn('mapQuestions: Input is not an array', rawQuestions);
-    return [];
-  }
-
-  return rawQuestions.map((item, index) => {
-    try {
-      // Handle different possible data structures
-      const question = mapSingleQuestion(item, index);
-      return question;
-    } catch (error) {
-      console.warn(`Error mapping question at index ${index}:`, error, item);
-      return null;
-    }
-  }).filter((q): q is Question => q !== null);
-};
+import { Question } from '@/types/QuestionInterface';
 
 /**
- * Maps a single raw question object to Question format
+ * Maps a raw question from the API/DB to the shape your UI expects.
+ * This ensures your UI always gets consistent data regardless of backend changes.
  */
-export const mapSingleQuestion = (rawQuestion: any, fallbackIndex: number = 0): Question => {
-  // Ensure we have some data to work with
-  if (!rawQuestion || typeof rawQuestion !== 'object') {
-    throw new Error('Invalid question data');
-  }
+export function mapQuestion(raw: any, index?: number): Question {
+  console.log('[MAPPER] Raw question data:', raw);
+  
+  // Handle different possible data structures
+  const questionData = raw.question || raw;
+  
+  // Map content field from various possible names
+  const content = questionData.content || 
+                 questionData.text || 
+                 questionData.question_content?.text || 
+                 questionData.questionText ||
+                 questionData.prompt ||
+                 "";
 
-  // Extract ID - try multiple possible field names
-  const id = rawQuestion.id || 
-             rawQuestion.question_id || 
-             rawQuestion.questionId || 
-             rawQuestion.number ||
-             `MAPPED-${fallbackIndex + 1}`;
-
-  // Extract content - try multiple possible field names and ensure it's not empty
-  let content = rawQuestion.content || 
-                rawQuestion.question || 
-                rawQuestion.text || 
-                rawQuestion.problem || 
-                rawQuestion.prompt ||
-                '';
-
-  // If content is still empty or just whitespace, provide a meaningful fallback
-  if (!content || content.trim() === '' || content === 'Question content not available') {
-    content = `Practice Question ${fallbackIndex + 1}: Solve the following mathematical problem.`;
-  }
-
-  // Extract choices - handle different formats
+  // Map choices from various possible structures
   let choices: string[] = [];
-  if (rawQuestion.choices && Array.isArray(rawQuestion.choices)) {
-    choices = rawQuestion.choices.map(choice => String(choice));
-  } else if (rawQuestion.options && Array.isArray(rawQuestion.options)) {
-    choices = rawQuestion.options.map(option => String(option));
-  } else if (rawQuestion.answers && Array.isArray(rawQuestion.answers)) {
-    choices = rawQuestion.answers.map(answer => String(answer));
+  if (questionData.choices && Array.isArray(questionData.choices)) {
+    choices = questionData.choices.map((choice: any) => 
+      typeof choice === "string" ? choice : (choice.text || choice.value || String(choice))
+    );
+  } else if (questionData.answer_choices && Array.isArray(questionData.answer_choices)) {
+    choices = questionData.answer_choices.map((choice: any) => 
+      typeof choice === "string" ? choice : (choice.text || choice.value || String(choice))
+    );
+  } else if (questionData.options && Array.isArray(questionData.options)) {
+    choices = questionData.options.map((option: any) => 
+      typeof option === "string" ? option : (option.text || option.value || String(option))
+    );
   } else {
-    // Create default choices if none provided
-    choices = ['Option A', 'Option B', 'Option C', 'Option D'];
+    // Fallback choices
+    choices = ["Option A", "Option B", "Option C", "Option D"];
   }
 
-  // Extract correct answer
-  const correctAnswer = rawQuestion.correctAnswer || 
-                       rawQuestion.correct_answer || 
-                       rawQuestion.answer || 
-                       rawQuestion.solution ||
-                       (choices.length > 0 ? choices[0] : 'A');
+  // Map correct answer - ensure it's a single character for animation
+  const correctAnswer = questionData.correctAnswer || 
+                       questionData.correct_answer || 
+                       questionData.answer || 
+                       "A";
 
-  // Extract solution/explanation
-  const solution = rawQuestion.solution || 
-                  rawQuestion.explanation || 
-                  rawQuestion.rationale || 
-                  rawQuestion.workings ||
-                  'Solution explanation will be provided after answering.';
+  // Enhanced solution mapping with better structure and formatting
+  let solution = questionData.solution || 
+                questionData.explanation || 
+                questionData.answer_explanation ||
+                questionData.rationale ||
+                questionData.detailed_solution ||
+                "Solution not available";
 
-  // Extract difficulty
-  const difficulty = rawQuestion.difficulty || 
-                    rawQuestion.level || 
-                    rawQuestion.complexity ||
-                    'medium';
-
-  // Normalize difficulty to expected values
-  const normalizedDifficulty = normalizeDifficulty(difficulty);
-
-  // Extract chapter
-  const chapter = rawQuestion.chapter || 
-                 rawQuestion.topic || 
-                 rawQuestion.subject || 
-                 rawQuestion.module ||
-                 `Chapter ${(fallbackIndex % 10) + 1}`;
-
-  // Extract module
-  const module = rawQuestion.module || 
-                rawQuestion.subject || 
-                rawQuestion.category ||
-                'SAT Math';
-
-  // Extract additional fields
-  const explanation = rawQuestion.explanation || 
-                     rawQuestion.hint || 
-                     rawQuestion.notes ||
-                     '';
-
-  const hint = rawQuestion.hint || 
-              rawQuestion.tip || 
-              rawQuestion.clue ||
-              'Take your time and read the question carefully.';
-
-  // Generate exam number (1-12) based on index if not provided
-  let examNumber = rawQuestion.examNumber || rawQuestion.exam_number;
-  if (!examNumber) {
-    examNumber = (fallbackIndex % 12) + 1; // Ensures exam numbers 1-12
+  // Format solution content with proper HTML structure
+  if (solution && solution !== "Solution not available") {
+    // Convert line breaks to proper HTML
+    solution = solution.replace(/\n/g, '<br>');
+    // Add proper formatting for mathematical expressions
+    solution = solution.replace(/(\d+\.\s)/g, '<strong>$1</strong>');
+    // Format formulas and equations
+    solution = solution.replace(/([A-Z]\s*=\s*[^<\n]+)/g, '<span class="formula">$1</span>');
   }
 
-  // Handle graph data
-  let graph: Question['graph'] = undefined;
-  if (rawQuestion.graph) {
-    if (typeof rawQuestion.graph === 'string') {
-      graph = { url: rawQuestion.graph };
-    } else if (typeof rawQuestion.graph === 'object') {
-      graph = rawQuestion.graph;
-    }
-  } else if (rawQuestion.image || rawQuestion.diagram) {
-    const imageUrl = rawQuestion.image || rawQuestion.diagram;
-    if (typeof imageUrl === 'string') {
-      graph = { url: imageUrl };
-    }
-  }
-
-  // Handle solution steps
+  // Enhanced solution steps mapping with proper handling of objects and arrays
   let solutionSteps: string[] = [];
-  if (rawQuestion.solutionSteps && Array.isArray(rawQuestion.solutionSteps)) {
-    solutionSteps = rawQuestion.solutionSteps.map(step => String(step));
-  } else if (rawQuestion.steps && Array.isArray(rawQuestion.steps)) {
-    solutionSteps = rawQuestion.steps.map(step => String(step));
-  } else if (rawQuestion.workings && Array.isArray(rawQuestion.workings)) {
-    solutionSteps = rawQuestion.workings.map(step => String(step));
+  
+  if (Array.isArray(questionData.solutionSteps)) {
+    solutionSteps = questionData.solutionSteps.map((step: any) => {
+      if (typeof step === 'string') {
+        return step;
+      } else if (typeof step === 'object' && step !== null) {
+        // Handle step objects like {"step": "Identify fixed cost: $50"}
+        return step.step || step.description || step.text || String(step);
+      }
+      return String(step);
+    });
+  } else if (Array.isArray(questionData.solution_steps)) {
+    solutionSteps = questionData.solution_steps.map((step: any) => {
+      if (typeof step === 'string') {
+        return step;
+      } else if (typeof step === 'object' && step !== null) {
+        return step.step || step.description || step.text || String(step);
+      }
+      return String(step);
+    });
+  } else if (Array.isArray(questionData.steps)) {
+    solutionSteps = questionData.steps.map((step: any) => {
+      if (typeof step === 'string') {
+        return step;
+      } else if (typeof step === 'object' && step !== null) {
+        return step.step || step.description || step.text || String(step);
+      }
+      return String(step);
+    });
+  } else if (questionData.step_by_step) {
+    const stepData = Array.isArray(questionData.step_by_step) 
+      ? questionData.step_by_step 
+      : [questionData.step_by_step];
+    solutionSteps = stepData.map((step: any) => {
+      if (typeof step === 'string') {
+        return step;
+      } else if (typeof step === 'object' && step !== null) {
+        return step.step || step.description || step.text || String(step);
+      }
+      return String(step);
+    });
+  } else if (solution && solution !== "Solution not available") {
+    // Try to split solution into steps if it contains numbered steps
+    const stepPattern = /\d+\./g;
+    if (stepPattern.test(solution)) {
+      solutionSteps = solution.split(/(?=\d+\.)/).filter(step => step.trim().length > 0);
+    } else {
+      solutionSteps = [solution];
+    }
   } else {
-    // Provide default solution steps if none exist
-    solutionSteps = [
-      "Read the question carefully",
-      "Identify the key information",
-      "Apply the appropriate mathematical concept",
-      "Calculate the result",
-      "Check your answer"
-    ];
+    solutionSteps = ["Solution steps not available"];
   }
 
-  // Handle quote
-  let quote: Question['quote'] = undefined;
-  if (rawQuestion.quote) {
-    if (typeof rawQuestion.quote === 'string') {
-      quote = { text: rawQuestion.quote };
-    } else if (typeof rawQuestion.quote === 'object') {
-      quote = {
-        text: rawQuestion.quote.text || rawQuestion.quote.content || '',
-        source: rawQuestion.quote.source || rawQuestion.quote.author
+  // Map difficulty
+  const difficulty = questionData.difficulty === "easy" || questionData.difficulty === "hard" 
+    ? questionData.difficulty 
+    : "medium";
+
+  // Enhanced chapter mapping with normalization
+  let chapter = questionData.chapter || 
+               questionData.chapter_name ||
+               questionData.section ||
+               questionData.unit ||
+               "General";
+
+  // Normalize chapter format to "Chapter X" if it's just a number
+  if (/^\d+$/.test(chapter)) {
+    chapter = `Chapter ${chapter}`;
+  } else if (!chapter.toLowerCase().includes('chapter') && /\d+/.test(chapter)) {
+    const chapterNum = chapter.match(/\d+/)?.[0];
+    if (chapterNum) {
+      chapter = `Chapter ${chapterNum}`;
+    }
+  }
+
+  // Map module field for filtering
+  const module = questionData.module || 
+                questionData.module_name ||
+                questionData.exam_module ||
+                questionData.test_module ||
+                "General";
+
+  const examNumber = questionData.examNumber || 
+                    questionData.exam_number ||
+                    questionData.exam_id ||
+                    questionData.test_id ||
+                    1;
+
+  // Map other fields
+  const hint = questionData.hint || 
+              questionData.help_text || 
+              questionData.clue ||
+              "Think about the problem step by step";
+
+  // Enhanced graph mapping to handle text links
+  let graph: { url: string; alt?: string; caption?: string } | string | undefined;
+  
+  if (questionData.graph) {
+    if (typeof questionData.graph === 'string' && questionData.graph.trim() !== '') {
+      // If graph is a string URL, store it directly
+      graph = questionData.graph.trim();
+    } else if (typeof questionData.graph === 'object' && questionData.graph.url) {
+      // If graph is an object with URL property
+      graph = {
+        url: questionData.graph.url,
+        alt: questionData.graph.alt || "Question graph",
+        caption: questionData.graph.caption
       };
     }
   }
 
-  // Build the mapped question
+  // Create the normalized question object
   const mappedQuestion: Question = {
-    id: String(id),
-    content: String(content),
-    choices,
-    correctAnswer: String(correctAnswer),
-    solution: String(solution),
-    difficulty: normalizedDifficulty,
-    chapter: String(chapter),
-    module: String(module),
-    explanation: String(explanation),
-    hint: String(hint),
-    bookmarked: Boolean(rawQuestion.bookmarked || false),
-    examNumber: Number(examNumber),
-    solutionSteps,
+    id: questionData.id?.toString() || `mapped-${index || Date.now()}`,
+    content: content,
+    solution: solution,
+    difficulty: difficulty,
+    chapter: chapter,
+    module: module,
+    bookmarked: questionData.bookmarked || false,
+    examNumber: examNumber,
+    choices: choices,
+    correctAnswer: correctAnswer,
+    explanation: questionData.explanation || solution,
+    solutionSteps: solutionSteps,
+    hint: hint,
+    graph: graph,
+    quote: questionData.quote ? {
+      text: questionData.quote.text || questionData.quote,
+      source: questionData.quote.source || "Unknown"
+    } : {
+      text: "Practice makes perfect",
+      source: "Common saying"
+    }
   };
 
-  // Add optional fields if they exist
-  if (graph) {
-    mappedQuestion.graph = graph;
-  }
-
-  if (quote) {
-    mappedQuestion.quote = quote;
-  }
-
+  console.log('[MAPPER] Mapped question with enhanced solution steps:', mappedQuestion);
   return mappedQuestion;
-};
+}
 
 /**
- * Normalizes difficulty strings to expected values
+ * Maps an array of raw questions to normalized Question objects
  */
-const normalizeDifficulty = (difficulty: any): 'easy' | 'medium' | 'hard' => {
-  if (typeof difficulty !== 'string') {
-    return 'medium';
+export function mapQuestions(rawQuestions: any[]): Question[] {
+  if (!Array.isArray(rawQuestions)) {
+    console.warn('[MAPPER] Expected array of questions, got:', typeof rawQuestions);
+    return [];
   }
 
-  const normalized = difficulty.toLowerCase().trim();
-  
-  if (normalized.includes('easy') || normalized.includes('beginner') || normalized.includes('basic')) {
-    return 'easy';
-  }
-  
-  if (normalized.includes('hard') || normalized.includes('difficult') || normalized.includes('advanced') || normalized.includes('challenging')) {
-    return 'hard';
-  }
-  
-  return 'medium';
-};
+  return rawQuestions.map((raw, index) => mapQuestion(raw, index));
+}
 
 /**
- * Validates that a question has all required fields
+ * Filter questions by chapter
  */
-export const validateQuestion = (question: Question): boolean => {
-  try {
-    // Check required fields
-    if (!question || typeof question !== 'object') {
-      console.warn('validateQuestion: Question is not an object', question);
-      return false;
-    }
-
-    if (!question.id || typeof question.id !== 'string') {
-      console.warn('validateQuestion: Missing or invalid id', question.id);
-      return false;
-    }
-
-    if (!question.content || typeof question.content !== 'string') {
-      console.warn('validateQuestion: Missing or invalid content', question.content);
-      return false;
-    }
-
-    if (!Array.isArray(question.choices) || question.choices.length === 0) {
-      console.warn('validateQuestion: Missing or invalid choices', question.choices);
-      return false;
-    }
-
-    if (!question.correctAnswer || typeof question.correctAnswer !== 'string') {
-      console.warn('validateQuestion: Missing or invalid correctAnswer', question.correctAnswer);
-      return false;
-    }
-
-    if (!question.solution || typeof question.solution !== 'string') {
-      console.warn('validateQuestion: Missing or invalid solution', question.solution);
-      return false;
-    }
-
-    // Check that correctAnswer exists in choices (flexible matching)
-    const answerExists = question.choices.some(choice => 
-      choice === question.correctAnswer || 
-      choice.toLowerCase() === question.correctAnswer.toLowerCase() ||
-      choice.trim() === question.correctAnswer.trim()
-    );
-
-    if (!answerExists) {
-      console.warn('validateQuestion: correctAnswer not found in choices', {
-        correctAnswer: question.correctAnswer,
-        choices: question.choices
-      });
-      // Don't fail validation for this - just log the warning
-    }
-
-    return true;
-  } catch (error) {
-    console.warn('validateQuestion: Error during validation', error, question);
-    return false;
-  }
-};
-
-/**
- * Filter questions by chapter number
- */
-export const filterQuestionsByChapter = (questions: Question[], chapterNumber: string): Question[] => {
-  if (!chapterNumber || chapterNumber === 'all') {
+export function filterQuestionsByChapter(questions: Question[], chapter?: string): Question[] {
+  if (!chapter || chapter === "All Chapters") {
     return questions;
   }
-
-  return questions.filter(question => {
-    const chapterMatch = question.chapter.match(/Chapter (\d+)/i);
-    return chapterMatch && chapterMatch[1] === chapterNumber;
-  });
-};
+  
+  return questions.filter(q => 
+    q.chapter === chapter || 
+    q.chapter.toLowerCase().includes(chapter.toLowerCase())
+  );
+}
 
 /**
  * Get unique chapters from questions array
  */
-export const getUniqueChapters = (questions: Question[]): string[] => {
-  const chapters = new Set<string>();
-  
-  questions.forEach(question => {
-    if (question.chapter) {
-      chapters.add(question.chapter);
-    }
-  });
+export function getUniqueChapters(questions: Question[]): string[] {
+  const chapters = questions.map(q => q.chapter);
+  return Array.from(new Set(chapters)).sort();
+}
 
-  return Array.from(chapters).sort();
-};
+/**
+ * Validates that a question has the required fields for the UI
+ */
+export function validateQuestion(question: Question): boolean {
+  const hasContent = typeof question.content === 'string' && question.content.length > 0;
+  const hasChoices = Array.isArray(question.choices) && question.choices.length > 0;
+  const hasCorrectAnswer = typeof question.correctAnswer === 'string' && question.correctAnswer.length > 0;
+  
+  if (!hasContent) {
+    console.error('[MAPPER] Question missing content:', question);
+  }
+  if (!hasChoices) {
+    console.error('[MAPPER] Question missing choices:', question);
+  }
+  if (!hasCorrectAnswer) {
+    console.error('[MAPPER] Question missing correct answer:', question);
+  }
+  
+  return hasContent && hasChoices && hasCorrectAnswer;
+}
 
 /**
  * Filter questions by module
  */
-export const filterQuestionsByModule = (questions: Question[], module: string): Question[] => {
-  if (!module || module === 'all') {
+export function filterQuestionsByModule(questions: Question[], module?: string): Question[] {
+  if (!module || module === "All Modules") {
     return questions;
   }
-
-  return questions.filter(question => 
-    question.module && question.module.toLowerCase() === module.toLowerCase()
+  
+  return questions.filter(q => 
+    q.module === module || 
+    q.module?.toLowerCase().includes(module.toLowerCase())
   );
-};
+}
 
 /**
  * Get unique modules from questions array
  */
-export const getUniqueModules = (questions: Question[]): string[] => {
-  const modules = new Set<string>();
-  
-  questions.forEach(question => {
-    if (question.module) {
-      modules.add(question.module);
-    }
-  });
-
-  return Array.from(modules).sort();
-};
-
-/**
- * Debug function to log question mapping issues
- */
-export const debugQuestionMapping = (rawQuestions: any[], mappedQuestions: Question[]): void => {
-  console.group('Question Mapping Debug');
-  console.log(`Raw questions count: ${rawQuestions.length}`);
-  console.log(`Mapped questions count: ${mappedQuestions.length}`);
-  console.log(`Success rate: ${((mappedQuestions.length / rawQuestions.length) * 100).toFixed(1)}%`);
-  
-  if (rawQuestions.length > 0) {
-    console.log('Sample raw question:', rawQuestions[0]);
-  }
-  
-  if (mappedQuestions.length > 0) {
-    console.log('Sample mapped question:', mappedQuestions[0]);
-  }
-  
-  console.groupEnd();
-};
+export function getUniqueModules(questions: Question[]): string[] {
+  const modules = questions.map(q => q.module).filter(Boolean);
+  return Array.from(new Set(modules)).sort();
+}
