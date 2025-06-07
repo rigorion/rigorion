@@ -29,23 +29,36 @@ const FONT_OPTIONS = [
   { value: "ubuntu", label: "Ubuntu", class: "font-ubuntu" }
 ];
 
+interface SettingsDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  settings: {
+    fontFamily: string;
+    fontSize: number;
+    colorStyle: string;
+    textColor: string;
+  };
+  onApply: (key: string, value: string | number) => void;
+  children: ReactNode;
+}
+
 const SettingsDialog = ({
   open,
   onOpenChange,
   settings,
   onApply,
   children,
-}) => {
+}: SettingsDialogProps) => {
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         {children}
       </PopoverTrigger>
-      <PopoverContent className="w-[260px] p-4 bg-white shadow-xl rounded-2xl border border-gray-100" side="bottom" align="end">
+      <PopoverContent className="w-[240px] p-4 bg-white shadow-xl rounded-2xl border border-gray-100" side="bottom" align="end">
         <div className="flex items-center mb-3 pb-2 border-b border-gray-100">
           <Star className="mr-2 h-4 w-4 text-amber-500" fill="#F59E0B" />
           <h3 className="text-base font-semibold text-gray-800 tracking-wide">
-            Text Personalization
+            Text Settings
           </h3>
         </div>
 
@@ -116,22 +129,6 @@ const SettingsDialog = ({
                 className="h-8 w-10 cursor-pointer border-0 p-0 bg-transparent"
               />
               <span className="text-xs text-gray-700 ml-1">{settings.textColor}</span>
-            </div>
-          </div>
-
-          {/* Preview */}
-          <div className="mt-1 p-3 rounded-lg border border-gray-100 bg-gray-50 shadow-inner">
-            <div
-              className={cn("p-2 rounded", `font-${settings.fontFamily}`)}
-              style={{
-                fontSize: `${settings.fontSize}px`,
-                color: settings.textColor || '#374151',
-                background: "#fff",
-                borderRadius: "8px",
-                transition: "all 0.2s"
-              }}
-            >
-              <span>Sample text</span>
             </div>
           </div>
         </div>
