@@ -286,13 +286,13 @@ export const PracticeHeader = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Chapter Filter */}
+        {/* Chapter Filter - Made visible on medium screens and up */}
         <DropdownMenu open={isChapterDropdownOpen} onOpenChange={setIsChapterDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
               size="sm"
-              className={`rounded-full bg-transparent transition-colors hidden lg:flex ${
+              className={`rounded-full bg-transparent transition-colors hidden md:flex ${
                 isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
               }`}
             >
