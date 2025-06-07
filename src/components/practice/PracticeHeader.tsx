@@ -344,6 +344,12 @@ export const PracticeHeader = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
+        {/* Exams Filter */}
+        <ModulesDialog 
+          onExamFilter={handleExamFilter} 
+          currentExamFilter={selectedExam}
+        />
+
         {/* Chapters Filter */}
         <DropdownMenu open={isChapterDropdownOpen} onOpenChange={setIsChapterDropdownOpen}>
           <DropdownMenuTrigger asChild>
