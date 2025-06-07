@@ -78,11 +78,15 @@ export const PracticeHeader = ({
   };
 
   const handleChapterFilter = (chapter: string) => {
+    console.log("PracticeHeader - Chapter filter selected:", chapter);
     setSelectedChapter(chapter);
     setIsChapterDropdownOpen(false);
     
     // Clear exam filter when changing chapter
-    setSelectedExam(null);
+    if (selectedExam !== null) {
+      console.log("PracticeHeader - Clearing exam filter due to chapter change");
+      setSelectedExam(null);
+    }
     
     if (onFilterChange) {
       let chapterNumber: string | undefined;
@@ -100,11 +104,15 @@ export const PracticeHeader = ({
   };
 
   const handleModuleFilter = (module: string) => {
+    console.log("PracticeHeader - Module filter selected:", module);
     setSelectedModule(module);
     setIsModuleDropdownOpen(false);
     
     // Clear exam filter when changing module
-    setSelectedExam(null);
+    if (selectedExam !== null) {
+      console.log("PracticeHeader - Clearing exam filter due to module change");
+      setSelectedExam(null);
+    }
     
     if (onFilterChange) {
       let chapterNumber: string | undefined;
@@ -122,24 +130,27 @@ export const PracticeHeader = ({
   };
 
   const handleExamFilter = (examNumber: number | null) => {
+    console.log("PracticeHeader - Exam filter changed:", examNumber);
     setSelectedExam(examNumber);
     
     // Clear chapter and module filters when selecting exam
     if (examNumber !== null) {
+      console.log("PracticeHeader - Clearing chapter and module filters due to exam selection");
       setSelectedChapter("All Chapters");
       setSelectedModule("All SAT Math");
     }
     
     if (onFilterChange) {
       onFilterChange({
-        chapter: undefined, // Clear chapter filter when exam is selected
-        module: undefined,  // Clear module filter when exam is selected
+        chapter: examNumber !== null ? undefined : (selectedChapter !== "All Chapters" ? selectedChapter.match(/Chapter (\d+)/)?.[1] : undefined),
+        module: examNumber !== null ? undefined : (selectedModule !== "All SAT Math" ? selectedModule : undefined),
         exam: examNumber
       });
     }
   };
 
   const handleClearAllFilters = () => {
+    console.log("PracticeHeader - Clearing all filters");
     setSelectedChapter("All Chapters");
     setSelectedModule("All SAT Math");
     setSelectedExam(null);
@@ -179,6 +190,10 @@ export const PracticeHeader = ({
     }
     
     return filters.length > 0 ? filters.join(" • ") : "All Questions";
+  };
+
+  const hasActiveFilters = () => {
+    return selectedExam !== null || selectedChapter !== "All Chapters" || selectedModule !== "All SAT Math";
   };
 
   return (
@@ -271,19 +286,20 @@ export const PracticeHeader = ({
         </DropdownMenu>
 
         {/* Active Filter Display */}
-        <div className={`hidden sm:flex items-center px-3 py-1 rounded-full text-xs ${
-          selectedExam !== null || selectedChapter !== "All Chapters" || selectedModule !== "All SAT Math"
+        <div className={`hidden sm:flex items-center px-3 py-1 rounded-full text-xs transition-all ${
+          hasActiveFilters()
             ? (isDarkMode ? 'bg-green-900/30 text-green-400 border border-green-500/30' : 'bg-blue-50 text-blue-700 border border-blue-200')
             : (isDarkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-600')
         }`}>
           <Filter className="h-3 w-3 mr-1" />
           <span className="max-w-32 truncate">{getActiveFilterText()}</span>
-          {(selectedExam !== null || selectedChapter !== "All Chapters" || selectedModule !== "All SAT Math") && (
+          {hasActiveFilters() && (
             <button
               onClick={handleClearAllFilters}
-              className={`ml-2 hover:bg-opacity-75 rounded-full p-0.5 ${
+              className={`ml-2 hover:bg-opacity-75 rounded-full p-0.5 transition-colors ${
                 isDarkMode ? 'hover:bg-green-700' : 'hover:bg-blue-200'
               }`}
+              title="Clear all filters"
             >
               ×
             </button>
@@ -298,7 +314,7 @@ export const PracticeHeader = ({
               size="sm"
               className={`rounded-full bg-transparent transition-colors hidden lg:flex ${
                 isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
-              } ${selectedModule !== "All SAT Math" ? (isDarkMode ? 'text-green-300' : 'text-blue-600') : ''}`}
+              } ${selectedModule !== "All SAT Math" ? (isDarkMode ? 'text-green-300 bg-green-900/20' : 'text-blue-600 bg-blue-50') : ''}`}
             >
               <Filter className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
               <span className={`hidden md:inline ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>
@@ -328,8 +344,11 @@ export const PracticeHeader = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Exams Filter */}
-        <ModulesDialog onExamFilter={handleExamFilter} />
+        {/* Exams Filter - Updated to pass current filter state */}
+        <ModulesDialog 
+          onExamFilter={handleExamFilter} 
+          currentExamFilter={selectedExam}
+        />
 
         {/* Chapters Filter */}
         <DropdownMenu open={isChapterDropdownOpen} onOpenChange={setIsChapterDropdownOpen}>
@@ -339,7 +358,7 @@ export const PracticeHeader = ({
               size="sm"
               className={`rounded-full bg-transparent transition-colors hidden xl:flex ${
                 isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
-              } ${selectedChapter !== "All Chapters" ? (isDarkMode ? 'text-green-300' : 'text-blue-600') : ''}`}
+              } ${selectedChapter !== "All Chapters" ? (isDarkMode ? 'text-green-300 bg-green-900/20' : 'text-blue-600 bg-blue-50') : ''}`}
             >
               <Target className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
               <span className={isDarkMode ? 'text-green-400' : 'text-gray-700'}>
