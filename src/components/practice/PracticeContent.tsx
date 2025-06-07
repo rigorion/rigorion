@@ -151,10 +151,9 @@ export default function PracticeContent({
       filtered = filtered.filter(q => q.module === filters.module);
     }
     
-    // Filter by exam number if specified
-    if (filters.exam) {
-      const examNumber = parseInt(filters.exam);
-      filtered = filtered.filter(q => q.examNumber === examNumber);
+    // Filter by exam if specified (using the exam field from Supabase response)
+    if (filters.exam && filters.exam !== "All Exams") {
+      filtered = filtered.filter(q => q.exam === filters.exam);
     }
     
     // Filter by difficulty level if in level mode

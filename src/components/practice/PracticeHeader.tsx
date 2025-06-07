@@ -114,7 +114,7 @@ export const PracticeHeader = ({
     if (onFilterChange) {
       onFilterChange({
         chapter: selectedChapter === "All Chapters" ? undefined : selectedChapter,
-        module: module === "All SAT Math" ? undefined : module,
+        module: module === "All SAT Math" ? undefined : selectedModule,
         exam: selectedExam === "All Exams" ? undefined : selectedExam
       });
     }
@@ -125,16 +125,10 @@ export const PracticeHeader = ({
     setIsExamDropdownOpen(false);
     
     if (onFilterChange) {
-      let examNumber: string | undefined;
-      if (exam !== "All Exams") {
-        const match = exam.match(/Exam (\d+)/);
-        examNumber = match ? match[1] : undefined;
-      }
-      
       onFilterChange({
         chapter: selectedChapter === "All Chapters" ? undefined : selectedChapter,
         module: selectedModule === "All SAT Math" ? undefined : selectedModule,
-        exam: examNumber
+        exam: exam === "All Exams" ? undefined : exam
       });
     }
   };
@@ -328,7 +322,7 @@ export const PracticeHeader = ({
             <Button
               variant="ghost"
               size="sm"
-              className={`rounded-full bg-transparent transition-colors hidden lg:flex ${
+              className={`rounded-full bg-transparent transition-colors hidden md:flex ${
                 isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
               }`}
             >
