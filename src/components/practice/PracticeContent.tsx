@@ -37,6 +37,7 @@ interface PracticeContentProps {
   error?: Error | null;
   refreshQuestions?: () => Promise<void>;
   settings?: TextSettings;
+  onSettingsChange?: (key: string, value: string | number) => void;
 }
 
 export default function PracticeContent({ 
@@ -49,7 +50,8 @@ export default function PracticeContent({
   isLoading: propIsLoading,
   error: propError,
   refreshQuestions: propRefreshQuestions,
-  settings: propSettings
+  settings: propSettings,
+  onSettingsChange
 }: PracticeContentProps) {
   const { toast } = useToast();
   const { isDarkMode } = useTheme();
@@ -99,6 +101,13 @@ export default function PracticeContent({
       textColor: '#374151'
     }
   );
+
+  // Update displaySettings when propSettings change
+  useEffect(() => {
+    if (propSettings) {
+      setDisplaySettings(propSettings);
+    }
+  }, [propSettings]);
 
   // Style states
   const [fontFamily, setFontFamily] = useState<string>('inter');
@@ -236,45 +245,6 @@ export default function PracticeContent({
       }));
     }
   }, [displaySettings.textColor]);
-
-  // Update styling settings
-  const handleUpdateStyle = (key: string, value: string | number) => {
-    if (key === 'fontFamily') {
-      setFontFamily(value as string);
-      setDisplaySettings(prev => ({
-        ...prev,
-        fontFamily: value as string
-      }));
-    } else if (key === 'fontSize') {
-      setFontSize(value as number);
-      setDisplaySettings(prev => ({
-        ...prev,
-        fontSize: value as number
-      }));
-    } else if (key === 'textColor') {
-      setContentColor(value as string);
-      setDisplaySettings(prev => ({
-        ...prev,
-        textColor: value as string
-      }));
-      setColorSettings(prev => ({
-        ...prev,
-        content: value as string
-      }));
-    } else if (key === 'keyPhraseColor') {
-      setKeyPhraseColor(value as string);
-      setColorSettings(prev => ({
-        ...prev,
-        keyPhrase: value as string
-      }));
-    } else if (key === 'formulaColor') {
-      setFormulaColor(value as string);
-      setColorSettings(prev => ({
-        ...prev,
-        formula: value as string
-      }));
-    }
-  };
 
   // Answer checking and navigation functions
   const checkAnswer = (answer: string) => {
@@ -429,6 +399,8 @@ export default function PracticeContent({
             progress={progress} 
             onAutoNext={nextQuestion}
             onPomodoroBreak={handlePomodoroBreak}
+            settings={displaySettings}
+            onSettingsChange={onSettingsChange}
           />
         </div>
       </div>
