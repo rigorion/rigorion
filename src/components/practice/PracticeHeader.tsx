@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,7 @@ interface PracticeHeaderProps {
   mode: string;
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
-  onFilterChange?: (filters: { chapter?: string; module?: string; exam?: number | null }) => void;
+  onFilterChange?: (filters: { chapter?: string; module?: string }) => void;
 }
 
 export const PracticeHeader = ({ 
@@ -43,7 +44,6 @@ export const PracticeHeader = ({
   const [hasNotifications, setHasNotifications] = useState(true);
   const [selectedChapter, setSelectedChapter] = useState<string>("All Chapters");
   const [selectedModule, setSelectedModule] = useState<string>("All SAT Math");
-  const [selectedExam, setSelectedExam] = useState<number | null>(null);
 
   const pages = [
     { name: "Home", path: "/" },
@@ -78,15 +78,8 @@ export const PracticeHeader = ({
   };
 
   const handleChapterFilter = (chapter: string) => {
-    console.log("PracticeHeader - Chapter filter selected:", chapter);
     setSelectedChapter(chapter);
     setIsChapterDropdownOpen(false);
-    
-    // Clear exam filter when changing chapter
-    if (selectedExam !== null) {
-      console.log("PracticeHeader - Clearing exam filter due to chapter change");
-      setSelectedExam(null);
-    }
     
     if (onFilterChange) {
       let chapterNumber: string | undefined;
@@ -97,22 +90,14 @@ export const PracticeHeader = ({
       
       onFilterChange({
         chapter: chapterNumber,
-        module: selectedModule === "All SAT Math" ? undefined : selectedModule,
-        exam: null // Clear exam filter
+        module: selectedModule === "All SAT Math" ? undefined : selectedModule
       });
     }
   };
 
   const handleModuleFilter = (module: string) => {
-    console.log("PracticeHeader - Module filter selected:", module);
     setSelectedModule(module);
     setIsModuleDropdownOpen(false);
-    
-    // Clear exam filter when changing module
-    if (selectedExam !== null) {
-      console.log("PracticeHeader - Clearing exam filter due to module change");
-      setSelectedExam(null);
-    }
     
     if (onFilterChange) {
       let chapterNumber: string | undefined;
@@ -123,43 +108,7 @@ export const PracticeHeader = ({
       
       onFilterChange({
         chapter: chapterNumber,
-        module: module === "All SAT Math" ? undefined : module,
-        exam: null // Clear exam filter
-      });
-    }
-  };
-
-  const handleExamFilter = (examNumber: number | null) => {
-    console.log("PracticeHeader - Exam filter changed:", examNumber);
-    setSelectedExam(examNumber);
-    
-    // Clear chapter and module filters when selecting exam
-    if (examNumber !== null) {
-      console.log("PracticeHeader - Clearing chapter and module filters due to exam selection");
-      setSelectedChapter("All Chapters");
-      setSelectedModule("All SAT Math");
-    }
-    
-    if (onFilterChange) {
-      onFilterChange({
-        chapter: examNumber !== null ? undefined : (selectedChapter !== "All Chapters" ? selectedChapter.match(/Chapter (\d+)/)?.[1] : undefined),
-        module: examNumber !== null ? undefined : (selectedModule !== "All SAT Math" ? selectedModule : undefined),
-        exam: examNumber
-      });
-    }
-  };
-
-  const handleClearAllFilters = () => {
-    console.log("PracticeHeader - Clearing all filters");
-    setSelectedChapter("All Chapters");
-    setSelectedModule("All SAT Math");
-    setSelectedExam(null);
-    
-    if (onFilterChange) {
-      onFilterChange({
-        chapter: undefined,
-        module: undefined,
-        exam: null
+        module: module === "All SAT Math" ? undefined : module
       });
     }
   };
@@ -174,26 +123,6 @@ export const PracticeHeader = ({
         .substring(0, 2);
     }
     return user?.email?.substring(0, 2).toUpperCase() || 'U';
-  };
-
-  const getActiveFilterText = () => {
-    if (selectedExam !== null) {
-      return `Exam ${selectedExam}`;
-    }
-    
-    const filters = [];
-    if (selectedChapter !== "All Chapters") {
-      filters.push(selectedChapter);
-    }
-    if (selectedModule !== "All SAT Math") {
-      filters.push(selectedModule);
-    }
-    
-    return filters.length > 0 ? filters.join(" • ") : "All Questions";
-  };
-
-  const hasActiveFilters = () => {
-    return selectedExam !== null || selectedChapter !== "All Chapters" || selectedModule !== "All SAT Math";
   };
 
   return (
@@ -233,6 +162,7 @@ export const PracticeHeader = ({
       </div>
       
       <div className="flex items-center gap-2 sm:gap-4">
+        {/* Dark Mode Toggle */}
         <Button
           variant="ghost"
           size="icon"
@@ -246,6 +176,7 @@ export const PracticeHeader = ({
           )}
         </Button>
 
+        {/* Notification Bell */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -277,6 +208,16 @@ export const PracticeHeader = ({
                 <p className={`${isDarkMode ? 'text-green-500' : 'text-gray-600'}`}>Advanced Calculus chapter is now available.</p>
                 <p className={`text-xs mt-1 ${isDarkMode ? 'text-green-600' : 'text-gray-500'}`}>2 hours ago</p>
               </div>
+              <div className="p-2 text-sm mb-2">
+                <p className={`font-medium ${isDarkMode ? 'text-green-300' : 'text-gray-900'}`}>Practice reminder</p>
+                <p className={`${isDarkMode ? 'text-green-400' : 'text-gray-600'}`}>You haven't practiced in 2 days.</p>
+                <p className={`text-xs mt-1 ${isDarkMode ? 'text-green-500' : 'text-gray-500'}`}>1 day ago</p>
+              </div>
+              <div className="p-2 text-sm mb-2">
+                <p className={`font-medium ${isDarkMode ? 'text-green-300' : 'text-gray-900'}`}>Achievement unlocked!</p>
+                <p className={`${isDarkMode ? 'text-green-400' : 'text-gray-600'}`}>You've completed 50 practice problems!</p>
+                <p className={`text-xs mt-1 ${isDarkMode ? 'text-green-500' : 'text-gray-500'}`}>3 days ago</p>
+              </div>
             </ScrollArea>
             <DropdownMenuSeparator className={isDarkMode ? 'bg-green-500/30' : ''} />
             <Button variant="ghost" size="sm" className={`w-full text-center text-sm mt-1 ${isDarkMode ? 'text-green-400 hover:text-green-300' : 'text-gray-700'}`}>
@@ -285,41 +226,18 @@ export const PracticeHeader = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Active Filter Display */}
-        <div className={`hidden sm:flex items-center px-3 py-1 rounded-full text-xs transition-all ${
-          hasActiveFilters()
-            ? (isDarkMode ? 'bg-green-900/30 text-green-400 border border-green-500/30' : 'bg-blue-50 text-blue-700 border border-blue-200')
-            : (isDarkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-600')
-        }`}>
-          <Filter className="h-3 w-3 mr-1" />
-          <span className="max-w-32 truncate">{getActiveFilterText()}</span>
-          {hasActiveFilters() && (
-            <button
-              onClick={handleClearAllFilters}
-              className={`ml-2 hover:bg-opacity-75 rounded-full p-0.5 transition-colors ${
-                isDarkMode ? 'hover:bg-green-700' : 'hover:bg-blue-200'
-              }`}
-              title="Clear all filters"
-            >
-              ×
-            </button>
-          )}
-        </div>
-
         {/* Module Filter */}
         <DropdownMenu open={isModuleDropdownOpen} onOpenChange={setIsModuleDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
               size="sm"
-              className={`rounded-full bg-transparent transition-colors hidden lg:flex ${
+              className={`rounded-full bg-transparent transition-colors hidden sm:flex ${
                 isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
-              } ${selectedModule !== "All SAT Math" ? (isDarkMode ? 'text-green-300 bg-green-900/20' : 'text-blue-600 bg-blue-50') : ''}`}
+              }`}
             >
               <Filter className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
-              <span className={`hidden md:inline ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>
-                {selectedModule.replace("SAT ", "")}
-              </span>
+              <span className={`hidden md:inline ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>{selectedModule}</span>
               <span className={`md:hidden ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Module</span>
               <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isModuleDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`} />
             </Button>
@@ -333,32 +251,28 @@ export const PracticeHeader = ({
                   key={module}
                   className={`cursor-pointer py-2 px-3 rounded-md transition-colors ${
                     isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
-                  } ${selectedModule === module ? (isDarkMode ? 'bg-gray-800' : 'bg-gray-100') : ''}`}
+                  }`}
                   onClick={() => handleModuleFilter(module)}
                 >
                   <span className={`font-source-sans text-sm ${isDarkMode ? 'text-green-400' : 'text-[#304455]'}`}>{module}</span>
-                  {selectedModule === module && <span className="ml-auto text-xs">✓</span>}
                 </DropdownMenuItem>
               ))}
             </ScrollArea>
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Exams Filter - Updated to pass current filter state */}
-        <ModulesDialog 
-          onExamFilter={handleExamFilter} 
-          currentExamFilter={selectedExam}
-        />
+        {/* Modules Dialog */}
+        <ModulesDialog />
 
-        {/* Chapters Filter */}
+        {/* Chapters Dropdown */}
         <DropdownMenu open={isChapterDropdownOpen} onOpenChange={setIsChapterDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
               size="sm"
-              className={`rounded-full bg-transparent transition-colors hidden xl:flex ${
+              className={`rounded-full bg-transparent transition-colors hidden lg:flex ${
                 isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
-              } ${selectedChapter !== "All Chapters" ? (isDarkMode ? 'text-green-300 bg-green-900/20' : 'text-blue-600 bg-blue-50') : ''}`}
+              }`}
             >
               <Target className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
               <span className={isDarkMode ? 'text-green-400' : 'text-gray-700'}>
@@ -376,11 +290,10 @@ export const PracticeHeader = ({
                   key={index}
                   className={`cursor-pointer py-2 px-3 rounded-md transition-colors ${
                     isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
-                  } ${selectedChapter === chapter ? (isDarkMode ? 'bg-gray-800' : 'bg-gray-100') : ''}`}
+                  }`}
                   onClick={() => handleChapterFilter(chapter)}
                 >
                   <span className={`font-source-sans text-sm ${isDarkMode ? 'text-green-400' : 'text-[#304455]'}`}>{chapter}</span>
-                  {selectedChapter === chapter && <span className="ml-auto text-xs">✓</span>}
                 </DropdownMenuItem>
               ))}
             </ScrollArea>
