@@ -1,511 +1,685 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useCallback, useEffect } from "react";
+import { Question } from "@/types/QuestionInterface";
+import { useQuestions } from "@/contexts/QuestionsContext";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Target, Navigation, ChevronDown, LogOut, Bell, Filter, Moon, Sun, BookOpen } from "lucide-react";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator
-} from "@/components/ui/dropdown-menu";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/components/ui/use-toast";
+import { filterQuestionsByChapter, getUniqueChapters, filterQuestionsByModule } from "@/utils/mapQuestion";
+import { saveObjective, loadObjective } from "@/services/objectivePersistence";
 import { useTheme } from "@/contexts/ThemeContext";
 
-interface PracticeHeaderProps {
-  onToggleSidebar: () => void;
-  onOpenObjective: () => void;
-  onOpenMode: () => void;
-  mode: string;
-  sidebarOpen: boolean;
-  setSidebarOpen: (open: boolean) => void;
-  onFilterChange?: (filters: { chapter?: string; module?: string; exam?: number | null }) => void;
+// Import refactored components
+import PracticeHeader from "@/components/practice/PracticeHeader";
+import PracticeProgress from "@/components/practice/PracticeProgress";
+import PracticeDisplay from "@/components/practice/PracticeDisplay";
+import PracticeFooter from "@/components/practice/PracticeFooter";
+import ContentSection from "@/components/practice/ContentSection";
+import ModeDialog from "@/components/practice/ModeDialog";
+import ObjectiveDialog from "@/components/practice/ObjectiveDialogue";
+import { Sidebar } from "@/components/practice/Sidebar";
+
+interface TextSettings {
+  fontFamily: string;
+  fontSize: number;
+  colorStyle: 'plain';
+  textColor: string;
 }
 
-export const PracticeHeader = ({ 
-  onToggleSidebar, 
-  onOpenObjective, 
-  onOpenMode, 
-  mode,
-  sidebarOpen,
-  setSidebarOpen,
-  onFilterChange
-}: PracticeHeaderProps) => {
-  const navigate = useNavigate();
-  const { user, profile, signOut } = useAuth();
-  const { isDarkMode, toggleDarkMode } = useTheme();
-  const [isNavDropdownOpen, setIsNavDropdownOpen] = useState(false);
-  const [isChapterDropdownOpen, setIsChapterDropdownOpen] = useState(false);
-  const [isModuleDropdownOpen, setIsModuleDropdownOpen] = useState(false);
-  const [isExamDropdownOpen, setIsExamDropdownOpen] = useState(false);
-  const [hasNotifications, setHasNotifications] = useState(true);
-  const [selectedChapter, setSelectedChapter] = useState<string>("All Chapters");
-  const [selectedModule, setSelectedModule] = useState<string>("All SAT Math");
-  const [selectedExam, setSelectedExam] = useState<number | null>(null);
+interface FilterState {
+  chapter?: string;
+  module?: string;
+  exam?: number | null;
+}
 
-  const pages = [
-    { name: "Home", path: "/" },
-    { name: "Practice", path: "/practice" },
-    { name: "Progress", path: "/progress" },
-    { name: "Chat", path: "/chat" },
-    { name: "About", path: "/about" },
-  ];
+interface PracticeContentProps {
+  questions?: Question[];
+  currentQuestion?: Question | null;
+  currentIndex?: number;
+  onNext?: () => void;
+  onPrev?: () => void;
+  onJumpTo?: (index: number) => void;
+  isLoading?: boolean;
+  error?: Error | null;
+  refreshQuestions?: () => Promise<void>;
+  settings?: TextSettings;
+  onSettingsChange?: (key: string, value: string | number) => void;
+}
 
-  const chapters = [
-    "All Chapters",
-    "Chapter 1",
-    "Chapter 2", 
-    "Chapter 3",
-    "Chapter 4",
-    "Chapter 5"
-  ];
+export default function PracticeContent({ 
+  questions: propQuestions,
+  currentQuestion: propCurrentQuestion,
+  currentIndex: propCurrentIndex,
+  onNext: propOnNext,
+  onPrev: propOnPrev,
+  onJumpTo: propOnJumpTo,
+  isLoading: propIsLoading,
+  error: propError,
+  refreshQuestions: propRefreshQuestions,
+  settings: propSettings,
+  onSettingsChange
+}: PracticeContentProps) {
+  const { toast } = useToast();
+  const { isDarkMode } = useTheme();
+  
+  const questionsContext = useQuestions();
+  const isUsingContext = !propQuestions;
+  
+  const allQuestions = propQuestions !== undefined ? propQuestions : questionsContext.questions;
+  console.log("PracticeContent: questions in use", allQuestions);
+  
+  // Enhanced filtering state
+  const [activeFilters, setActiveFilters] = useState<FilterState>({});
+  const [filteredQuestions, setFilteredQuestions] = useState<Question[]>(allQuestions);
+  
+  const isLoading = propIsLoading !== undefined ? propIsLoading : (isUsingContext ? questionsContext.isLoading : false);
+  const error = propError !== undefined ? propError : (isUsingContext ? questionsContext.error : null);
+  const refreshQuestions = propRefreshQuestions || (isUsingContext ? questionsContext.refreshQuestions : () => {});
+  
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(propCurrentIndex || 0);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mode, setMode] = useState<"timer" | "level" | "manual" | "pomodoro" | "exam">("manual");
+  const [selectedLevel, setSelectedLevel] = useState<"easy" | "medium" | "hard" | null>(null);
+  const [timerDuration, setTimerDuration] = useState<number>(0);
+  const [isTimerActive, setIsTimerActive] = useState(false);
+  const [objective, setObjective] = useState<{
+    type: "questions" | "time";
+    value: number;
+  } | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [modeDialogOpen, setModeDialogOpen] = useState(false);
+  const [objectiveDialogOpen, setObjectiveDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"problem" | "solution" | "quote">("problem");
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState<string>("00:00");
+  const [showGoToInput, setShowGoToInput] = useState(false);
+  const [targetQuestion, setTargetQuestion] = useState('');
+  const [inputError, setInputError] = useState('');
 
-  const exams = [
-    "All Exams",
-    "Exam 1",
-    "Exam 2",
-    "Exam 3",
-    "Exam 4",
-    "Exam 5",
-    "Exam 6",
-    "Exam 7",
-    "Exam 8",
-    "Exam 9",
-    "Exam 10",
-    "Exam 11",
-    "Exam 12"
-  ];
+  const [displaySettings, setDisplaySettings] = useState<TextSettings>(
+    propSettings || {
+      fontFamily: 'inter',
+      fontSize: 14,
+      colorStyle: 'plain' as const,
+      textColor: '#374151'
+    }
+  );
 
-  const modules = [
-    "All SAT Math",
-    "SAT Reading",
-    "SAT Writing"
-  ];
+  useEffect(() => {
+    if (propSettings) {
+      setDisplaySettings(propSettings);
+    }
+  }, [propSettings]);
 
-  const handleNavigation = (path: string) => {
-    navigate(path);
-  };
+  const [fontFamily, setFontFamily] = useState<string>('inter');
+  const [fontSize, setFontSize] = useState<number>(14);
+  const [contentColor, setContentColor] = useState<string>('#374151');
+  const [keyPhraseColor, setKeyPhraseColor] = useState<string>('#2563eb');
+  const [formulaColor, setFormulaColor] = useState<string>('#dc2626');
+  const [styleCollapsed, setStyleCollapsed] = useState(true);
+  
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [incorrectAnswers, setIncorrectAnswers] = useState(0);
+  const [showCommunityStats, setShowCommunityStats] = useState(false);
+  
+  const [boardColor, setBoardColor] = useState('white');
+  const [colorSettings, setColorSettings] = useState({
+    content: '#374151',
+    keyPhrase: '#2563eb',
+    formula: '#dc2626'
+  });
 
-  const handleLogout = async () => {
-    await signOut();
-    navigate("/signin");
-  };
+  useEffect(() => {
+    const savedObjective = loadObjective();
+    if (savedObjective) {
+      setObjective(savedObjective);
+    }
+  }, []);
 
-  const handleChapterFilter = (chapter: string) => {
-    console.log("PracticeHeader - Chapter filter selected:", chapter);
-    setSelectedChapter(chapter);
-    setIsChapterDropdownOpen(false);
+  // Add comprehensive debug logging for exam filtering
+  useEffect(() => {
+    console.log("=== EXAM FILTERING DEBUG ===");
+    console.log("Total questions loaded:", allQuestions.length);
     
-    if (onFilterChange) {
-      let chapterNumber: string | undefined;
-      if (chapter !== "All Chapters") {
-        const match = chapter.match(/Chapter (\d+)/);
-        chapterNumber = match ? match[1] : undefined;
+    if (allQuestions.length > 0) {
+      // Check the structure of your questions
+      console.log("Sample question:", allQuestions[0]);
+      console.log("Question keys:", Object.keys(allQuestions[0]));
+      
+      // Check examNumber field specifically
+      const examNumbers = allQuestions.map(q => ({
+        id: q.id,
+        examNumber: q.examNumber,
+        type: typeof q.examNumber
+      }));
+      
+      console.log("ExamNumber field analysis:", examNumbers.slice(0, 5));
+      
+      // Get unique exam numbers
+      const uniqueExams = [...new Set(allQuestions.map(q => q.examNumber).filter(Boolean))];
+      console.log("Unique exam numbers found:", uniqueExams);
+      
+      // Distribution by exam
+      const distribution = allQuestions.reduce((acc, q) => {
+        const exam = q.examNumber || 'null/undefined';
+        acc[exam] = (acc[exam] || 0) + 1;
+        return acc;
+      }, {} as Record<string | number, number>);
+      console.log("Questions per exam:", distribution);
+    }
+  }, [allQuestions]);
+
+  // Enhanced filter function with detailed logging and type conversion
+  const applyFilters = useCallback((filters: FilterState, questionsList: Question[]) => {
+    let filtered = [...questionsList];
+    
+    console.log("🔍 APPLYING FILTERS:");
+    console.log("Active filters:", filters);
+    console.log("Starting with questions:", filtered.length);
+    
+    // Apply exam filter FIRST - filter by examNumber field (integer from database)
+    if (filters.exam !== undefined && filters.exam !== null) {
+      console.log(`🎯 Filtering by exam: ${filters.exam} (type: ${typeof filters.exam})`);
+      
+      const beforeFilter = filtered.length;
+      
+      filtered = filtered.filter(q => {
+        let questionExam = q.examNumber;
+        
+        // Convert string examNumber to number if needed
+        if (typeof questionExam === 'string') {
+          const parsed = parseInt(questionExam, 10);
+          questionExam = isNaN(parsed) ? null : parsed;
+        }
+        
+        const matches = questionExam === filters.exam;
+        
+        // Log each comparison for debugging
+        if (matches) {
+          console.log(`✅ MATCH: Question ${q.id} has examNumber ${questionExam}`);
+        }
+        
+        return matches;
+      });
+      
+      console.log(`📊 Exam filter results: ${beforeFilter} → ${filtered.length}`);
+      
+      if (filtered.length === 0) {
+        const availableExams = [...new Set(questionsList.map(q => {
+          let examNum = q.examNumber;
+          if (typeof examNum === 'string') {
+            const parsed = parseInt(examNum, 10);
+            examNum = isNaN(parsed) ? null : parsed;
+          }
+          return examNum;
+        }).filter(Boolean))];
+        console.log("❌ NO MATCHES! Available exam numbers:", availableExams);
+        console.log("❌ Looking for exam:", filters.exam, typeof filters.exam);
+      }
+    }
+    
+    // Apply chapter filter (only if no exam filter is active)
+    if (filters.chapter && !filters.exam) {
+      const beforeFilter = filtered.length;
+      filtered = filtered.filter(q => {
+        // Exclude questions that have an examNumber - they belong to exams, not chapters
+        let questionExam = q.examNumber;
+        if (typeof questionExam === 'string') {
+          const parsed = parseInt(questionExam, 10);
+          questionExam = isNaN(parsed) ? null : parsed;
+        }
+        
+        // If question has an examNumber, it doesn't belong to any chapter
+        if (questionExam !== null && questionExam !== undefined) {
+          return false;
+        }
+        
+        const chapterMatch = q.chapter?.match(/Chapter (\d+)/i);
+        const matchedChapterNumber = chapterMatch ? chapterMatch[1] : null;
+        return matchedChapterNumber === filters.chapter;
+      });
+      console.log(`📚 Chapter filter: ${beforeFilter} → ${filtered.length}`);
+    }
+    
+    // Apply module filter
+    if (filters.module) {
+      const beforeFilter = filtered.length;
+      filtered = filtered.filter(q => {
+        return q.module === filters.module;
+      });
+      console.log(`📝 Module filter: ${beforeFilter} → ${filtered.length}`);
+    }
+    
+    // Apply level filter for level mode
+    if (mode === "level" && selectedLevel) {
+      const beforeFilter = filtered.length;
+      filtered = filtered.filter(q => q.difficulty === selectedLevel);
+      console.log(`⭐ Difficulty filter: ${beforeFilter} → ${filtered.length}`);
+    }
+    
+    console.log(`🏁 FINAL RESULT: ${filtered.length} questions after all filters`);
+    return filtered;
+  }, [mode, selectedLevel]);
+
+  // Enhanced filter change handler
+  const handleFilterChange = useCallback((filters: FilterState) => {
+    console.log("Filter change requested:", filters);
+    
+    // Update active filters
+    setActiveFilters(prevFilters => {
+      const newFilters = { ...prevFilters, ...filters };
+      
+      // Handle clearing of null/undefined filters
+      Object.keys(newFilters).forEach(key => {
+        if (newFilters[key as keyof FilterState] === null || newFilters[key as keyof FilterState] === undefined) {
+          delete newFilters[key as keyof FilterState];
+        }
+      });
+      
+      console.log("New active filters:", newFilters);
+      
+      // Apply filters with the new filter state and update filtered questions
+      const newFilteredQuestions = applyFilters(newFilters, allQuestions);
+      setFilteredQuestions(newFilteredQuestions);
+      
+      // Reset to first question
+      setCurrentQuestionIndex(0);
+      setSelectedAnswer(null);
+      setIsCorrect(null);
+      
+      // Show feedback to user
+      if (filters.exam !== undefined && filters.exam !== null) {
+        toast({
+          title: "Exam Filter Applied",
+          description: `Showing ${newFilteredQuestions.length} questions from Exam ${filters.exam}`,
+        });
+      } else if (filters.exam === null) {
+        toast({
+          title: "Exam Filter Cleared",
+          description: `Showing all ${newFilteredQuestions.length} available questions`,
+        });
+      } else if (filters.chapter !== undefined) {
+        toast({
+          title: "Chapter Filter Applied",
+          description: `Showing ${newFilteredQuestions.length} questions from Chapter ${filters.chapter}`,
+        });
+      } else if (filters.module !== undefined) {
+        toast({
+          title: "Module Filter Applied", 
+          description: `Showing ${newFilteredQuestions.length} questions from ${filters.module}`,
+        });
+      } else {
+        const activeFilterCount = Object.keys(newFilters).length;
+        toast({
+          title: "Filters Applied",
+          description: `${activeFilterCount} filter(s) active, showing ${newFilteredQuestions.length} questions`,
+        });
       }
       
-      onFilterChange({
-        chapter: chapterNumber,
-        module: selectedModule === "All SAT Math" ? undefined : selectedModule,
-        exam: selectedExam
-      });
+      return newFilters;
+    });
+  }, [allQuestions, applyFilters, toast]);
+
+  // Update filtered questions when base questions change
+  useEffect(() => {
+    console.log("Base questions changed, reapplying filters");
+    const newFiltered = applyFilters(activeFilters, allQuestions);
+    setFilteredQuestions(newFiltered);
+    
+    // Reset to first question if current index is out of bounds
+    if (currentQuestionIndex >= newFiltered.length) {
+      setCurrentQuestionIndex(0);
+    }
+  }, [allQuestions, activeFilters, applyFilters, currentQuestionIndex]);
+
+  // Update filtered questions when mode or level changes
+  useEffect(() => {
+    console.log("Mode or level changed, reapplying filters");
+    const newFiltered = applyFilters(activeFilters, allQuestions);
+    setFilteredQuestions(newFiltered);
+  }, [mode, selectedLevel, activeFilters, allQuestions, applyFilters]);
+
+  const currentQuestion = propCurrentQuestion !== undefined 
+    ? propCurrentQuestion 
+    : (filteredQuestions.length > 0 && currentQuestionIndex < filteredQuestions.length 
+      ? filteredQuestions[currentQuestionIndex]
+      : null);
+
+  useEffect(() => {
+    if (objective?.type === "questions" && objective.value > 0) {
+      const totalAnswered = correctAnswers + incorrectAnswers;
+      setProgress(Math.round(totalAnswered / objective.value * 100));
+    }
+  }, [correctAnswers, incorrectAnswers, objective]);
+
+  useEffect(() => {
+    if (propCurrentIndex !== undefined) {
+      setCurrentQuestionIndex(propCurrentIndex);
+    }
+  }, [propCurrentIndex]);
+
+  const handleSetMode = (selectedMode: "timer" | "level" | "manual" | "pomodoro" | "exam", duration?: number, level?: "easy" | "medium" | "hard") => {
+    setMode(selectedMode);
+    setSelectedLevel(level || null);
+    
+    if (selectedMode === "timer") {
+      const questionDuration = duration || 90;
+      setTimerDuration(questionDuration);
+      setIsTimerActive(true);
+    } else if (duration) {
+      setTimerDuration(duration);
+      setIsTimerActive(true);
+    } else {
+      setTimerDuration(0);
+      setIsTimerActive(false);
+    }
+  };
+  
+  const handleSetObjective = (type: "questions" | "time", value: number) => {
+    const newObjective = { type, value };
+    setObjective(newObjective);
+    saveObjective(newObjective);
+    
+    if (type === "time" && value > 0) {
+      setTimerDuration(value);
+      setIsTimerActive(true);
+    }
+  };
+  
+  const handleTimerComplete = () => {
+    if (mode === "timer") {
+      console.log("Timer completed - auto-advancing to next question");
+      nextQuestion();
+      setIsTimerActive(true);
+    } else {
+      setIsTimerActive(false);
+      console.log("Time's up!");
     }
   };
 
-  const handleModuleFilter = (module: string) => {
-    console.log("PracticeHeader - Module filter selected:", module);
-    setSelectedModule(module);
-    setIsModuleDropdownOpen(false);
-    
-    if (onFilterChange) {
-      let chapterNumber: string | undefined;
-      if (selectedChapter !== "All Chapters") {
-        const match = selectedChapter.match(/Chapter (\d+)/);
-        chapterNumber = match ? match[1] : undefined;
+  useEffect(() => {
+    if (propSettings) {
+      setDisplaySettings(propSettings);
+    }
+  }, [propSettings]);
+
+  useEffect(() => {
+    if (displaySettings.textColor) {
+      setContentColor(displaySettings.textColor);
+      setColorSettings(prev => ({
+        ...prev,
+        content: displaySettings.textColor
+      }));
+    }
+  }, [displaySettings.textColor]);
+
+  const handlePomodoroBreak = () => {
+    setIsTimerActive(false);
+    setTimeout(() => {
+      setTimerDuration(1500);
+    }, 5 * 60 * 1000);
+  };
+
+  const checkAnswer = (answer: string) => {
+    if (!currentQuestion) return;
+    const correct = answer === currentQuestion.correctAnswer;
+    setSelectedAnswer(answer);
+    setIsCorrect(correct);
+    if (correct) {
+      setCorrectAnswers(prev => prev + 1);
+      toast({
+        title: "Correct!",
+        description: "Great job on answering correctly!",
+        variant: "default"
+      });
+    } else {
+      setIncorrectAnswers(prev => prev + 1);
+      toast({
+        title: "Incorrect",
+        description: `The correct answer was: ${currentQuestion.correctAnswer}`,
+        variant: "destructive"
+      });
+    }
+    if (correct && currentQuestionIndex < filteredQuestions.length - 1) {
+      setTimeout(nextQuestion, 1500);
+    }
+  };
+  
+  const nextQuestion = () => {
+    if (propOnNext) {
+      propOnNext();
+    } else {
+      const maxIndex = filteredQuestions.length > 0 ? filteredQuestions.length - 1 : 0;
+      if (currentQuestionIndex < maxIndex) {
+        setCurrentQuestionIndex(prev => prev + 1);
+        setSelectedAnswer(null);
+        setIsCorrect(null);
+        
+        if (mode === "timer" && timerDuration > 0) {
+          setIsTimerActive(true);
+        }
       }
-      
-      onFilterChange({
-        chapter: chapterNumber,
-        module: module === "All SAT Math" ? undefined : module,
-        exam: selectedExam
-      });
     }
   };
-
-  const handleExamFilter = (exam: string) => {
-    console.log("PracticeHeader - Exam filter selected:", exam);
-    setIsExamDropdownOpen(false);
-    
-    if (onFilterChange) {
-      let examNumber: number | null = null;
-      if (exam !== "All Exams") {
-        const match = exam.match(/Exam (\d+)/);
-        examNumber = match ? parseInt(match[1]) : null;
+  
+  const prevQuestion = () => {
+    if (propOnPrev) {
+      propOnPrev();
+    } else {
+      if (currentQuestionIndex > 0) {
+        setCurrentQuestionIndex(prev => prev - 1);
+        setSelectedAnswer(null);
+        setIsCorrect(null);
       }
-
-      // Get current chapter and module values
-      let chapterNumber: string | undefined;
-      if (selectedChapter !== "All Chapters") {
-        const match = selectedChapter.match(/Chapter (\d+)/);
-        chapterNumber = match ? match[1] : undefined;
-      }
-      
-      const moduleValue = selectedModule === "All SAT Math" ? undefined : selectedModule;
-      
-      setSelectedExam(examNumber);
-      
-      onFilterChange({
-        chapter: chapterNumber,
-        module: moduleValue,
-        exam: examNumber
-      });
     }
   };
 
-  const handleClearAllFilters = () => {
-    console.log("PracticeHeader - Clearing all filters");
-    setSelectedChapter("All Chapters");
-    setSelectedModule("All SAT Math");
-    setSelectedExam(null);
-    
-    if (onFilterChange) {
-      onFilterChange({
-        chapter: undefined,
-        module: undefined,
-        exam: null
-      });
+  const handleGoToQuestion = () => {
+    const questionNumber = parseInt(targetQuestion);
+
+    if (isNaN(questionNumber)) {
+      setInputError('Please enter a valid number');
+      return;
     }
+    if (questionNumber < 1 || questionNumber > filteredQuestions.length) {
+      setInputError(`Please enter a number between 1 and ${filteredQuestions.length}`);
+      return;
+    }
+
+    if (propOnJumpTo) {
+      propOnJumpTo(questionNumber - 1);
+    } else {
+      setCurrentQuestionIndex(questionNumber - 1);
+      setSelectedAnswer(null);
+      setIsCorrect(null);
+    }
+
+    setTargetQuestion('');
+    setShowGoToInput(false);
+    setInputError('');
   };
 
-  const getUserInitials = (): string => {
-    if (profile?.name) {
-      return profile.name
-        .split(' ')
-        .map((n: string) => n[0])
-        .join('')
-        .toUpperCase()
-        .substring(0, 2);
+  // Debug info for filtering
+  const getFilterDebugInfo = () => {
+    if (process.env.NODE_ENV === 'development') {
+      return (
+        <div className="fixed bottom-20 right-4 bg-black/80 text-white p-2 rounded text-xs max-w-xs">
+          <div>Total Questions: {allQuestions.length}</div>
+          <div>Filtered Questions: {filteredQuestions.length}</div>
+          <div>Active Filters: {JSON.stringify(activeFilters)}</div>
+          <div>Current Index: {currentQuestionIndex}</div>
+        </div>
+      );
     }
-    return user?.email?.substring(0, 2).toUpperCase() || 'U';
+    return null;
   };
 
-  const getActiveFilterText = () => {
-    if (selectedExam !== null) {
-      return `Exam ${selectedExam}`;
-    }
-    
-    const filters = [];
-    if (selectedChapter !== "All Chapters") {
-      filters.push(selectedChapter);
-    }
-    if (selectedModule !== "All SAT Math") {
-      filters.push(selectedModule);
-    }
-    
-    return filters.length > 0 ? filters.join(" • ") : "All Questions";
-  };
-
-  const hasActiveFilters = () => {
-    return selectedExam !== null || selectedChapter !== "All Chapters" || selectedModule !== "All SAT Math";
-  };
-
-  return (
-    <header className={`border-b px-4 sm:px-6 py-4 flex items-center justify-between shadow-sm transition-all duration-300 ${
-      isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
-    }`}>
-      <div className="flex items-center gap-2 sm:gap-4">
-        <DropdownMenu open={isNavDropdownOpen} onOpenChange={setIsNavDropdownOpen}>
-          <DropdownMenuTrigger className={`rounded-lg p-2 transition-colors ${
-            isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
-          }`}>
-            <Navigation className={`h-5 w-5 ${
-              isDarkMode ? 'text-green-400' : 'text-blue-500'
-            }`} />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className={`w-56 shadow-lg rounded-lg p-2 z-50 ${
-            isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
-          }`}>
-            <ScrollArea className="h-auto max-h-[300px]">
-              {pages.map((page, index) => (
-                <DropdownMenuItem 
-                  key={index}
-                  className={`cursor-pointer py-2 rounded-sm transition-colors ${
-                    isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
-                  }`}
-                  onClick={() => handleNavigation(page.path)}
-                >
-                  <span className={`font-source-sans ${isDarkMode ? 'text-green-400' : 'text-[#304455]'}`}>{page.name}</span>
-                </DropdownMenuItem>
-              ))}
-            </ScrollArea>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <h1 className={`text-lg sm:text-xl font-bold font-cursive ${isDarkMode ? 'text-green-400' : 'text-gray-800'}`}>
-          Academic Arc
-        </h1>
+  if (isLoading) {
+    return (
+      <div className={`flex justify-center items-center h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
+        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        <span className="ml-2">Loading secure questions...</span>
       </div>
-      
-      <div className="flex items-center gap-2 sm:gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleDarkMode}
-          className={`rounded-full ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
-        >
-          {isDarkMode ? (
-            <Sun className="h-5 w-5 text-green-400" />
-          ) : (
-            <Moon className="h-5 w-5 text-gray-600" />
-          )}
-        </Button>
+    );
+  }
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`relative rounded-full ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
-            >
-              <Bell className={`h-5 w-5 ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`} />
-              {hasNotifications && (
-                <span className="absolute top-1 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
-              )}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className={`w-80 shadow-lg rounded-lg p-2 z-50 ${
-            isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
-          }`}>
-            <div className="flex justify-between items-center mb-2 px-2">
-              <h3 className={`font-semibold ${isDarkMode ? 'text-green-400' : 'text-gray-900'}`}>Notifications</h3>
-              <Button variant="ghost" size="sm" className={`text-xs ${isDarkMode ? 'text-green-400 hover:text-green-300' : 'text-blue-500 hover:text-blue-700'}`}>
-                Mark all as read
+  if (error) {
+    return (
+      <div className={`flex flex-col items-center justify-center min-h-screen px-4 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
+        <div className={`border px-4 py-3 rounded relative ${isDarkMode ? 'bg-red-900 border-red-600 text-red-200' : 'bg-red-100 border-red-400 text-red-700'}`} role="alert">
+          <strong className="font-bold">Error!</strong>
+          <span className="block sm:inline"> {error.message}</span>
+        </div>
+        <Button className="mt-4" onClick={() => refreshQuestions()}>
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
+  if (filteredQuestions.length === 0) {
+    return (
+      <div className={`flex flex-col items-center justify-center min-h-screen px-4 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
+        <div className={`border px-4 py-3 rounded relative ${isDarkMode ? 'bg-yellow-900 border-yellow-600 text-yellow-200' : 'bg-yellow-100 border-yellow-400 text-yellow-700'}`} role="alert">
+          <strong className="font-bold">No Questions!</strong>
+          <span className="block sm:inline"> No questions available for the selected filters.</span>
+          {Object.keys(activeFilters).length > 0 && (
+            <div className="mt-2">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={() => handleFilterChange({ chapter: undefined, module: undefined, exam: null })}
+                className="text-xs"
+              >
+                Clear Filters
               </Button>
             </div>
-            <DropdownMenuSeparator className={isDarkMode ? 'bg-green-500/30' : ''} />
-            <ScrollArea className="h-64">
-              <div className={`p-2 text-sm rounded-md mb-2 ${
-                isDarkMode ? 'bg-gray-800' : 'bg-blue-50'
-              }`}>
-                <p className={`font-medium ${isDarkMode ? 'text-green-400' : 'text-gray-900'}`}>New chapter available!</p>
-                <p className={`${isDarkMode ? 'text-green-500' : 'text-gray-600'}`}>Advanced Calculus chapter is now available.</p>
-                <p className={`text-xs mt-1 ${isDarkMode ? 'text-green-600' : 'text-gray-500'}`}>2 hours ago</p>
-              </div>
-            </ScrollArea>
-            <DropdownMenuSeparator className={isDarkMode ? 'bg-green-500/30' : ''} />
-            <Button variant="ghost" size="sm" className={`w-full text-center text-sm mt-1 ${isDarkMode ? 'text-green-400 hover:text-green-300' : 'text-gray-700'}`}>
-              View all notifications
-            </Button>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        {/* Active Filter Display */}
-        <div className={`hidden sm:flex items-center px-3 py-1 rounded-full text-xs transition-all ${
-          hasActiveFilters()
-            ? (isDarkMode ? 'bg-green-900/30 text-green-400 border border-green-500/30' : 'bg-blue-50 text-blue-700 border border-blue-200')
-            : (isDarkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-600')
-        }`}>
-          <Filter className="h-3 w-3 mr-1" />
-          <span className="max-w-32 truncate">{getActiveFilterText()}</span>
-          {hasActiveFilters() && (
-            <button
-              onClick={handleClearAllFilters}
-              className={`ml-2 hover:bg-opacity-75 rounded-full p-0.5 transition-colors ${
-                isDarkMode ? 'hover:bg-green-700' : 'hover:bg-blue-200'
-              }`}
-              title="Clear all filters"
-            >
-              ×
-            </button>
           )}
         </div>
+      </div>
+    );
+  }
 
-        {/* Module Filter - Make visible on all screen sizes */}
-        <DropdownMenu open={isModuleDropdownOpen} onOpenChange={setIsModuleDropdownOpen}>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`rounded-full bg-transparent transition-colors flex ${
-                isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
-              } ${selectedModule !== "All SAT Math" ? (isDarkMode ? 'text-green-300 bg-green-900/20' : 'text-blue-600 bg-blue-50') : ''}`}
-            >
-              <Filter className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
-              <span className={`hidden sm:inline ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>
-                {selectedModule.replace("SAT ", "")}
-              </span>
-              <span className={`sm:hidden ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Module</span>
-              <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isModuleDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className={`w-56 shadow-lg rounded-lg p-2 z-50 ${
-            isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
-          }`}>
-            <ScrollArea className="h-[150px]">
-              {modules.map((module) => (
-                <DropdownMenuItem 
-                  key={module}
-                  className={`cursor-pointer py-2 px-3 rounded-md transition-colors ${
-                    isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
-                  } ${selectedModule === module ? (isDarkMode ? 'bg-gray-800' : 'bg-gray-100') : ''}`}
-                  onClick={() => handleModuleFilter(module)}
-                >
-                  <span className={`font-source-sans text-sm ${isDarkMode ? 'text-green-400' : 'text-[#304455]'}`}>{module}</span>
-                  {selectedModule === module && <span className="ml-auto text-xs">✓</span>}
-                </DropdownMenuItem>
-              ))}
-            </ScrollArea>
-          </DropdownMenuContent>
-        </DropdownMenu>
+  return (
+    <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
+      {/* Header */}
+      <PracticeHeader 
+        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} 
+        onOpenObjective={() => setObjectiveDialogOpen(true)} 
+        onOpenMode={() => setModeDialogOpen(true)} 
+        mode={mode} 
+        sidebarOpen={sidebarOpen} 
+        setSidebarOpen={setSidebarOpen}
+        onFilterChange={handleFilterChange}
+      />
 
-        {/* Exams Filter - Make visible on all screen sizes */}
-        <DropdownMenu open={isExamDropdownOpen} onOpenChange={setIsExamDropdownOpen}>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`rounded-full bg-transparent transition-colors flex ${
-                isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
-              } ${selectedExam !== null ? (isDarkMode ? 'text-green-300 bg-green-900/20' : 'text-blue-600 bg-blue-50') : ''}`}
-            >
-              <BookOpen className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
-              <span className={`hidden sm:inline ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>
-                {selectedExam !== null ? `Exam ${selectedExam}` : "Exams"}
-              </span>
-              <span className={`sm:hidden ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Ex</span>
-              <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isExamDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className={`w-56 shadow-lg rounded-lg p-2 z-50 ${
-            isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
-          }`}>
-            <ScrollArea className="h-[300px]">
-              {exams.map((exam, index) => (
-                <DropdownMenuItem 
-                  key={index}
-                  className={`cursor-pointer py-2 px-3 rounded-md transition-colors ${
-                    isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
-                  } ${(selectedExam === null && exam === "All Exams") || (selectedExam !== null && exam === `Exam ${selectedExam}`) ? (isDarkMode ? 'bg-gray-800' : 'bg-gray-100') : ''}`}
-                  onClick={() => handleExamFilter(exam)}
-                >
-                  <span className={`font-source-sans text-sm ${isDarkMode ? 'text-green-400' : 'text-[#304455]'}`}>{exam}</span>
-                  {((selectedExam === null && exam === "All Exams") || (selectedExam !== null && exam === `Exam ${selectedExam}`)) && <span className="ml-auto text-xs">✓</span>}
-                </DropdownMenuItem>
-              ))}
-            </ScrollArea>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        {/* Chapters Filter - Make visible on all screen sizes */}
-        <DropdownMenu open={isChapterDropdownOpen} onOpenChange={setIsChapterDropdownOpen}>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`rounded-full bg-transparent transition-colors flex ${
-                isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
-              } ${selectedChapter !== "All Chapters" ? (isDarkMode ? 'text-green-300 bg-green-900/20' : 'text-blue-600 bg-blue-50') : ''}`}
-            >
-              <Target className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
-              <span className={`hidden sm:inline ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>
-                {selectedChapter === "All Chapters" ? "Chapters" : selectedChapter.split(":")[0]}
-              </span>
-              <span className={`sm:hidden ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Ch</span>
-              <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isChapterDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className={`w-64 shadow-lg rounded-lg p-2 z-50 ${
-            isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
-          }`}>
-            <ScrollArea className="h-[300px]">
-              {chapters.map((chapter, index) => (
-                <DropdownMenuItem 
-                  key={index}
-                  className={`cursor-pointer py-2 px-3 rounded-md transition-colors ${
-                    isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
-                  } ${selectedChapter === chapter ? (isDarkMode ? 'bg-gray-800' : 'bg-gray-100') : ''}`}
-                  onClick={() => handleChapterFilter(chapter)}
-                >
-                  <span className={`font-source-sans text-sm ${isDarkMode ? 'text-green-400' : 'text-[#304455]'}`}>{chapter}</span>
-                  {selectedChapter === chapter && <span className="ml-auto text-xs">✓</span>}
-                </DropdownMenuItem>
-              ))}
-            </ScrollArea>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onOpenObjective}
-          className={`rounded-full bg-transparent transition-colors ${
-            isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
-          }`}
-        >
-          <Target className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
-          <span className={isDarkMode ? 'text-green-400' : 'text-gray-700'}>Set Objectives</span>
-        </Button>
-        
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onOpenMode}
-          className={`rounded-full bg-transparent transition-colors ${mode !== "manual" ? "text-emerald-500" : ""} ${
-            isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
-          }`}
-        >
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            width="16" 
-            height="16" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-            className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`}
-          >
-            <circle cx="12" cy="12" r="10"/>
-            <polyline points="12 6 12 12 16 14"/>
-          </svg>
-          <span className={isDarkMode ? 'text-green-400' : 'text-gray-700'}>
-            {mode === "manual" ? "Manual" : mode.charAt(0).toUpperCase() + mode.slice(1)}
-          </span>
-        </Button>
-
-        <div className="ml-2 flex items-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Avatar className={`h-8 w-8 cursor-pointer transition-all ${
-                isDarkMode ? 'hover:ring-2 hover:ring-green-400' : 'hover:ring-2 hover:ring-blue-200'
-              }`}>
-                <AvatarImage src={profile?.avatar_url} />
-                <AvatarFallback className={`text-xs ${
-                  isDarkMode ? 'bg-green-600 text-white' : 'bg-blue-500 text-white'
-                }`}>
-                  {getUserInitials()}
-                </AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className={`w-48 shadow-lg rounded-md p-1 z-50 ${
-              isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
-            }`}>
-              <DropdownMenuItem 
-                className={`cursor-pointer py-2 rounded-sm transition-colors flex items-center text-red-500 ${
-                  isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
-                }`}
-                onClick={handleLogout}
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+      <div className={`border-b transition-colors duration-300 ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'}`}>
+        <div className="flex items-center justify-between px-4 sm:px-6 py-2">
+          <PracticeProgress 
+            correctAnswers={correctAnswers} 
+            incorrectAnswers={incorrectAnswers} 
+            totalQuestions={filteredQuestions.length} 
+            timerDuration={timerDuration} 
+            isTimerActive={isTimerActive} 
+            handleTimerComplete={handleTimerComplete} 
+            mode={mode} 
+            timeRemaining={timeRemaining} 
+            setTimeRemaining={setTimeRemaining} 
+            activeTab={activeTab} 
+            setActiveTab={setActiveTab} 
+            currentQuestionIndex={currentQuestionIndex} 
+            currentQuestionHint={currentQuestion?.hint} 
+            objective={objective} 
+            progress={progress} 
+            onAutoNext={nextQuestion}
+            onPomodoroBreak={handlePomodoroBreak}
+            settings={displaySettings}
+            onSettingsChange={onSettingsChange}
+          />
         </div>
       </div>
-    </header>
-  );
-};
 
-export default PracticeHeader;
+      <Collapsible open={sidebarOpen}>
+        <CollapsibleContent className="absolute left-0 top-[56px] z-50 transform transition-all duration-300 ease-in-out">
+          {sidebarOpen && <Sidebar onClose={() => setSidebarOpen(false)} />}
+        </CollapsibleContent>
+      </Collapsible>
+
+      <div className="flex max-w-full mx-auto w-full flex-grow py-4 sm:py-[28px] px-2 sm:px-0">
+        {currentQuestion ? (
+          <PracticeDisplay 
+            currentQuestion={currentQuestion} 
+            selectedAnswer={selectedAnswer} 
+            isCorrect={isCorrect} 
+            checkAnswer={checkAnswer} 
+            onNext={propOnNext || nextQuestion}
+            onPrev={propOnPrev || prevQuestion}
+            onJumpTo={propOnJumpTo || ((index: number) => {
+              setCurrentQuestionIndex(index);
+              setSelectedAnswer(null);
+              setIsCorrect(null);
+            })}
+            currentQuestionIndex={currentQuestionIndex} 
+            totalQuestions={filteredQuestions.length} 
+            displaySettings={displaySettings}
+            boardColor={boardColor} 
+            colorSettings={colorSettings}
+            activeTab={activeTab} 
+          />
+        ) : (
+          <div className={`w-full p-8 text-center ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>No question selected</div>
+        )}
+      </div>
+
+      <PracticeFooter 
+        onToggleCommunityStats={() => setShowCommunityStats(!showCommunityStats)} 
+        onPrevious={prevQuestion} 
+        onNext={nextQuestion} 
+        currentQuestionIndex={currentQuestionIndex} 
+        totalQuestions={filteredQuestions.length} 
+        showGoToInput={showGoToInput} 
+        setShowGoToInput={setShowGoToInput} 
+        targetQuestion={targetQuestion} 
+        setTargetQuestion={setTargetQuestion} 
+        handleGoToQuestion={handleGoToQuestion} 
+        inputError={inputError} 
+      />
+
+      <ModeDialog 
+        open={modeDialogOpen} 
+        onOpenChange={setModeDialogOpen} 
+        onSetMode={handleSetMode} 
+      />
+
+      <ObjectiveDialog 
+        open={objectiveDialogOpen} 
+        onOpenChange={setObjectiveDialogOpen} 
+        onSetObjective={handleSetObjective} 
+      />
+
+      {/* Debug Info */}
+      {getFilterDebugInfo()}
+
+      <style>
+        {`
+          @keyframes style-pulse {
+            0% {
+              box-shadow: 0 0 5px 2px rgba(59, 130, 246, 0.2);
+            }
+            50% {
+              box-shadow: 0 0 8px 4px rgba(59, 130, 246, 0.4);
+            }
+            100% {
+              box-shadow: 0 0 5px 2px rgba(59, 130, 246, 0.2);
+            }
+          }
+          
+          .style-glow {
+            animation: style-pulse 10s infinite ease-in-out;
+          }
+        `}
+      </style>
+    </div>
+  );
+}
