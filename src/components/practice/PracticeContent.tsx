@@ -219,8 +219,8 @@ export default function PracticeContent({
       }
     }
     
-    // Apply chapter filter (exclude questions with examNumber)
-    if (filters.chapter) {
+    // Apply chapter filter (only if no exam filter is active)
+    if (filters.chapter && !filters.exam) {
       const beforeFilter = filtered.length;
       filtered = filtered.filter(q => {
         // Exclude questions that have an examNumber - they belong to exams, not chapters
