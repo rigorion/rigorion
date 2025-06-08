@@ -32,6 +32,7 @@ const ModulesDialog = ({ onExamFilter, currentExamFilter }: ModulesDialogProps) 
   const { toast } = useToast();
   const { questions } = useQuestions();
   
+  // Fixed exam tests list with all 12 exams
   const [examTests] = useState<ExamTest[]>([
     { id: 1, title: "Exam 1", description: "Comprehensive SAT practice test", completionRate: 85, examNumber: 1 },
     { id: 2, title: "Exam 2", description: "Advanced problem-solving scenarios", completionRate: 75, examNumber: 2 },
@@ -47,67 +48,10 @@ const ModulesDialog = ({ onExamFilter, currentExamFilter }: ModulesDialogProps) 
     { id: 12, title: "Exam 12", description: "Final comprehensive exam", completionRate: 0, examNumber: 12 }
   ]);
 
-  // Enhanced getAvailableExams function with detailed debugging
-  const getAvailableExams = () => {
-    console.log("🔍 ModulesDialog - Getting available exams");
-    console.log("Questions available:", questions?.length || 0);
-    
-    if (!questions || questions.length === 0) {
-      console.log("❌ No questions available for exam filtering");
-      return [];
-    }
-    
-    const examNumbers = new Set<number>();
-    
-    questions.forEach((q, index) => {
-      let examNum = q.examNumber;
-      
-      // Convert string examNumber to number if needed
-      if (typeof examNum === 'string') {
-        const parsed = parseInt(examNum, 10);
-        examNum = isNaN(parsed) ? null : parsed;
-      }
-      
-      if (examNum && typeof examNum === 'number' && examNum > 0) {
-        examNumbers.add(examNum);
-        if (index < 3) { // Log first few for debugging
-          console.log(`✅ Question ${q.id} has examNumber: ${examNum}`);
-        }
-      } else {
-        if (index < 3) { // Log first few problematic ones
-          console.log(`❌ Question ${q.id} has invalid examNumber:`, examNum, typeof examNum);
-        }
-      }
-    });
-    
-    const availableExams = Array.from(examNumbers).sort((a, b) => a - b);
-    console.log("📋 Available exams found:", availableExams);
-    
-    return availableExams;
-  };
-
-  const availableExams = getAvailableExams();
-  
-  // Debug logging
-  useEffect(() => {
-    console.log("ModulesDialog - Questions loaded:", questions.length);
-    console.log("ModulesDialog - Available exams:", availableExams);
-    console.log("ModulesDialog - Current filter:", currentExamFilter);
-    
-    if (questions.length > 0) {
-      console.log("ModulesDialog - Sample question structure:", {
-        examNumber: questions[0].examNumber,
-        chapter: questions[0].chapter,
-        module: questions[0].module,
-        id: questions[0].id
-      });
-    }
-  }, [questions, availableExams, currentExamFilter]);
-
   const handleExamClick = (exam: ExamTest) => {
     console.log(`ModulesDialog - Filtering by Exam ${exam.examNumber}...`);
     
-    // Enhanced filtering with type conversion
+    // Filter questions by examNumber (integer field from database)
     const examQuestions = questions.filter(q => {
       let questionExam = q.examNumber;
       
@@ -134,8 +78,6 @@ const ModulesDialog = ({ onExamFilter, currentExamFilter }: ModulesDialogProps) 
     if (onExamFilter) {
       console.log(`ModulesDialog - Calling onExamFilter with ${exam.examNumber}`);
       onExamFilter(exam.examNumber);
-    } else {
-      console.log("ModulesDialog - No onExamFilter callback provided");
     }
     
     setIsOpen(false);
@@ -161,7 +103,6 @@ const ModulesDialog = ({ onExamFilter, currentExamFilter }: ModulesDialogProps) 
   };
 
   const getExamQuestionCount = (examNumber: number) => {
-    // Enhanced counting with type conversion
     const count = questions.filter(q => {
       let questionExam = q.examNumber;
       
@@ -177,24 +118,8 @@ const ModulesDialog = ({ onExamFilter, currentExamFilter }: ModulesDialogProps) 
   };
 
   const isExamActive = (examNumber: number) => {
-    const active = currentExamFilter === examNumber;
-    if (active) {
-      console.log(`ModulesDialog - Exam ${examNumber} is currently active`);
-    }
-    return active;
+    return currentExamFilter === examNumber;
   };
-
-  const getVisibleExamTests = () => {
-    const visible = examTests.filter(exam => {
-      const hasQuestions = getExamQuestionCount(exam.examNumber) > 0;
-      const isCurrentlyActive = isExamActive(exam.examNumber);
-      return hasQuestions || isCurrentlyActive;
-    });
-    console.log(`ModulesDialog - Showing ${visible.length} visible exam tests`);
-    return visible;
-  };
-
-  const visibleExamTests = getVisibleExamTests();
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -231,66 +156,59 @@ const ModulesDialog = ({ onExamFilter, currentExamFilter }: ModulesDialogProps) 
           )}
         </div>
         <ScrollArea className="h-96">
-          {visibleExamTests.length === 0 ? (
-            <div className={`p-4 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-              <AlertCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">No exam questions available yet</p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {visibleExamTests.map((exam) => {
-                const questionCount = getExamQuestionCount(exam.examNumber);
-                const isActive = isExamActive(exam.examNumber);
-                
-                return (
-                  <motion.div
-                    key={exam.id}
-                    whileHover={{ scale: 1.02 }}
-                    className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                      isActive 
-                        ? (isDarkMode ? 'bg-green-900/30 border-green-500/50' : 'bg-blue-50 border-blue-200') 
-                        : (isDarkMode ? 'bg-gray-800 border-gray-700 hover:bg-gray-750' : 'bg-gray-50 border-gray-200 hover:bg-gray-100')
-                    }`}
-                    onClick={() => handleExamClick(exam)}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className={`font-medium text-sm ${
-                            isActive 
-                              ? (isDarkMode ? 'text-green-300' : 'text-blue-700') 
-                              : (isDarkMode ? 'text-green-400' : 'text-gray-900')
-                          }`}>
-                            {exam.title}
-                          </h4>
-                          {isActive && (
-                            <CheckCircle className={`h-4 w-4 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
-                          )}
-                        </div>
-                        <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                          {exam.description}
-                        </p>
-                        <div className="flex items-center justify-between mt-2">
-                          <span className={`text-xs ${isDarkMode ? 'text-green-500' : 'text-blue-600'}`}>
-                            {questionCount} questions
-                          </span>
-                          <div className={`text-xs px-2 py-1 rounded ${
-                            exam.completionRate > 70 
-                              ? (isDarkMode ? 'bg-green-900/50 text-green-300' : 'bg-green-100 text-green-700')
-                              : exam.completionRate > 30 
-                              ? (isDarkMode ? 'bg-yellow-900/50 text-yellow-300' : 'bg-yellow-100 text-yellow-700')
-                              : (isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600')
-                          }`}>
-                            {exam.completionRate}% complete
-                          </div>
+          <div className="space-y-2">
+            {examTests.map((exam) => {
+              const questionCount = getExamQuestionCount(exam.examNumber);
+              const isActive = isExamActive(exam.examNumber);
+              
+              return (
+                <motion.div
+                  key={exam.id}
+                  whileHover={{ scale: 1.02 }}
+                  className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                    isActive 
+                      ? (isDarkMode ? 'bg-green-900/30 border-green-500/50' : 'bg-blue-50 border-blue-200') 
+                      : (isDarkMode ? 'bg-gray-800 border-gray-700 hover:bg-gray-750' : 'bg-gray-50 border-gray-200 hover:bg-gray-100')
+                  }`}
+                  onClick={() => handleExamClick(exam)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className={`font-medium text-sm ${
+                          isActive 
+                            ? (isDarkMode ? 'text-green-300' : 'text-blue-700') 
+                            : (isDarkMode ? 'text-green-400' : 'text-gray-900')
+                        }`}>
+                          {exam.title}
+                        </h4>
+                        {isActive && (
+                          <CheckCircle className={`h-4 w-4 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
+                        )}
+                      </div>
+                      <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {exam.description}
+                      </p>
+                      <div className="flex items-center justify-between mt-2">
+                        <span className={`text-xs ${isDarkMode ? 'text-green-500' : 'text-blue-600'}`}>
+                          {questionCount} questions
+                        </span>
+                        <div className={`text-xs px-2 py-1 rounded ${
+                          exam.completionRate > 70 
+                            ? (isDarkMode ? 'bg-green-900/50 text-green-300' : 'bg-green-100 text-green-700')
+                            : exam.completionRate > 30 
+                            ? (isDarkMode ? 'bg-yellow-900/50 text-yellow-300' : 'bg-yellow-100 text-yellow-700')
+                            : (isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600')
+                        }`}>
+                          {exam.completionRate}% complete
                         </div>
                       </div>
                     </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
         </ScrollArea>
       </DropdownMenuContent>
     </DropdownMenu>
