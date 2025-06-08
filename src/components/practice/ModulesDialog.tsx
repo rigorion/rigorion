@@ -32,20 +32,11 @@ const ModulesDialog = ({ onExamFilter, currentExamFilter }: ModulesDialogProps) 
   const { toast } = useToast();
   const { questions } = useQuestions();
   
-  // Fixed exam tests list with all 12 exams
+  // Fixed exam tests list with only 3 exams
   const [examTests] = useState<ExamTest[]>([
     { id: 1, title: "Exam 1", description: "Comprehensive SAT practice test", completionRate: 85, examNumber: 1 },
     { id: 2, title: "Exam 2", description: "Advanced problem-solving scenarios", completionRate: 75, examNumber: 2 },
-    { id: 3, title: "Exam 3", description: "Reading comprehension focus", completionRate: 60, examNumber: 3 },
-    { id: 4, title: "Exam 4", description: "Mathematical reasoning test", completionRate: 40, examNumber: 4 },
-    { id: 5, title: "Exam 5", description: "Writing and language skills", completionRate: 30, examNumber: 5 },
-    { id: 6, title: "Exam 6", description: "Critical analysis practice", completionRate: 20, examNumber: 6 },
-    { id: 7, title: "Exam 7", description: "Data interpretation focus", completionRate: 15, examNumber: 7 },
-    { id: 8, title: "Exam 8", description: "Essay writing preparation", completionRate: 10, examNumber: 8 },
-    { id: 9, title: "Exam 9", description: "Science reasoning test", completionRate: 5, examNumber: 9 },
-    { id: 10, title: "Exam 10", description: "Advanced mathematics", completionRate: 0, examNumber: 10 },
-    { id: 11, title: "Exam 11", description: "Literature analysis", completionRate: 0, examNumber: 11 },
-    { id: 12, title: "Exam 12", description: "Final comprehensive exam", completionRate: 0, examNumber: 12 }
+    { id: 3, title: "Exam 3", description: "Reading comprehension focus", completionRate: 60, examNumber: 3 }
   ]);
 
   const handleExamClick = (exam: ExamTest) => {
