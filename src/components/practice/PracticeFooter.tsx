@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Search, ChevronLeft, ChevronRight, BarChart2, MessageCircle, Bot } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, BarChart2, MessageCircle, Bot, Music } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -134,18 +134,42 @@ const PracticeFooter = ({
             </Button>
           </div>
 
-          {/* Right: Empty space for balance */}
-          <div className="w-24"></div>
+          {/* Right: Music + AI */}
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => console.log("Open music/sounds")}
+              className={`flex items-center gap-2 transition-colors ${
+                isDarkMode ? 'text-green-400 hover:text-green-300 hover:bg-gray-800' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              }`}
+            >
+              <Music className={`h-4 w-4 ${
+                isDarkMode 
+                  ? 'text-green-400' 
+                  : 'text-blue-600'
+              }`} />
+              <span className={`hidden sm:inline ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Sounds</span>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => console.log("Open AI assistance")}
+              className={`flex items-center gap-2 transition-colors ${
+                isDarkMode ? 'text-green-400 hover:text-green-300 hover:bg-gray-800' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              }`}
+            >
+              <Bot className={`h-4 w-4 ${
+                isDarkMode 
+                  ? 'text-green-400' 
+                  : 'text-blue-600'
+              }`} />
+              <span className={`hidden sm:inline ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>AI</span>
+            </Button>
+          </div>
         </div>
       </div>
-
-      {/* AI Assistance Button - Right Bottom Corner */}
-      <Button
-        className="fixed bottom-6 right-6 h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg z-30"
-        onClick={() => console.log("Open AI assistance")}
-      >
-        <Bot className="h-5 w-5" />
-      </Button>
 
       {/* Go to Question Popup */}
       {showGoToInput && (
