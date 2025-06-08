@@ -263,7 +263,7 @@ Keep the evaluation constructive and educational.`;
                   isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-gray-50 border-gray-200'
                 }`}>
                   <h4 className={`font-medium mb-3 ${isDarkMode ? 'text-green-400' : 'text-gray-800'}`}>
-                    Write your response (15+ lines expected):
+                    Write your response:
                   </h4>
                   <Textarea
                     value={writingAnswer}

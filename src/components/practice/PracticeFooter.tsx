@@ -41,22 +41,40 @@ const PracticeFooter = ({
         isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
       } z-10`}>
         <div className="flex items-center justify-between px-4 sm:px-6 py-3">
-          {/* Left: Community Stats */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onToggleCommunityStats}
-            className={`flex items-center gap-2 transition-colors ${
-              isDarkMode ? 'text-green-400 hover:text-green-300 hover:bg-gray-800' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-            }`}
-          >
-            <BarChart2 className={`h-4 w-4 ${
-              isDarkMode 
-                ? 'text-green-400' 
-                : 'text-blue-600'
-            }`} />
-            <span className={isDarkMode ? 'text-green-400' : 'text-gray-700'}>Community Stats</span>
-          </Button>
+          {/* Left: Comment + Community Stats */}
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => console.log("Open comments")}
+              className={`flex items-center gap-2 transition-colors ${
+                isDarkMode ? 'text-green-400 hover:text-green-300 hover:bg-gray-800' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              }`}
+            >
+              <MessageCircle className={`h-4 w-4 ${
+                isDarkMode 
+                  ? 'text-green-400' 
+                  : 'text-blue-600'
+              }`} />
+              <span className={`hidden sm:inline ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Comments</span>
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggleCommunityStats}
+              className={`flex items-center gap-2 transition-colors ${
+                isDarkMode ? 'text-green-400 hover:text-green-300 hover:bg-gray-800' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              }`}
+            >
+              <BarChart2 className={`h-4 w-4 ${
+                isDarkMode 
+                  ? 'text-green-400' 
+                  : 'text-blue-600'
+              }`} />
+              <span className={`hidden sm:inline ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Community Stats</span>
+            </Button>
+          </div>
 
           {/* Center: Navigation Controls */}
           <div className="flex items-center gap-3">
@@ -120,15 +138,6 @@ const PracticeFooter = ({
           <div className="w-24"></div>
         </div>
       </div>
-
-      {/* Bottom Corner Buttons */}
-      {/* Comment Button - Left Bottom Corner */}
-      <Button
-        className="fixed bottom-6 left-6 h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg z-30"
-        onClick={() => console.log("Open comments")}
-      >
-        <MessageCircle className="h-5 w-5" />
-      </Button>
 
       {/* AI Assistance Button - Right Bottom Corner */}
       <Button
