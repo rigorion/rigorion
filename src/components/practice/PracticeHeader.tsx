@@ -82,12 +82,6 @@ export const PracticeHeader = ({
     setSelectedChapter(chapter);
     setIsChapterDropdownOpen(false);
     
-    // Clear exam filter when changing chapter
-    if (selectedExam !== null) {
-      console.log("PracticeHeader - Clearing exam filter due to chapter change");
-      setSelectedExam(null);
-    }
-    
     if (onFilterChange) {
       let chapterNumber: string | undefined;
       if (chapter !== "All Chapters") {
@@ -98,7 +92,7 @@ export const PracticeHeader = ({
       onFilterChange({
         chapter: chapterNumber,
         module: selectedModule === "All SAT Math" ? undefined : selectedModule,
-        exam: null // Clear exam filter
+        exam: selectedExam
       });
     }
   };
@@ -107,12 +101,6 @@ export const PracticeHeader = ({
     console.log("PracticeHeader - Module filter selected:", module);
     setSelectedModule(module);
     setIsModuleDropdownOpen(false);
-    
-    // Clear exam filter when changing module
-    if (selectedExam !== null) {
-      console.log("PracticeHeader - Clearing exam filter due to module change");
-      setSelectedExam(null);
-    }
     
     if (onFilterChange) {
       let chapterNumber: string | undefined;
@@ -124,7 +112,7 @@ export const PracticeHeader = ({
       onFilterChange({
         chapter: chapterNumber,
         module: module === "All SAT Math" ? undefined : module,
-        exam: null // Clear exam filter
+        exam: selectedExam
       });
     }
   };
@@ -133,17 +121,19 @@ export const PracticeHeader = ({
     console.log("PracticeHeader - Exam filter changed:", examNumber);
     setSelectedExam(examNumber);
     
-    // Clear chapter and module filters when selecting exam
-    if (examNumber !== null) {
-      console.log("PracticeHeader - Clearing chapter and module filters due to exam selection");
-      setSelectedChapter("All Chapters");
-      setSelectedModule("All SAT Math");
-    }
-    
     if (onFilterChange) {
+      // Get current chapter and module values
+      let chapterNumber: string | undefined;
+      if (selectedChapter !== "All Chapters") {
+        const match = selectedChapter.match(/Chapter (\d+)/);
+        chapterNumber = match ? match[1] : undefined;
+      }
+      
+      const moduleValue = selectedModule === "All SAT Math" ? undefined : selectedModule;
+      
       onFilterChange({
-        chapter: examNumber !== null ? undefined : (selectedChapter !== "All Chapters" ? selectedChapter.match(/Chapter (\d+)/)?.[1] : undefined),
-        module: examNumber !== null ? undefined : (selectedModule !== "All SAT Math" ? selectedModule : undefined),
+        chapter: chapterNumber,
+        module: moduleValue,
         exam: examNumber
       });
     }

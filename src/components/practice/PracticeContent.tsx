@@ -258,17 +258,12 @@ export default function PracticeContent({
     setActiveFilters(prevFilters => {
       const newFilters = { ...prevFilters, ...filters };
       
-      // If exam filter is applied, clear chapter and module
-      if (filters.exam !== undefined) {
-        if (filters.exam === null) {
-          // Clearing exam filter - keep other filters
-          delete newFilters.exam;
-        } else {
-          // Setting exam filter - clear conflicting filters
-          delete newFilters.chapter;
-          delete newFilters.module;
+      // Handle clearing of null/undefined filters
+      Object.keys(newFilters).forEach(key => {
+        if (newFilters[key as keyof FilterState] === null || newFilters[key as keyof FilterState] === undefined) {
+          delete newFilters[key as keyof FilterState];
         }
-      }
+      });
       
       console.log("New active filters:", newFilters);
       
@@ -289,11 +284,21 @@ export default function PracticeContent({
         });
       } else if (filters.exam === null) {
         toast({
-          title: "Filter Cleared",
+          title: "Exam Filter Cleared",
           description: `Showing all ${newFilteredQuestions.length} available questions`,
         });
+      } else if (filters.chapter !== undefined) {
+        toast({
+          title: "Chapter Filter Applied",
+          description: `Showing ${newFilteredQuestions.length} questions from Chapter ${filters.chapter}`,
+        });
+      } else if (filters.module !== undefined) {
+        toast({
+          title: "Module Filter Applied", 
+          description: `Showing ${newFilteredQuestions.length} questions from ${filters.module}`,
+        });
       } else {
-        const activeFilterCount = Object.keys(newFilters).filter(key => newFilters[key as keyof FilterState] !== undefined && newFilters[key as keyof FilterState] !== null).length;
+        const activeFilterCount = Object.keys(newFilters).length;
         toast({
           title: "Filters Applied",
           description: `${activeFilterCount} filter(s) active, showing ${newFilteredQuestions.length} questions`,
