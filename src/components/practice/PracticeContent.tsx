@@ -655,7 +655,8 @@ export default function PracticeContent({
       <ObjectiveDialog 
         open={objectiveDialogOpen} 
         onOpenChange={setObjectiveDialogOpen} 
-        onSetObjective={handleSetObjective} 
+        onSetObjective={handleSetObjective}
+        maxQuestions={filteredQuestions.length || 300}
       />
 
       {/* Debug Info */}
