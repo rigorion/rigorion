@@ -328,7 +328,7 @@ Keep the evaluation constructive and educational.`;
                         <Button
                           key={index}
                           variant="outline"
-                          className={`w-full h-12 rounded-full px-6 text-center justify-center transition-all duration-200 ${buttonStyle}`}
+                          className={`w-full h-auto min-h-[60px] rounded-full px-4 py-3 text-center justify-center transition-all duration-200 ${buttonStyle}`}
                           onClick={() => checkAnswer(choiceKey)}
                           disabled={!!selectedAnswer}
                           style={{ 
@@ -338,12 +338,18 @@ Keep the evaluation constructive and educational.`;
                           }}
                         >
                           <div className="flex items-center justify-center w-full gap-2">
-                            <span>Option {choiceKey}</span>
+                            <div className="flex flex-col items-center text-center">
+                              <span className="text-xs text-gray-500 mb-1">Option {choiceKey}</span>
+                              <span 
+                                className="text-sm leading-tight"
+                                dangerouslySetInnerHTML={{ __html: choice }}
+                              />
+                            </div>
                             {selectedAnswer && isSelected && (
-                              isCorrect ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />
+                              isCorrect ? <Check className="h-4 w-4 ml-2 flex-shrink-0" /> : <X className="h-4 w-4 ml-2 flex-shrink-0" />
                             )}
                             {selectedAnswer && !isSelected && isCorrectChoice && (
-                              <Check className="h-4 w-4" />
+                              <Check className="h-4 w-4 ml-2 flex-shrink-0" />
                             )}
                           </div>
                         </Button>
