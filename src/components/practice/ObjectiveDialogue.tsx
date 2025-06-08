@@ -15,12 +15,50 @@ const ObjectiveDialog = ({ open, onOpenChange, onSetObjective }: ObjectiveDialog
   const [objectiveType, setObjectiveType] = useState<"questions" | "time">("questions");
   const [questionCount, setQuestionCount] = useState<number>(10);
   const [timeInMinutes, setTimeInMinutes] = useState<number>(30);
+  const [questionCountInput, setQuestionCountInput] = useState<string>("10");
+  const [timeInput, setTimeInput] = useState<string>("30");
+
+  const handleQuestionCountChange = (value: string) => {
+    setQuestionCountInput(value);
+    const parsed = parseInt(value);
+    if (!isNaN(parsed) && parsed > 0) {
+      setQuestionCount(parsed);
+    }
+  };
+
+  const handleQuestionCountBlur = () => {
+    const parsed = parseInt(questionCountInput);
+    const finalValue = isNaN(parsed) || parsed < 1 ? 1 : parsed;
+    setQuestionCount(finalValue);
+    setQuestionCountInput(finalValue.toString());
+  };
+
+  const handleTimeChange = (value: string) => {
+    setTimeInput(value);
+    const parsed = parseInt(value);
+    if (!isNaN(parsed) && parsed > 0) {
+      setTimeInMinutes(parsed);
+    }
+  };
+
+  const handleTimeBlur = () => {
+    const parsed = parseInt(timeInput);
+    const finalValue = isNaN(parsed) || parsed < 1 ? 1 : parsed;
+    setTimeInMinutes(finalValue);
+    setTimeInput(finalValue.toString());
+  };
 
   const handleSetObjective = () => {
+    // Ensure final validation before setting objective
+    handleQuestionCountBlur();
+    handleTimeBlur();
+    
     if (objectiveType === "questions") {
-      onSetObjective("questions", questionCount);
+      const finalQuestionCount = Math.max(1, parseInt(questionCountInput) || 1);
+      onSetObjective("questions", finalQuestionCount);
     } else {
-      onSetObjective("time", timeInMinutes * 60); // Convert to seconds
+      const finalTimeInMinutes = Math.max(1, parseInt(timeInput) || 1);
+      onSetObjective("time", finalTimeInMinutes * 60); // Convert to seconds
     }
     onOpenChange(false);
   };
@@ -46,8 +84,9 @@ const ObjectiveDialog = ({ open, onOpenChange, onSetObjective }: ObjectiveDialog
               <Input
                 type="number"
                 placeholder="Number of questions"
-                value={questionCount}
-                onChange={(e) => setQuestionCount(Math.max(1, parseInt(e.target.value) || 1))}
+                value={questionCountInput}
+                onChange={(e) => handleQuestionCountChange(e.target.value)}
+                onBlur={handleQuestionCountBlur}
                 min="1"
                 className="w-full rounded-xl"
               />
@@ -57,8 +96,9 @@ const ObjectiveDialog = ({ open, onOpenChange, onSetObjective }: ObjectiveDialog
               <Input
                 type="number"
                 placeholder="Minutes"
-                value={timeInMinutes}
-                onChange={(e) => setTimeInMinutes(Math.max(1, parseInt(e.target.value) || 1))}
+                value={timeInput}
+                onChange={(e) => handleTimeChange(e.target.value)}
+                onBlur={handleTimeBlur}
                 min="1"
                 className="w-full rounded-xl"
               />
