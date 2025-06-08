@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Target, Navigation, ChevronDown, LogOut, Bell, Filter, Moon, Sun } from "lucide-react";
+import { Target, Navigation, ChevronDown, LogOut, Bell, Filter, Moon, Sun, BookOpen } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -12,7 +12,6 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import ModulesDialog from "./ModulesDialog";
 import { useTheme } from "@/contexts/ThemeContext";
 
 interface PracticeHeaderProps {
@@ -40,6 +39,7 @@ export const PracticeHeader = ({
   const [isNavDropdownOpen, setIsNavDropdownOpen] = useState(false);
   const [isChapterDropdownOpen, setIsChapterDropdownOpen] = useState(false);
   const [isModuleDropdownOpen, setIsModuleDropdownOpen] = useState(false);
+  const [isExamDropdownOpen, setIsExamDropdownOpen] = useState(false);
   const [hasNotifications, setHasNotifications] = useState(true);
   const [selectedChapter, setSelectedChapter] = useState<string>("All Chapters");
   const [selectedModule, setSelectedModule] = useState<string>("All SAT Math");
@@ -62,6 +62,22 @@ export const PracticeHeader = ({
     "Chapter 5"
   ];
 
+  const exams = [
+    "All Exams",
+    "Exam 1",
+    "Exam 2",
+    "Exam 3",
+    "Exam 4",
+    "Exam 5",
+    "Exam 6",
+    "Exam 7",
+    "Exam 8",
+    "Exam 9",
+    "Exam 10",
+    "Exam 11",
+    "Exam 12"
+  ];
+
   const modules = [
     "All SAT Math",
     "SAT Reading",
@@ -82,12 +98,6 @@ export const PracticeHeader = ({
     setSelectedChapter(chapter);
     setIsChapterDropdownOpen(false);
     
-    // Clear exam filter when changing chapter
-    if (selectedExam !== null) {
-      console.log("PracticeHeader - Clearing exam filter due to chapter change");
-      setSelectedExam(null);
-    }
-    
     if (onFilterChange) {
       let chapterNumber: string | undefined;
       if (chapter !== "All Chapters") {
@@ -98,7 +108,7 @@ export const PracticeHeader = ({
       onFilterChange({
         chapter: chapterNumber,
         module: selectedModule === "All SAT Math" ? undefined : selectedModule,
-        exam: null // Clear exam filter
+        exam: selectedExam
       });
     }
   };
@@ -107,12 +117,6 @@ export const PracticeHeader = ({
     console.log("PracticeHeader - Module filter selected:", module);
     setSelectedModule(module);
     setIsModuleDropdownOpen(false);
-    
-    // Clear exam filter when changing module
-    if (selectedExam !== null) {
-      console.log("PracticeHeader - Clearing exam filter due to module change");
-      setSelectedExam(null);
-    }
     
     if (onFilterChange) {
       let chapterNumber: string | undefined;
@@ -124,26 +128,36 @@ export const PracticeHeader = ({
       onFilterChange({
         chapter: chapterNumber,
         module: module === "All SAT Math" ? undefined : module,
-        exam: null // Clear exam filter
+        exam: selectedExam
       });
     }
   };
 
-  const handleExamFilter = (examNumber: number | null) => {
-    console.log("PracticeHeader - Exam filter changed:", examNumber);
-    setSelectedExam(examNumber);
-    
-    // Clear chapter and module filters when selecting exam
-    if (examNumber !== null) {
-      console.log("PracticeHeader - Clearing chapter and module filters due to exam selection");
-      setSelectedChapter("All Chapters");
-      setSelectedModule("All SAT Math");
-    }
+  const handleExamFilter = (exam: string) => {
+    console.log("PracticeHeader - Exam filter selected:", exam);
+    setIsExamDropdownOpen(false);
     
     if (onFilterChange) {
+      let examNumber: number | null = null;
+      if (exam !== "All Exams") {
+        const match = exam.match(/Exam (\d+)/);
+        examNumber = match ? parseInt(match[1]) : null;
+      }
+
+      // Get current chapter and module values
+      let chapterNumber: string | undefined;
+      if (selectedChapter !== "All Chapters") {
+        const match = selectedChapter.match(/Chapter (\d+)/);
+        chapterNumber = match ? match[1] : undefined;
+      }
+      
+      const moduleValue = selectedModule === "All SAT Math" ? undefined : selectedModule;
+      
+      setSelectedExam(examNumber);
+      
       onFilterChange({
-        chapter: examNumber !== null ? undefined : (selectedChapter !== "All Chapters" ? selectedChapter.match(/Chapter (\d+)/)?.[1] : undefined),
-        module: examNumber !== null ? undefined : (selectedModule !== "All SAT Math" ? selectedModule : undefined),
+        chapter: chapterNumber,
+        module: moduleValue,
         exam: examNumber
       });
     }
@@ -345,10 +359,42 @@ export const PracticeHeader = ({
         </DropdownMenu>
 
         {/* Exams Filter - Make visible on all screen sizes */}
-        <ModulesDialog 
-          onExamFilter={handleExamFilter} 
-          currentExamFilter={selectedExam}
-        />
+        <DropdownMenu open={isExamDropdownOpen} onOpenChange={setIsExamDropdownOpen}>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`rounded-full bg-transparent transition-colors flex ${
+                isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
+              } ${selectedExam !== null ? (isDarkMode ? 'text-green-300 bg-green-900/20' : 'text-blue-600 bg-blue-50') : ''}`}
+            >
+              <BookOpen className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
+              <span className={`hidden sm:inline ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>
+                {selectedExam !== null ? `Exam ${selectedExam}` : "Exams"}
+              </span>
+              <span className={`sm:hidden ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Ex</span>
+              <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isExamDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className={`w-56 shadow-lg rounded-lg p-2 z-50 ${
+            isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
+          }`}>
+            <ScrollArea className="h-[300px]">
+              {exams.map((exam, index) => (
+                <DropdownMenuItem 
+                  key={index}
+                  className={`cursor-pointer py-2 px-3 rounded-md transition-colors ${
+                    isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
+                  } ${(selectedExam === null && exam === "All Exams") || (selectedExam !== null && exam === `Exam ${selectedExam}`) ? (isDarkMode ? 'bg-gray-800' : 'bg-gray-100') : ''}`}
+                  onClick={() => handleExamFilter(exam)}
+                >
+                  <span className={`font-source-sans text-sm ${isDarkMode ? 'text-green-400' : 'text-[#304455]'}`}>{exam}</span>
+                  {((selectedExam === null && exam === "All Exams") || (selectedExam !== null && exam === `Exam ${selectedExam}`)) && <span className="ml-auto text-xs">✓</span>}
+                </DropdownMenuItem>
+              ))}
+            </ScrollArea>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* Chapters Filter - Make visible on all screen sizes */}
         <DropdownMenu open={isChapterDropdownOpen} onOpenChange={setIsChapterDropdownOpen}>
