@@ -196,7 +196,7 @@ export default function PracticeContent({
         
         const matches = questionExam === filters.exam;
         
-        // Log each comparison
+        // Log each comparison for debugging
         if (matches) {
           console.log(`✅ MATCH: Question ${q.id} has examNumber ${questionExam}`);
         }
@@ -273,36 +273,37 @@ export default function PracticeContent({
       }
       
       console.log("New active filters:", newFilters);
+      
+      // Apply filters with the new filter state and update filtered questions
+      const newFilteredQuestions = applyFilters(newFilters, allQuestions);
+      setFilteredQuestions(newFilteredQuestions);
+      
+      // Reset to first question
+      setCurrentQuestionIndex(0);
+      setSelectedAnswer(null);
+      setIsCorrect(null);
+      
+      // Show feedback to user
+      if (filters.exam !== undefined && filters.exam !== null) {
+        toast({
+          title: "Exam Filter Applied",
+          description: `Showing ${newFilteredQuestions.length} questions from Exam ${filters.exam}`,
+        });
+      } else if (filters.exam === null) {
+        toast({
+          title: "Filter Cleared",
+          description: `Showing all ${newFilteredQuestions.length} available questions`,
+        });
+      } else {
+        const activeFilterCount = Object.keys(newFilters).filter(key => newFilters[key as keyof FilterState] !== undefined && newFilters[key as keyof FilterState] !== null).length;
+        toast({
+          title: "Filters Applied",
+          description: `${activeFilterCount} filter(s) active, showing ${newFilteredQuestions.length} questions`,
+        });
+      }
+      
       return newFilters;
     });
-    
-    // Apply filters and update filtered questions
-    const newFilteredQuestions = applyFilters(filters, allQuestions);
-    setFilteredQuestions(newFilteredQuestions);
-    
-    // Reset to first question
-    setCurrentQuestionIndex(0);
-    setSelectedAnswer(null);
-    setIsCorrect(null);
-    
-    // Show feedback to user
-    if (filters.exam !== undefined && filters.exam !== null) {
-      toast({
-        title: "Exam Filter Applied",
-        description: `Showing ${newFilteredQuestions.length} questions from Exam ${filters.exam}`,
-      });
-    } else if (filters.exam === null) {
-      toast({
-        title: "Filter Cleared",
-        description: `Showing all ${newFilteredQuestions.length} available questions`,
-      });
-    } else {
-      const activeFilterCount = Object.keys(filters).filter(key => filters[key as keyof FilterState] !== undefined).length;
-      toast({
-        title: "Filters Applied",
-        description: `${activeFilterCount} filter(s) active, showing ${newFilteredQuestions.length} questions`,
-      });
-    }
   }, [allQuestions, applyFilters, toast]);
 
   // Update filtered questions when base questions change

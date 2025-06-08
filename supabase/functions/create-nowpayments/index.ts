@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -63,8 +62,8 @@ serve(async (req) => {
       throw new Error(`NOWPayments API error: ${paymentData.message || "Unknown error"}`);
     }
 
-    // Save payment info
-    await supabaseClient
+    // Save payment info with error handling
+    const { data: insertData, error: insertError } = await supabaseClient
       .from('crypto_payments')
       .insert({
         user_id: user.id,
@@ -76,12 +75,16 @@ serve(async (req) => {
         created_at: new Date().toISOString(),
       });
 
+    if (insertError) {
+      throw new Error(`Database error: ${insertError.message}`);
+    }
+
     return new Response(
       JSON.stringify({ url: paymentData.invoice_url }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
   } catch (error) {
-    console.error(error);
+    console.error('Error details:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
