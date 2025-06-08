@@ -195,6 +195,7 @@ export default function PracticeContent({
         
         const matches = questionExam === filters.exam;
         
+        // Log each comparison for debugging
         if (matches) {
           console.log(`✅ MATCH: Question ${q.id} has examNumber ${questionExam}`);
         }
@@ -218,10 +219,22 @@ export default function PracticeContent({
       }
     }
     
-    // Apply chapter filter
+    // Apply chapter filter (exclude questions with examNumber)
     if (filters.chapter) {
       const beforeFilter = filtered.length;
       filtered = filtered.filter(q => {
+        // Exclude questions that have an examNumber - they belong to exams, not chapters
+        let questionExam = q.examNumber;
+        if (typeof questionExam === 'string') {
+          const parsed = parseInt(questionExam, 10);
+          questionExam = isNaN(parsed) ? null : parsed;
+        }
+        
+        // If question has an examNumber, it doesn't belong to any chapter
+        if (questionExam !== null && questionExam !== undefined) {
+          return false;
+        }
+        
         const chapterMatch = q.chapter?.match(/Chapter (\d+)/i);
         const matchedChapterNumber = chapterMatch ? chapterMatch[1] : null;
         return matchedChapterNumber === filters.chapter;
@@ -257,49 +270,55 @@ export default function PracticeContent({
     setActiveFilters(prevFilters => {
       const newFilters = { ...prevFilters, ...filters };
       
-      // If exam filter is applied, clear chapter and module
-      if (filters.exam !== undefined) {
-        if (filters.exam === null) {
-          // Clearing exam filter - keep other filters
-          delete newFilters.exam;
-        } else {
-          // Setting exam filter - clear conflicting filters
-          delete newFilters.chapter;
-          delete newFilters.module;
+      // Handle clearing of null/undefined filters
+      Object.keys(newFilters).forEach(key => {
+        if (newFilters[key as keyof FilterState] === null || newFilters[key as keyof FilterState] === undefined) {
+          delete newFilters[key as keyof FilterState];
         }
-      }
+      });
       
       console.log("New active filters:", newFilters);
+      
+      // Apply filters with the new filter state and update filtered questions
+      const newFilteredQuestions = applyFilters(newFilters, allQuestions);
+      setFilteredQuestions(newFilteredQuestions);
+      
+      // Reset to first question
+      setCurrentQuestionIndex(0);
+      setSelectedAnswer(null);
+      setIsCorrect(null);
+      
+      // Show feedback to user
+      if (filters.exam !== undefined && filters.exam !== null) {
+        toast({
+          title: "Exam Filter Applied",
+          description: `Showing ${newFilteredQuestions.length} questions from Exam ${filters.exam}`,
+        });
+      } else if (filters.exam === null) {
+        toast({
+          title: "Exam Filter Cleared",
+          description: `Showing all ${newFilteredQuestions.length} available questions`,
+        });
+      } else if (filters.chapter !== undefined) {
+        toast({
+          title: "Chapter Filter Applied",
+          description: `Showing ${newFilteredQuestions.length} questions from Chapter ${filters.chapter}`,
+        });
+      } else if (filters.module !== undefined) {
+        toast({
+          title: "Module Filter Applied", 
+          description: `Showing ${newFilteredQuestions.length} questions from ${filters.module}`,
+        });
+      } else {
+        const activeFilterCount = Object.keys(newFilters).length;
+        toast({
+          title: "Filters Applied",
+          description: `${activeFilterCount} filter(s) active, showing ${newFilteredQuestions.length} questions`,
+        });
+      }
+      
       return newFilters;
     });
-    
-    // Apply filters and update filtered questions
-    const newFilteredQuestions = applyFilters(filters, allQuestions);
-    setFilteredQuestions(newFilteredQuestions);
-    
-    // Reset to first question
-    setCurrentQuestionIndex(0);
-    setSelectedAnswer(null);
-    setIsCorrect(null);
-    
-    // Show feedback to user
-    if (filters.exam !== undefined && filters.exam !== null) {
-      toast({
-        title: "Exam Filter Applied",
-        description: `Showing ${newFilteredQuestions.length} questions from Exam ${filters.exam}`,
-      });
-    } else if (filters.exam === null) {
-      toast({
-        title: "Filter Cleared",
-        description: `Showing all ${newFilteredQuestions.length} available questions`,
-      });
-    } else {
-      const activeFilterCount = Object.keys(filters).filter(key => filters[key as keyof FilterState] !== undefined).length;
-      toast({
-        title: "Filters Applied",
-        description: `${activeFilterCount} filter(s) active, showing ${newFilteredQuestions.length} questions`,
-      });
-    }
   }, [allQuestions, applyFilters, toast]);
 
   // Update filtered questions when base questions change
