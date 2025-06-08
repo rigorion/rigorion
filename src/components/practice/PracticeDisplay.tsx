@@ -304,9 +304,9 @@ Keep the evaluation constructive and educational.`;
                   </Button>
                 </div>
 
-                {/* Multiple Choice */}
+                {/* Multiple Choice - 2x2 Grid with Rounded Buttons */}
                 {isMultipleChoice ? (
-                  <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-4">
                     {currentQuestion.choices?.map((choice, index) => {
                       const choiceKey = String.fromCharCode(65 + index);
                       const isSelected = selectedAnswer === choiceKey;
@@ -316,45 +316,45 @@ Keep the evaluation constructive and educational.`;
                       if (selectedAnswer && isSelected) {
                         if (isCorrect) {
                           buttonStyle = isDarkMode 
-                            ? 'bg-green-800 border-green-500 text-green-300' 
-                            : 'bg-green-100 border-green-500 text-green-700';
+                            ? 'bg-green-700 border-green-500 text-green-100 shadow-lg' 
+                            : 'bg-green-500 border-green-600 text-white shadow-lg';
                         } else {
                           buttonStyle = isDarkMode 
-                            ? 'bg-red-800 border-red-500 text-red-300' 
-                            : 'bg-red-100 border-red-500 text-red-700';
+                            ? 'bg-red-700 border-red-500 text-red-100 shadow-lg' 
+                            : 'bg-red-500 border-red-600 text-white shadow-lg';
                         }
                       } else if (selectedAnswer && isCorrectChoice) {
                         buttonStyle = isDarkMode 
-                          ? 'bg-green-800 border-green-500 text-green-300' 
-                          : 'bg-green-100 border-green-500 text-green-700';
+                          ? 'bg-green-700 border-green-500 text-green-100 shadow-lg' 
+                          : 'bg-green-500 border-green-600 text-white shadow-lg';
                       } else {
                         buttonStyle = isDarkMode 
-                          ? 'bg-gray-800 border-green-500/30 text-green-400 hover:bg-gray-700' 
-                          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50';
+                          ? 'bg-gray-800 border-green-500/30 text-green-400 hover:bg-gray-700 hover:border-green-400' 
+                          : 'bg-white border-blue-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300 shadow-sm';
                       }
 
                       return (
                         <Button
                           key={index}
                           variant="outline"
-                          className={`w-full p-4 h-auto text-left justify-start transition-colors ${buttonStyle}`}
+                          className={`w-full h-20 rounded-full p-4 text-left justify-start transition-all duration-200 transform hover:scale-105 ${buttonStyle}`}
                           onClick={() => checkAnswer(choiceKey)}
                           disabled={!!selectedAnswer}
                           style={contentTextStyle}
                         >
-                          <div className="flex items-start gap-3 w-full">
-                            <span className="font-semibold text-base">
-                              {choiceKey}.
+                          <div className="flex items-center gap-3 w-full">
+                            <span className="font-bold text-lg bg-white bg-opacity-20 rounded-full w-8 h-8 flex items-center justify-center">
+                              {choiceKey}
                             </span>
                             <span 
-                              className="flex-1 text-left whitespace-pre-wrap"
+                              className="flex-1 text-left whitespace-pre-wrap text-sm"
                               dangerouslySetInnerHTML={{ __html: choice }}
                             />
                             {selectedAnswer && isSelected && (
-                              isCorrect ? <Check className="h-5 w-5 text-green-600" /> : <X className="h-5 w-5 text-red-600" />
+                              isCorrect ? <Check className="h-5 w-5 flex-shrink-0" /> : <X className="h-5 w-5 flex-shrink-0" />
                             )}
                             {selectedAnswer && !isSelected && isCorrectChoice && (
-                              <Check className="h-5 w-5 text-green-600" />
+                              <Check className="h-5 w-5 flex-shrink-0" />
                             )}
                           </div>
                         </Button>
