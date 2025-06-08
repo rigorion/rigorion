@@ -190,411 +190,263 @@ Keep the evaluation constructive and educational.`;
   const graphUrl = getGraphUrl(currentQuestion);
 
   return (
-    <>
-      {/* Main Content Container - Made responsive */}
-      <div className="flex flex-col lg:flex-row gap-4 min-h-[calc(100vh-300px)] w-full px-2 sm:px-[28px]">
-        {/* Left Section - Question & Choices */}
-        <div
-          className="flex-1 w-full lg:w-[70%] overflow-y-auto"
-          style={{
-            backgroundColor: boardColor === 'black' ? '#000' : boardColor === 'green' ? '#f0fdf4' : (isDarkMode ? '#1f2937' : '#fff'),
-            color: boardColor === 'black' ? '#fff' : (isDarkMode ? '#fff' : colorSettings.content),
-          }}
-        >
-          <div className="mb-6 sm:mb-8 pr-2 sm:pr-4 py-0">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center mb-4 justify-between gap-2">
-              <h2
-                className="text-xl sm:text-2xl font-semibold"
-                style={contentTextStyle}
-              >
-                Question {currentQuestionIndex + 1}
-              </h2>
-              {!isSATWriting && (
-                <div
-                  className="flex items-center gap-2 cursor-pointer"
-                  onClick={toggleQuestionType}
-                >
-                  <span className={`text-sm ${isDarkMode ? 'text-green-400' : 'text-gray-500'}`}>
-                    {isMultipleChoice ? "Multiple Choice" : "Fill-in"}
-                  </span>
-                  {isMultipleChoice ? (
-                    <ToggleRight className={`h-6 w-6 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
-                  ) : (
-                    <ToggleLeft className={`h-6 w-6 ${isDarkMode ? 'text-green-400' : 'text-gray-500'}`} />
-                  )}
-                </div>
-              )}
-              {isSATWriting && (
-                <div className={`text-sm font-medium px-3 py-1 rounded-full ${
-                  isDarkMode ? 'bg-green-900/30 text-green-400' : 'bg-blue-100 text-blue-700'
-                }`}>
-                  SAT Writing Mode
-                </div>
-              )}
-            </div>
-
-            {/* Question Content - Apply font settings */}
-            <div
-              className="mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base"
+    <div className="flex flex-col lg:flex-row gap-4 min-h-[calc(100vh-300px)] w-full px-2 sm:px-[28px]">
+      {/* Content Section */}
+      <div className={`flex-1 rounded-xl p-6 transition-colors ${
+        isDarkMode ? 'bg-gray-900' : 'bg-white'
+      }`} style={{ backgroundColor: boardColor }}>
+        {/* Question Content - Always visible */}
+        <div className="space-y-6">
+          {/* Question Display */}
+          <div className="space-y-4">
+            <div 
               style={contentTextStyle}
+              className="whitespace-pre-wrap"
               dangerouslySetInnerHTML={{ __html: currentQuestion.content }}
             />
 
-            {/* Graph Display - Only if graph URL exists */}
+            {/* Graph Display */}
             {graphUrl && (
-              <div className="mb-6 flex justify-center">
-                <img
-                  src={graphUrl}
-                  alt="Question graph"
-                  className="max-w-full max-h-32"
-                  style={{ border: 'none', height: 'auto' }}
-                  onError={(e) => {
-                    // Hide the image if it fails to load
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
+              <div className="mt-4 flex justify-center">
+                <img 
+                  src={graphUrl} 
+                  alt="Question Graph" 
+                  className="max-w-full h-auto rounded-lg shadow-md"
+                  style={{ maxHeight: '400px' }}
                 />
               </div>
             )}
+          </div>
 
-            {/* Answer Input Section */}
+          {/* Answer Section */}
+          <div className="mt-6 space-y-4">
+            {/* SAT Writing Mode */}
             {isSATWriting ? (
               <div className="space-y-4">
-                <div className={`p-4 rounded-lg border ${
-                  isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-gray-50 border-gray-200'
-                }`}>
-                  <h4 className={`font-medium mb-3 ${isDarkMode ? 'text-green-400' : 'text-gray-800'}`}>
-                    Write your response (15+ lines expected):
-                  </h4>
-                  <Textarea
-                    value={writingAnswer}
-                    onChange={(e) => setWritingAnswer(e.target.value)}
-                    placeholder="Write your comprehensive response here. Consider structure, evidence, clarity, and proper grammar..."
-                    className={`w-full min-h-[400px] p-4 border shadow-md rounded-md text-sm sm:text-base resize-y ${
-                      isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-gray-800 border-gray-300'
+                <Textarea
+                  value={writingAnswer}
+                  onChange={(e) => setWritingAnswer(e.target.value)}
+                  placeholder="Write your response here..."
+                  className={`w-full min-h-[200px] p-4 border rounded-lg resize-none transition-colors ${
+                    isDarkMode 
+                      ? 'bg-gray-800 border-green-500/30 text-green-400 placeholder-green-600' 
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  }`}
+                  style={contentTextStyle}
+                />
+                
+                <div className="flex justify-between items-center">
+                  <span className={`text-sm ${
+                    isDarkMode ? 'text-green-500' : 'text-gray-500'
+                  }`}>
+                    {writingAnswer.length} characters
+                  </span>
+                  
+                  <Button
+                    onClick={handleAIEvaluation}
+                    disabled={!writingAnswer.trim() || isEvaluating}
+                    className={`transition-colors ${
+                      isDarkMode 
+                        ? 'bg-green-600 hover:bg-green-700 text-white border-green-500/30' 
+                        : 'bg-blue-600 hover:bg-blue-700 text-white'
                     }`}
-                    style={contentTextStyle}
-                  />
-                  <div className="flex justify-end mt-4">
-                    <Button 
-                      onClick={handleAIEvaluation} 
-                      disabled={!writingAnswer.trim() || isEvaluating}
-                      className={`flex items-center gap-2 ${
-                        isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'
-                      }`}
-                    >
-                      {isEvaluating ? (
-                        <>
-                          <Bot className="h-4 w-4 animate-spin" />
-                          Evaluating...
-                        </>
-                      ) : (
-                        <>
-                          <Bot className="h-4 w-4" />
-                          AI Examiner
-                        </>
-                      )}
-                    </Button>
-                  </div>
+                  >
+                    {isEvaluating ? (
+                      <>
+                        <Bot className="h-4 w-4 mr-2 animate-spin" />
+                        Evaluating...
+                      </>
+                    ) : (
+                      <>
+                        <Bot className="h-4 w-4 mr-2" />
+                        Get AI Feedback
+                      </>
+                    )}
+                  </Button>
                 </div>
 
-                {/* AI Evaluation Results */}
+                {/* AI Evaluation Display */}
                 {aiEvaluation && (
-                  <div className={`p-4 rounded-lg border ${
-                    isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'
+                  <div className={`mt-4 p-4 border rounded-lg transition-colors ${
+                    isDarkMode 
+                      ? 'bg-gray-800 border-green-500/30 text-green-400' 
+                      : 'bg-blue-50 border-blue-200 text-gray-800'
                   }`}>
-                    <h4 className={`font-medium mb-3 flex items-center gap-2 ${
-                      isDarkMode ? 'text-green-400' : 'text-blue-700'
+                    <h4 className={`font-semibold mb-2 ${
+                      isDarkMode ? 'text-green-400' : 'text-blue-800'
                     }`}>
-                      <Bot className="h-5 w-5" />
-                      AI Examiner Evaluation
+                      AI Evaluation:
                     </h4>
-                    <div 
-                      className={`whitespace-pre-wrap leading-relaxed ${
-                        isDarkMode ? 'text-green-300' : 'text-gray-700'
-                      }`}
-                      style={contentTextStyle}
-                    >
+                    <div className="whitespace-pre-wrap text-sm">
                       {aiEvaluation}
                     </div>
                   </div>
                 )}
               </div>
             ) : (
-              /* Regular Multiple Choice or Fill-in Section */
-              <>
+              /* Regular Question Mode */
+              <div className="space-y-4">
+                {/* Question Type Toggle */}
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={toggleQuestionType}
+                    className={`flex items-center gap-2 transition-colors ${
+                      isDarkMode 
+                        ? 'border-green-500/30 text-green-400 hover:bg-gray-800' 
+                        : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    {isMultipleChoice ? <ToggleLeft className="h-4 w-4" /> : <ToggleRight className="h-4 w-4" />}
+                    {isMultipleChoice ? 'Multiple Choice' : 'Fill in the Blank'}
+                  </Button>
+                </div>
+
+                {/* Multiple Choice - Fully Rounded White Buttons */}
                 {isMultipleChoice ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    {(currentQuestion.choices || []).map((choice, index) => {
-                      const choiceLetter = String.fromCharCode(65 + index); // A, B, C, D
-                      const isSelected = selectedAnswer === choiceLetter || selectedAnswer === choice;
-                      const isCorrectChoice = currentQuestion.correctAnswer === choiceLetter;
+                  <div className="grid grid-cols-2 gap-4 mt-8">
+                    {currentQuestion.choices?.map((choice, index) => {
+                      const choiceKey = String.fromCharCode(65 + index);
+                      const isSelected = selectedAnswer === choiceKey;
+                      const isCorrectChoice = currentQuestion.correctAnswer === choiceKey;
                       
+                      let buttonStyle = '';
+                      if (selectedAnswer && isSelected) {
+                        if (isCorrect) {
+                          buttonStyle = 'bg-green-100 border-green-400 text-green-800 shadow-md';
+                        } else {
+                          buttonStyle = 'bg-red-100 border-red-400 text-red-800 shadow-md';
+                        }
+                      } else if (selectedAnswer && isCorrectChoice) {
+                        buttonStyle = 'bg-green-100 border-green-400 text-green-800 shadow-md';
+                      } else {
+                        buttonStyle = 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm hover:shadow-md';
+                      }
+
                       return (
-                        <div
+                        <Button
                           key={index}
-                          onClick={() => checkAnswer(choiceLetter)}
-                          className={`p-3 sm:p-4 border-1 cursor-pointer transition-all duration-300 shadow-md hover:shadow-lg py-2 sm:py-[10px] px-3 sm:px-[16px] rounded-full relative overflow-hidden text-sm sm:text-base ${
-                            isSelected && isCorrect 
-                              ? (isDarkMode ? 'border-green-400 bg-green-900/50 animate-pulse' : 'border-green-500 bg-green-50 animate-pulse')
-                              : isSelected && !isCorrect 
-                              ? (isDarkMode ? 'border-red-400 bg-red-900/50' : 'border-red-500 bg-red-50')
-                              : (isDarkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-transparent')
-                          }`}
-                          style={contentTextStyle}
+                          variant="outline"
+                          className={`w-full h-auto min-h-[60px] rounded-full px-4 py-3 text-center justify-center transition-all duration-200 ${buttonStyle}`}
+                          onClick={() => checkAnswer(choiceKey)}
+                          disabled={!!selectedAnswer}
+                          style={{ 
+                            fontFamily: getFontFamily(),
+                            fontSize: '14px',
+                            fontWeight: '500'
+                          }}
                         >
-                          {/* Green animation overlay for correct answer */}
-                          {isSelected && isCorrect && (
-                            <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 via-green-500/30 to-green-400/20 animate-ping rounded-full"></div>
-                          )}
-                          
-                          <span className={`mr-2 font-bold ${isDarkMode ? 'text-green-400' : 'text-gray-500'}`}>{choiceLetter}.</span>
-                          <span 
-                            className={isSelected ? "font-medium relative z-10" : "relative z-10"}
-                            dangerouslySetInnerHTML={{ __html: choice }}
-                          />
-                          {isSelected && (
-                            <span className="float-right relative z-10">
-                              {isCorrect ? (
-                                <Check className="h-5 w-5 text-green-600 animate-bounce" />
-                              ) : (
-                                <X className="h-5 w-5 text-red-600" />
-                              )}
-                            </span>
-                          )}
-                        </div>
+                          <div className="flex items-center justify-center w-full gap-2">
+                            <div className="flex flex-col items-center text-center">
+                              <span className="text-xs text-gray-500 mb-1">Option {choiceKey}</span>
+                              <span 
+                                className="text-sm leading-tight"
+                                dangerouslySetInnerHTML={{ __html: choice }}
+                              />
+                            </div>
+                            {selectedAnswer && isSelected && (
+                              isCorrect ? <Check className="h-4 w-4 ml-2 flex-shrink-0" /> : <X className="h-4 w-4 ml-2 flex-shrink-0" />
+                            )}
+                            {selectedAnswer && !isSelected && isCorrectChoice && (
+                              <Check className="h-4 w-4 ml-2 flex-shrink-0" />
+                            )}
+                          </div>
+                        </Button>
                       );
                     })}
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <Input
-                        value={fillInAnswer}
-                        onChange={(e) => setFillInAnswer(e.target.value)}
-                        placeholder="Type your answer here..."
-                        className={`flex-1 p-3 sm:p-4 border shadow-md rounded-md text-sm sm:text-base ${
-                          isDarkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-800 border-gray-300'
-                        }`}
-                        style={contentTextStyle}
-                        onKeyPress={(e) => e.key === 'Enter' && handleSubmitFillIn()}
-                      />
-                      <Button onClick={handleSubmitFillIn} className="shadow-md w-full sm:w-auto">
-                        Submit
-                      </Button>
+                  /* Fill in the Blank */
+                  <div className="flex gap-3">
+                    <Input
+                      value={fillInAnswer}
+                      onChange={(e) => setFillInAnswer(e.target.value)}
+                      placeholder="Enter your answer..."
+                      className={`flex-1 transition-colors ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-green-500/30 text-green-400 placeholder-green-600' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
+                      style={contentTextStyle}
+                      onKeyPress={(e) => e.key === 'Enter' && handleSubmitFillIn()}
+                    />
+                    <Button 
+                      onClick={handleSubmitFillIn}
+                      disabled={!fillInAnswer.trim()}
+                      className={`transition-colors ${
+                        isDarkMode 
+                          ? 'bg-green-600 hover:bg-green-700 text-white border-green-500/30' 
+                          : 'bg-blue-600 hover:bg-blue-700 text-white'
+                      }`}
+                    >
+                      Submit
+                    </Button>
+                  </div>
+                )}
+
+                {/* Answer Feedback */}
+                {selectedAnswer && (
+                  <div className={`p-4 rounded-lg transition-colors ${
+                    isCorrect 
+                      ? isDarkMode 
+                        ? 'bg-green-900/50 border border-green-500/30 text-green-300' 
+                        : 'bg-green-50 border border-green-200 text-green-700'
+                      : isDarkMode 
+                        ? 'bg-red-900/50 border border-red-500/30 text-red-300' 
+                        : 'bg-red-50 border border-red-200 text-red-700'
+                  }`}>
+                    <div className="flex items-center gap-2 mb-2">
+                      {isCorrect ? <Check className="h-5 w-5" /> : <X className="h-5 w-5" />}
+                      <span className="font-semibold">
+                        {isCorrect ? 'Correct!' : 'Incorrect'}
+                      </span>
                     </div>
-                    {selectedAnswer && (
-                      <div
-                        className={`p-4 mt-2 rounded-md transition-all duration-300 ${
-                          isCorrect
-                            ? (isDarkMode ? 'bg-green-900/10 text-green-300 border border-green-600 animate-pulse' : 'bg-green-50 text-green-800 border border-green-200 animate-pulse')
-                            : (isDarkMode ? 'bg-red-900/10 text-red-300 border border-red-600' : 'bg-red-50 text-red-800 border border-red-200')
-                        }`}
-                        style={contentTextStyle}
-                      >
-                        {isCorrect ? (
-                          <div className="flex items-center">
-                            <Check className="h-5 w-5 text-green-600 mr-2 animate-bounce" />
-                            <span>Correct answer!</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center">
-                            <X className="h-5 w-5 text-red-600 mr-2" />
-                            <span>
-                              Incorrect. The correct answer is: {currentQuestion.correctAnswer}
-                            </span>
-                          </div>
-                        )}
-                      </div>
+                    {!isCorrect && (
+                      <p className="text-sm">
+                        The correct answer is: <strong>{currentQuestion.correctAnswer}</strong>
+                      </p>
                     )}
                   </div>
                 )}
-              </>
+              </div>
             )}
           </div>
         </div>
 
-        {/* Right Section - Solution/Graph/Quote - Made responsive */}
-        <div className="w-full lg:w-[30%] lg:min-w-[300px] mt-4 lg:mt-0 lg:sticky lg:top-32">
-          {activeTab === "solution" && (
-            <div className={`p-4 sm:p-6 rounded-lg h-full overflow-y-auto ${
-              isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+        {/* Additional Tab Content - Shows below the question */}
+        {activeTab === "solution" && (
+          <div className="mt-8 space-y-4 border-t pt-6">
+            <h3 className={`text-xl font-semibold ${
+              isDarkMode ? 'text-green-400' : 'text-gray-800'
             }`}>
-              <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-green-300' : 'text-blue-600'}`}>Solution</h3>
-              
-              {/* Enhanced Solution with HTML formatting - Apply font settings */}
-              <div className={`mb-6 p-4 rounded-lg border-l-4 ${
-                isDarkMode ? 'border-green-400 bg-gray-700' : 'border-blue-500 bg-white'
-              }`}>
-                <h4 className={`font-medium mb-2 ${isDarkMode ? 'text-green-300' : 'text-gray-800'}`}>Explanation:</h4>
-                <div 
-                  className={`leading-relaxed solution-content text-sm sm:text-base ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}
-                  dangerouslySetInnerHTML={{ __html: currentQuestion.solution }}
-                  style={contentTextStyle}
-                />
-              </div>
-              
-              {/* Solution Steps - Apply font settings */}
-              {currentQuestion.solutionSteps && currentQuestion.solutionSteps.length > 0 && (
-                <div className="mb-4">
-                  <h4 className={`font-medium mb-3 ${isDarkMode ? 'text-green-300' : 'text-gray-800'}`}>Step-by-step solution:</h4>
-                  <div className="space-y-3">
-                    {currentQuestion.solutionSteps.map((step, index) => (
-                      <div key={index} className={`flex items-start gap-3 p-3 rounded-lg border ${
-                        isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'
-                      }`}>
-                        <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold ${
-                          isDarkMode ? 'bg-green-500 text-white' : 'bg-blue-500 text-white'
-                        }`}>
-                          {index + 1}
-                        </div>
-                        <div 
-                          className={`text-sm leading-relaxed ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}
-                          style={contentTextStyle}
-                        >
-                          {typeof step === 'string' ? step : String(step)}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Correct Answer Display - Apply font settings */}
-              <div className={`mt-4 p-3 border rounded-lg ${
-                isDarkMode ? 'bg-green-900/30 border-green-600' : 'bg-green-50 border-green-200'
-              }`}>
-                <h4 className={`font-medium mb-1 ${isDarkMode ? 'text-green-300' : 'text-green-800'}`}>Correct Answer:</h4>
-                <p 
-                  className={`font-bold text-lg ${isDarkMode ? 'text-green-200' : 'text-green-700'}`}
-                  style={contentTextStyle}
-                >
-                  {currentQuestion.correctAnswer}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "quote" && (
-            <div className={`p-4 sm:p-6 rounded-lg h-full overflow-y-auto ${
-              isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
-            }`}>
-              <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-green-300' : 'text-gray-900'}`}>Quote</h3>
-              {currentQuestion.quote ? (
-                <blockquote 
-                  className={`text-lg italic border-l-4 pl-4 ${
-                    isDarkMode ? 'border-green-400 text-green-400' : 'border-blue-500 text-gray-700'
-                  }`}
-                  style={contentTextStyle}
-                >
-                  "{currentQuestion.quote.text}"
-                  {currentQuestion.quote.source && (
-                    <footer 
-                      className={`mt-2 text-sm ${isDarkMode ? 'text-green-500' : 'text-gray-500'}`}
-                      style={contentTextStyle}
-                    >
-                      - {currentQuestion.quote.source}
-                    </footer>
-                  )}
-                </blockquote>
-              ) : (
-                <p 
-                  className={`italic ${isDarkMode ? 'text-green-500' : 'text-gray-500'}`}
-                  style={contentTextStyle}
-                >
-                  No quote available for this question.
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Go to Question Popup */}
-      {showGoToInput && (
-        <div className={`fixed bottom-24 left-1/2 -translate-x-1/2 border rounded-lg shadow-lg p-4 w-64 animate-in fade-in slide-in-from-bottom-5 z-20 ${
-          isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-300'
-        }`}>
-          <div className="flex flex-col space-y-2">
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                min="1"
-                max={totalQuestions}
-                value={targetQuestion}
-                onChange={(e) => {
-                  setTargetQuestion(e.target.value);
-                  setInputError('');
-                }}
-                className={`w-full px-3 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  isDarkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                }`}
-                placeholder={`Enter question (1-${totalQuestions})`}
-                onKeyPress={(e) => e.key === 'Enter' && handleGoToQuestion()}
-              />
-            </div>
-            {inputError && <div className="text-sm text-red-500">{inputError}</div>}
-            <Button variant="default" size="sm" className="w-full" onClick={handleGoToQuestion}>
-              Go
-            </Button>
+              Solution & Explanation
+            </h3>
+            <div 
+              style={contentTextStyle}
+              className="whitespace-pre-wrap"
+              dangerouslySetInnerHTML={{ __html: currentQuestion.solution || 'No solution available for this question.' }}
+            />
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Green animation styles */}
-      <style>
-        {`
-          @keyframes green-pulse {
-            0% {
-              box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
-            }
-            70% {
-              box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
-            }
-            100% {
-              box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
-            }
-          }
-          
-          .animate-green-pulse {
-            animation: green-pulse 2s infinite;
-          }
-        `}
-      </style>
-
-      {/* Additional CSS for solution content formatting */}
-      <style>
-        {`
-          .solution-content .formula {
-            background-color: #f3f4f6;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            color: #dc2626;
-            font-weight: 600;
-          }
-          
-          .solution-content strong {
-            color: #2563eb;
-          }
-          
-          @keyframes green-pulse {
-            0% {
-              box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
-            }
-            70% {
-              box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
-            }
-            100% {
-              box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
-            }
-          }
-          
-          .animate-green-pulse {
-            animation: green-pulse 2s infinite;
-          }
-        `}
-      </style>
-    </>
+        {/* Quote/Idea Tab */}
+        {activeTab === "quote" && (
+          <div className="mt-8 space-y-4 border-t pt-6">
+            <h3 className={`text-xl font-semibold ${
+              isDarkMode ? 'text-green-400' : 'text-gray-800'
+            }`}>
+              Key Idea
+            </h3>
+            <div 
+              style={contentTextStyle}
+              className="whitespace-pre-wrap"
+              dangerouslySetInnerHTML={{ __html: currentQuestion.quote || 'No key idea available for this question.' }}
+            />
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

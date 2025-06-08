@@ -178,11 +178,10 @@ export default function PracticeContent({
     console.log("Active filters:", filters);
     console.log("Starting with questions:", filtered.length);
     
-    // Apply exam filter FIRST and with detailed logging
+    // Apply exam filter FIRST - filter by examNumber field (integer from database)
     if (filters.exam !== undefined && filters.exam !== null) {
       console.log(`🎯 Filtering by exam: ${filters.exam} (type: ${typeof filters.exam})`);
       
-      // Log what we're looking for
       const beforeFilter = filtered.length;
       
       filtered = filtered.filter(q => {
@@ -206,7 +205,6 @@ export default function PracticeContent({
       
       console.log(`📊 Exam filter results: ${beforeFilter} → ${filtered.length}`);
       
-      // If no results, show what exam numbers are available
       if (filtered.length === 0) {
         const availableExams = [...new Set(questionsList.map(q => {
           let examNum = q.examNumber;
