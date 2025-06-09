@@ -1,4 +1,4 @@
-import { Clock, Flag, Settings } from "lucide-react";
+import { Clock, Flag, Settings, Lightbulb } from "lucide-react";
 import CountdownTimer from "./CountDownTimer";
 import HintDialog from "./HintDialog";
 import { Button } from "@/components/ui/button";
@@ -109,42 +109,76 @@ const PracticeProgress = ({
     <div className={`px-4 py-3 border-b transition-colors duration-300 ${
       isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
     }`}>
-      {/* Full width progress bar at the top */}
-      <div className="mb-3">
-        <div className={`relative h-3 rounded-full overflow-hidden w-full progress-bar ${
-          isDarkMode ? 'bg-gray-800 border border-green-500/20' : 'bg-gray-100'
-        }`}>
-          {/* Correct answers - green */}
-          <div
-            className="absolute left-0 top-0 h-full bg-green-500 rounded-l-full transition-all duration-500 ease-out shine-animation"
-            style={{ width: correctWidth, zIndex: 3 }}
-          />
-          {/* Incorrect answers - red */}
-          <div
-            className="absolute top-0 h-full bg-red-500 transition-all duration-500 ease-out"
-            style={{
-              left: incorrectLeft,
-              width: incorrectWidth,
-              zIndex: 2
-            }}
-          />
-          {/* Unattempted - grey */}
-          <div
-            className={`absolute top-0 right-0 h-full rounded-r-full transition-all duration-500 ease-out ${
-              isDarkMode ? 'bg-gray-700' : 'bg-gray-300'
-            }`}
-            style={{ width: unattemptedWidth, zIndex: 1 }}
-          />
-          {/* Progress percentage */}
-          <div className={`absolute right-0 top-0 -translate-y-1/2 translate-x-full mt-1.5 ml-2 text-xs font-thin ${
-            isDarkMode ? 'text-green-400' : 'text-blue-600'
+      {/* First Row: Progress bar next to tab menu */}
+      <div className="flex items-center gap-4 mb-3">
+        {/* Progress bar with percentage */}
+        <div className="flex-1">
+          <div className={`relative h-3 rounded-full overflow-hidden progress-bar ${
+            isDarkMode ? 'bg-gray-800 border border-green-500/20' : 'bg-gray-100'
           }`}>
-            {totalPercentage}%
+            {/* Correct answers - green */}
+            <div
+              className="absolute left-0 top-0 h-full bg-green-500 rounded-l-full transition-all duration-500 ease-out shine-animation"
+              style={{ width: correctWidth, zIndex: 3 }}
+            />
+            {/* Incorrect answers - red */}
+            <div
+              className="absolute top-0 h-full bg-red-500 transition-all duration-500 ease-out"
+              style={{
+                left: incorrectLeft,
+                width: incorrectWidth,
+                zIndex: 2
+              }}
+            />
+            {/* Unattempted - grey */}
+            <div
+              className={`absolute top-0 right-0 h-full rounded-r-full transition-all duration-500 ease-out ${
+                isDarkMode ? 'bg-gray-700' : 'bg-gray-300'
+              }`}
+              style={{ width: unattemptedWidth, zIndex: 1 }}
+            />
+            {/* Progress percentage */}
+            <div className={`absolute right-0 top-0 -translate-y-1/2 translate-x-full mt-1.5 ml-2 text-xs font-thin ${
+              isDarkMode ? 'text-green-400' : 'text-blue-600'
+            }`}>
+              {totalPercentage}%
+            </div>
           </div>
         </div>
-        
-        {/* Progress bar legend */}
-        <div className="flex items-center justify-center gap-4 mt-2">
+
+        {/* Tab selector next to progress bar */}
+        <div className="flex items-center">
+          <PracticeTabSelector activeTab={activeTab} setActiveTab={setActiveTab} className="h-8 min-h-0" />
+        </div>
+
+        {/* Silver icons inline to the right of tab menu */}
+        <div className="flex items-center gap-2">
+          {/* Hint button */}
+          <HintDialog hint={currentQuestionHint} currentQuestionIndex={currentQuestionIndex} />
+          
+          {/* Settings button */}
+          <SettingsDialog 
+            open={showSettings} 
+            onOpenChange={setShowSettings} 
+            settings={settings} 
+            onApply={handleSettingsChange}
+          >
+            <Button variant="ghost" size="sm" className="p-1 h-6 rounded-full border-none">
+              <Settings className="h-4 w-4 text-gray-400" />
+            </Button>
+          </SettingsDialog>
+          
+          {/* Flag button */}
+          <Button variant="ghost" size="sm" className="p-1 h-6 rounded-full">
+            <Flag className="h-4 w-4 text-gray-400" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Second Row: Legends with target progress inline, and timer below */}
+      <div className="flex items-center justify-between">
+        {/* Left side: Progress legends with target progress inline */}
+        <div className="flex items-center gap-4">
           <div className="flex gap-3 text-xs">
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 bg-green-500 rounded-full" />
@@ -159,42 +193,8 @@ const PracticeProgress = ({
               <span className={`font-thin ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Unattempted</span>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Bottom row with three sections */}
-      <div className="flex items-center justify-between">
-        {/* Left side: Action buttons */}
-        <div className="flex items-center gap-2">
-          {/* Hint button */}
-          <HintDialog hint={currentQuestionHint} currentQuestionIndex={currentQuestionIndex} />
           
-          {/* Settings button */}
-          <SettingsDialog 
-            open={showSettings} 
-            onOpenChange={setShowSettings} 
-            settings={settings} 
-            onApply={handleSettingsChange}
-          >
-            <Button variant="ghost" size="sm" className="p-1 h-6 rounded-full border-none">
-              <Settings className={`h-4 w-4 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
-            </Button>
-          </SettingsDialog>
-          
-          {/* Flag button */}
-          <Button variant="ghost" size="sm" className="p-1 h-6 rounded-full">
-            <Flag className={`h-4 w-4 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
-          </Button>
-        </div>
-
-        {/* Center: Tab selector */}
-        <div className="flex items-center justify-center flex-1">
-          <PracticeTabSelector activeTab={activeTab} setActiveTab={setActiveTab} className="h-8 min-h-0" />
-        </div>
-
-        {/* Right side: Target Progress and Timer aligned horizontally */}
-        <div className="flex items-center gap-4">
-          {/* Target Progress indicator */}
+          {/* Target Progress inline with legends */}
           <div className="flex items-center gap-1">
             <span className={`font-thin text-xs ${
               isDarkMode ? 'text-green-400' : 'text-blue-600'
@@ -202,24 +202,24 @@ const PracticeProgress = ({
               Target: {targetProgressPercentage}%
             </span>
           </div>
-          
-          {/* Timer */}
-          <div className="flex items-center gap-1">
-            <Clock className={`h-4 w-4 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
-            {timerDuration > 0 ? (
-              <CountdownTimer
-                durationInSeconds={timerDuration}
-                onComplete={handleTimerComplete}
-                isActive={isTimerActive}
-                mode={mode}
-                onUpdate={(remaining: string) => setTimeRemaining(remaining)}
-                onAutoNext={onAutoNext}
-                onPomodoroBreak={onPomodoroBreak}
-              />
-            ) : (
-              <span className={`font-thin text-xs ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>{timeRemaining}</span>
-            )}
-          </div>
+        </div>
+
+        {/* Right side: Timer aligned below practice mode */}
+        <div className="flex items-center gap-1">
+          <Clock className={`h-4 w-4 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
+          {timerDuration > 0 ? (
+            <CountdownTimer
+              durationInSeconds={timerDuration}
+              onComplete={handleTimerComplete}
+              isActive={isTimerActive}
+              mode={mode}
+              onUpdate={(remaining: string) => setTimeRemaining(remaining)}
+              onAutoNext={onAutoNext}
+              onPomodoroBreak={onPomodoroBreak}
+            />
+          ) : (
+            <span className={`font-thin text-xs ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>{timeRemaining}</span>
+          )}
         </div>
       </div>
 
