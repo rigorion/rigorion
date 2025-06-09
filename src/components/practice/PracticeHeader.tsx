@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Target, Navigation, ChevronDown, LogOut, Bell, Filter, Moon, Sun, BookOpen, Brain, Lightbulb, Rocket, Star, Trophy, Zap } from "lucide-react";
+import { Target, Navigation, ChevronDown, LogOut, Bell, Filter, Moon, Sun, BookOpen, Clock } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -254,9 +254,9 @@ export const PracticeHeader = ({
           className={`rounded-full ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
         >
           {isDarkMode ? (
-            <Sun className="h-4 w-4" style={{background: 'linear-gradient(45deg, #10b981, #34d399)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: 'drop-shadow(0 0 2px rgba(34, 197, 94, 0.5))'}} />
+            <Sun className="h-4 w-4 text-green-400" />
           ) : (
-            <Moon className="h-4 w-4" style={{background: 'linear-gradient(45deg, #64748b, #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: 'drop-shadow(0 0 2px rgba(71, 85, 105, 0.3))'}} />
+            <Moon className="h-4 w-4 text-blue-600" />
           )}
         </Button>
 
@@ -267,7 +267,7 @@ export const PracticeHeader = ({
               size="icon"
               className={`relative rounded-full ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
             >
-              <Bell className="h-4 w-4" style={{background: isDarkMode ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #64748b, #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: isDarkMode ? 'drop-shadow(0 0 2px rgba(34, 197, 94, 0.5))' : 'drop-shadow(0 0 2px rgba(71, 85, 105, 0.3))'}} />
+              <Bell className={`h-4 w-4 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
               {hasNotifications && (
                 <span className="absolute top-1 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
               )}
@@ -305,7 +305,7 @@ export const PracticeHeader = ({
             ? (isDarkMode ? 'bg-green-900/30 text-green-400 border border-green-500/30' : 'bg-blue-50 text-blue-700 border border-blue-200')
             : (isDarkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-600')
         }`}>
-          <Brain className="h-3 w-3 mr-1" style={{background: isDarkMode ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #64748b, #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent'}} />
+          <Filter className={`h-3 w-3 mr-1 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
           <span className="max-w-20 truncate font-thin">{getActiveFilterText()}</span>
           {hasActiveFilters() && (
             <button
@@ -330,7 +330,7 @@ export const PracticeHeader = ({
                 isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
               } ${selectedModule !== "All SAT Math" ? (isDarkMode ? 'text-green-300 bg-green-900/20' : 'text-blue-600 bg-blue-50') : ''}`}
             >
-              <Lightbulb className="h-4 w-4 mr-1" style={{background: isDarkMode ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #64748b, #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: isDarkMode ? 'drop-shadow(0 0 2px rgba(34, 197, 94, 0.5))' : 'drop-shadow(0 0 2px rgba(71, 85, 105, 0.3))'}} />
+              <BookOpen className={`h-4 w-4 mr-1 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
               <span className={`hidden sm:inline font-thin text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 {selectedModule.replace("SAT ", "")}
               </span>
@@ -368,7 +368,7 @@ export const PracticeHeader = ({
                 isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
               } ${selectedExam !== null ? (isDarkMode ? 'text-green-300 bg-green-900/20' : 'text-blue-600 bg-blue-50') : ''}`}
             >
-              <Trophy className="h-4 w-4 mr-1" style={{background: isDarkMode ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #64748b, #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: isDarkMode ? 'drop-shadow(0 0 2px rgba(34, 197, 94, 0.5))' : 'drop-shadow(0 0 2px rgba(71, 85, 105, 0.3))'}} />
+              <Target className={`h-4 w-4 mr-1 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
               <span className={`hidden sm:inline font-thin text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 {selectedExam !== null ? `Exam ${selectedExam}` : "Exams"}
               </span>
@@ -406,7 +406,7 @@ export const PracticeHeader = ({
                 isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
               } ${selectedChapter !== "All Chapters" ? (isDarkMode ? 'text-green-300 bg-green-900/20' : 'text-blue-600 bg-blue-50') : ''}`}
             >
-              <Star className="h-4 w-4 mr-1" style={{background: isDarkMode ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #64748b, #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: isDarkMode ? 'drop-shadow(0 0 2px rgba(34, 197, 94, 0.5))' : 'drop-shadow(0 0 2px rgba(71, 85, 105, 0.3))'}} />
+              <BookOpen className={`h-4 w-4 mr-1 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
               <span className={`hidden sm:inline font-thin text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 {selectedChapter === "All Chapters" ? "Chapters" : selectedChapter.split(":")[0]}
               </span>
@@ -442,7 +442,7 @@ export const PracticeHeader = ({
             isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
           }`}
         >
-          <Rocket className="h-4 w-4 mr-1" style={{background: isDarkMode ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #64748b, #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: isDarkMode ? 'drop-shadow(0 0 2px rgba(34, 197, 94, 0.5))' : 'drop-shadow(0 0 2px rgba(71, 85, 105, 0.3))'}} />
+          <Target className={`h-4 w-4 mr-1 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
           <span className={`font-thin text-xs hidden sm:inline ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Objectives</span>
           <span className={`font-thin text-xs sm:hidden ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Obj</span>
         </Button>
@@ -455,7 +455,7 @@ export const PracticeHeader = ({
             isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
           }`}
         >
-          <Zap className="h-4 w-4 mr-1" style={{background: isDarkMode ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #64748b, #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: isDarkMode ? 'drop-shadow(0 0 2px rgba(34, 197, 94, 0.5))' : 'drop-shadow(0 0 2px rgba(71, 85, 105, 0.3))'}} />
+          <Clock className={`h-4 w-4 mr-1 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
           <span className={`font-thin text-xs hidden sm:inline ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             {mode === "manual" ? "Manual" : mode.charAt(0).toUpperCase() + mode.slice(1)}
           </span>
