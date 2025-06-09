@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Target, Navigation, ChevronDown, LogOut, Bell, Filter, Moon, Sun, BookOpen } from "lucide-react";
+import { Target, Navigation, ChevronDown, LogOut, Bell, Filter, Moon, Sun, BookOpen, Brain, Lightbulb, Rocket, Star, Trophy, Zap } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -211,10 +211,10 @@ export const PracticeHeader = ({
   };
 
   return (
-    <header className={`border-b px-4 sm:px-6 py-4 flex items-center justify-between shadow-sm transition-all duration-300 ${
+    <header className={`border-b px-2 sm:px-4 py-3 flex items-center justify-between shadow-sm transition-all duration-300 overflow-hidden ${
       isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
     }`}>
-      <div className="flex items-center gap-2 sm:gap-4">
+      <div className="flex items-center gap-1 sm:gap-2">
         <DropdownMenu open={isNavDropdownOpen} onOpenChange={setIsNavDropdownOpen}>
           <DropdownMenuTrigger className={`rounded-lg p-2 transition-colors ${
             isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
@@ -241,12 +241,12 @@ export const PracticeHeader = ({
             </ScrollArea>
           </DropdownMenuContent>
         </DropdownMenu>
-        <h1 className={`text-lg sm:text-xl font-bold font-cursive ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+        <h1 className={`text-base sm:text-lg font-thin tracking-wide ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
           Academic Arc
         </h1>
       </div>
       
-      <div className="flex items-center gap-2 sm:gap-4">
+      <div className="flex items-center gap-1 sm:gap-2 overflow-hidden">
         <Button
           variant="ghost"
           size="icon"
@@ -254,9 +254,9 @@ export const PracticeHeader = ({
           className={`rounded-full ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
         >
           {isDarkMode ? (
-            <Sun className="h-5 w-5 text-green-400" />
+            <Sun className="h-4 w-4" style={{background: 'linear-gradient(45deg, #10b981, #34d399)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: 'drop-shadow(0 0 2px rgba(34, 197, 94, 0.5))'}} />
           ) : (
-            <Moon className="h-5 w-5 text-gray-500" />
+            <Moon className="h-4 w-4" style={{background: 'linear-gradient(45deg, #64748b, #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: 'drop-shadow(0 0 2px rgba(71, 85, 105, 0.3))'}} />
           )}
         </Button>
 
@@ -267,7 +267,7 @@ export const PracticeHeader = ({
               size="icon"
               className={`relative rounded-full ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
             >
-              <Bell className={`h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+              <Bell className="h-4 w-4" style={{background: isDarkMode ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #64748b, #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: isDarkMode ? 'drop-shadow(0 0 2px rgba(34, 197, 94, 0.5))' : 'drop-shadow(0 0 2px rgba(71, 85, 105, 0.3))'}} />
               {hasNotifications && (
                 <span className="absolute top-1 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
               )}
@@ -300,17 +300,17 @@ export const PracticeHeader = ({
         </DropdownMenu>
 
         {/* Active Filter Display */}
-        <div className={`hidden sm:flex items-center px-3 py-1 rounded-full text-xs transition-all ${
+        <div className={`hidden md:flex items-center px-2 py-1 rounded-full text-xs transition-all max-w-32 ${
           hasActiveFilters()
             ? (isDarkMode ? 'bg-green-900/30 text-green-400 border border-green-500/30' : 'bg-blue-50 text-blue-700 border border-blue-200')
             : (isDarkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-600')
         }`}>
-          <Filter className="h-3 w-3 mr-1" />
-          <span className="max-w-32 truncate">{getActiveFilterText()}</span>
+          <Brain className="h-3 w-3 mr-1" style={{background: isDarkMode ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #64748b, #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent'}} />
+          <span className="max-w-20 truncate font-thin">{getActiveFilterText()}</span>
           {hasActiveFilters() && (
             <button
               onClick={handleClearAllFilters}
-              className={`ml-2 hover:bg-opacity-75 rounded-full p-0.5 transition-colors ${
+              className={`ml-1 hover:bg-opacity-75 rounded-full p-0.5 transition-colors ${
                 isDarkMode ? 'hover:bg-green-700' : 'hover:bg-blue-200'
               }`}
               title="Clear all filters"
@@ -330,11 +330,11 @@ export const PracticeHeader = ({
                 isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
               } ${selectedModule !== "All SAT Math" ? (isDarkMode ? 'text-green-300 bg-green-900/20' : 'text-blue-600 bg-blue-50') : ''}`}
             >
-              <Filter className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-              <span className={`hidden sm:inline ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              <Lightbulb className="h-4 w-4 mr-1" style={{background: isDarkMode ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #64748b, #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: isDarkMode ? 'drop-shadow(0 0 2px rgba(34, 197, 94, 0.5))' : 'drop-shadow(0 0 2px rgba(71, 85, 105, 0.3))'}} />
+              <span className={`hidden sm:inline font-thin text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 {selectedModule.replace("SAT ", "")}
               </span>
-              <span className={`sm:hidden ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Module</span>
+              <span className={`sm:hidden font-thin text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Mod</span>
               <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isModuleDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
             </Button>
           </DropdownMenuTrigger>
@@ -368,11 +368,11 @@ export const PracticeHeader = ({
                 isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
               } ${selectedExam !== null ? (isDarkMode ? 'text-green-300 bg-green-900/20' : 'text-blue-600 bg-blue-50') : ''}`}
             >
-              <BookOpen className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-              <span className={`hidden sm:inline ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              <Trophy className="h-4 w-4 mr-1" style={{background: isDarkMode ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #64748b, #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: isDarkMode ? 'drop-shadow(0 0 2px rgba(34, 197, 94, 0.5))' : 'drop-shadow(0 0 2px rgba(71, 85, 105, 0.3))'}} />
+              <span className={`hidden sm:inline font-thin text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 {selectedExam !== null ? `Exam ${selectedExam}` : "Exams"}
               </span>
-              <span className={`sm:hidden ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Ex</span>
+              <span className={`sm:hidden font-thin text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Ex</span>
               <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isExamDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
             </Button>
           </DropdownMenuTrigger>
@@ -406,11 +406,11 @@ export const PracticeHeader = ({
                 isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
               } ${selectedChapter !== "All Chapters" ? (isDarkMode ? 'text-green-300 bg-green-900/20' : 'text-blue-600 bg-blue-50') : ''}`}
             >
-              <Target className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-              <span className={`hidden sm:inline ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              <Star className="h-4 w-4 mr-1" style={{background: isDarkMode ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #64748b, #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: isDarkMode ? 'drop-shadow(0 0 2px rgba(34, 197, 94, 0.5))' : 'drop-shadow(0 0 2px rgba(71, 85, 105, 0.3))'}} />
+              <span className={`hidden sm:inline font-thin text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 {selectedChapter === "All Chapters" ? "Chapters" : selectedChapter.split(":")[0]}
               </span>
-              <span className={`sm:hidden ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Ch</span>
+              <span className={`sm:hidden font-thin text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Ch</span>
               <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isChapterDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
             </Button>
           </DropdownMenuTrigger>
@@ -442,8 +442,9 @@ export const PracticeHeader = ({
             isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
           }`}
         >
-          <Target className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-          <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>Set Objectives</span>
+          <Rocket className="h-4 w-4 mr-1" style={{background: isDarkMode ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #64748b, #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: isDarkMode ? 'drop-shadow(0 0 2px rgba(34, 197, 94, 0.5))' : 'drop-shadow(0 0 2px rgba(71, 85, 105, 0.3))'}} />
+          <span className={`font-thin text-xs hidden sm:inline ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Objectives</span>
+          <span className={`font-thin text-xs sm:hidden ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Obj</span>
         </Button>
         
         <Button
@@ -454,23 +455,12 @@ export const PracticeHeader = ({
             isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
           }`}
         >
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            width="16" 
-            height="16" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-            className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
-          >
-            <circle cx="12" cy="12" r="10"/>
-            <polyline points="12 6 12 12 16 14"/>
-          </svg>
-          <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
+          <Zap className="h-4 w-4 mr-1" style={{background: isDarkMode ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #64748b, #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: isDarkMode ? 'drop-shadow(0 0 2px rgba(34, 197, 94, 0.5))' : 'drop-shadow(0 0 2px rgba(71, 85, 105, 0.3))'}} />
+          <span className={`font-thin text-xs hidden sm:inline ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             {mode === "manual" ? "Manual" : mode.charAt(0).toUpperCase() + mode.slice(1)}
+          </span>
+          <span className={`font-thin text-xs sm:hidden ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            {mode === "manual" ? "Man" : mode.charAt(0).toUpperCase()}
           </span>
         </Button>
 
