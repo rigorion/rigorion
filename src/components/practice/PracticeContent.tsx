@@ -391,7 +391,6 @@ export default function PracticeContent({
     if (mode === "timer") {
       console.log("Timer completed - auto-advancing to next question");
       nextQuestion();
-      setIsTimerActive(true);
     } else {
       setIsTimerActive(false);
       console.log("Time's up!");
@@ -457,7 +456,13 @@ export default function PracticeContent({
         setIsCorrect(null);
         
         if (mode === "timer" && timerDuration > 0) {
-          setIsTimerActive(true);
+          // Force timer reset by setting a new duration value
+          const currentDuration = timerDuration;
+          setTimerDuration(0);
+          setTimeout(() => {
+            setTimerDuration(currentDuration);
+            setIsTimerActive(true);
+          }, 10);
         }
       }
     }
@@ -471,6 +476,16 @@ export default function PracticeContent({
         setCurrentQuestionIndex(prev => prev - 1);
         setSelectedAnswer(null);
         setIsCorrect(null);
+        
+        if (mode === "timer" && timerDuration > 0) {
+          // Force timer reset by setting a new duration value
+          const currentDuration = timerDuration;
+          setTimerDuration(0);
+          setTimeout(() => {
+            setTimerDuration(currentDuration);
+            setIsTimerActive(true);
+          }, 10);
+        }
       }
     }
   };
@@ -493,6 +508,16 @@ export default function PracticeContent({
       setCurrentQuestionIndex(questionNumber - 1);
       setSelectedAnswer(null);
       setIsCorrect(null);
+      
+      if (mode === "timer" && timerDuration > 0) {
+        // Force timer reset by setting a new duration value
+        const currentDuration = timerDuration;
+        setTimerDuration(0);
+        setTimeout(() => {
+          setTimerDuration(currentDuration);
+          setIsTimerActive(true);
+        }, 10);
+      }
     }
 
     setTargetQuestion('');
