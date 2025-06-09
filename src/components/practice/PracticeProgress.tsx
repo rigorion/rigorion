@@ -1,4 +1,4 @@
-import { Clock, Flag, Sparkles, Heart, Gift } from "lucide-react";
+import { Clock, Flag, Settings } from "lucide-react";
 import CountdownTimer from "./CountDownTimer";
 import HintDialog from "./HintDialog";
 import { Button } from "@/components/ui/button";
@@ -176,13 +176,13 @@ const PracticeProgress = ({
             onApply={handleSettingsChange}
           >
             <Button variant="ghost" size="sm" className="p-1 h-6 rounded-full border-none">
-              <Gift className="h-4 w-4" style={{background: isDarkMode ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #f59e0b, #f97316)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: isDarkMode ? 'drop-shadow(0 0 2px rgba(34, 197, 94, 0.5))' : 'drop-shadow(0 0 2px rgba(245, 158, 11, 0.3))'}} />
+              <Settings className={`h-4 w-4 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
             </Button>
           </SettingsDialog>
           
           {/* Flag button */}
           <Button variant="ghost" size="sm" className="p-1 h-6 rounded-full">
-            <Heart className="h-4 w-4" style={{background: isDarkMode ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #64748b, #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: isDarkMode ? 'drop-shadow(0 0 2px rgba(34, 197, 94, 0.5))' : 'drop-shadow(0 0 2px rgba(71, 85, 105, 0.3))'}} />
+            <Flag className={`h-4 w-4 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
           </Button>
           
           {/* Tab selector */}
@@ -201,7 +201,7 @@ const PracticeProgress = ({
           </div>
           {/* Timer */}
           <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4" style={{background: isDarkMode ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #64748b, #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: isDarkMode ? 'drop-shadow(0 0 2px rgba(34, 197, 94, 0.5))' : 'drop-shadow(0 0 2px rgba(71, 85, 105, 0.3))'}} />
+            <Clock className={`h-4 w-4 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
             {timerDuration > 0 ? (
               <CountdownTimer
                 durationInSeconds={timerDuration}
