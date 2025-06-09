@@ -220,7 +220,7 @@ export const PracticeHeader = ({
             isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
           }`}>
             <Navigation className={`h-5 w-5 ${
-              isDarkMode ? 'text-green-400' : 'text-blue-500'
+              isDarkMode ? 'text-gray-400' : 'text-gray-500'
             }`} />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className={`w-56 shadow-lg rounded-lg p-2 z-50 ${
@@ -235,13 +235,13 @@ export const PracticeHeader = ({
                   }`}
                   onClick={() => handleNavigation(page.path)}
                 >
-                  <span className={`font-source-sans ${isDarkMode ? 'text-green-400' : 'text-[#304455]'}`}>{page.name}</span>
+                  <span className={`font-source-sans ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{page.name}</span>
                 </DropdownMenuItem>
               ))}
             </ScrollArea>
           </DropdownMenuContent>
         </DropdownMenu>
-        <h1 className={`text-lg sm:text-xl font-bold font-cursive ${isDarkMode ? 'text-green-400' : 'text-gray-800'}`}>
+        <h1 className={`text-lg sm:text-xl font-bold font-cursive ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
           Academic Arc
         </h1>
       </div>
@@ -256,7 +256,7 @@ export const PracticeHeader = ({
           {isDarkMode ? (
             <Sun className="h-5 w-5 text-green-400" />
           ) : (
-            <Moon className="h-5 w-5 text-gray-600" />
+            <Moon className="h-5 w-5 text-gray-500" />
           )}
         </Button>
 
@@ -267,7 +267,7 @@ export const PracticeHeader = ({
               size="icon"
               className={`relative rounded-full ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
             >
-              <Bell className={`h-5 w-5 ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`} />
+              <Bell className={`h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
               {hasNotifications && (
                 <span className="absolute top-1 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
               )}
@@ -277,8 +277,8 @@ export const PracticeHeader = ({
             isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
           }`}>
             <div className="flex justify-between items-center mb-2 px-2">
-              <h3 className={`font-semibold ${isDarkMode ? 'text-green-400' : 'text-gray-900'}`}>Notifications</h3>
-              <Button variant="ghost" size="sm" className={`text-xs ${isDarkMode ? 'text-green-400 hover:text-green-300' : 'text-blue-500 hover:text-blue-700'}`}>
+              <h3 className={`font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Notifications</h3>
+              <Button variant="ghost" size="sm" className={`text-xs ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`}>
                 Mark all as read
               </Button>
             </div>
@@ -287,13 +287,13 @@ export const PracticeHeader = ({
               <div className={`p-2 text-sm rounded-md mb-2 ${
                 isDarkMode ? 'bg-gray-800' : 'bg-blue-50'
               }`}>
-                <p className={`font-medium ${isDarkMode ? 'text-green-400' : 'text-gray-900'}`}>New chapter available!</p>
-                <p className={`${isDarkMode ? 'text-green-500' : 'text-gray-600'}`}>Advanced Calculus chapter is now available.</p>
-                <p className={`text-xs mt-1 ${isDarkMode ? 'text-green-600' : 'text-gray-500'}`}>2 hours ago</p>
+                <p className={`font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-800'}`}>New chapter available!</p>
+                <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Advanced Calculus chapter is now available.</p>
+                <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>2 hours ago</p>
               </div>
             </ScrollArea>
             <DropdownMenuSeparator className={isDarkMode ? 'bg-green-500/30' : ''} />
-            <Button variant="ghost" size="sm" className={`w-full text-center text-sm mt-1 ${isDarkMode ? 'text-green-400 hover:text-green-300' : 'text-gray-700'}`}>
+            <Button variant="ghost" size="sm" className={`w-full text-center text-sm mt-1 ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600'}`}>
               View all notifications
             </Button>
           </DropdownMenuContent>
@@ -330,12 +330,12 @@ export const PracticeHeader = ({
                 isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
               } ${selectedModule !== "All SAT Math" ? (isDarkMode ? 'text-green-300 bg-green-900/20' : 'text-blue-600 bg-blue-50') : ''}`}
             >
-              <Filter className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
-              <span className={`hidden sm:inline ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>
+              <Filter className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+              <span className={`hidden sm:inline ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 {selectedModule.replace("SAT ", "")}
               </span>
-              <span className={`sm:hidden ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Module</span>
-              <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isModuleDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`} />
+              <span className={`sm:hidden ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Module</span>
+              <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isModuleDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className={`w-56 shadow-lg rounded-lg p-2 z-50 ${
@@ -350,7 +350,7 @@ export const PracticeHeader = ({
                   } ${selectedModule === module ? (isDarkMode ? 'bg-gray-800' : 'bg-gray-100') : ''}`}
                   onClick={() => handleModuleFilter(module)}
                 >
-                  <span className={`font-source-sans text-sm ${isDarkMode ? 'text-green-400' : 'text-[#304455]'}`}>{module}</span>
+                  <span className={`font-source-sans text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{module}</span>
                   {selectedModule === module && <span className="ml-auto text-xs">✓</span>}
                 </DropdownMenuItem>
               ))}
@@ -368,12 +368,12 @@ export const PracticeHeader = ({
                 isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
               } ${selectedExam !== null ? (isDarkMode ? 'text-green-300 bg-green-900/20' : 'text-blue-600 bg-blue-50') : ''}`}
             >
-              <BookOpen className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
-              <span className={`hidden sm:inline ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>
+              <BookOpen className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+              <span className={`hidden sm:inline ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 {selectedExam !== null ? `Exam ${selectedExam}` : "Exams"}
               </span>
-              <span className={`sm:hidden ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Ex</span>
-              <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isExamDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`} />
+              <span className={`sm:hidden ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Ex</span>
+              <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isExamDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className={`w-56 shadow-lg rounded-lg p-2 z-50 ${
@@ -388,7 +388,7 @@ export const PracticeHeader = ({
                   } ${(selectedExam === null && exam === "All Exams") || (selectedExam !== null && exam === `Exam ${selectedExam}`) ? (isDarkMode ? 'bg-gray-800' : 'bg-gray-100') : ''}`}
                   onClick={() => handleExamFilter(exam)}
                 >
-                  <span className={`font-source-sans text-sm ${isDarkMode ? 'text-green-400' : 'text-[#304455]'}`}>{exam}</span>
+                  <span className={`font-source-sans text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{exam}</span>
                   {((selectedExam === null && exam === "All Exams") || (selectedExam !== null && exam === `Exam ${selectedExam}`)) && <span className="ml-auto text-xs">✓</span>}
                 </DropdownMenuItem>
               ))}
@@ -406,12 +406,12 @@ export const PracticeHeader = ({
                 isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
               } ${selectedChapter !== "All Chapters" ? (isDarkMode ? 'text-green-300 bg-green-900/20' : 'text-blue-600 bg-blue-50') : ''}`}
             >
-              <Target className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
-              <span className={`hidden sm:inline ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>
+              <Target className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+              <span className={`hidden sm:inline ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 {selectedChapter === "All Chapters" ? "Chapters" : selectedChapter.split(":")[0]}
               </span>
-              <span className={`sm:hidden ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Ch</span>
-              <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isChapterDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`} />
+              <span className={`sm:hidden ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Ch</span>
+              <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${isChapterDropdownOpen ? "rotate-180" : ""} ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className={`w-64 shadow-lg rounded-lg p-2 z-50 ${
@@ -426,7 +426,7 @@ export const PracticeHeader = ({
                   } ${selectedChapter === chapter ? (isDarkMode ? 'bg-gray-800' : 'bg-gray-100') : ''}`}
                   onClick={() => handleChapterFilter(chapter)}
                 >
-                  <span className={`font-source-sans text-sm ${isDarkMode ? 'text-green-400' : 'text-[#304455]'}`}>{chapter}</span>
+                  <span className={`font-source-sans text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{chapter}</span>
                   {selectedChapter === chapter && <span className="ml-auto text-xs">✓</span>}
                 </DropdownMenuItem>
               ))}
@@ -442,8 +442,8 @@ export const PracticeHeader = ({
             isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
           }`}
         >
-          <Target className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-blue-500'}`} />
-          <span className={isDarkMode ? 'text-green-400' : 'text-gray-700'}>Set Objectives</span>
+          <Target className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+          <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>Set Objectives</span>
         </Button>
         
         <Button
@@ -464,12 +464,12 @@ export const PracticeHeader = ({
             strokeWidth="2" 
             strokeLinecap="round" 
             strokeLinejoin="round"
-            className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-green-400' : 'text-gray-600'}`}
+            className={`h-4 w-4 mr-1.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
           >
             <circle cx="12" cy="12" r="10"/>
             <polyline points="12 6 12 12 16 14"/>
           </svg>
-          <span className={isDarkMode ? 'text-green-400' : 'text-gray-700'}>
+          <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
             {mode === "manual" ? "Manual" : mode.charAt(0).toUpperCase() + mode.slice(1)}
           </span>
         </Button>
