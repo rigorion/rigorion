@@ -1,3 +1,4 @@
+
 import { Clock, Flag, Settings, Lightbulb } from "lucide-react";
 import CountdownTimer from "./CountDownTimer";
 import HintDialog from "./HintDialog";
@@ -109,9 +110,9 @@ const PracticeProgress = ({
     <div className={`px-4 py-3 border-b transition-colors duration-300 ${
       isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
     }`}>
-      {/* Main layout with three sections */}
-      <div className="flex items-start justify-between">
-        {/* Left corner: Silver icons */}
+      {/* First row: Icons on left, Progress details on right */}
+      <div className="flex items-center justify-between w-full mb-3">
+        {/* Left side: Icons */}
         <div className="flex items-center gap-2">
           {/* Hint button */}
           <HintDialog hint={currentQuestionHint} currentQuestionIndex={currentQuestionIndex} />
@@ -134,12 +135,7 @@ const PracticeProgress = ({
           </Button>
         </div>
 
-        {/* Center: Tab menu centered across full width */}
-        <div className="flex items-center justify-center flex-1">
-          <PracticeTabSelector activeTab={activeTab} setActiveTab={setActiveTab} className="h-8 min-h-0" />
-        </div>
-
-        {/* Right side: Progress bar and related details */}
+        {/* Right side: Progress bar and details */}
         <div className="flex flex-col items-end gap-2">
           {/* Progress bar with percentage */}
           <div className="w-64">
@@ -221,6 +217,11 @@ const PracticeProgress = ({
             )}
           </div>
         </div>
+      </div>
+
+      {/* Second row: Tab menu centered across full width */}
+      <div className="w-full">
+        <PracticeTabSelector activeTab={activeTab} setActiveTab={setActiveTab} className="h-8 min-h-0" />
       </div>
 
       {/* Shining animation for progress bar */}
