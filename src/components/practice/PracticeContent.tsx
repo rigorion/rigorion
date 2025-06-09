@@ -219,10 +219,22 @@ export default function PracticeContent({
       }
     }
     
-    // Apply chapter filter
-    if (filters.chapter) {
+    // Apply chapter filter (only if no exam filter is active)
+    if (filters.chapter && !filters.exam) {
       const beforeFilter = filtered.length;
       filtered = filtered.filter(q => {
+        // Exclude questions that have an examNumber - they belong to exams, not chapters
+        let questionExam = q.examNumber;
+        if (typeof questionExam === 'string') {
+          const parsed = parseInt(questionExam, 10);
+          questionExam = isNaN(parsed) ? null : parsed;
+        }
+        
+        // If question has an examNumber, it doesn't belong to any chapter
+        if (questionExam !== null && questionExam !== undefined) {
+          return false;
+        }
+        
         const chapterMatch = q.chapter?.match(/Chapter (\d+)/i);
         const matchedChapterNumber = chapterMatch ? chapterMatch[1] : null;
         return matchedChapterNumber === filters.chapter;
@@ -643,7 +655,8 @@ export default function PracticeContent({
       <ObjectiveDialog 
         open={objectiveDialogOpen} 
         onOpenChange={setObjectiveDialogOpen} 
-        onSetObjective={handleSetObjective} 
+        onSetObjective={handleSetObjective}
+        maxQuestions={filteredQuestions.length || 300}
       />
 
       {/* Debug Info */}
