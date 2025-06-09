@@ -1,4 +1,3 @@
-
 import { Clock, Flag, Settings, Lightbulb } from "lucide-react";
 import CountdownTimer from "./CountDownTimer";
 import HintDialog from "./HintDialog";
@@ -67,7 +66,6 @@ const PracticeProgress = ({
   const { isDarkMode } = useTheme();
   const [showSettings, setShowSettings] = useState(false);
 
-  // Updated: Progress calculation is now relative to the objective (if set), or totalQuestions.
   const calculateProgress = () => {
     const targetTotal = (objective?.type === "questions" && objective?.value)
       ? objective.value
@@ -135,10 +133,10 @@ const PracticeProgress = ({
           </Button>
         </div>
 
-        {/* Right side: Progress bar and details */}
-        <div className="flex flex-col items-end gap-2">
-          {/* Progress bar with percentage */}
-          <div className="w-64">
+        {/* Right side: Progress bar and details - now using much more width */}
+        <div className="flex flex-col items-end gap-2 flex-1 max-w-2xl ml-8">
+          {/* Progress bar with percentage - now using available width */}
+          <div className="w-full">
             <div className={`relative h-3 rounded-full overflow-hidden progress-bar ${
               isDarkMode ? 'bg-gray-800 border border-green-500/20' : 'bg-gray-100'
             }`}>
@@ -172,9 +170,10 @@ const PracticeProgress = ({
             </div>
           </div>
           
-          {/* Legends below progress bar */}
-          <div className="flex items-center gap-3">
-            <div className="flex gap-2 text-xs">
+          {/* Legends and details in a row */}
+          <div className="flex items-center justify-between w-full">
+            {/* Legends */}
+            <div className="flex gap-3 text-xs">
               <div className="flex items-center gap-1">
                 <div className="w-2 h-2 bg-green-500 rounded-full" />
                 <span className={`font-thin ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Correct</span>
@@ -189,32 +188,34 @@ const PracticeProgress = ({
               </div>
             </div>
             
-            {/* Target Progress */}
-            <div className="flex items-center gap-1">
-              <span className={`font-thin text-xs ${
-                isDarkMode ? 'text-green-400' : 'text-blue-600'
-              }`}>
-                Target: {targetProgressPercentage}%
-              </span>
+            {/* Target Progress and Timer */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1">
+                <span className={`font-thin text-xs ${
+                  isDarkMode ? 'text-green-400' : 'text-blue-600'
+                }`}>
+                  Target: {targetProgressPercentage}%
+                </span>
+              </div>
+              
+              {/* Timer */}
+              <div className="flex items-center gap-1">
+                <Clock className={`h-4 w-4 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
+                {timerDuration > 0 ? (
+                  <CountdownTimer
+                    durationInSeconds={timerDuration}
+                    onComplete={handleTimerComplete}
+                    isActive={isTimerActive}
+                    mode={mode}
+                    onUpdate={(remaining: string) => setTimeRemaining(remaining)}
+                    onAutoNext={onAutoNext}
+                    onPomodoroBreak={onPomodoroBreak}
+                  />
+                ) : (
+                  <span className={`font-thin text-xs ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>{timeRemaining}</span>
+                )}
+              </div>
             </div>
-          </div>
-          
-          {/* Timer below progress details */}
-          <div className="flex items-center gap-1">
-            <Clock className={`h-4 w-4 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
-            {timerDuration > 0 ? (
-              <CountdownTimer
-                durationInSeconds={timerDuration}
-                onComplete={handleTimerComplete}
-                isActive={isTimerActive}
-                mode={mode}
-                onUpdate={(remaining: string) => setTimeRemaining(remaining)}
-                onAutoNext={onAutoNext}
-                onPomodoroBreak={onPomodoroBreak}
-              />
-            ) : (
-              <span className={`font-thin text-xs ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>{timeRemaining}</span>
-            )}
           </div>
         </div>
       </div>
