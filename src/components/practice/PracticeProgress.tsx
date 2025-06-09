@@ -109,49 +109,9 @@ const PracticeProgress = ({
     <div className={`px-4 py-3 border-b transition-colors duration-300 ${
       isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
     }`}>
-      {/* First Row: Progress bar next to tab menu */}
-      <div className="flex items-center gap-4 mb-3">
-        {/* Progress bar with percentage */}
-        <div className="flex-1">
-          <div className={`relative h-3 rounded-full overflow-hidden progress-bar ${
-            isDarkMode ? 'bg-gray-800 border border-green-500/20' : 'bg-gray-100'
-          }`}>
-            {/* Correct answers - green */}
-            <div
-              className="absolute left-0 top-0 h-full bg-green-500 rounded-l-full transition-all duration-500 ease-out shine-animation"
-              style={{ width: correctWidth, zIndex: 3 }}
-            />
-            {/* Incorrect answers - red */}
-            <div
-              className="absolute top-0 h-full bg-red-500 transition-all duration-500 ease-out"
-              style={{
-                left: incorrectLeft,
-                width: incorrectWidth,
-                zIndex: 2
-              }}
-            />
-            {/* Unattempted - grey */}
-            <div
-              className={`absolute top-0 right-0 h-full rounded-r-full transition-all duration-500 ease-out ${
-                isDarkMode ? 'bg-gray-700' : 'bg-gray-300'
-              }`}
-              style={{ width: unattemptedWidth, zIndex: 1 }}
-            />
-            {/* Progress percentage */}
-            <div className={`absolute right-0 top-0 -translate-y-1/2 translate-x-full mt-1.5 ml-2 text-xs font-thin ${
-              isDarkMode ? 'text-green-400' : 'text-blue-600'
-            }`}>
-              {totalPercentage}%
-            </div>
-          </div>
-        </div>
-
-        {/* Tab selector next to progress bar */}
-        <div className="flex items-center">
-          <PracticeTabSelector activeTab={activeTab} setActiveTab={setActiveTab} className="h-8 min-h-0" />
-        </div>
-
-        {/* Silver icons inline to the right of tab menu */}
+      {/* Main layout with three sections */}
+      <div className="flex items-start justify-between">
+        {/* Left corner: Silver icons */}
         <div className="flex items-center gap-2">
           {/* Hint button */}
           <HintDialog hint={currentQuestionHint} currentQuestionIndex={currentQuestionIndex} />
@@ -173,53 +133,93 @@ const PracticeProgress = ({
             <Flag className="h-4 w-4 text-gray-400" />
           </Button>
         </div>
-      </div>
 
-      {/* Second Row: Legends with target progress inline, and timer below */}
-      <div className="flex items-center justify-between">
-        {/* Left side: Progress legends with target progress inline */}
-        <div className="flex items-center gap-4">
-          <div className="flex gap-3 text-xs">
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-green-500 rounded-full" />
-              <span className={`font-thin ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Correct</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-red-500 rounded-full" />
-              <span className={`font-thin ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Incorrect</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className={`w-2 h-2 rounded-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-300'}`} />
-              <span className={`font-thin ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Unattempted</span>
+        {/* Center: Tab menu centered across full width */}
+        <div className="flex items-center justify-center flex-1">
+          <PracticeTabSelector activeTab={activeTab} setActiveTab={setActiveTab} className="h-8 min-h-0" />
+        </div>
+
+        {/* Right side: Progress bar and related details */}
+        <div className="flex flex-col items-end gap-2">
+          {/* Progress bar with percentage */}
+          <div className="w-64">
+            <div className={`relative h-3 rounded-full overflow-hidden progress-bar ${
+              isDarkMode ? 'bg-gray-800 border border-green-500/20' : 'bg-gray-100'
+            }`}>
+              {/* Correct answers - green */}
+              <div
+                className="absolute left-0 top-0 h-full bg-green-500 rounded-l-full transition-all duration-500 ease-out shine-animation"
+                style={{ width: correctWidth, zIndex: 3 }}
+              />
+              {/* Incorrect answers - red */}
+              <div
+                className="absolute top-0 h-full bg-red-500 transition-all duration-500 ease-out"
+                style={{
+                  left: incorrectLeft,
+                  width: incorrectWidth,
+                  zIndex: 2
+                }}
+              />
+              {/* Unattempted - grey */}
+              <div
+                className={`absolute top-0 right-0 h-full rounded-r-full transition-all duration-500 ease-out ${
+                  isDarkMode ? 'bg-gray-700' : 'bg-gray-300'
+                }`}
+                style={{ width: unattemptedWidth, zIndex: 1 }}
+              />
+              {/* Progress percentage */}
+              <div className={`absolute right-0 top-0 -translate-y-1/2 translate-x-full mt-1.5 ml-2 text-xs font-thin ${
+                isDarkMode ? 'text-green-400' : 'text-blue-600'
+              }`}>
+                {totalPercentage}%
+              </div>
             </div>
           </div>
           
-          {/* Target Progress inline with legends */}
-          <div className="flex items-center gap-1">
-            <span className={`font-thin text-xs ${
-              isDarkMode ? 'text-green-400' : 'text-blue-600'
-            }`}>
-              Target: {targetProgressPercentage}%
-            </span>
+          {/* Legends below progress bar */}
+          <div className="flex items-center gap-3">
+            <div className="flex gap-2 text-xs">
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 bg-green-500 rounded-full" />
+                <span className={`font-thin ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Correct</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 bg-red-500 rounded-full" />
+                <span className={`font-thin ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Incorrect</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className={`w-2 h-2 rounded-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-300'}`} />
+                <span className={`font-thin ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Unattempted</span>
+              </div>
+            </div>
+            
+            {/* Target Progress */}
+            <div className="flex items-center gap-1">
+              <span className={`font-thin text-xs ${
+                isDarkMode ? 'text-green-400' : 'text-blue-600'
+              }`}>
+                Target: {targetProgressPercentage}%
+              </span>
+            </div>
           </div>
-        </div>
-
-        {/* Right side: Timer aligned below practice mode */}
-        <div className="flex items-center gap-1">
-          <Clock className={`h-4 w-4 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
-          {timerDuration > 0 ? (
-            <CountdownTimer
-              durationInSeconds={timerDuration}
-              onComplete={handleTimerComplete}
-              isActive={isTimerActive}
-              mode={mode}
-              onUpdate={(remaining: string) => setTimeRemaining(remaining)}
-              onAutoNext={onAutoNext}
-              onPomodoroBreak={onPomodoroBreak}
-            />
-          ) : (
-            <span className={`font-thin text-xs ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>{timeRemaining}</span>
-          )}
+          
+          {/* Timer below progress details */}
+          <div className="flex items-center gap-1">
+            <Clock className={`h-4 w-4 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
+            {timerDuration > 0 ? (
+              <CountdownTimer
+                durationInSeconds={timerDuration}
+                onComplete={handleTimerComplete}
+                isActive={isTimerActive}
+                mode={mode}
+                onUpdate={(remaining: string) => setTimeRemaining(remaining)}
+                onAutoNext={onAutoNext}
+                onPomodoroBreak={onPomodoroBreak}
+              />
+            ) : (
+              <span className={`font-thin text-xs ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>{timeRemaining}</span>
+            )}
+          </div>
         </div>
       </div>
 
