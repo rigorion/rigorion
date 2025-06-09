@@ -17,6 +17,7 @@ import PracticeFooter from "@/components/practice/PracticeFooter";
 import ContentSection from "@/components/practice/ContentSection";
 import ModeDialog from "@/components/practice/ModeDialog";
 import ObjectiveDialog from "@/components/practice/ObjectiveDialogue";
+import PomodoroBreakModal from "@/components/practice/PomodoroBreakModal";
 import { Sidebar } from "@/components/practice/Sidebar";
 
 interface TextSettings {
@@ -96,6 +97,12 @@ export default function PracticeContent({
   const [showGoToInput, setShowGoToInput] = useState(false);
   const [targetQuestion, setTargetQuestion] = useState('');
   const [inputError, setInputError] = useState('');
+  
+  // Pomodoro state
+  const [pomodoroPhase, setPomodoroPhase] = useState<"work" | "break">("work");
+  const [breakTimeRemaining, setBreakTimeRemaining] = useState(300); // 5 minutes
+  const [showBreakModal, setShowBreakModal] = useState(false);
+  const [pomodoroSessionCount, setPomodoroSessionCount] = useState(0);
 
   const [displaySettings, setDisplaySettings] = useState<TextSettings>(
     propSettings || {
@@ -359,16 +366,24 @@ export default function PracticeContent({
     }
   }, [propCurrentIndex]);
 
-  const handleSetMode = (selectedMode: "timer" | "level" | "manual" | "pomodoro" | "exam", duration?: number, level?: "easy" | "medium" | "hard") => {
+  const handleSetMode = (selectedMode: "timer" | "level" | "manual" | "pomodoro" | "exam", duration?: number, level?: "easy" | "medium" | "hard", examNumber?: number) => {
     setMode(selectedMode);
     setSelectedLevel(level || null);
     
+    // Handle exam mode - set exam filter
+    if (selectedMode === "exam" && examNumber) {
+      handleFilterChange({ exam: examNumber });
+    }
+    
     if (selectedMode === "timer") {
-      const questionDuration = duration || 90;
+      const questionDuration = duration || 120; // 2 minutes default per question
       setTimerDuration(questionDuration);
       setIsTimerActive(true);
-    } else if (duration) {
-      setTimerDuration(duration);
+    } else if (selectedMode === "pomodoro") {
+      setTimerDuration(1500); // 25 minutes
+      setIsTimerActive(true);
+    } else if (selectedMode === "exam") {
+      setTimerDuration(3600); // 1 hour
       setIsTimerActive(true);
     } else {
       setTimerDuration(0);
@@ -391,11 +406,66 @@ export default function PracticeContent({
     if (mode === "timer") {
       console.log("Timer completed - auto-advancing to next question");
       nextQuestion();
+      // Restart timer for next question
       setIsTimerActive(true);
+    } else if (mode === "pomodoro") {
+      if (pomodoroPhase === "work") {
+        // Work session completed, start break
+        console.log("Pomodoro work session completed - starting break");
+        setPomodoroPhase("break");
+        setBreakTimeRemaining(300); // 5 minutes
+        setShowBreakModal(true);
+        setIsTimerActive(false);
+        setPomodoroSessionCount(prev => prev + 1);
+      } else {
+        // Break completed, start new work session
+        console.log("Pomodoro break completed - starting new work session");
+        setPomodoroPhase("work");
+        setTimerDuration(1500); // 25 minutes
+        setIsTimerActive(true);
+        setShowBreakModal(false);
+      }
+    } else if (mode === "exam") {
+      console.log("Exam time completed!");
+      setIsTimerActive(false);
+      toast({
+        title: "Exam Complete",
+        description: "Your 60-minute exam session has ended.",
+      });
     } else {
       setIsTimerActive(false);
       console.log("Time's up!");
     }
+  };
+
+  // Break timer effect for Pomodoro
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (mode === "pomodoro" && pomodoroPhase === "break" && showBreakModal && breakTimeRemaining > 0) {
+      interval = setInterval(() => {
+        setBreakTimeRemaining(prev => {
+          if (prev <= 1) {
+            // Break time over, resume work
+            handleResumeFromBreak();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [mode, pomodoroPhase, showBreakModal, breakTimeRemaining]);
+
+  const handleResumeFromBreak = () => {
+    setPomodoroPhase("work");
+    setTimerDuration(1500); // 25 minutes
+    setIsTimerActive(true);
+    setShowBreakModal(false);
+    setBreakTimeRemaining(300); // Reset for next break
   };
 
   useEffect(() => {
@@ -657,6 +727,12 @@ export default function PracticeContent({
         onOpenChange={setObjectiveDialogOpen} 
         onSetObjective={handleSetObjective}
         maxQuestions={filteredQuestions.length || 300}
+      />
+
+      <PomodoroBreakModal
+        open={showBreakModal}
+        onResume={handleResumeFromBreak}
+        breakTimeRemaining={breakTimeRemaining}
       />
 
       {/* Debug Info */}
