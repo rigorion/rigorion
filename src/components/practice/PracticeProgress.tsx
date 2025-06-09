@@ -1,4 +1,4 @@
-import { Clock, Flag, Sparkles } from "lucide-react";
+import { Clock, Flag, Sparkles, Heart, Gift } from "lucide-react";
 import CountdownTimer from "./CountDownTimer";
 import HintDialog from "./HintDialog";
 import { Button } from "@/components/ui/button";
@@ -150,15 +150,15 @@ const PracticeProgress = ({
           <div className="flex gap-2 text-xs">
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 bg-green-500 rounded-full" />
-              <span className={isDarkMode ? 'text-green-400' : 'text-gray-700'}>Correct</span>
+              <span className={`font-thin ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Correct</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 bg-red-500 rounded-full" />
-              <span className={isDarkMode ? 'text-green-400' : 'text-gray-700'}>Incorrect</span>
+              <span className={`font-thin ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Incorrect</span>
             </div>
             <div className="flex items-center gap-1">
               <div className={`w-2 h-2 rounded-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-300'}`} />
-              <span className={isDarkMode ? 'text-green-400' : 'text-gray-700'}>Unattempted</span>
+              <span className={`font-thin ${isDarkMode ? 'text-green-400' : 'text-gray-700'}`}>Unattempted</span>
             </div>
           </div>
         </div>
@@ -176,21 +176,13 @@ const PracticeProgress = ({
             onApply={handleSettingsChange}
           >
             <Button variant="ghost" size="sm" className="p-1 h-6 rounded-full border-none">
-              <Sparkles className={`h-4 w-4 ${
-                isDarkMode 
-                  ? 'text-green-400' 
-                  : 'text-amber-500'
-              }`} />
+              <Gift className="h-4 w-4" style={{background: isDarkMode ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #f59e0b, #f97316)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: isDarkMode ? 'drop-shadow(0 0 2px rgba(34, 197, 94, 0.5))' : 'drop-shadow(0 0 2px rgba(245, 158, 11, 0.3))'}} />
             </Button>
           </SettingsDialog>
           
           {/* Flag button */}
           <Button variant="ghost" size="sm" className="p-1 h-6 rounded-full">
-            <Flag className={`h-4 w-4 ${
-              isDarkMode 
-                ? 'text-green-400' 
-                : 'text-blue-600'
-            }`} />
+            <Heart className="h-4 w-4" style={{background: isDarkMode ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #64748b, #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: isDarkMode ? 'drop-shadow(0 0 2px rgba(34, 197, 94, 0.5))' : 'drop-shadow(0 0 2px rgba(71, 85, 105, 0.3))'}} />
           </Button>
           
           {/* Tab selector */}
@@ -201,19 +193,15 @@ const PracticeProgress = ({
         <div className="flex items-center gap-4">
           {/* Target Progress indicator */}
           <div className="flex items-center text-sm">
-            <span className={`font-medium ${
+            <span className={`font-thin text-xs ${
               isDarkMode ? 'text-green-400' : 'text-blue-600'
             }`}>
-              Target Progress: {targetProgressPercentage}%
+              Target: {targetProgressPercentage}%
             </span>
           </div>
           {/* Timer */}
           <div className="flex items-center gap-2">
-            <Clock className={`h-4 w-4 ${
-              isDarkMode 
-                ? 'text-green-400' 
-                : 'text-blue-600'
-            }`} />
+            <Clock className="h-4 w-4" style={{background: isDarkMode ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #64748b, #3b82f6)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: isDarkMode ? 'drop-shadow(0 0 2px rgba(34, 197, 94, 0.5))' : 'drop-shadow(0 0 2px rgba(71, 85, 105, 0.3))'}} />
             {timerDuration > 0 ? (
               <CountdownTimer
                 durationInSeconds={timerDuration}
