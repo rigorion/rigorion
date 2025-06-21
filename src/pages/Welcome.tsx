@@ -147,11 +147,18 @@ export default function Welcome() {
               </div>
               
               <div className="mt-6 grid gap-6 md:grid-cols-2">
-                <div className="p-4 border border-gray-100 rounded-lg hover:border-blue-200 transition">
-                  <h2 className="text-xl font-semibold mb-2">AI Chat Assistant</h2>
-                  <p className="mb-4">Get help with specific questions from our AI tutor.</p>
+                <div className="p-6 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                    </div>
+                    <h2 className="text-lg font-medium text-gray-900">AI Chat Assistant</h2>
+                  </div>
+                  <p className="text-gray-600 mb-4">Get instant help with math problems and study guidance.</p>
                   <Link to="/chat">
-                    <Button>Open Chat</Button>
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700">Start Chat</Button>
                   </Link>
                 </div>
                 
