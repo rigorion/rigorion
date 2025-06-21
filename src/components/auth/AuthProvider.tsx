@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
@@ -53,11 +54,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(currentSession?.user ?? null);
         setSession(currentSession);
         
-        // Log the JWT token to console
-        if (currentSession?.access_token) {
-          console.log('JWT Token:', currentSession.access_token);
-        }
-        
         if (currentSession?.user) {
           await fetchProfile(currentSession.user.id);
         } else {
@@ -70,11 +66,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             console.log('Auth state change:', event, newSession ? 'session exists' : 'no session');
             setUser(newSession?.user ?? null);
             setSession(newSession);
-            
-            // Log the JWT token to console when it changes
-            if (newSession?.access_token) {
-              console.log('JWT Token (on auth state change):', newSession.access_token);
-            }
             
             if (newSession?.user) {
               await fetchProfile(newSession.user.id);
@@ -90,7 +81,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.error("Auth initialization error:", error);
         toast({
           title: "Connection Error",
-          description: "Unable to connect to authentication service. Please check your internet connection.",
+          description: "Unable to connect to Supabase. Please check if your Supabase project is active.",
           variant: "destructive",
         });
         setLoading(false);
@@ -143,10 +134,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: "Check your email to confirm your account.",
       });
     } catch (error: any) {
-      console.error("Sign-up error:", error.message);
+      console.error("Sign-up error:", error);
+      
+      let errorMessage = "Unable to create account. Please try again.";
+      if (error.message?.includes('fetch')) {
+        errorMessage = "Connection failed. Your Supabase project may be paused or inaccessible.";
+      }
+      
       toast({
         title: "Sign Up Failed",
-        description: error.message || "An error occurred during sign up.",
+        description: errorMessage,
         variant: "destructive",
       });
       throw error;
@@ -156,6 +153,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     try {
       console.log('Attempting sign in for:', email);
+      console.log('Supabase URL check:', process.env.VITE_SUPABASE_URL || 'https://evfxcdzwmmiguzxdxktl.supabase.co');
       setLoading(true);
       
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -174,14 +172,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: "Welcome back!",
       });
     } catch (error: any) {
-      console.error("Sign-in error:", error.message);
+      console.error("Sign-in error:", error);
       
-      // Provide more specific error messages
-      let errorMessage = error.message;
-      if (error.message?.includes('fetch')) {
-        errorMessage = "Unable to connect to the server. Please check your internet connection and try again.";
+      let errorMessage = "Sign in failed. Please try again.";
+      if (error.message?.includes('fetch') || error.message?.includes('Failed to fetch')) {
+        errorMessage = "Cannot connect to Supabase. Your project may be paused or the URL/keys may be incorrect. Check your Supabase dashboard.";
       } else if (error.message?.includes('Invalid login credentials')) {
-        errorMessage = "Invalid email or password. Please check your credentials and try again.";
+        errorMessage = "Invalid email or password. Please check your credentials.";
       }
       
       toast({
@@ -231,9 +228,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
     } catch (error: any) {
       console.error("Reset password error:", error.message);
+      
+      let errorMessage = error.message;
+      if (error.message?.includes('fetch')) {
+        errorMessage = "Connection failed. Please check your internet connection or Supabase project status.";
+      }
+      
       toast({
         title: "Reset Failed",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     }
