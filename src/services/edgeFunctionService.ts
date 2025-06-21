@@ -1,10 +1,10 @@
+
 // Generic fetch utility for Supabase Edge Functions
 import { useState, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast";
-import { SUPABASE_URL } from '@/integrations/supabase/client';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 
-// Base URL for Supabase Edge Functions - updated to match your project
+// Use the same URL as the main supabase client
 const EDGE_FUNCTION_BASE_URL = "https://evfxcdzwmmiguzxdxktl.supabase.co";
 
 export interface EdgeFunctionResponse<T> {
@@ -13,12 +13,17 @@ export interface EdgeFunctionResponse<T> {
 }
 
 /**
- * Retrieves current auth token from Supabase
- * @returns Authorization header object or empty object if no token
+ * Retrieves current auth token from Supabase with timeout
  */
 export async function getAuthHeaders(): Promise<Record<string, string>> {
   try {
-    const { data } = await supabase.auth.getSession();
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Auth timeout')), 3000)
+    );
+    
+    const sessionPromise = supabase.auth.getSession();
+    const { data } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+    
     if (data.session?.access_token) {
       return {
         Authorization: `Bearer ${data.session.access_token}`
@@ -32,11 +37,60 @@ export async function getAuthHeaders(): Promise<Record<string, string>> {
 }
 
 /**
- * Calls a Supabase Edge Function using the fetch API
- * @param functionName Name of the edge function to call
- * @param options Additional fetch options (method, headers, body)
- * @param queryParams Optional URL query parameters
- * @returns Promise with the edge function response
+ * Enhanced fetch with retry logic and better error handling
+ */
+async function fetchWithRetry(url: string, options: RequestInit, retries = 2): Promise<Response> {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      console.log(`🔄 Attempt ${i + 1}/${retries + 1} for ${url}`);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+        mode: 'cors',
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (response.ok) {
+        console.log(`✅ Success on attempt ${i + 1}`);
+        return response;
+      }
+      
+      if (response.status >= 500 && i < retries) {
+        console.log(`⚠️ Server error ${response.status}, retrying...`);
+        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))); // Progressive delay
+        continue;
+      }
+      
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    } catch (error: any) {
+      console.error(`❌ Attempt ${i + 1} failed:`, error.message);
+      
+      if (i === retries) {
+        // Final attempt failed
+        if (error.name === 'AbortError' || error.message.includes('timeout')) {
+          throw new Error('Request timed out - your Supabase project may be paused or unreachable');
+        }
+        if (error.message.includes('fetch')) {
+          throw new Error('Network error - check your internet connection and Supabase project status');
+        }
+        throw error;
+      }
+      
+      // Wait before retry
+      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+    }
+  }
+  
+  throw new Error('All retry attempts failed');
+}
+
+/**
+ * Calls a Supabase Edge Function with improved error handling
  */
 export async function callEdgeFunction<T>(
   functionName: string,
@@ -48,38 +102,29 @@ export async function callEdgeFunction<T>(
     const queryString = new URLSearchParams(queryParams).toString();
     const url = `${EDGE_FUNCTION_BASE_URL}/functions/v1/${functionName}${queryString ? `?${queryString}` : ''}`;
     
-    console.log(`Calling Edge Function: ${functionName}`, { url, method: options.method });
+    console.log(`🚀 Calling Edge Function: ${functionName}`, { url, method: options.method });
     
-    // Get auth headers if not provided in options
+    // Get auth headers
     const authHeaders = await getAuthHeaders();
-    const hasAuthHeader = options.headers && 
-      (options.headers as Record<string, string>)['Authorization'] !== undefined;
     
     // Set default headers
     const headers = {
       'Content-Type': 'application/json',
-      ...(hasAuthHeader ? {} : authHeaders),
+      'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2ZnhjZHp3bW1pZ3V6eGR4a3RsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI2ODkxNjksImV4cCI6MjA1ODI2NTE2OX0.AN7JVRiz4aFANJPliLpyIfWYC3JxYBeVTYkyZm1sBPo',
+      ...authHeaders,
       ...options.headers,
     };
 
-    console.log(`Headers for ${functionName}:`, headers);
-
-    const response = await fetch(url, {
+    const response = await fetchWithRetry(url, {
       ...options,
       headers,
-      mode: 'cors', // Explicitly set CORS mode
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`Edge Function ${functionName} failed:`, errorText);
-      throw new Error(`Error from ${functionName}: ${response.status} ${response.statusText}`);
-    }
-
     const data = await response.json();
+    console.log(`✅ ${functionName} response:`, data);
     return { data, error: null };
   } catch (error) {
-    console.error(`Error calling Edge Function ${functionName}:`, error);
+    console.error(`❌ Edge Function ${functionName} failed:`, error);
     return { data: null, error: error as Error };
   }
 }

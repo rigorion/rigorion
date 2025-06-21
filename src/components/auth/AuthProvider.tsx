@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
@@ -15,7 +14,6 @@ interface AuthContextType {
   resetPassword: (email: string) => Promise<void>;
 }
 
-// Export the AuthContext so it can be imported elsewhere
 export const AuthContext = createContext<AuthContextType>({
   user: null,
   profile: null,
@@ -41,78 +39,56 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         console.log('🔄 Initializing auth...');
         
-        // Set a timeout to prevent infinite loading
-        const timeoutId = setTimeout(() => {
-          console.log('⏰ Auth initialization timeout - setting loading to false');
+        // Set loading timeout to prevent infinite loading
+        const loadingTimeout = setTimeout(() => {
+          console.log('⏰ Auth initialization timeout - continuing without session');
           setLoading(false);
-        }, 10000); // 10 second timeout
-        
-        // Get initial session with a shorter timeout
-        const sessionPromise = supabase.auth.getSession();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Session timeout')), 5000)
-        );
+        }, 8000);
         
         try {
-          const { data: { session: currentSession }, error: sessionError } = await Promise.race([
-            sessionPromise,
-            timeoutPromise
-          ]) as any;
+          // Test basic connectivity first
+          const connectivityTest = await fetch(`${import.meta.env.VITE_SUPABASE_URL || 'https://evfxcdzwmmiguzxdxktl.supabase.co'}/rest/v1/`, {
+            method: 'HEAD',
+            headers: {
+              'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || '',
+            },
+            signal: AbortSignal.timeout ? AbortSignal.timeout(3000) : undefined
+          });
           
-          clearTimeout(timeoutId);
+          if (!connectivityTest.ok) {
+            throw new Error('Supabase connectivity test failed');
+          }
+          
+          // If connectivity is good, try to get session
+          const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+          
+          clearTimeout(loadingTimeout);
           
           if (sessionError) {
             console.error('❌ Session error:', sessionError);
-            setLoading(false);
-            return;
-          }
-          
-          console.log('✅ Current session:', currentSession ? 'exists' : 'none');
-          setUser(currentSession?.user ?? null);
-          setSession(currentSession);
-          
-          if (currentSession?.user) {
-            await fetchProfile(currentSession.user.id);
           } else {
-            setLoading(false);
+            console.log('✅ Session check:', currentSession ? 'found' : 'none');
+            setUser(currentSession?.user ?? null);
+            setSession(currentSession);
           }
           
-        } catch (timeoutError) {
-          console.warn('⏰ Session fetch timed out, continuing without session');
-          clearTimeout(timeoutId);
-          setLoading(false);
+        } catch (connectivityError: any) {
+          console.warn('⚠️ Connectivity issue:', connectivityError.message);
+          clearTimeout(loadingTimeout);
+          
+          if (connectivityError.message.includes('timeout') || connectivityError.message.includes('fetch')) {
+            toast({
+              title: "Connection Issue",
+              description: "Cannot connect to authentication service. Check if your Supabase project is active.",
+              variant: "destructive",
+            });
+          }
         }
         
-        // Set up auth state change listener with error handling
-        try {
-          const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            async (event, newSession) => {
-              console.log('🔄 Auth state change:', event, newSession ? 'session exists' : 'no session');
-              setUser(newSession?.user ?? null);
-              setSession(newSession);
-              
-              if (newSession?.user) {
-                await fetchProfile(newSession.user.id);
-              } else {
-                setProfile(null);
-                setLoading(false);
-              }
-            }
-          );
-          
-          return () => subscription.unsubscribe();
-        } catch (listenerError) {
-          console.error('❌ Error setting up auth listener:', listenerError);
-          setLoading(false);
-        }
+        setLoading(false);
         
       } catch (error) {
         console.error("❌ Auth initialization error:", error);
-        toast({
-          title: "Connection Issue",
-          description: "Unable to connect to authentication service. You can still use the app in offline mode.",
-          variant: "destructive",
-        });
         setLoading(false);
       }
     };
@@ -182,8 +158,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     try {
       console.log('Attempting sign in for:', email);
-      console.log('Supabase URL check:', import.meta.env.VITE_SUPABASE_URL || 'https://evfxcdzwmmiguzxdxktl.supabase.co');
       setLoading(true);
+      
+      // Test connectivity first
+      const testResponse = await fetch(`${import.meta.env.VITE_SUPABASE_URL || 'https://evfxcdzwmmiguzxdxktl.supabase.co'}/rest/v1/`, {
+        method: 'HEAD',
+        headers: {
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || '',
+        },
+        signal: AbortSignal.timeout ? AbortSignal.timeout(5000) : undefined
+      });
+      
+      if (!testResponse.ok) {
+        throw new Error('Cannot connect to Supabase - your project may be paused or unreachable');
+      }
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -204,8 +192,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error("Sign-in error:", error);
       
       let errorMessage = "Sign in failed. Please try again.";
-      if (error.message?.includes('fetch') || error.message?.includes('Failed to fetch')) {
-        errorMessage = "Cannot connect to Supabase. Your project may be paused or the URL/keys may be incorrect. Check your Supabase dashboard.";
+      if (error.message?.includes('fetch') || error.message?.includes('timeout') || error.message?.includes('connect')) {
+        errorMessage = "Cannot connect to Supabase. Your project may be paused or the network is unreachable. Check your Supabase dashboard.";
       } else if (error.message?.includes('Invalid login credentials')) {
         errorMessage = "Invalid email or password. Please check your credentials.";
       }
