@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
@@ -7,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 interface AuthContextType {
   user: User | null;
   profile: any | null;
-  session: Session | null; // Add the session property
+  session: Session | null;
   loading: boolean;
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
@@ -19,7 +18,7 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType>({
   user: null,
   profile: null,
-  session: null, // Initialize the session property
+  session: null,
   loading: true,
   signUp: async () => {},
   signIn: async () => {},
@@ -33,16 +32,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
-  const [session, setSession] = useState<Session | null>(null); // Add state for session
+  const [session, setSession] = useState<Session | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     const initAuth = async () => {
       try {
+        console.log('Initializing auth...');
+        
         // Get initial session
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          setLoading(false);
+          return;
+        }
+        
+        console.log('Current session:', currentSession ? 'exists' : 'none');
         setUser(currentSession?.user ?? null);
-        setSession(currentSession); // Store the session
+        setSession(currentSession);
         
         // Log the JWT token to console
         if (currentSession?.access_token) {
@@ -52,15 +61,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (currentSession?.user) {
           await fetchProfile(currentSession.user.id);
         } else {
-          // Important: Make sure to set loading to false when there's no session
           setLoading(false);
         }
         
         // Set up auth state change listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          async (_event, newSession) => {
+          async (event, newSession) => {
+            console.log('Auth state change:', event, newSession ? 'session exists' : 'no session');
             setUser(newSession?.user ?? null);
-            setSession(newSession); // Update session on auth state change
+            setSession(newSession);
             
             // Log the JWT token to console when it changes
             if (newSession?.access_token) {
@@ -79,6 +88,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return () => subscription.unsubscribe();
       } catch (error) {
         console.error("Auth initialization error:", error);
+        toast({
+          title: "Connection Error",
+          description: "Unable to connect to authentication service. Please check your internet connection.",
+          variant: "destructive",
+        });
         setLoading(false);
       }
     };
@@ -94,15 +108,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .eq("id", userId)
         .single();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') { // PGRST116 is "not found" error
+        throw error;
+      }
       setProfile(data);
     } catch (error) {
       console.error("Error fetching profile:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch user profile",
-        variant: "destructive",
-      });
+      // Don't show toast for profile errors as the table might not exist
     } finally {
       setLoading(false);
     }
@@ -110,6 +122,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, name: string) => {
     try {
+      console.log('Attempting sign up for:', email);
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -120,7 +133,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Sign up error:', error);
+        throw error;
+      }
 
       toast({
         title: "Success",
@@ -130,32 +146,52 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error("Sign-up error:", error.message);
       toast({
         title: "Sign Up Failed",
-        description: error.message,
+        description: error.message || "An error occurred during sign up.",
         variant: "destructive",
       });
+      throw error;
     }
   };
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log('Attempting sign in for:', email);
+      setLoading(true);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Sign in error:', error);
+        throw error;
+      }
 
+      console.log('Sign in successful:', data.user?.email);
       toast({
         title: "Signed In",
         description: "Welcome back!",
       });
     } catch (error: any) {
       console.error("Sign-in error:", error.message);
+      
+      // Provide more specific error messages
+      let errorMessage = error.message;
+      if (error.message?.includes('fetch')) {
+        errorMessage = "Unable to connect to the server. Please check your internet connection and try again.";
+      } else if (error.message?.includes('Invalid login credentials')) {
+        errorMessage = "Invalid email or password. Please check your credentials and try again.";
+      }
+      
       toast({
         title: "Sign In Failed",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
+      throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -207,7 +243,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     <AuthContext.Provider value={{ 
       user, 
       profile, 
-      session, // Add session to context value
+      session,
       loading, 
       signUp, 
       signIn, 
