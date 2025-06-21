@@ -153,7 +153,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     try {
       console.log('Attempting sign in for:', email);
-      console.log('Supabase URL check:', process.env.VITE_SUPABASE_URL || 'https://evfxcdzwmmiguzxdxktl.supabase.co');
+      console.log('Supabase URL check:', import.meta.env.VITE_SUPABASE_URL || 'https://evfxcdzwmmiguzxdxktl.supabase.co');
       setLoading(true);
       
       const { data, error } = await supabase.auth.signInWithPassword({
