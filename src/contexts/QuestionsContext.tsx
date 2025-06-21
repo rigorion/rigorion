@@ -34,17 +34,26 @@ export const QuestionsProvider: React.FC<QuestionsProviderProps> = ({ children }
   const fetchSecureQuestions = async () => {
     try {
       setIsLoading(true);
+      setError(null);
+      
+      // Set a timeout to prevent infinite loading
+      const timeoutId = setTimeout(() => {
+        console.log('⏰ Questions fetch timeout - setting loading to false');
+        setIsLoading(false);
+      }, 8000); // 8 second timeout
       
       // Get the latest secure data
       const record = await getSecureLatestFunctionData('my-function');
+      clearTimeout(timeoutId);
       
       if (!record || !record.data) {
-        console.log("No secure question data found");
+        console.log("ℹ️ No secure question data found");
+        setQuestions([]);
         setIsLoading(false);
         return;
       }
       
-      console.log("Found secure question data:", record.data);
+      console.log("✅ Found secure question data:", record.data);
       
       let rawQuestions: any[] = [];
       
@@ -56,7 +65,7 @@ export const QuestionsProvider: React.FC<QuestionsProviderProps> = ({ children }
       } else if (record.data.data && Array.isArray(record.data.data)) {
         rawQuestions = record.data.data;
       } else {
-        console.log("No questions array found in secure data structure");
+        console.log("ℹ️ No questions array found in secure data structure");
         setQuestions([]);
         setIsLoading(false);
         return;
@@ -74,15 +83,15 @@ export const QuestionsProvider: React.FC<QuestionsProviderProps> = ({ children }
         return isValid;
       });
       
-      console.log(`[CONTEXT] Processed ${rawQuestions.length} raw questions into ${validQuestions.length} valid questions`);
+      console.log(`✅ [CONTEXT] Processed ${rawQuestions.length} raw questions into ${validQuestions.length} valid questions`);
       setQuestions(validQuestions);
       
     } catch (err) {
-      console.error("Error getting secure questions:", err);
+      console.error("❌ Error getting secure questions:", err);
       setError(err instanceof Error ? err : new Error("Failed to load secure questions"));
       toast({
-        title: "Error loading questions",
-        description: err instanceof Error ? err.message : "Failed to load secure questions",
+        title: "Loading Issue",
+        description: "Unable to load questions. Please try refreshing or check your connection.",
         variant: "destructive",
       });
     } finally {

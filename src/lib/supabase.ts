@@ -9,24 +9,42 @@ console.log('Supabase Key (first 20 chars):', supabaseKey.substring(0, 20) + '..
 
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
-    autoRefreshToken: true,
+    autoRefreshToken: false, // Disable auto refresh to prevent fetch errors
     persistSession: true,
-    detectSessionInUrl: true
-  }
+    detectSessionInUrl: true,
+    flowType: 'implicit'
+  },
+  global: {
+    headers: {
+      'x-application-name': 'practice-app',
+    },
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 2,
+    },
+  },
 })
 
-// Simple connection test
+// Simple connection test with timeout
 const testConnection = async () => {
   try {
-    console.log('Testing Supabase connection...');
+    console.log('🔄 Testing Supabase connection...');
+    
+    // Create a promise that will timeout after 3 seconds
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Connection timeout')), 3000)
+    );
     
     // Try a simple health check by attempting to get the current session
-    const { data, error } = await supabase.auth.getSession();
+    const sessionPromise = supabase.auth.getSession();
+    
+    const { data, error } = await Promise.race([sessionPromise, timeoutPromise]) as any;
     
     if (error) {
       console.error('❌ Supabase connection test failed:', error.message);
-      if (error.message.includes('fetch')) {
-        console.error('This looks like a network connectivity issue. Possible causes:');
+      if (error.message.includes('fetch') || error.message.includes('timeout')) {
+        console.error('🚨 This looks like a network connectivity issue. Possible causes:');
         console.error('1. Supabase project is paused (check your Supabase dashboard)');
         console.error('2. Invalid Supabase URL or API keys');
         console.error('3. Network restrictions or firewall blocking the connection');
@@ -34,9 +52,13 @@ const testConnection = async () => {
     } else {
       console.log('✅ Supabase connection test successful');
     }
-  } catch (err) {
-    console.error('❌ Supabase connection test error:', err);
-    console.error('This indicates a network or configuration issue.');
+  } catch (err: any) {
+    console.error('❌ Supabase connection test error:', err.message);
+    if (err.message.includes('timeout')) {
+      console.error('⏰ Connection timed out - your Supabase project may be paused or unreachable');
+    } else {
+      console.error('🌐 This indicates a network or configuration issue.');
+    }
   }
 };
 

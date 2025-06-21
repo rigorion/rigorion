@@ -39,49 +39,78 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        console.log('Initializing auth...');
+        console.log('🔄 Initializing auth...');
         
-        // Get initial session
-        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error('Session error:', sessionError);
+        // Set a timeout to prevent infinite loading
+        const timeoutId = setTimeout(() => {
+          console.log('⏰ Auth initialization timeout - setting loading to false');
           setLoading(false);
-          return;
-        }
+        }, 10000); // 10 second timeout
         
-        console.log('Current session:', currentSession ? 'exists' : 'none');
-        setUser(currentSession?.user ?? null);
-        setSession(currentSession);
-        
-        if (currentSession?.user) {
-          await fetchProfile(currentSession.user.id);
-        } else {
-          setLoading(false);
-        }
-        
-        // Set up auth state change listener
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          async (event, newSession) => {
-            console.log('Auth state change:', event, newSession ? 'session exists' : 'no session');
-            setUser(newSession?.user ?? null);
-            setSession(newSession);
-            
-            if (newSession?.user) {
-              await fetchProfile(newSession.user.id);
-            } else {
-              setProfile(null);
-              setLoading(false);
-            }
-          }
+        // Get initial session with a shorter timeout
+        const sessionPromise = supabase.auth.getSession();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Session timeout')), 5000)
         );
         
-        return () => subscription.unsubscribe();
+        try {
+          const { data: { session: currentSession }, error: sessionError } = await Promise.race([
+            sessionPromise,
+            timeoutPromise
+          ]) as any;
+          
+          clearTimeout(timeoutId);
+          
+          if (sessionError) {
+            console.error('❌ Session error:', sessionError);
+            setLoading(false);
+            return;
+          }
+          
+          console.log('✅ Current session:', currentSession ? 'exists' : 'none');
+          setUser(currentSession?.user ?? null);
+          setSession(currentSession);
+          
+          if (currentSession?.user) {
+            await fetchProfile(currentSession.user.id);
+          } else {
+            setLoading(false);
+          }
+          
+        } catch (timeoutError) {
+          console.warn('⏰ Session fetch timed out, continuing without session');
+          clearTimeout(timeoutId);
+          setLoading(false);
+        }
+        
+        // Set up auth state change listener with error handling
+        try {
+          const { data: { subscription } } = supabase.auth.onAuthStateChange(
+            async (event, newSession) => {
+              console.log('🔄 Auth state change:', event, newSession ? 'session exists' : 'no session');
+              setUser(newSession?.user ?? null);
+              setSession(newSession);
+              
+              if (newSession?.user) {
+                await fetchProfile(newSession.user.id);
+              } else {
+                setProfile(null);
+                setLoading(false);
+              }
+            }
+          );
+          
+          return () => subscription.unsubscribe();
+        } catch (listenerError) {
+          console.error('❌ Error setting up auth listener:', listenerError);
+          setLoading(false);
+        }
+        
       } catch (error) {
-        console.error("Auth initialization error:", error);
+        console.error("❌ Auth initialization error:", error);
         toast({
-          title: "Connection Error",
-          description: "Unable to connect to Supabase. Please check if your Supabase project is active.",
+          title: "Connection Issue",
+          description: "Unable to connect to authentication service. You can still use the app in offline mode.",
           variant: "destructive",
         });
         setLoading(false);
