@@ -599,31 +599,27 @@ export default function PracticeContent({
         onFilterChange={handleFilterChange}
       />
 
-      <div className={`border-b transition-colors duration-300 ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'}`}>
-        <div className="flex items-center justify-between px-4 sm:px-6 py-2">
-          <PracticeProgress 
-            correctAnswers={correctAnswers} 
-            incorrectAnswers={incorrectAnswers} 
-            totalQuestions={filteredQuestions.length} 
-            timerDuration={timerDuration} 
-            isTimerActive={isTimerActive} 
-            handleTimerComplete={handleTimerComplete} 
-            mode={mode} 
-            timeRemaining={timeRemaining} 
-            setTimeRemaining={setTimeRemaining} 
-            activeTab={activeTab} 
-            setActiveTab={setActiveTab} 
-            currentQuestionIndex={currentQuestionIndex} 
-            currentQuestionHint={currentQuestion?.hint} 
-            objective={objective} 
-            progress={progress} 
-            onAutoNext={nextQuestion}
-            onPomodoroBreak={handlePomodoroBreak}
-            settings={displaySettings}
-            onSettingsChange={onSettingsChange}
-          />
-        </div>
-      </div>
+      <PracticeProgress 
+        correctAnswers={correctAnswers} 
+        incorrectAnswers={incorrectAnswers} 
+        totalQuestions={filteredQuestions.length} 
+        timerDuration={timerDuration} 
+        isTimerActive={isTimerActive} 
+        handleTimerComplete={handleTimerComplete} 
+        mode={mode} 
+        timeRemaining={timeRemaining} 
+        setTimeRemaining={setTimeRemaining} 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        currentQuestionIndex={currentQuestionIndex} 
+        currentQuestionHint={currentQuestion?.hint} 
+        objective={objective} 
+        progress={progress} 
+        onAutoNext={nextQuestion}
+        onPomodoroBreak={handlePomodoroBreak}
+        settings={displaySettings}
+        onSettingsChange={onSettingsChange}
+      />
 
       <Collapsible open={sidebarOpen}>
         <CollapsibleContent className="absolute left-0 top-[56px] z-50 transform transition-all duration-300 ease-in-out">
@@ -631,7 +627,7 @@ export default function PracticeContent({
         </CollapsibleContent>
       </Collapsible>
 
-      <div className="flex max-w-full mx-auto w-full flex-grow py-4 sm:py-[28px] px-2 sm:px-0">
+      <div className="flex max-w-full mx-auto w-full flex-grow py-2 sm:py-3 px-2 sm:px-0">
         {currentQuestion ? (
           <PracticeDisplay 
             currentQuestion={currentQuestion} 

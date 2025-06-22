@@ -11,7 +11,6 @@ import { SecureProgressDataProvider } from "@/components/progress/SecureProgress
 import { useProgress } from "@/contexts/ProgressContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import SecureProgressDataButton from "@/components/progress/SecureProgressDataButton";
 import { useQueryClient } from "@tanstack/react-query";
 import AIAnalyzer from "@/components/ai/AIAnalyzer";
 import {
@@ -295,22 +294,6 @@ const Progress = () => {
     }));
   };
   
-  if (!isAuthenticated) {
-    return (
-      <div className={`min-h-screen flex items-center justify-center transition-colors duration-300 ${
-        isDarkMode ? 'bg-gray-900' : 'bg-mono-bg'
-      }`}>
-        <div className="text-center p-8 max-w-md">
-          <h2 className={`text-2xl font-bold mb-4 ${
-            isDarkMode ? 'text-green-400' : 'text-gray-900'
-          }`}>Authentication Required</h2>
-          <p className={`mb-6 ${
-            isDarkMode ? 'text-green-300' : 'text-gray-600'
-          }`}>Please sign in to view your progress dashboard.</p>
-        </div>
-      </div>
-    );
-  }
   
   return (
     <SecureProgressDataProvider fallbackData={DUMMY_PROGRESS} showLoadingState={true}>
@@ -462,9 +445,6 @@ const Progress = () => {
                   <h1 className={`font-bold text-lg ${
                     isDarkMode ? 'text-green-400' : ''
                   }`}>Progress Dashboard</h1>
-                  
-                  {/* Add Secure Sync button */}
-                  <SecureProgressDataButton />
                 </div>
                 
                 <div className="flex items-center">

@@ -32,16 +32,8 @@ function App() {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/welcome" element={<Welcome />} />
-                <Route path="/practice" element={
-                  <ProtectedRoute>
-                    <Practice />
-                  </ProtectedRoute>
-                } />
-                <Route path="/progress" element={
-                  <ProtectedRoute>
-                    <Progress />
-                  </ProtectedRoute>
-                } />
+                <Route path="/practice" element={<Practice />} />
+                <Route path="/progress" element={<Progress />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/chat" element={
                   <ProtectedRoute>
