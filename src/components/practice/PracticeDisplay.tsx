@@ -312,14 +312,19 @@ Keep the evaluation constructive and educational.`;
                       const isCorrectChoice = currentQuestion.correctAnswer === choiceKey;
                       
                       let buttonStyle = '';
+                      let animationClass = '';
+                      
                       if (selectedAnswer && isSelected) {
                         if (isCorrect) {
                           buttonStyle = 'bg-green-100 border-green-400 text-green-800 shadow-md';
+                          animationClass = 'animate-pulse';
                         } else {
                           buttonStyle = 'bg-red-100 border-red-400 text-red-800 shadow-md';
+                          animationClass = 'animate-bounce';
                         }
                       } else if (selectedAnswer && isCorrectChoice) {
                         buttonStyle = 'bg-green-100 border-green-400 text-green-800 shadow-md';
+                        animationClass = 'animate-pulse';
                       } else {
                         buttonStyle = 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm hover:shadow-md';
                       }
@@ -328,7 +333,7 @@ Keep the evaluation constructive and educational.`;
                         <Button
                           key={index}
                           variant="outline"
-                          className={`w-full h-auto min-h-[60px] rounded-full px-4 py-3 text-center justify-center transition-all duration-200 ${buttonStyle}`}
+                          className={`w-full h-auto min-h-[60px] rounded-full px-4 py-3 text-center justify-center transition-all duration-200 ${buttonStyle} ${animationClass}`}
                           onClick={() => checkAnswer(choiceKey)}
                           disabled={!!selectedAnswer}
                           style={{ 

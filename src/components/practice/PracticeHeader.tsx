@@ -447,22 +447,14 @@ export const PracticeHeader = ({
           <span className={`font-thin text-xs sm:hidden ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Obj</span>
         </Button>
         
-        <Button
-          variant="ghost"
-          size="sm"
+        <button
           onClick={onOpenMode}
-          className={`rounded-full bg-transparent transition-colors ${mode !== "manual" ? "text-emerald-500" : ""} ${
-            isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
+          className={`px-2 py-1 rounded-full bg-transparent transition-colors text-xs font-thin ${mode !== "manual" ? "text-emerald-500" : ""} ${
+            isDarkMode ? 'hover:bg-gray-800 text-gray-300' : 'hover:bg-gray-100 text-gray-600'
           }`}
         >
-          <Clock className={`h-4 w-4 mr-1 ${isDarkMode ? 'text-green-400' : 'text-blue-600'}`} />
-          <span className={`font-thin text-xs hidden sm:inline ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            {mode === "manual" ? "Manual" : mode.charAt(0).toUpperCase() + mode.slice(1)}
-          </span>
-          <span className={`font-thin text-xs sm:hidden ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            {mode === "manual" ? "Man" : mode.charAt(0).toUpperCase()}
-          </span>
-        </Button>
+          {mode === "manual" ? "Manual" : mode.charAt(0).toUpperCase() + mode.slice(1)}
+        </button>
 
         <div className="ml-2 flex items-center">
           <DropdownMenu>

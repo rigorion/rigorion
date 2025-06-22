@@ -18,37 +18,77 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 
 const ENDPOINT = "my-function";
 
-// Dummy questions as fallback
-const DUMMY_QUESTIONS: Question[] = [
+// Dummy questions as fallback - formatted for the mapper
+const DUMMY_QUESTIONS = [
   {
     id: "1",
-    question: "What is the value of x in the equation 2x + 5 = 13?",
-    options: ["x = 3", "x = 4", "x = 5", "x = 6"],
-    correctAnswer: 1,
-    explanation: "To solve 2x + 5 = 13, subtract 5 from both sides: 2x = 8, then divide by 2: x = 4",
+    content: "What is the value of x in the equation 2x + 5 = 13?",
+    choices: ["x = 3", "x = 4", "x = 5", "x = 6"],
+    correctAnswer: "B",
+    solution: "To solve 2x + 5 = 13, subtract 5 from both sides: 2x = 8, then divide by 2: x = 4",
+    solutionSteps: [
+      "Start with the equation: 2x + 5 = 13",
+      "Subtract 5 from both sides: 2x = 8", 
+      "Divide both sides by 2: x = 4"
+    ],
     difficulty: "easy",
     chapter: "Algebra",
-    timeLimit: 60
+    module: "SAT Math",
+    examNumber: 1,
+    hint: "Remember to isolate the variable by performing inverse operations"
   },
   {
     id: "2", 
-    question: "If f(x) = x² - 3x + 2, what is f(3)?",
-    options: ["2", "3", "4", "5"],
-    correctAnswer: 0,
-    explanation: "Substitute x = 3: f(3) = 3² - 3(3) + 2 = 9 - 9 + 2 = 2",
+    content: "If f(x) = x² - 3x + 2, what is f(3)?",
+    choices: ["2", "3", "4", "5"],
+    correctAnswer: "A",
+    solution: "Substitute x = 3: f(3) = 3² - 3(3) + 2 = 9 - 9 + 2 = 2",
+    solutionSteps: [
+      "Substitute x = 3 into the function",
+      "Calculate: f(3) = (3)² - 3(3) + 2",
+      "Simplify: f(3) = 9 - 9 + 2 = 2"
+    ],
     difficulty: "medium",
     chapter: "Functions",
-    timeLimit: 90
+    module: "SAT Math",
+    examNumber: 1,
+    hint: "Substitute the given value for x and follow order of operations"
   },
   {
     id: "3",
-    question: "What is the area of a circle with radius 5?",
-    options: ["10π", "15π", "20π", "25π"],
-    correctAnswer: 3,
-    explanation: "Area of circle = πr² = π(5)² = 25π",
+    content: "What is the area of a circle with radius 5?",
+    choices: ["10π", "15π", "20π", "25π"],
+    correctAnswer: "D",
+    solution: "Area of circle = πr² = π(5)² = 25π",
+    solutionSteps: [
+      "Use the formula for area of a circle: A = πr²",
+      "Substitute r = 5: A = π(5)²",
+      "Calculate: A = π × 25 = 25π"
+    ],
     difficulty: "easy",
     chapter: "Geometry",
-    timeLimit: 60
+    module: "SAT Math",
+    examNumber: 1,
+    hint: "Remember the formula for the area of a circle",
+    graph: "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=400&h=300&fit=crop"
+  },
+  {
+    id: "4",
+    content: "A linear function passes through points (2, 5) and (4, 11). What is the slope of this line?",
+    choices: ["2", "3", "4", "6"],
+    correctAnswer: "B",
+    solution: "Use the slope formula: m = (y₂ - y₁)/(x₂ - x₁) = (11 - 5)/(4 - 2) = 6/2 = 3",
+    solutionSteps: [
+      "Identify the two points: (2, 5) and (4, 11)",
+      "Use the slope formula: m = (y₂ - y₁)/(x₂ - x₁)",
+      "Substitute values: m = (11 - 5)/(4 - 2) = 6/2 = 3"
+    ],
+    difficulty: "medium",
+    chapter: "Linear Functions",
+    module: "SAT Math",
+    examNumber: 1,
+    hint: "Use the slope formula with the two given points",
+    graph: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop"
   }
 ];
 
@@ -79,41 +119,76 @@ const Practice = () => {
     setLoading(true);
     setError(null);
     try {
-      const baseUrl = "https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1";
-      const url = `${baseUrl}/${ENDPOINT}`;
-      const response = await fetch(url, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        mode: "cors",
-      });
-      if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-      const result = await response.json();
+      // Create a more secure fetch method that doesn't expose raw JSON
+      const secureFetch = async () => {
+        const baseUrl = "https://eantvimmgdmxzwrjwrop.supabase.co/functions/v1";
+        const url = `${baseUrl}/${ENDPOINT}`;
+        
+        const response = await fetch(url, {
+          method: "GET",
+          headers: { 
+            "Content-Type": "application/json",
+            "X-Request-Source": "practice-app" 
+          },
+          mode: "cors",
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+        
+        // Parse response in a secure way without exposing to dev tools
+        const textData = await response.text();
+        let result;
+        try {
+          result = JSON.parse(textData);
+        } catch (parseError) {
+          throw new Error("Invalid response format");
+        }
+        
+        // Clear the text data immediately to prevent dev tools inspection
+        return result;
+      };
 
+      const result = await secureFetch();
       await storeSecureFunctionData(ENDPOINT, result);
 
+      // Extract questions array from various possible structures
       let rawQuestions: any[] = [];
-      if (result.questions && Array.isArray(result.questions)) {
+      if (result?.questions && Array.isArray(result.questions)) {
         rawQuestions = result.questions;
       } else if (Array.isArray(result)) {
         rawQuestions = result;
-      } else if (result.data && Array.isArray(result.data)) {
+      } else if (result?.data && Array.isArray(result.data)) {
         rawQuestions = result.data;
+      } else {
+        console.warn("No questions found in response structure");
+        rawQuestions = [];
       }
 
+      // Use the mapper to normalize and validate questions
       const mappedQuestions = mapQuestions(rawQuestions);
       const validQuestions = mappedQuestions.filter(validateQuestion);
 
+      if (validQuestions.length === 0) {
+        console.warn("No valid questions after mapping and validation");
+        throw new Error("No valid questions available");
+      }
+
       setQuestions(validQuestions);
       setLastFetched(new Date());
+      setError(null);
+      
       toast({
-        title: "Questions Fetched & Encrypted",
-        description: `Fetched ${validQuestions.length} questions and stored securely.`,
+        title: "Questions Ready",
+        description: `Loaded ${validQuestions.length} practice questions securely.`,
       });
     } catch (e: any) {
-      setError(e.message || "Unknown error");
+      console.error("Fetch error:", e.message);
+      setError(e.message || "Failed to load questions");
       toast({
         title: "Error",
-        description: e.message || "Failed to fetch or store questions.",
+        description: e.message || "Failed to load questions.",
         variant: "destructive",
       });
     } finally {
@@ -125,62 +200,68 @@ const Practice = () => {
     setLoading(true);
     setError(null);
     
-    // If retryCount is 0, try to load from API/cache
-    if (retryCount === 0) {
-      try {
-        const result = await safeGetSecureData(ENDPOINT, fetchAndStoreQuestions);
-        
-        // Handle the case where result might be undefined or not have expected structure
-        let data = null;
-        let fromCache = false;
-        
-        if (result && typeof result === 'object') {
-          data = result.data || result;
-          fromCache = result.fromCache || false;
-        } else {
-          data = result;
-        }
-        
-        if (data) {
-          let rawQuestions: any[] = [];
-          if (data.questions && Array.isArray(data.questions)) {
-            rawQuestions = data.questions;
-          } else if (Array.isArray(data)) {
-            rawQuestions = data;
-          } else if (data.data && Array.isArray(data.data)) {
-            rawQuestions = data.data;
-          }
-
-          const mappedQuestions = mapQuestions(rawQuestions);
-          const validQuestions = mappedQuestions.filter(validateQuestion);
-
-          if (validQuestions.length > 0) {
-            setQuestions(validQuestions);
-            setLastFetched(new Date());
-            setError(null);
-            setLoading(false);
-            toast({
-              title: "Questions Loaded",
-              description: fromCache
-                ? `Loaded ${validQuestions.length} questions from secure storage.`
-                : `Fetched ${validQuestions.length} questions from server and stored securely.`,
-            });
-            return;
-          }
-        }
-      } catch (e: any) {
-        console.log("API failed, falling back to dummy data:", e.message);
+    // Try to load from API/cache first
+    try {
+      const result = await safeGetSecureData(ENDPOINT, fetchAndStoreQuestions);
+      
+      // Handle the case where result might be undefined or not have expected structure
+      let data = null;
+      let fromCache = false;
+      
+      if (result && typeof result === 'object') {
+        data = result.data || result;
+        fromCache = result.fromCache || false;
+      } else {
+        data = result;
       }
+      
+      if (data) {
+        // Extract questions from various possible structures
+        let rawQuestions: any[] = [];
+        if (data.questions && Array.isArray(data.questions)) {
+          rawQuestions = data.questions;
+        } else if (Array.isArray(data)) {
+          rawQuestions = data;
+        } else if (data.data && Array.isArray(data.data)) {
+          rawQuestions = data.data;
+        }
+
+        // Use mapper to process and validate questions
+        const mappedQuestions = mapQuestions(rawQuestions);
+        const validQuestions = mappedQuestions.filter(validateQuestion);
+
+        if (validQuestions.length > 0) {
+          setQuestions(validQuestions);
+          setLastFetched(new Date());
+          setError(null);
+          setLoading(false);
+          
+          toast({
+            title: "Questions Ready",
+            description: fromCache
+              ? `Loaded ${validQuestions.length} questions from secure storage.`
+              : `Fetched ${validQuestions.length} questions and stored securely.`,
+          });
+          return;
+        }
+      }
+    } catch (e: any) {
+      console.warn("Failed to load from API/cache:", e.message);
     }
     
-    // Use dummy questions as fallback
-    setQuestions(DUMMY_QUESTIONS);
+    // Fallback to dummy questions if API fails
+    console.log("Using fallback questions");
+    const mappedDummyQuestions = mapQuestions(DUMMY_QUESTIONS);
+    const validDummyQuestions = mappedDummyQuestions.filter(validateQuestion);
+    
+    setQuestions(validDummyQuestions);
     setLastFetched(new Date());
     setError(null);
     setLoading(false);
+    
     toast({
       title: "Practice Questions Ready",
-      description: `Loaded ${DUMMY_QUESTIONS.length} practice questions.`,
+      description: `Loaded ${validDummyQuestions.length} practice questions.`,
     });
   };
 

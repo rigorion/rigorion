@@ -140,7 +140,7 @@ const PracticeProgress = ({
         </div>
 
         {/* Right side: Progress bar and related details - larger fixed width */}
-        <div className="flex flex-col items-end gap-2 w-[600px]">
+        <div className="flex flex-col items-end gap-2 w-[720px]">
           {/* Progress bar with target and timer inline */}
           <div className="flex items-center gap-3 w-full">
             {/* Progress bar - 2x longer and thinner */}
@@ -183,7 +183,7 @@ const PracticeProgress = ({
               <span className={`font-thin text-xs ${
                 isDarkMode ? 'text-green-400' : 'text-blue-600'
               }`}>
-                Target: {targetProgressPercentage}%
+                Target Progress: {targetProgressPercentage}%
               </span>
             </div>
             
