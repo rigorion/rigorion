@@ -16,9 +16,10 @@ const formSchema = z.object({
 
 interface SignInFormProps {
   onForgotPassword?: () => void;
+  onSuccess?: () => void;
 }
 
-export const SignInForm = ({ onForgotPassword }: SignInFormProps) => {
+export const SignInForm = ({ onForgotPassword, onSuccess }: SignInFormProps) => {
   const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ export const SignInForm = ({ onForgotPassword }: SignInFormProps) => {
     try {
       setIsLoading(true);
       await signIn(values.email, values.password);
+      onSuccess?.();
       navigate("/welcome");
     } catch (error) {
       console.error(error);
@@ -86,7 +88,7 @@ export const SignInForm = ({ onForgotPassword }: SignInFormProps) => {
         </div>
         <Button 
           type="submit" 
-          className="w-full bg-gradient-to-r from-blue-400 to-blue-600"
+          className="w-full bg-white hover:bg-gray-50 text-[#8A0303] border border-[#8A0303] hover:border-[#6b0202] rounded-full py-2"
           disabled={isLoading}
         >
           {isLoading ? "Signing In..." : "Sign In"}

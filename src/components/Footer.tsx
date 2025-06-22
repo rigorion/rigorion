@@ -20,23 +20,28 @@ const footerLinks = [{
 const socialLinks = [{
   icon: <Twitter className="h-4 w-4" />,
   href: "#",
-  label: "Twitter"
+  label: "Twitter",
+  color: "#1DA1F2"
 }, {
   icon: <Facebook className="h-4 w-4" />,
   href: "#",
-  label: "Facebook"
+  label: "Facebook",
+  color: "#1877F2"
 }, {
   icon: <Instagram className="h-4 w-4" />,
   href: "#",
-  label: "Instagram"
+  label: "Instagram",
+  color: "#E4405F"
 }, {
   icon: <Linkedin className="h-4 w-4" />,
   href: "#",
-  label: "LinkedIn"
+  label: "LinkedIn",
+  color: "#0A66C2"
 }, {
   icon: <Youtube className="h-4 w-4" />,
   href: "#",
-  label: "YouTube"
+  label: "YouTube",
+  color: "#FF0000"
 }];
 
 const paymentMethods = ["PayPal", "MasterCard", "Visa"];
@@ -72,11 +77,8 @@ export const Footer = () => {
             <a 
               key={index} 
               href={link.href} 
-              className={`transition-colors ${
-                isDarkMode 
-                  ? 'text-green-400 hover:text-green-300' 
-                  : 'text-gray-500 hover:text-[#8A0303]'
-              }`} 
+              className="transition-colors hover:opacity-80" 
+              style={{ color: link.color }}
               aria-label={link.label}
             >
               {link.icon}
@@ -90,7 +92,7 @@ export const Footer = () => {
           <p className={`text-sm mb-4 md:mb-0 ${
             isDarkMode ? 'text-green-400' : 'text-gray-900'
           }`}>
-            &copy; {new Date().getFullYear()} Rigorion & Papercore. All rights reserved.
+            &copy; {new Date().getFullYear()} Rigorion & Divinity. All rights reserved.
           </p>
           
           <div className="flex items-center space-x-4">

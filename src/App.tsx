@@ -8,8 +8,6 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 // Pages
 import Index from "@/pages/Index";
-import SignIn from "@/pages/SignIn";
-import SignUp from "@/pages/SignUp";
 import Practice from "@/pages/Practice";
 import Progress from "@/pages/Progress";
 import About from "@/pages/About";
@@ -31,8 +29,6 @@ function App() {
             <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/signin" element={<SignIn />} />
-                <Route path="/signup" element={<SignUp />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/welcome" element={<Welcome />} />

@@ -17,11 +17,11 @@ export const SubscribeSection = () => {
   };
   return <section className="bg-gray-50 py-[16px]">
       <div className="container mx-auto px-4 max-w-xl text-center">
-        <h2 className="text-xl md:text-2xl font-medium text-gray-800 tracking-wide uppercase mb-6">BE THE ONE WE CONTACT WHEN WE HAVE NEW PRODUCTS &amp; SERVICES</h2>
+        <h2 className="text-xl md:text-2xl font-light text-black mb-6 text-center tracking-wide uppercase" style={{ fontFamily: 'Times New Roman, serif' }}>BE THE ONE WE CONTACT WHEN WE HAVE NEW PRODUCTS & SERVICES</h2>
         
         <form onSubmit={handleSubmit} className="flex space-x-2 max-w-md mx-auto">
-          <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email address" className="flex-grow text-gray-600" />
-          <Button type="submit" className="bg-gray-900 hover:bg-gray-800">
+          <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email address" className="flex-grow text-gray-600 rounded-full" />
+          <Button type="submit" className="bg-gray-900 hover:bg-gray-800 rounded-full px-6">
             SUBSCRIBE
           </Button>
         </form>

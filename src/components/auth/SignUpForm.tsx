@@ -13,7 +13,11 @@ const formSchema = z.object({
   password: z.string().min(6),
 });
 
-export const SignUpForm = () => {
+interface SignUpFormProps {
+  onSuccess?: () => void;
+}
+
+export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
   const { signUp } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   
@@ -30,6 +34,7 @@ export const SignUpForm = () => {
     try {
       setIsLoading(true);
       await signUp(values.email, values.password, values.name);
+      onSuccess?.();
     } catch (error) {
       console.error(error);
     } finally {
@@ -81,7 +86,7 @@ export const SignUpForm = () => {
         />
         <Button 
           type="submit" 
-          className="w-full bg-gradient-to-r from-blue-400 to-blue-600"
+          className="w-full bg-white hover:bg-gray-50 text-[#8A0303] border border-[#8A0303] hover:border-[#6b0202] rounded-full py-2"
           disabled={isLoading}
         >
           {isLoading ? "Signing Up..." : "Sign Up"}

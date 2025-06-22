@@ -2,39 +2,50 @@
 import React from 'react';
 import { useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
-import { Users, CheckSquare, Clock, Award } from 'lucide-react';
+import { Users, FileText, TrendingUp, Award, CheckCircle } from 'lucide-react';
 
 type StatType = {
   id: string;
   value: number;
   label: string;
+  suffix?: string;
   icon: React.ReactNode;
 };
 
 const STATS: StatType[] = [
   {
     id: "students",
-    value: 288,
-    label: "Our Students",
-    icon: <Users className="w-6 h-6 text-white" />
+    value: 5000,
+    suffix: "+",
+    label: "Active Students",
+    icon: <Users className="w-8 h-8 text-[#8A0303]" />
   },
   {
-    id: "problems",
-    value: 158,
-    label: "Solved Problems",
-    icon: <CheckSquare className="w-6 h-6 text-white" />
+    id: "questions",
+    value: 5000,
+    suffix: "+",
+    label: "Practice Questions",
+    icon: <FileText className="w-8 h-8 text-[#8A0303]" />
   },
   {
-    id: "time",
+    id: "solved",
+    value: 250000,
+    suffix: "+",
+    label: "Problems Solved",
+    icon: <CheckCircle className="w-8 h-8 text-[#8A0303]" />
+  },
+  {
+    id: "average",
+    value: 1420,
+    label: "Average SAT Score",
+    icon: <TrendingUp className="w-8 h-8 text-[#8A0303]" />
+  },
+  {
+    id: "success",
     value: 98,
-    label: "Total Time Invested",
-    icon: <Clock className="w-6 h-6 text-white" />
-  },
-  {
-    id: "passed",
-    value: 34,
-    label: "AWARDS",
-    icon: <Award className="w-6 h-6 text-white" />
+    suffix: "%",
+    label: "Success Rate",
+    icon: <Award className="w-8 h-8 text-[#8A0303]" />
   }
 ];
 
@@ -43,22 +54,32 @@ export const StatsCounter = () => {
   const isInView = useInView(ref, { once: true, amount: 0.3 });
   const [counts, setCounts] = useState<{ [key: string]: number }>({
     students: 0,
-    problems: 0,
-    time: 0,
-    passed: 0
+    questions: 0,
+    solved: 0,
+    average: 0,
+    success: 0
   });
   
   useEffect(() => {
     if (isInView) {
-      const interval = setInterval(() => {
+      let interval: NodeJS.Timeout;
+      
+      interval = setInterval(() => {
         setCounts(prevCounts => {
           const newCounts = { ...prevCounts };
           let allCompleted = true;
           
           STATS.forEach(stat => {
             if (newCounts[stat.id] < stat.value) {
-              // Calculate increment to make animation smoother for larger numbers
-              const increment = Math.max(1, Math.ceil(stat.value / 50));
+              // Calculate increment based on the size of the number for smooth animation
+              let increment;
+              if (stat.value >= 100000) {
+                increment = Math.ceil(stat.value / 100); // Larger increments for big numbers
+              } else if (stat.value >= 1000) {
+                increment = Math.ceil(stat.value / 80);
+              } else {
+                increment = Math.max(1, Math.ceil(stat.value / 50));
+              }
               newCounts[stat.id] = Math.min(stat.value, newCounts[stat.id] + increment);
               allCompleted = false;
             }
@@ -70,35 +91,66 @@ export const StatsCounter = () => {
           
           return newCounts;
         });
-      }, 30);
+      }, 50);
       
-      return () => clearInterval(interval);
+      return () => {
+        if (interval) {
+          clearInterval(interval);
+        }
+      };
     }
   }, [isInView]);
 
   return (
-    <section 
-      ref={ref}
-      className="py-24 bg-gray-900 bg-opacity-80 relative"
-      style={{
-        backgroundImage: 'url(https://cdn.pixabay.com/photo/2016/10/03/22/47/robot-arm-1713081_1280.jpg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      }}
-    >
-      <div className="absolute inset-0 bg-black bg-opacity-70" />
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+    <>
+      {/* Section Separator */}
+      <section className="py-8">
+        <div className="container mx-auto px-6">
+          <div className="flex items-center justify-center">
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-600 to-gray-600"></div>
+            <div className="px-6">
+              <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+            </div>
+            <div className="flex-1 h-px bg-gradient-to-r from-gray-600 via-gray-600 to-transparent"></div>
+          </div>
+        </div>
+      </section>
+
+      <section 
+        ref={ref}
+        className="py-16 bg-white"
+      >
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl font-bold mb-2">
+              <span className="italic font-script text-black" style={{ fontFamily: 'Dancing Script, cursive' }}>
+                Rigorion by the Numbers
+              </span>
+            </h2>
+            <p className="text-gray-600">Join thousands of successful students worldwide</p>
+          </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {STATS.map((stat) => (
-            <div key={stat.id} className="text-center">
-              <div className="inline-flex items-center justify-center w-24 h-24 rounded-full border-2 border-white border-opacity-20 mb-4 mx-auto">
-                <div className="text-2xl md:text-4xl font-bold text-white">{counts[stat.id]}</div>
+            <div key={stat.id} className="text-center group">
+              <div className="bg-gray-900 rounded-full w-48 h-48 mx-auto flex flex-col items-center justify-center p-6 transition-all duration-300 group-hover:bg-[#8A0303] group-hover:scale-105 shadow-lg">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-white bg-opacity-20 rounded-full mb-3 group-hover:bg-white group-hover:bg-opacity-30 transition-all duration-300">
+                  <div className="text-white group-hover:text-white">
+                    {React.cloneElement(stat.icon as React.ReactElement, {
+                      className: "w-6 h-6 text-white"
+                    })}
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-white mb-1">
+                  {counts[stat.id].toLocaleString()}{stat.suffix || ''}
+                </div>
+                <p className="text-xs text-gray-300 font-medium text-center leading-tight">{stat.label}</p>
               </div>
-              <p className="text-sm text-white font-medium tracking-wider">{stat.label}</p>
             </div>
           ))}
         </div>
       </div>
     </section>
+    </>
   );
 };

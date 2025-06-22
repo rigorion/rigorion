@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Sparkles } from 'lucide-react';
 import AISearchBar from "@/components/ui/AISearchBar";
 import AnimatedPrompts from "@/components/ui/AnimatedPrompts";
+import TypingAnimation from "@/components/ui/TypingAnimation";
 import { analyzeWithAIML } from "@/services/aimlApi";
 
 export const Hero = () => {
@@ -40,8 +41,18 @@ Always respond with practical, encouraging advice formatted in a clear, organize
   };
   
   return (
-    <section className="relative py-32 bg-gradient-to-br from-gray-50 to-blue-50">
-      <div className="container mx-auto px-4">
+    <section 
+      className="relative py-32 bg-gradient-to-br from-gray-50 to-blue-50"
+      style={{
+        backgroundImage: `url('/lovable-uploads/corner-building-for-4k-white-background-tsx7c82luhg36ygy.jpg')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Optional overlay for better text readability */}
+      <div className="absolute inset-0 bg-white/70"></div>
+      <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col items-center justify-center text-center">
           {/* Search bar */}
           <div className="mb-8 w-full max-w-2xl">
@@ -58,9 +69,9 @@ Always respond with practical, encouraging advice formatted in a clear, organize
           
           {isAnalyzing && (
             <div className="mb-12 max-w-3xl w-full">
-              <div className="bg-white rounded-lg p-6 shadow-md border border-gray-200">
+              <div className="p-6">
                 <div className="flex items-center justify-center gap-3">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#8A0303]"></div>
                   <span className="text-gray-600">AI is analyzing your request...</span>
                 </div>
               </div>
@@ -69,20 +80,22 @@ Always respond with practical, encouraging advice formatted in a clear, organize
           
           {analysisResult && (
             <div className="mb-12 max-w-3xl w-full">
-              <div className="bg-white rounded-lg p-6 shadow-md border border-gray-200">
+              <div className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 rounded-full bg-blue-600">
+                  <div className="p-2 rounded-full bg-[#8A0303]">
                     <Sparkles className="h-4 w-4 text-white" />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-800">Your AI Study Plan</h3>
                 </div>
-                <p className="text-gray-700 leading-relaxed text-left whitespace-pre-line">{analysisResult}</p>
-                <div className="mt-4 pt-4 border-t border-gray-200">
+                <TypingAnimation 
+                  text={analysisResult}
+                  speed={20}
+                  className="text-gray-700 leading-relaxed text-left whitespace-pre-line"
+                />
+                <div className="mt-4 pt-4">
                   <Button
-                    variant="outline"
-                    size="sm"
                     onClick={() => setAnalysisResult('')}
-                    className="text-gray-600 hover:text-gray-800"
+                    className="bg-white hover:bg-gray-50 text-[#8A0303] border border-[#8A0303] hover:border-[#6b0202] rounded-full px-4 py-2"
                   >
                     Clear Analysis
                   </Button>
@@ -91,13 +104,9 @@ Always respond with practical, encouraging advice formatted in a clear, organize
             </div>
           )}
           
-          {/* Action buttons */}
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <div className="bg-white rounded-full px-6 py-3 border border-gray-200 shadow-sm">
-              <span className="font-medium text-blue-600">#1 Global Ranking</span>
-            </div>
-            
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 rounded-full">
+          {/* Action button */}
+          <div className="flex items-center justify-center mb-8">
+            <Button className="bg-white hover:bg-gray-50 text-[#8A0303] border border-[#8A0303] font-medium px-8 py-3 rounded-full shadow-sm">
               {isAnalyzing ? 'Analyzing...' : 'Join us'}
             </Button>
           </div>

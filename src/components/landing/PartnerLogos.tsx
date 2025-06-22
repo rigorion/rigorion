@@ -14,46 +14,38 @@ type PromotionalItem = {
   isFeatured?: boolean;
 };
 const PROMOTIONAL_ITEMS: PromotionalItem[] = [{
-  id: "quiz-1",
-  title: "Personalized Study Plans",
-  brand: "Rigorion Learning",
-  description: "AI-driven study plans tailored to your specific learning needs, with real-time adjustments based on your performance and progress tracking.",
-  tags: ["Personalized", "AI-Powered", "Study Plans", "Performance Tracking"],
-  imageUrl: "https://cdn.pixabay.com/photo/2015/06/24/16/36/home-820389_1280.jpg",
-  link: "/study-plans",
+  id: "sat-math",
+  title: "SAT Math",
+  brand: "Rigorion SAT",
+  description: "Master mathematical concepts with comprehensive practice problems, detailed explanations, and strategic problem-solving techniques for optimal SAT Math scores.",
+  tags: ["Algebra & Functions", "Geometry", "Statistics", "Advanced Topics"],
+  imageUrl: "https://images.unsplash.com/photo-1596495577886-d920f1fb7238?w=400&h=300&fit=crop",
+  link: "/sat-math",
   isFeatured: true
 }, {
-  id: "quiz-2",
-  title: "Interactive Quiz System",
-  brand: "Rigorion Quizzes",
-  description: "Engage with our advanced interactive quiz system that adapts to your knowledge level and helps identify areas that need improvement.",
-  tags: ["Interactive", "Adaptive", "Quizzes", "Learning"],
-  imageUrl: "https://cdn.pixabay.com/photo/2015/06/24/16/36/home-820389_1280.jpg",
-  link: "/quiz-system"
+  id: "sat-reading",
+  title: "SAT Reading",
+  brand: "Rigorion SAT",
+  description: "Enhance reading comprehension skills with diverse passages, critical analysis techniques, and strategic approaches to tackle any SAT Reading section.",
+  tags: ["Literature Analysis", "Social Studies", "Science Passages", "Critical Reading"],
+  imageUrl: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop",
+  link: "/sat-reading"
 }, {
-  id: "quiz-3",
-  title: "Video Tutorials",
-  brand: "Rigorion Media",
-  description: "Comprehensive video tutorials covering complex topics with expert instructors and visual aids to enhance understanding and retention.",
-  tags: ["Video", "Tutorials", "Visual Learning", "Expert Guidance"],
-  imageUrl: "https://cdn.pixabay.com/photo/2015/06/24/16/36/home-820389_1280.jpg",
-  link: "/video-tutorials"
+  id: "sat-writing",
+  title: "SAT Writing",
+  brand: "Rigorion SAT",
+  description: "Perfect your writing skills with comprehensive grammar rules, essay techniques, language usage patterns, and rhetoric strategies for SAT success.",
+  tags: ["Grammar Rules", "Essay Writing", "Language Usage", "Rhetoric"],
+  imageUrl: "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&h=300&fit=crop",
+  link: "/sat-writing"
 }, {
-  id: "quiz-4",
-  title: "Practice Exams",
-  brand: "Rigorion Testing",
-  description: "Full-length practice exams that simulate the actual test environment, helping you build confidence and improve time management skills.",
-  tags: ["Practice", "Exam Prep", "Time Management", "Simulation"],
-  imageUrl: "https://cdn.pixabay.com/photo/2015/06/24/16/36/home-820389_1280.jpg",
-  link: "/practice-exams"
-}, {
-  id: "quiz-5",
-  title: "Discussion Forums",
-  brand: "Rigorion Community",
-  description: "Connect with fellow students and instructors in our moderated discussion forums to ask questions, share insights, and collaborate.",
-  tags: ["Community", "Discussion", "Collaboration", "Support"],
-  imageUrl: "https://cdn.pixabay.com/photo/2015/06/24/16/36/home-820389_1280.jpg",
-  link: "/forums"
+  id: "sat-full-tests",
+  title: "12 SAT Full Tests",
+  brand: "Rigorion SAT",
+  description: "Complete practice tests with realistic timing, detailed scoring analytics, performance insights, and personalized improvement recommendations.",
+  tags: ["Full-Length Tests", "Detailed Analytics", "Time Management", "Score Prediction"],
+  imageUrl: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop",
+  link: "/sat-full-tests"
 }];
 export const PartnerLogos = () => {
   const [activeProject, setActiveProject] = useState(0);
@@ -116,11 +108,15 @@ export const PartnerLogos = () => {
       <div className="w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className={`text-center mb-10 max-w-3xl mx-auto transition-all duration-1000 ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <div className="inline-block mb-2 px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm font-medium">
-            Our Products
+            SAT Preparation
           </div>
-          <h2 className="text-3xl font-bold mb-3">Master SAT Exam with Rigorion</h2>
-          <p className="text-gray-600">
-            Explore our comprehensive suite of learning tools designed to help you succeed in any academic challenge.
+          <h2 className="text-3xl font-bold mb-3">
+            <span className="italic font-script text-[#8A0303]" style={{ fontFamily: 'Dancing Script, cursive' }}>
+              Rigorion transforms SAT uncertainty into inevitability.
+            </span>
+          </h2>
+          <p className="text-gray-600 text-lg">
+            Strategic preparation with personalized analytics and proven results.
           </p>
           {isMobile && <div className="flex items-center justify-center mt-4 animate-pulse-slow">
               <div className="flex items-center text-[#8A0303]">
@@ -153,7 +149,7 @@ export const PartnerLogos = () => {
               {PROMOTIONAL_ITEMS.map((item, index) => <div key={item.id} className={`absolute top-0 w-full max-w-lg transform transition-all duration-500 ${getCardAnimationClass(index)}`} style={{
               transitionDelay: `${index * 50}ms`
             }}>
-                  <Card className="overflow-hidden h-[460px] border-none rounded-lg shadow-lg hover:shadow-xl flex flex-col bg-white">
+                  <Card className="overflow-hidden h-[460px] border-none rounded-xl shadow-lg hover:shadow-xl flex flex-col bg-white">
                     <div className="relative bg-black flex items-center justify-center h-64 overflow-hidden" style={{
                   backgroundImage: `url(${item.imageUrl})`,
                   backgroundSize: 'cover',

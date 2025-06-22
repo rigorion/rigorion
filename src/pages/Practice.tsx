@@ -216,7 +216,9 @@ const Practice = () => {
           ) : questions && questions.length > 0 ? (
             <>
               <PracticeContent 
-                questions={questions} 
+                questions={questions}
+                isLoading={false}
+                error={null}
                 settings={settings} 
                 onSettingsChange={handleSettingsChange}
               />

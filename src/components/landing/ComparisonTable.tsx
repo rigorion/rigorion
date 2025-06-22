@@ -6,130 +6,167 @@ type FeatureType = {
   name: string;
   competitors: {
     rigorion: boolean;
-    canvasa: boolean;
-    mojule: boolean;
-    techmarin: boolean;
-    spencecraft: boolean;
-    coachseye: boolean;
+    scoresmart: boolean;
+    magoosh: boolean;
+    edisonos: boolean;
+    testinnovators: boolean;
+    princetonreview: boolean;
   };
 };
 
 const FEATURES: FeatureType[] = [
   {
-    name: "Cost",
+    name: "5000+ Practice Questions",
     competitors: {
       rigorion: true,
-      canvasa: true,
-      mojule: true,
-      techmarin: true,
-      spencecraft: true,
-      coachseye: true
+      scoresmart: false,
+      magoosh: false,
+      edisonos: false,
+      testinnovators: false,
+      princetonreview: true
     }
   },
   {
-    name: "Content Quality",
+    name: "AI-Powered Writing Examiner",
     competitors: {
       rigorion: true,
-      canvasa: false,
-      mojule: false,
-      techmarin: true,
-      spencecraft: false,
-      coachseye: true
+      scoresmart: false,
+      magoosh: false,
+      edisonos: false,
+      testinnovators: false,
+      princetonreview: false
     }
   },
   {
-    name: "Adaptive Learning",
+    name: "5 Different Practice Modes",
     competitors: {
       rigorion: true,
-      canvasa: true,
-      mojule: false,
-      techmarin: false,
-      spencecraft: false,
-      coachseye: true
+      scoresmart: false,
+      magoosh: true,
+      edisonos: false,
+      testinnovators: false,
+      princetonreview: false
     }
   },
   {
-    name: "Mock Test Realism",
+    name: "Military-Grade Security",
     competitors: {
       rigorion: true,
-      canvasa: true,
-      mojule: true,
-      techmarin: false,
-      spencecraft: false,
-      coachseye: true
+      scoresmart: false,
+      magoosh: false,
+      edisonos: false,
+      testinnovators: false,
+      princetonreview: false
     }
   },
   {
-    name: "Performance Analytics",
+    name: "Advanced Analytics Dashboard",
     competitors: {
       rigorion: true,
-      canvasa: false,
-      mojule: true,
-      techmarin: true,
-      spencecraft: false,
-      coachseye: true
+      scoresmart: true,
+      magoosh: true,
+      edisonos: false,
+      testinnovators: true,
+      princetonreview: false
     }
   },
   {
-    name: "Official Test Content",
-    competitors: {
-      rigorion: false,
-      canvasa: true,
-      mojule: false,
-      techmarin: false,
-      spencecraft: true,
-      coachseye: false
-    }
-  },
-  {
-    name: "Gamification",
-    competitors: {
-      rigorion: false,
-      canvasa: true,
-      mojule: true,
-      techmarin: true,
-      spencecraft: false,
-      coachseye: true
-    }
-  },
-  {
-    name: "Differntiating Feature #1",
+    name: "Global Leaderboard System",
     competitors: {
       rigorion: true,
-      canvasa: false,
-      mojule: true,
-      techmarin: true,
-      spencecraft: false,
-      coachseye: true
+      scoresmart: false,
+      magoosh: false,
+      edisonos: true,
+      testinnovators: false,
+      princetonreview: false
     }
   },
   {
-    name: "Differntiating Feature #2",
+    name: "12 Full-Length Mock Tests",
     competitors: {
-      rigorion: false,
-      canvasa: false,
-      mojule: false,
-      techmarin: false,
-      spencecraft: false,
-      coachseye: false
+      rigorion: true,
+      scoresmart: true,
+      magoosh: true,
+      edisonos: true,
+      testinnovators: true,
+      princetonreview: true
+    }
+  },
+  {
+    name: "Offline Practice Capability",
+    competitors: {
+      rigorion: true,
+      scoresmart: false,
+      magoosh: false,
+      edisonos: false,
+      testinnovators: false,
+      princetonreview: false
+    }
+  },
+  {
+    name: "Gamified Learning Experience",
+    competitors: {
+      rigorion: true,
+      scoresmart: true,
+      magoosh: false,
+      edisonos: true,
+      testinnovators: false,
+      princetonreview: false
+    }
+  },
+  {
+    name: "Real-Time Performance Insights",
+    competitors: {
+      rigorion: true,
+      scoresmart: false,
+      magoosh: true,
+      edisonos: false,
+      testinnovators: true,
+      princetonreview: false
+    }
+  },
+  {
+    name: "Personalized Study Plans",
+    competitors: {
+      rigorion: true,
+      scoresmart: true,
+      magoosh: true,
+      edisonos: false,
+      testinnovators: false,
+      princetonreview: true
+    }
+  },
+  {
+    name: "Advanced Customization Options",
+    competitors: {
+      rigorion: true,
+      scoresmart: false,
+      magoosh: false,
+      edisonos: false,
+      testinnovators: false,
+      princetonreview: false
     }
   }
 ];
 
 const COMPETITORS = [
-  { id: "rigorion", name: "Rigorion", color: "#0072BB" },
+  { id: "rigorion", name: "Rigorion", color: "#8A0303" },
   { id: "scoresmart", name: "ScoreSmart", color: "#38B04A" },
   { id: "magoosh", name: "Magoosh", color: "#046C76" },
   { id: "edisonos", name: "Edisonos", color: "#D93232" },
   { id: "testinnovators", name: "TestInnovators", color: "#FFA734" },
-  { id: "princetonreview", name: "PrincetonReview", color: "#0072BB" }
+  { id: "princetonreview", name: "Princeton Review", color: "#0072BB" }
 ];
 
 export const ComparisonTable = () => {
   return (
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-14">Product Comparison Chart</h2>
+        <h2 className="text-3xl font-bold text-center mb-14">
+          <span className="italic font-script text-black" style={{ fontFamily: 'Dancing Script, cursive' }}>
+            Product Comparison Chart
+          </span>
+        </h2>
         
         <div className="overflow-x-auto">
           <table className="w-full min-w-[800px] border-collapse">

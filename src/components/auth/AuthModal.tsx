@@ -28,37 +28,60 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     setShowForgotPassword(false);
   };
 
+  const handleSuccessfulAuth = () => {
+    onClose();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center">
+      <DialogContent className="sm:max-w-[400px] bg-white border-0 shadow-xl rounded-xl p-6">
+        <DialogHeader className="space-y-2">
+          <DialogTitle className="text-2xl font-semibold text-center text-gray-900">
             {showForgotPassword 
               ? "Reset Password" 
               : activeTab === "signin" 
-                ? "Sign In to Academia" 
-                : "Create an Account"}
+                ? "Welcome Back" 
+                : "Create Account"}
           </DialogTitle>
+          {!showForgotPassword && (
+            <p className="text-sm text-gray-600 text-center">
+              {activeTab === "signin" 
+                ? "Sign in to your account" 
+                : "Join us and start your journey"}
+            </p>
+          )}
         </DialogHeader>
 
         {showForgotPassword ? (
-          <ForgotPasswordForm onBack={handleBackToSignIn} />
+          <div className="mt-6">
+            <ForgotPasswordForm onBack={handleBackToSignIn} />
+          </div>
         ) : (
           <Tabs 
             defaultValue={activeTab} 
             value={activeTab} 
             onValueChange={handleTabChange}
-            className="w-full mt-4"
+            className="w-full mt-6"
           >
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 bg-gray-100 p-1 rounded-lg">
+              <TabsTrigger 
+                value="signin" 
+                className="data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-md"
+              >
+                Sign In
+              </TabsTrigger>
+              <TabsTrigger 
+                value="signup" 
+                className="data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm rounded-md"
+              >
+                Sign Up
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="signin" className="mt-6">
-              <SignInForm onForgotPassword={handleForgotPasswordClick} />
+              <SignInForm onForgotPassword={handleForgotPasswordClick} onSuccess={handleSuccessfulAuth} />
             </TabsContent>
             <TabsContent value="signup" className="mt-6">
-              <SignUpForm />
+              <SignUpForm onSuccess={handleSuccessfulAuth} />
             </TabsContent>
           </Tabs>
         )}
