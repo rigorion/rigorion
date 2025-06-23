@@ -211,7 +211,7 @@ export const PracticeHeader = ({
   };
 
   return (
-    <header className={`border-b px-2 sm:px-4 py-3 flex items-center justify-between shadow-sm transition-all duration-300 overflow-hidden ${
+    <header className={`sticky top-0 z-50 border-b px-2 sm:px-4 py-3 flex items-center justify-between shadow-sm transition-all duration-300 overflow-hidden ${
       isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
     }`}>
       <div className="flex items-center gap-1 sm:gap-2">

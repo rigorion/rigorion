@@ -627,7 +627,7 @@ export default function PracticeContent({
         </CollapsibleContent>
       </Collapsible>
 
-      <div className="flex max-w-full mx-auto w-full flex-grow py-2 sm:py-3 px-2 sm:px-0">
+      <div className="flex max-w-full mx-auto w-full flex-grow py-2 sm:py-3 px-2 sm:px-0 pb-24">
         {currentQuestion ? (
           <PracticeDisplay 
             currentQuestion={currentQuestion} 

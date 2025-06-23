@@ -18,6 +18,8 @@ interface LeaderboardTableProps {
 export const LeaderboardTable = ({ data }: LeaderboardTableProps) => {
   const { isDarkMode } = useTheme();
   
+  console.log("LeaderboardTable received data:", data.length, "entries");
+  
   return (
     <div className={`rounded-xl p-6 ${
       isDarkMode ? 'bg-gray-700' : 'bg-white'

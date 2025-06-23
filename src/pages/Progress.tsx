@@ -494,7 +494,7 @@ const Progress = () => {
               </TabsContent>
               
               <TabsContent value="leaderboard">
-                {userId ? <LeaderboardData userId={userId} /> : null}
+                <LeaderboardData userId={userId || 'guest'} />
               </TabsContent>
             </div>
           </Tabs>

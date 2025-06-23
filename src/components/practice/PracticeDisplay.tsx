@@ -190,9 +190,9 @@ Keep the evaluation constructive and educational.`;
   const graphUrl = getGraphUrl(currentQuestion);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 min-h-[calc(100vh-300px)] w-full px-2 sm:px-[28px]">
-      {/* Content Section */}
-      <div className={`flex-1 rounded-xl p-6 transition-colors ${
+    <div className="flex flex-col xl:flex-row gap-4 min-h-[calc(100vh-300px)] w-full px-2 sm:px-[28px]">
+      {/* Main Content Section */}
+      <div className={`flex-1 xl:flex-[2] rounded-xl p-6 transition-colors ${
         isDarkMode ? 'bg-gray-900' : 'bg-white'
       }`} style={{ backgroundColor: isDarkMode ? undefined : boardColor }}>
         {/* Question Content - Always visible */}
@@ -431,43 +431,88 @@ Keep the evaluation constructive and educational.`;
           </div>
         </div>
 
-        {/* Additional Tab Content - Shows below the question */}
-        {activeTab === "solution" && (
-          <div className="mt-8 space-y-4 border-t pt-6">
-            <h3 className={`text-xl font-semibold ${
-              isDarkMode ? 'text-green-400' : 'text-gray-800'
-            }`}>
-              Solution & Explanation
-            </h3>
-            <div 
-              style={{
-                ...contentTextStyle,
-                color: isDarkMode ? '#ffffff' : contentTextStyle.color
-              }}
-              className="whitespace-pre-wrap"
-              dangerouslySetInnerHTML={{ __html: currentQuestion.solution || 'No solution available for this question.' }}
-            />
-          </div>
-        )}
+        {/* Mobile-only Additional Tab Content - Shows below the question on smaller screens */}
+        <div className="xl:hidden">
+          {activeTab === "solution" && (
+            <div className="mt-8 space-y-4 border-t pt-6">
+              <h3 className={`text-xl font-semibold ${
+                isDarkMode ? 'text-green-400' : 'text-gray-800'
+              }`}>
+                Solution & Explanation
+              </h3>
+              <div 
+                style={{
+                  ...contentTextStyle,
+                  color: isDarkMode ? '#ffffff' : contentTextStyle.color
+                }}
+                className="whitespace-pre-wrap"
+                dangerouslySetInnerHTML={{ __html: currentQuestion.solution || 'No solution available for this question.' }}
+              />
+            </div>
+          )}
 
-        {/* Quote/Idea Tab */}
-        {activeTab === "quote" && (
-          <div className="mt-8 space-y-4 border-t pt-6">
-            <h3 className={`text-xl font-semibold ${
-              isDarkMode ? 'text-green-400' : 'text-gray-800'
-            }`}>
-              Key Idea
-            </h3>
-            <div 
-              style={{
-                ...contentTextStyle,
-                color: isDarkMode ? '#ffffff' : contentTextStyle.color
-              }}
-              className="whitespace-pre-wrap"
-              dangerouslySetInnerHTML={{ __html: currentQuestion.quote || 'No key idea available for this question.' }}
-            />
-          </div>
-        )}
+          {/* Quote/Idea Tab */}
+          {activeTab === "quote" && (
+            <div className="mt-8 space-y-4 border-t pt-6">
+              <h3 className={`text-xl font-semibold ${
+                isDarkMode ? 'text-green-400' : 'text-gray-800'
+              }`}>
+                Key Idea
+              </h3>
+              <div 
+                style={{
+                  ...contentTextStyle,
+                  color: isDarkMode ? '#ffffff' : contentTextStyle.color
+                }}
+                className="whitespace-pre-wrap"
+                dangerouslySetInnerHTML={{ __html: currentQuestion.quote || 'No key idea available for this question.' }}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Desktop Right Sidebar - Solution and Idea sections */}
+      <div className="hidden xl:flex xl:flex-col xl:flex-1 gap-4">
+        {/* Solution Section */}
+        <div className={`rounded-xl p-6 transition-colors ${
+          isDarkMode ? 'bg-gray-800 border border-green-500/30' : 'bg-gray-50 border border-gray-200'
+        } ${activeTab === 'solution' ? 'ring-2 ring-offset-2 ' + (isDarkMode ? 'ring-green-500' : 'ring-blue-500') : ''}`}>
+          <h3 className={`text-lg font-semibold mb-4 ${
+            isDarkMode ? 'text-green-400' : 'text-gray-800'
+          }`}>
+            💡 Solution & Explanation
+          </h3>
+          <div 
+            style={{
+              ...contentTextStyle,
+              fontSize: `${displaySettings.fontSize - 1}px`,
+              color: isDarkMode ? '#ffffff' : contentTextStyle.color
+            }}
+            className="whitespace-pre-wrap text-sm leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: currentQuestion.solution || 'No solution available for this question.' }}
+          />
+        </div>
+
+        {/* Key Idea Section */}
+        <div className={`rounded-xl p-6 transition-colors ${
+          isDarkMode ? 'bg-gray-800 border border-green-500/30' : 'bg-gray-50 border border-gray-200'
+        } ${activeTab === 'quote' ? 'ring-2 ring-offset-2 ' + (isDarkMode ? 'ring-green-500' : 'ring-blue-500') : ''}`}>
+          <h3 className={`text-lg font-semibold mb-4 ${
+            isDarkMode ? 'text-green-400' : 'text-gray-800'
+          }`}>
+            🎯 Key Idea
+          </h3>
+          <div 
+            style={{
+              ...contentTextStyle,
+              fontSize: `${displaySettings.fontSize - 1}px`,
+              color: isDarkMode ? '#ffffff' : contentTextStyle.color
+            }}
+            className="whitespace-pre-wrap text-sm leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: currentQuestion.quote || 'No key idea available for this question.' }}
+          />
+        </div>
       </div>
     </div>
   );
