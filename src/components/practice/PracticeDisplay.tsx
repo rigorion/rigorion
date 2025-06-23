@@ -177,7 +177,7 @@ Keep the evaluation constructive and educational.`;
   const contentTextStyle = {
     fontFamily: getFontFamily(),
     fontSize: `${displaySettings.fontSize}px`,
-    color: displaySettings.textColor,
+    color: isDarkMode ? '#ffffff' : displaySettings.textColor,
     lineHeight: '1.6'
   };
 
@@ -194,9 +194,18 @@ Keep the evaluation constructive and educational.`;
       {/* Content Section */}
       <div className={`flex-1 rounded-xl p-6 transition-colors ${
         isDarkMode ? 'bg-gray-900' : 'bg-white'
-      }`} style={{ backgroundColor: boardColor }}>
+      }`} style={{ backgroundColor: isDarkMode ? undefined : boardColor }}>
         {/* Question Content - Always visible */}
         <div className="space-y-6">
+          {/* Question Number Header */}
+          <div className="mb-4">
+            <h2 className={`text-xl font-semibold ${
+              isDarkMode ? 'text-green-400' : 'text-blue-600'
+            }`}>
+              Question {currentQuestion.number}
+            </h2>
+          </div>
+          
           {/* Question Display */}
           <div className="space-y-4">
             <div 
@@ -305,7 +314,7 @@ Keep the evaluation constructive and educational.`;
 
                 {/* Multiple Choice - Fully Rounded White Buttons */}
                 {isMultipleChoice ? (
-                  <div className="grid grid-cols-2 gap-4 mt-8">
+                  <div className="grid grid-cols-2 gap-6 mt-8 max-w-2xl">
                     {currentQuestion.choices?.map((choice, index) => {
                       const choiceKey = String.fromCharCode(65 + index);
                       const isSelected = selectedAnswer === choiceKey;
@@ -317,36 +326,39 @@ Keep the evaluation constructive and educational.`;
                       if (selectedAnswer && isSelected) {
                         if (isCorrect) {
                           buttonStyle = 'bg-green-100 border-green-400 text-green-800 shadow-md';
-                          animationClass = 'animate-pulse';
+                          animationClass = 'transition-all duration-300 scale-105';
                         } else {
                           buttonStyle = 'bg-red-100 border-red-400 text-red-800 shadow-md';
-                          animationClass = 'animate-bounce';
+                          animationClass = 'transition-all duration-300 scale-105';
                         }
                       } else if (selectedAnswer && isCorrectChoice) {
                         buttonStyle = 'bg-green-100 border-green-400 text-green-800 shadow-md';
-                        animationClass = 'animate-pulse';
+                        animationClass = 'transition-all duration-300 scale-105';
                       } else {
-                        buttonStyle = 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm hover:shadow-md';
+                        buttonStyle = isDarkMode 
+                          ? 'bg-gray-800 border-green-500 text-white hover:bg-gray-700 shadow-sm hover:shadow-md'
+                          : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm hover:shadow-md';
                       }
 
                       return (
                         <Button
                           key={index}
                           variant="outline"
-                          className={`w-full h-auto min-h-[60px] rounded-full px-4 py-3 text-center justify-center transition-all duration-200 ${buttonStyle} ${animationClass}`}
+                          className={`w-full h-auto min-h-[30px] rounded-full px-2 py-1.5 text-center justify-center transition-all duration-200 ${buttonStyle} ${animationClass}`}
                           onClick={() => checkAnswer(choiceKey)}
                           disabled={!!selectedAnswer}
                           style={{ 
                             fontFamily: getFontFamily(),
-                            fontSize: '14px',
-                            fontWeight: '500'
+                            fontSize: '12px',
+                            fontWeight: '500',
+                            color: isDarkMode ? '#ffffff' : undefined
                           }}
                         >
                           <div className="flex items-center justify-center w-full gap-2">
                             <div className="flex flex-col items-center text-center">
-                              <span className="text-xs text-gray-500 mb-1">Option {choiceKey}</span>
+                              <span className={`text-xs mb-0.5 ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>Option {choiceKey}</span>
                               <span 
-                                className="text-sm leading-tight"
+                                className="text-xs leading-tight"
                                 dangerouslySetInnerHTML={{ __html: choice }}
                               />
                             </div>
@@ -392,7 +404,7 @@ Keep the evaluation constructive and educational.`;
 
                 {/* Answer Feedback */}
                 {selectedAnswer && (
-                  <div className={`p-4 rounded-lg transition-colors ${
+                  <div className={`p-3 rounded-lg transition-colors max-w-md ${
                     isCorrect 
                       ? isDarkMode 
                         ? 'bg-green-900/50 border border-green-500/30 text-green-300' 
@@ -428,7 +440,10 @@ Keep the evaluation constructive and educational.`;
               Solution & Explanation
             </h3>
             <div 
-              style={contentTextStyle}
+              style={{
+                ...contentTextStyle,
+                color: isDarkMode ? '#ffffff' : contentTextStyle.color
+              }}
               className="whitespace-pre-wrap"
               dangerouslySetInnerHTML={{ __html: currentQuestion.solution || 'No solution available for this question.' }}
             />
@@ -444,7 +459,10 @@ Keep the evaluation constructive and educational.`;
               Key Idea
             </h3>
             <div 
-              style={contentTextStyle}
+              style={{
+                ...contentTextStyle,
+                color: isDarkMode ? '#ffffff' : contentTextStyle.color
+              }}
               className="whitespace-pre-wrap"
               dangerouslySetInnerHTML={{ __html: currentQuestion.quote || 'No key idea available for this question.' }}
             />

@@ -1,22 +1,16 @@
-# Welcome to your Lovable project
+# Academic Arc - SAT Preparation Platform
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/7b3113f4-e6ec-4c0b-b778-5d396468035d
+A comprehensive SAT preparation platform built with modern web technologies.
 
 ## How can I edit this code?
 
 There are several ways of editing your application.
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/7b3113f4-e6ec-4c0b-b778-5d396468035d) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
 **Use your preferred IDE**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+You can work locally using your own IDE by cloning this repo and pushing changes.
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
@@ -62,8 +56,11 @@ This project is built with .
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/7b3113f4-e6ec-4c0b-b778-5d396468035d) and click on Share -> Publish.
+This project can be deployed to various platforms such as:
 
-## I want to use a custom domain - is that possible?
+- Netlify
+- Vercel
+- GitHub Pages
+- Any static hosting service
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+Simply build the project with `npm run build` and deploy the `dist` folder.

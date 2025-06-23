@@ -163,6 +163,12 @@ export function mapQuestion(raw: any, index?: number): Question {
 
   console.log('[MAPPER] Mapped examNumber:', examNumber, 'type:', typeof examNumber);
 
+  // Map question number
+  const number = questionData.number || 
+                questionData.questionNumber ||
+                questionData.question_number ||
+                (index !== undefined ? index + 1 : 1);
+
   // Map other fields
   const hint = questionData.hint || 
               questionData.help_text || 
@@ -189,6 +195,7 @@ export function mapQuestion(raw: any, index?: number): Question {
   // Create the normalized question object
   const mappedQuestion: Question = {
     id: questionData.id?.toString() || `mapped-${index || Date.now()}`,
+    number: number,
     content: content,
     solution: solution,
     difficulty: difficulty,

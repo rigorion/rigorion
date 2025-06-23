@@ -52,7 +52,7 @@ export const Footer = () => {
   return (
     <footer className={`pt-6 pb-6 border-t ${
       isDarkMode 
-        ? 'bg-transparent border-green-500/30 text-green-400' 
+        ? 'bg-transparent border-gray-300 text-black' 
         : 'bg-white border-gray-200'
     }`}>
       <div className="container mx-auto px-4">
@@ -63,7 +63,7 @@ export const Footer = () => {
               href={link.href} 
               className={`font-medium mb-4 text-sm uppercase tracking-wider transition-colors ${
                 isDarkMode 
-                  ? 'text-green-400 hover:text-green-300' 
+                  ? 'text-black hover:text-gray-700' 
                   : 'text-gray-600 hover:text-[#8A0303]'
               }`}
             >
@@ -87,10 +87,10 @@ export const Footer = () => {
         </div>
         
         <div className={`flex flex-col md:flex-row justify-between items-center border-t pt-6 ${
-          isDarkMode ? 'border-green-500/30' : 'border-gray-200'
+          isDarkMode ? 'border-gray-300' : 'border-gray-200'
         }`}>
           <p className={`text-sm mb-4 md:mb-0 ${
-            isDarkMode ? 'text-green-400' : 'text-gray-900'
+            isDarkMode ? 'text-black' : 'text-gray-900'
           }`}>
             &copy; {new Date().getFullYear()} Rigorion & Divinity. All rights reserved.
           </p>
@@ -100,7 +100,7 @@ export const Footer = () => {
               <span 
                 key={index} 
                 className={`text-sm ${
-                  isDarkMode ? 'text-green-400/70' : 'text-gray-500'
+                  isDarkMode ? 'text-black/70' : 'text-gray-500'
                 }`}
               >
                 {method}

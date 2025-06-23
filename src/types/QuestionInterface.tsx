@@ -3,6 +3,7 @@
 // types/QuestionInterface.ts
 export interface Question {
     id: string;
+    number: number;
     content: string;
     solution: string;
     difficulty: "easy" | "medium" | "hard";

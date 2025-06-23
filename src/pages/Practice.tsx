@@ -22,6 +22,7 @@ const ENDPOINT = "my-function";
 const DUMMY_QUESTIONS = [
   {
     id: "1",
+    number: 1,
     content: "What is the value of x in the equation 2x + 5 = 13?",
     choices: ["x = 3", "x = 4", "x = 5", "x = 6"],
     correctAnswer: "B",
@@ -38,7 +39,8 @@ const DUMMY_QUESTIONS = [
     hint: "Remember to isolate the variable by performing inverse operations"
   },
   {
-    id: "2", 
+    id: "2",
+    number: 2,
     content: "If f(x) = x² - 3x + 2, what is f(3)?",
     choices: ["2", "3", "4", "5"],
     correctAnswer: "A",
@@ -56,6 +58,7 @@ const DUMMY_QUESTIONS = [
   },
   {
     id: "3",
+    number: 3,
     content: "What is the area of a circle with radius 5?",
     choices: ["10π", "15π", "20π", "25π"],
     correctAnswer: "D",
@@ -74,6 +77,7 @@ const DUMMY_QUESTIONS = [
   },
   {
     id: "4",
+    number: 4,
     content: "A linear function passes through points (2, 5) and (4, 11). What is the slope of this line?",
     choices: ["2", "3", "4", "6"],
     correctAnswer: "B",

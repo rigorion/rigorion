@@ -313,7 +313,7 @@ const Progress = () => {
                     isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
                   } transition-colors`}>
                     <Navigation className={`h-5 w-5 ${
-                      isDarkMode ? 'text-green-400' : 'text-blue-500'
+                      isDarkMode ? 'text-green-400' : 'text-gray-500'
                     }`} />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className={`w-56 border shadow-lg rounded-lg p-2 ${
@@ -440,46 +440,52 @@ const Progress = () => {
 
           <Tabs defaultValue={activeTab} value={activeTab} onValueChange={value => setActiveTab(value as ProgressTab)} className="w-full">
             <div className="container mx-auto p-6">
-              <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div className="mb-6 flex flex-col items-center gap-4">
                 <div className="flex items-center gap-2">
                   <h1 className={`font-bold text-lg ${
                     isDarkMode ? 'text-green-400' : ''
                   }`}>Progress Dashboard</h1>
                 </div>
                 
-                <div className="flex items-center">
-                  <TabsList className={isDarkMode ? 'bg-gray-800 border border-green-500/30' : ''}>
-                    <TabsTrigger 
-                      value="performance" 
-                      className={`flex items-center gap-2 ${
-                        isDarkMode && activeTab === "performance" 
-                          ? 'bg-gray-700 text-green-400 data-[state=active]:bg-gray-700 data-[state=active]:text-green-400' 
-                          : isDarkMode 
-                            ? 'text-green-400 data-[state=active]:bg-white' 
-                            : ''
-                      }`}
+                <div className="flex justify-center w-full">
+                  <div className={`inline-flex items-center rounded-full p-1 border ${
+                    isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
+                  }`}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`px-4 py-2 rounded-full transition-all h-8 flex items-center gap-2 ${activeTab === "performance" 
+                        ? isDarkMode 
+                          ? "text-green-400 bg-gray-800" 
+                          : "text-blue-600 bg-blue-50"
+                        : isDarkMode
+                          ? "text-green-400 hover:text-green-300 hover:bg-gray-800"
+                          : "text-gray-500 hover:text-blue-600 hover:bg-blue-50"}`}
+                      onClick={() => setActiveTab("performance")}
                     >
                       <TrendingUp className={`h-4 w-4 ${
-                        isDarkMode ? 'text-green-400' : ''
+                        isDarkMode ? 'text-green-400' : 'text-gray-400'
                       }`} />
                       <span className="hidden sm:inline">Performance</span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="leaderboard" 
-                      className={`flex items-center gap-2 ${
-                        isDarkMode && activeTab === "leaderboard" 
-                          ? 'bg-gray-700 text-green-400 data-[state=active]:bg-gray-700 data-[state=active]:text-green-400' 
-                          : isDarkMode 
-                            ? 'text-green-400 data-[state=active]:bg-white' 
-                            : ''
-                      }`}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`px-4 py-2 rounded-full transition-all h-8 flex items-center gap-2 ${activeTab === "leaderboard" 
+                        ? isDarkMode 
+                          ? "text-green-400 bg-gray-800" 
+                          : "text-blue-600 bg-blue-50"
+                        : isDarkMode
+                          ? "text-green-400 hover:text-green-300 hover:bg-gray-800"
+                          : "text-gray-500 hover:text-blue-600 hover:bg-blue-50"}`}
+                      onClick={() => setActiveTab("leaderboard")}
                     >
                       <Trophy className={`h-4 w-4 ${
-                        isDarkMode ? 'text-green-400' : ''
+                        isDarkMode ? 'text-green-400' : 'text-gray-400'
                       }`} />
                       <span className="hidden sm:inline">Leaderboard</span>
-                    </TabsTrigger>
-                  </TabsList>
+                    </Button>
+                  </div>
                 </div>
               </div>
               

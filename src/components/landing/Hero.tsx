@@ -5,10 +5,12 @@ import AISearchBar from "@/components/ui/AISearchBar";
 import AnimatedPrompts from "@/components/ui/AnimatedPrompts";
 import TypingAnimation from "@/components/ui/TypingAnimation";
 import { analyzeWithAIML } from "@/services/aimlApi";
+import { PaymentModal } from "@/components/payment/PaymentModal";
 
 export const Hero = () => {
   const [analysisResult, setAnalysisResult] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   const handleAIAnalyze = async (query: string) => {
     if (!query.trim()) return;
@@ -106,12 +108,22 @@ Always respond with practical, encouraging advice formatted in a clear, organize
           
           {/* Action button */}
           <div className="flex items-center justify-center mb-8">
-            <Button className="bg-white hover:bg-gray-50 text-[#8A0303] border border-[#8A0303] font-medium px-8 py-3 rounded-full shadow-sm">
+            <Button 
+              onClick={() => setShowPaymentModal(true)}
+              className="bg-white hover:bg-gray-50 text-[#8A0303] border border-[#8A0303] font-medium px-8 py-3 rounded-full shadow-sm"
+            >
               {isAnalyzing ? 'Analyzing...' : 'Join us'}
             </Button>
           </div>
         </div>
       </div>
+      
+      <PaymentModal 
+        isOpen={showPaymentModal} 
+        onClose={() => setShowPaymentModal(false)}
+        planType="monthly"
+        amount="49.99"
+      />
     </section>
   );
 };

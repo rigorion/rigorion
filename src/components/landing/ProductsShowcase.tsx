@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, PenTool, Calculator, FileText, GraduationCap, Brain, Target, Globe } from 'lucide-react';
+import { PaymentModal } from '@/components/payment/PaymentModal';
 
 type ProductType = {
   id: number;
@@ -75,6 +76,8 @@ const PRODUCTS: ProductType[] = [{
 }];
 
 export const ProductsShowcase = () => {
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  
   return <section className="bg-gray-50 py-16">
       <div className="container mx-auto px-6">
         <div className="text-center mb-12">
@@ -120,17 +123,27 @@ export const ProductsShowcase = () => {
               
               
               <div className="mt-6 pt-4 border-t border-gray-100">
-                <button className={`w-full font-medium py-2 px-4 rounded-full transition-colors duration-300 ${
-                  product.comingSoon
-                    ? 'bg-green-100 text-green-700 border border-green-300 hover:bg-green-200'
-                    : 'bg-white hover:bg-gray-50 text-[#8A0303] border border-[#8A0303] hover:border-[#6b0202]'
-                }`}>
-                  {product.comingSoon ? 'Join Waiting List' : 'Learn More'}
+                <button 
+                  onClick={() => product.comingSoon ? null : setShowPaymentModal(true)}
+                  className={`w-full font-medium py-2 px-4 rounded-full transition-colors duration-300 ${
+                    product.comingSoon
+                      ? 'bg-green-100 text-green-700 border border-green-300 hover:bg-green-200'
+                      : 'bg-white hover:bg-gray-50 text-[#8A0303] border border-[#8A0303] hover:border-[#6b0202]'
+                  }`}
+                >
+                  {product.comingSoon ? 'Join Waiting List' : 'Get Started'}
                 </button>
               </div>
             </div>
           ))}
         </div>
       </div>
+      
+      <PaymentModal 
+        isOpen={showPaymentModal} 
+        onClose={() => setShowPaymentModal(false)}
+        planType="monthly"
+        amount="49.99"
+      />
     </section>;
 };
