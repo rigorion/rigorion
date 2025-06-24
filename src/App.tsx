@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ReactQueryProvider } from "@/components/ReactQueryProvider";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { AudioProvider } from "@/contexts/AudioContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 // Pages
@@ -25,7 +26,8 @@ function App() {
     <ThemeProvider>
       <ReactQueryProvider>
         <AuthProvider>
-          <Router>
+          <AudioProvider>
+            <Router>
             <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -60,6 +62,7 @@ function App() {
               <Toaster />
             </div>
           </Router>
+          </AudioProvider>
         </AuthProvider>
       </ReactQueryProvider>
     </ThemeProvider>

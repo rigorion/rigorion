@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Settings, User, Navigation, Bell, LogIn } from "lucide-react";
+import { Settings, User, Navigation, Bell, LogIn, LogOut } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { ProfileCustomizationDialog } from "@/components/profile/ProfileCustomizationDialog";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const Header = () => {
   const { session, signOut } = useAuth();
   const [hasNotifications, setHasNotifications] = useState(true); // Demo state for notification dot
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   
   const userEmail = session?.user?.email;
   const userInitials = userEmail ? userEmail.substring(0, 2).toUpperCase() : "AA";
@@ -99,28 +101,33 @@ const Header = () => {
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full">
+                  <Button variant="ghost" size="icon" className="rounded-full hover:bg-gray-100">
                     <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                      <AvatarFallback className="bg-gray-900 text-white text-sm">
                         {userInitials}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem className="cursor-pointer">
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer">
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
-                  </DropdownMenuItem>
+                <DropdownMenuContent align="end" className="w-48 bg-white border border-gray-200 shadow-lg rounded-lg p-1">
                   <DropdownMenuItem 
-                    className="cursor-pointer text-red-600" 
+                    className="cursor-pointer py-2 px-3 rounded-md hover:bg-gray-50 transition-colors"
+                    onClick={() => setIsProfileDialogOpen(true)}
+                  >
+                    <User className="mr-2 h-4 w-4 text-gray-600" />
+                    <span className="text-gray-700">Customize Profile</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer py-2 px-3 rounded-md hover:bg-gray-50 transition-colors">
+                    <Settings className="mr-2 h-4 w-4 text-gray-600" />
+                    <span className="text-gray-700">Settings</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="my-1 bg-gray-200" />
+                  <DropdownMenuItem 
+                    className="cursor-pointer py-2 px-3 rounded-md hover:bg-red-50 transition-colors text-red-600" 
                     onClick={() => signOut()}
                   >
-                    Log out
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -140,6 +147,12 @@ const Header = () => {
       <AuthModal 
         isOpen={isAuthModalOpen} 
         onClose={() => setIsAuthModalOpen(false)} 
+      />
+      
+      <ProfileCustomizationDialog
+        isOpen={isProfileDialogOpen}
+        onClose={() => setIsProfileDialogOpen(false)}
+        userEmail={userEmail}
       />
     </header>
   );

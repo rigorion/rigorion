@@ -664,7 +664,11 @@ export default function PracticeContent({
         targetQuestion={targetQuestion} 
         setTargetQuestion={setTargetQuestion} 
         handleGoToQuestion={handleGoToQuestion} 
-        inputError={inputError} 
+        inputError={inputError}
+        currentQuestionId={currentQuestion?.id}
+        showCommunityStats={showCommunityStats}
+        currentQuestionTopic={currentQuestion?.chapter || currentQuestion?.module || "General"}
+        userProgress={{ correctAnswers, incorrectAnswers, objective }}
       />
 
       <ModeDialog 
