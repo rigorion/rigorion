@@ -13,8 +13,7 @@ import {
 const navigationItems = [
   { label: "Home", path: "/" },
   { label: "Practice", path: "/practice" },
-  { label: "Progress", path: "/progress" },
-  { label: "Chat", path: "/chat" },
+  { label: "Analytics", path: "/analytics" },
   { label: "About", path: "/about" },
 ];
 

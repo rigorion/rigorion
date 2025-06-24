@@ -37,7 +37,7 @@ export const SignInForm = ({ onForgotPassword, onSuccess }: SignInFormProps) => 
       setIsLoading(true);
       await signIn(values.email, values.password);
       onSuccess?.();
-      navigate("/welcome");
+      navigate("/");
     } catch (error) {
       console.error(error);
     } finally {

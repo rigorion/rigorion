@@ -34,10 +34,9 @@ export const Header = () => {
         <div className="flex items-center">
           <nav className="hidden md:flex space-x-6 mr-6">
             <Link to="/" className="text-gray-600 hover:text-[#8A0303] transition-colors">Home</Link>
-            <Link to="/welcome" className="text-gray-600 hover:text-[#8A0303] transition-colors">Welcome</Link>
             <Link to="/about" className="text-gray-600 hover:text-[#8A0303] transition-colors">About</Link>
             <Link to="/practice" className="text-gray-600 hover:text-[#8A0303] transition-colors">Practice</Link>
-            <Link to="/progress" className="text-gray-600 hover:text-[#8A0303] transition-colors">Progress</Link>
+            <Link to="/analytics" className="text-gray-600 hover:text-[#8A0303] transition-colors">Analytics</Link>
           </nav>
           <Button 
             onClick={() => setIsAuthModalOpen(true)}
@@ -55,10 +54,9 @@ export const Header = () => {
           <div className="container mx-auto px-4">
             <div className="flex flex-col space-y-2">
               <Link to="/" className="text-gray-600 hover:text-[#8A0303] py-2 transition-colors" onClick={() => setIsNavOpen(false)}>Home</Link>
-              <Link to="/welcome" className="text-gray-600 hover:text-[#8A0303] py-2 transition-colors" onClick={() => setIsNavOpen(false)}>Welcome</Link>
               <Link to="/about" className="text-gray-600 hover:text-[#8A0303] py-2 transition-colors" onClick={() => setIsNavOpen(false)}>About</Link>
               <Link to="/practice" className="text-gray-600 hover:text-[#8A0303] py-2 transition-colors" onClick={() => setIsNavOpen(false)}>Practice</Link>
-              <Link to="/progress" className="text-gray-600 hover:text-[#8A0303] py-2 transition-colors" onClick={() => setIsNavOpen(false)}>Progress</Link>
+              <Link to="/analytics" className="text-gray-600 hover:text-[#8A0303] py-2 transition-colors" onClick={() => setIsNavOpen(false)}>Analytics</Link>
             </div>
           </div>
         </div>

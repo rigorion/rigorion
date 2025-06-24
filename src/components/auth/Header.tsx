@@ -41,10 +41,10 @@ export const Header = () => {
               </Button>
               <Button 
                 variant="ghost" 
-                onClick={() => navigate("/progress")}
+                onClick={() => navigate("/analytics")}
                 className="text-gray-600 hover:text-primary hover:bg-blue-50"
               >
-                Progress
+                Analytics
               </Button>
             </nav>
           )}

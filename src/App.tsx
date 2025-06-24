@@ -10,10 +10,8 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 // Pages
 import Index from "@/pages/Index";
 import Practice from "@/pages/Practice";
-import Progress from "@/pages/Progress";
+import Analytics from "@/pages/Progress";
 import About from "@/pages/About";
-import Chat from "@/pages/Chat";
-import Welcome from "@/pages/Welcome";
 import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 import NotFound from "@/pages/NotFound";
@@ -33,15 +31,9 @@ function App() {
                 <Route path="/" element={<Index />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/welcome" element={<Welcome />} />
                 <Route path="/practice" element={<Practice />} />
-                <Route path="/progress" element={<Progress />} />
+                <Route path="/analytics" element={<Analytics />} />
                 <Route path="/about" element={<About />} />
-                <Route path="/chat" element={
-                  <ProtectedRoute>
-                    <Chat />
-                  </ProtectedRoute>
-                } />
                 <Route path="/payment" element={
                   <ProtectedRoute>
                     <Payment />

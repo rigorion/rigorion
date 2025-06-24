@@ -11,8 +11,7 @@ interface SidebarProps {
 export const Sidebar = ({ onClose }: SidebarProps) => {
   const menuItems = [
     { icon: Home, label: "Home", path: "/" },
-    { icon: ChartBar, label: "Progress", path: "/progress" },
-    { icon: MessageSquare, label: "Chat", path: "/chat" },
+    { icon: ChartBar, label: "Analytics", path: "/analytics" },
     { icon: ShoppingBag, label: "Products", path: "/products" },
     { icon: Settings, label: "Settings", path: "/settings" },
     { icon: Info, label: "About Us", path: "/about" },
