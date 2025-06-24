@@ -188,15 +188,25 @@ Keep the evaluation constructive and educational.`;
   }
 
   const graphUrl = getGraphUrl(currentQuestion);
+  const hasGraph = !!graphUrl;
 
   return (
-    <div className="flex flex-col xl:flex-row gap-4 min-h-[calc(100vh-300px)] w-full px-2 sm:px-[28px]">
-      {/* Main Content Section */}
-      <div className={`flex-1 xl:flex-[2] rounded-xl p-6 transition-colors ${
-        isDarkMode ? 'bg-gray-900' : 'bg-white'
-      }`} style={{ backgroundColor: isDarkMode ? undefined : boardColor }}>
-        {/* Question Content - Always visible */}
-        <div className="space-y-6">
+    <div className="min-h-[calc(100vh-300px)] w-full px-2 sm:px-[28px]">
+      {/* Responsive Layout Container */}
+      <div className="flex flex-col space-y-4">
+        
+        {/* Desktop: Three Column Layout */}
+        <div className="hidden lg:flex gap-2">
+          
+          {/* Column 1: Question + Answer Choices */}
+          <div className={`${
+            hasGraph 
+              ? 'w-2/5' 
+              : activeTab === 'problem' ? 'w-full' : 'w-3/5'
+          } rounded-xl p-6 transition-colors ${
+            isDarkMode ? 'bg-gray-900' : 'bg-white'
+          }`} style={{ backgroundColor: isDarkMode ? undefined : boardColor }}>
+          
           {/* Question Number Header */}
           <div className="mb-4">
             <h2 className={`text-xl font-semibold ${
@@ -206,29 +216,17 @@ Keep the evaluation constructive and educational.`;
             </h2>
           </div>
           
-          {/* Question Display */}
-          <div className="space-y-4">
+          {/* Question Content */}
+          <div className="space-y-4 mb-6">
             <div 
               style={contentTextStyle}
               className="whitespace-pre-wrap"
               dangerouslySetInnerHTML={{ __html: currentQuestion.content }}
             />
-
-            {/* Graph Display */}
-            {graphUrl && (
-              <div className="mt-4 flex justify-center">
-                <img 
-                  src={graphUrl} 
-                  alt="Question Graph" 
-                  className="max-w-full h-auto rounded-lg shadow-md"
-                  style={{ maxHeight: '400px' }}
-                />
-              </div>
-            )}
           </div>
 
           {/* Answer Section */}
-          <div className="mt-6 space-y-4">
+          <div className="space-y-3">
             {/* SAT Writing Mode */}
             {isSATWriting ? (
               <div className="space-y-4">
@@ -312,9 +310,9 @@ Keep the evaluation constructive and educational.`;
                   </Button>
                 </div>
 
-                {/* Multiple Choice - Fully Rounded White Buttons */}
+                {/* Multiple Choice - Responsive Grid */}
                 {isMultipleChoice ? (
-                  <div className="grid grid-cols-2 gap-6 mt-8 max-w-2xl">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-8 max-w-2xl">
                     {currentQuestion.choices?.map((choice, index) => {
                       const choiceKey = String.fromCharCode(65 + index);
                       const isSelected = selectedAnswer === choiceKey;
@@ -431,88 +429,79 @@ Keep the evaluation constructive and educational.`;
           </div>
         </div>
 
-        {/* Mobile-only Additional Tab Content - Shows below the question on smaller screens */}
-        <div className="xl:hidden">
-          {activeTab === "solution" && (
-            <div className="mt-8 space-y-4 border-t pt-6">
-              <h3 className={`text-xl font-semibold ${
-                isDarkMode ? 'text-green-400' : 'text-gray-800'
+        {/* Column 2: Graph (when available) */}
+        {hasGraph && (
+          <div className={`w-1/5 rounded-xl p-2 transition-colors ${
+            isDarkMode ? 'bg-gray-900' : 'bg-white'
+          }`} style={{ backgroundColor: isDarkMode ? undefined : boardColor }}>
+            <div className="h-full flex flex-col justify-center">
+              <h3 className={`text-sm font-semibold mb-2 ${
+                isDarkMode ? 'text-green-400' : 'text-blue-600'
               }`}>
-                Solution & Explanation
+                📊 Graph
               </h3>
-              <div 
-                style={{
-                  ...contentTextStyle,
-                  color: isDarkMode ? '#ffffff' : contentTextStyle.color
-                }}
-                className="whitespace-pre-wrap"
-                dangerouslySetInnerHTML={{ __html: currentQuestion.solution || 'No solution available for this question.' }}
-              />
+              <div className="flex justify-center items-center">
+                <img 
+                  src={graphUrl} 
+                  alt="Question Graph" 
+                  className="max-w-full h-auto rounded-lg shadow-md"
+                  style={{ maxHeight: '375px', maxWidth: '100%' }}
+                />
+              </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Quote/Idea Tab */}
-          {activeTab === "quote" && (
-            <div className="mt-8 space-y-4 border-t pt-6">
-              <h3 className={`text-xl font-semibold ${
-                isDarkMode ? 'text-green-400' : 'text-gray-800'
-              }`}>
-                Key Idea
-              </h3>
-              <div 
-                style={{
-                  ...contentTextStyle,
-                  color: isDarkMode ? '#ffffff' : contentTextStyle.color
-                }}
-                className="whitespace-pre-wrap"
-                dangerouslySetInnerHTML={{ __html: currentQuestion.quote || 'No key idea available for this question.' }}
-              />
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Desktop Right Sidebar - Solution and Idea sections */}
-      <div className="hidden xl:flex xl:flex-col xl:flex-1 gap-4">
-        {/* Solution Section */}
-        <div className={`rounded-xl p-6 transition-colors ${
-          isDarkMode ? 'bg-gray-800 border border-green-500/30' : 'bg-gray-50 border border-gray-200'
-        } ${activeTab === 'solution' ? 'ring-2 ring-offset-2 ' + (isDarkMode ? 'ring-green-500' : 'ring-blue-500') : ''}`}>
-          <h3 className={`text-lg font-semibold mb-4 ${
-            isDarkMode ? 'text-green-400' : 'text-gray-800'
+        {/* Column 3: Solution/Key Idea (hidden when activeTab is 'problem') */}
+        {activeTab !== 'problem' && (
+          <div className={`${
+            hasGraph ? 'w-2/5' : 'w-2/5'
+          } rounded-xl p-4 transition-colors ${
+            isDarkMode ? 'bg-gray-800 border border-green-500/30' : 'bg-gray-50 border border-gray-200'
           }`}>
-            💡 Solution & Explanation
-          </h3>
-          <div 
-            style={{
-              ...contentTextStyle,
-              fontSize: `${displaySettings.fontSize - 1}px`,
-              color: isDarkMode ? '#ffffff' : contentTextStyle.color
-            }}
-            className="whitespace-pre-wrap text-sm leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: currentQuestion.solution || 'No solution available for this question.' }}
-          />
-        </div>
+            
+            {/* Solution Section */}
+            {activeTab === 'solution' && (
+              <>
+                <h3 className={`text-sm font-semibold mb-3 ${
+                  isDarkMode ? 'text-green-400' : 'text-gray-800'
+                }`}>
+                  💡 Solution & Explanation
+                </h3>
+                <div 
+                  style={{
+                    ...contentTextStyle,
+                    fontSize: `${displaySettings.fontSize - 1}px`,
+                    color: isDarkMode ? '#ffffff' : contentTextStyle.color
+                  }}
+                  className="whitespace-pre-wrap text-sm leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: currentQuestion.solution || 'No solution available for this question.' }}
+                />
+              </>
+            )}
 
-        {/* Key Idea Section */}
-        <div className={`rounded-xl p-6 transition-colors ${
-          isDarkMode ? 'bg-gray-800 border border-green-500/30' : 'bg-gray-50 border border-gray-200'
-        } ${activeTab === 'quote' ? 'ring-2 ring-offset-2 ' + (isDarkMode ? 'ring-green-500' : 'ring-blue-500') : ''}`}>
-          <h3 className={`text-lg font-semibold mb-4 ${
-            isDarkMode ? 'text-green-400' : 'text-gray-800'
-          }`}>
-            🎯 Key Idea
-          </h3>
-          <div 
-            style={{
-              ...contentTextStyle,
-              fontSize: `${displaySettings.fontSize - 1}px`,
-              color: isDarkMode ? '#ffffff' : contentTextStyle.color
-            }}
-            className="whitespace-pre-wrap text-sm leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: currentQuestion.quote || 'No key idea available for this question.' }}
-          />
-        </div>
+            {/* Key Idea Section */}
+            {activeTab === 'quote' && (
+              <>
+                <h3 className={`text-sm font-semibold mb-3 ${
+                  isDarkMode ? 'text-green-400' : 'text-gray-800'
+                }`}>
+                  🎯 Key Idea
+                </h3>
+                <div 
+                  style={{
+                    ...contentTextStyle,
+                    fontSize: `${displaySettings.fontSize - 1}px`,
+                    color: isDarkMode ? '#ffffff' : contentTextStyle.color
+                  }}
+                  className="whitespace-pre-wrap text-sm leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: currentQuestion.quote || 'No key idea available for this question.' }}
+                />
+              </>
+            )}
+          </div>
+        )}
+
       </div>
     </div>
   );
