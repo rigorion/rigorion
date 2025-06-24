@@ -194,7 +194,7 @@ export function mapQuestion(raw: any, index?: number): Question {
 
   // Create the normalized question object
   const mappedQuestion: Question = {
-    id: questionData.id?.toString() || `mapped-${index || Date.now()}`,
+    id: questionData.question_id?.toString() || questionData.id?.toString() || `mapped-${index || Date.now()}`,
     number: number,
     content: content,
     solution: solution,

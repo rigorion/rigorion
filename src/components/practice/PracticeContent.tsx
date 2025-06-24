@@ -525,20 +525,6 @@ export default function PracticeContent({
     setInputError('');
   };
 
-  // Debug info for filtering
-  const getFilterDebugInfo = () => {
-    if (process.env.NODE_ENV === 'development') {
-      return (
-        <div className="fixed bottom-20 right-4 bg-black/80 text-white p-2 rounded text-xs max-w-xs">
-          <div>Total Questions: {allQuestions.length}</div>
-          <div>Filtered Questions: {filteredQuestions.length}</div>
-          <div>Active Filters: {JSON.stringify(activeFilters)}</div>
-          <div>Current Index: {currentQuestionIndex}</div>
-        </div>
-      );
-    }
-    return null;
-  };
 
   if (isLoading) {
     return (
@@ -684,8 +670,6 @@ export default function PracticeContent({
         maxQuestions={filteredQuestions.length || 300}
       />
 
-      {/* Debug Info */}
-      {getFilterDebugInfo()}
 
       <style>
         {`

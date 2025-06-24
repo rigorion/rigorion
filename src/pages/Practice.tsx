@@ -157,16 +157,16 @@ const Practice = () => {
       const result = await secureFetch();
       await storeSecureFunctionData(ENDPOINT, result);
 
-      // Extract questions array from various possible structures
+      // Handle direct array response from edge function
       let rawQuestions: any[] = [];
-      if (result?.questions && Array.isArray(result.questions)) {
-        rawQuestions = result.questions;
-      } else if (Array.isArray(result)) {
+      if (Array.isArray(result)) {
         rawQuestions = result;
+      } else if (result?.questions && Array.isArray(result.questions)) {
+        rawQuestions = result.questions;
       } else if (result?.data && Array.isArray(result.data)) {
         rawQuestions = result.data;
       } else {
-        console.warn("No questions found in response structure");
+        console.warn("No questions found in response structure, got:", typeof result);
         rawQuestions = [];
       }
 
@@ -220,12 +220,12 @@ const Practice = () => {
       }
       
       if (data) {
-        // Extract questions from various possible structures
+        // Handle direct array response from edge function
         let rawQuestions: any[] = [];
-        if (data.questions && Array.isArray(data.questions)) {
-          rawQuestions = data.questions;
-        } else if (Array.isArray(data)) {
+        if (Array.isArray(data)) {
           rawQuestions = data;
+        } else if (data.questions && Array.isArray(data.questions)) {
+          rawQuestions = data.questions;
         } else if (data.data && Array.isArray(data.data)) {
           rawQuestions = data.data;
         }

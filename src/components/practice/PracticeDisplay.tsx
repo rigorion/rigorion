@@ -502,6 +502,580 @@ Keep the evaluation constructive and educational.`;
           </div>
         )}
 
+        </div>
+
+        {/* Medium Screens (lg hidden): Two Column with Solution Below */}
+        <div className="hidden md:block lg:hidden">
+          {/* Question and Graph Row */}
+          <div className="flex gap-2 mb-4">
+            {/* Question + Answer Choices */}
+            <div className={`${
+              hasGraph ? 'w-3/5' : 'w-full'
+            } rounded-xl p-6 transition-colors ${
+              isDarkMode ? 'bg-gray-900' : 'bg-white'
+            }`} style={{ backgroundColor: isDarkMode ? undefined : boardColor }}>
+              
+              <div className="mb-4">
+                <h2 className={`text-xl font-semibold ${
+                  isDarkMode ? 'text-green-400' : 'text-blue-600'
+                }`}>
+                  Question {currentQuestion.number}
+                </h2>
+              </div>
+              
+              <div className="space-y-4 mb-6">
+                <div 
+                  style={contentTextStyle}
+                  className="whitespace-pre-wrap"
+                  dangerouslySetInnerHTML={{ __html: currentQuestion.content }}
+                />
+              </div>
+
+              <div className="space-y-3">
+                {isSATWriting ? (
+                  <div className="space-y-4">
+                    <Textarea
+                      value={writingAnswer}
+                      onChange={(e) => setWritingAnswer(e.target.value)}
+                      placeholder="Write your response here..."
+                      className={`w-full min-h-[200px] p-4 border rounded-lg resize-none transition-colors ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-green-500/30 text-green-400 placeholder-green-600' 
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
+                      style={contentTextStyle}
+                    />
+                    <div className="flex justify-between items-center">
+                      <span className={`text-sm ${isDarkMode ? 'text-green-500' : 'text-gray-500'}`}>
+                        {writingAnswer.length} characters
+                      </span>
+                      <Button
+                        onClick={handleAIEvaluation}
+                        disabled={!writingAnswer.trim() || isEvaluating}
+                        className={`transition-colors ${
+                          isDarkMode 
+                            ? 'bg-green-600 hover:bg-green-700 text-white border-green-500/30' 
+                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                        }`}
+                      >
+                        {isEvaluating ? (
+                          <>
+                            <Bot className="h-4 w-4 mr-2 animate-spin" />
+                            Evaluating...
+                          </>
+                        ) : (
+                          <>
+                            <Bot className="h-4 w-4 mr-2" />
+                            Get AI Feedback
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    {aiEvaluation && (
+                      <div className={`mt-4 p-4 border rounded-lg transition-colors ${
+                        isDarkMode 
+                          ? 'bg-gray-800 border-green-500/30 text-green-400' 
+                          : 'bg-blue-50 border-blue-200 text-gray-800'
+                      }`}>
+                        <h4 className={`font-semibold mb-2 ${
+                          isDarkMode ? 'text-green-400' : 'text-blue-800'
+                        }`}>
+                          AI Evaluation:
+                        </h4>
+                        <div className="whitespace-pre-wrap text-sm">
+                          {aiEvaluation}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={toggleQuestionType}
+                        className={`flex items-center gap-2 transition-colors ${
+                          isDarkMode 
+                            ? 'border-green-500/30 text-green-400 hover:bg-gray-800' 
+                            : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        {isMultipleChoice ? <ToggleLeft className="h-4 w-4" /> : <ToggleRight className="h-4 w-4" />}
+                        {isMultipleChoice ? 'Multiple Choice' : 'Fill in the Blank'}
+                      </Button>
+                    </div>
+
+                    {isMultipleChoice ? (
+                      <div className="grid grid-cols-2 gap-4 mt-6">
+                        {currentQuestion.choices?.map((choice, index) => {
+                          const choiceKey = String.fromCharCode(65 + index);
+                          const isSelected = selectedAnswer === choiceKey;
+                          const isCorrectChoice = currentQuestion.correctAnswer === choiceKey;
+                          
+                          let buttonStyle = '';
+                          let animationClass = '';
+                          
+                          if (selectedAnswer && isSelected) {
+                            if (isCorrect) {
+                              buttonStyle = 'bg-green-100 border-green-400 text-green-800 shadow-md';
+                              animationClass = 'transition-all duration-300 scale-105';
+                            } else {
+                              buttonStyle = 'bg-red-100 border-red-400 text-red-800 shadow-md';
+                              animationClass = 'transition-all duration-300 scale-105';
+                            }
+                          } else if (selectedAnswer && isCorrectChoice) {
+                            buttonStyle = 'bg-green-100 border-green-400 text-green-800 shadow-md';
+                            animationClass = 'transition-all duration-300 scale-105';
+                          } else {
+                            buttonStyle = isDarkMode 
+                              ? 'bg-gray-800 border-green-500 text-white hover:bg-gray-700 shadow-sm hover:shadow-md'
+                              : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm hover:shadow-md';
+                          }
+
+                          return (
+                            <Button
+                              key={index}
+                              variant="outline"
+                              className={`w-full h-auto min-h-[30px] rounded-full px-2 py-1.5 text-center justify-center transition-all duration-200 ${buttonStyle} ${animationClass}`}
+                              onClick={() => checkAnswer(choiceKey)}
+                              disabled={!!selectedAnswer}
+                              style={{ 
+                                fontFamily: getFontFamily(),
+                                fontSize: '12px',
+                                fontWeight: '500',
+                                color: isDarkMode ? '#ffffff' : undefined
+                              }}
+                            >
+                              <div className="flex items-center justify-center w-full gap-2">
+                                <div className="flex flex-col items-center text-center">
+                                  <span className={`text-xs mb-0.5 ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>Option {choiceKey}</span>
+                                  <span 
+                                    className="text-xs leading-tight"
+                                    dangerouslySetInnerHTML={{ __html: choice }}
+                                  />
+                                </div>
+                                {selectedAnswer && isSelected && (
+                                  isCorrect ? <Check className="h-4 w-4 ml-2 flex-shrink-0" /> : <X className="h-4 w-4 ml-2 flex-shrink-0" />
+                                )}
+                                {selectedAnswer && !isSelected && isCorrectChoice && (
+                                  <Check className="h-4 w-4 ml-2 flex-shrink-0" />
+                                )}
+                              </div>
+                            </Button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="flex gap-3">
+                        <Input
+                          value={fillInAnswer}
+                          onChange={(e) => setFillInAnswer(e.target.value)}
+                          placeholder="Enter your answer..."
+                          className={`flex-1 transition-colors ${
+                            isDarkMode 
+                              ? 'bg-gray-800 border-green-500/30 text-green-400 placeholder-green-600' 
+                              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                          }`}
+                          style={contentTextStyle}
+                          onKeyPress={(e) => e.key === 'Enter' && handleSubmitFillIn()}
+                        />
+                        <Button 
+                          onClick={handleSubmitFillIn}
+                          disabled={!fillInAnswer.trim()}
+                          className={`transition-colors ${
+                            isDarkMode 
+                              ? 'bg-green-600 hover:bg-green-700 text-white border-green-500/30' 
+                              : 'bg-blue-600 hover:bg-blue-700 text-white'
+                          }`}
+                        >
+                          Submit
+                        </Button>
+                      </div>
+                    )}
+
+                    {selectedAnswer && (
+                      <div className={`p-3 rounded-lg transition-colors max-w-md ${
+                        isCorrect 
+                          ? isDarkMode 
+                            ? 'bg-green-900/50 border border-green-500/30 text-green-300' 
+                            : 'bg-green-50 border border-green-200 text-green-700'
+                          : isDarkMode 
+                            ? 'bg-red-900/50 border border-red-500/30 text-red-300' 
+                            : 'bg-red-50 border border-red-200 text-red-700'
+                      }`}>
+                        <div className="flex items-center gap-2 mb-2">
+                          {isCorrect ? <Check className="h-5 w-5" /> : <X className="h-5 w-5" />}
+                          <span className="font-semibold">
+                            {isCorrect ? 'Correct!' : 'Incorrect'}
+                          </span>
+                        </div>
+                        {!isCorrect && (
+                          <p className="text-sm">
+                            The correct answer is: <strong>{currentQuestion.correctAnswer}</strong>
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Graph Column */}
+            {hasGraph && (
+              <div className={`w-2/5 rounded-xl p-4 transition-colors ${
+                isDarkMode ? 'bg-gray-900' : 'bg-white'
+              }`} style={{ backgroundColor: isDarkMode ? undefined : boardColor }}>
+                <div className="h-full flex flex-col justify-center">
+                  <h3 className={`text-sm font-semibold mb-3 ${
+                    isDarkMode ? 'text-green-400' : 'text-blue-600'
+                  }`}>
+                    📊 Graph
+                  </h3>
+                  <div className="flex justify-center items-center">
+                    <img 
+                      src={graphUrl} 
+                      alt="Question Graph" 
+                      className="max-w-full h-auto rounded-lg shadow-md"
+                      style={{ maxHeight: '300px' }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Solution Below */}
+          {activeTab !== 'problem' && (
+            <div className={`rounded-xl p-4 transition-colors ${
+              isDarkMode ? 'bg-gray-800 border border-green-500/30' : 'bg-gray-50 border border-gray-200'
+            }`}>
+              {activeTab === 'solution' && (
+                <>
+                  <h3 className={`text-sm font-semibold mb-3 ${
+                    isDarkMode ? 'text-green-400' : 'text-gray-800'
+                  }`}>
+                    💡 Solution & Explanation
+                  </h3>
+                  <div 
+                    style={{
+                      ...contentTextStyle,
+                      fontSize: `${displaySettings.fontSize - 1}px`,
+                      color: isDarkMode ? '#ffffff' : contentTextStyle.color
+                    }}
+                    className="whitespace-pre-wrap text-sm leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: currentQuestion.solution || 'No solution available for this question.' }}
+                  />
+                </>
+              )}
+              {activeTab === 'quote' && (
+                <>
+                  <h3 className={`text-sm font-semibold mb-3 ${
+                    isDarkMode ? 'text-green-400' : 'text-gray-800'
+                  }`}>
+                    🎯 Key Idea
+                  </h3>
+                  <div 
+                    style={{
+                      ...contentTextStyle,
+                      fontSize: `${displaySettings.fontSize - 1}px`,
+                      color: isDarkMode ? '#ffffff' : contentTextStyle.color
+                    }}
+                    className="whitespace-pre-wrap text-sm leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: currentQuestion.quote || 'No key idea available for this question.' }}
+                  />
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Small Screens: Vertical Stack with Graph Between Question and Choices */}
+        <div className="block md:hidden space-y-4">
+          {/* Question Section */}
+          <div className={`rounded-xl p-6 transition-colors ${
+            isDarkMode ? 'bg-gray-900' : 'bg-white'
+          }`} style={{ backgroundColor: isDarkMode ? undefined : boardColor }}>
+            <div className="mb-4">
+              <h2 className={`text-xl font-semibold ${
+                isDarkMode ? 'text-green-400' : 'text-blue-600'
+              }`}>
+                Question {currentQuestion.number}
+              </h2>
+            </div>
+            
+            <div className="space-y-4">
+              <div 
+                style={contentTextStyle}
+                className="whitespace-pre-wrap"
+                dangerouslySetInnerHTML={{ __html: currentQuestion.content }}
+              />
+            </div>
+          </div>
+
+          {/* Graph Section (between question and choices) */}
+          {hasGraph && (
+            <div className={`rounded-xl p-4 transition-colors ${
+              isDarkMode ? 'bg-gray-900' : 'bg-white'
+            }`} style={{ backgroundColor: isDarkMode ? undefined : boardColor }}>
+              <h3 className={`text-sm font-semibold mb-3 ${
+                isDarkMode ? 'text-green-400' : 'text-blue-600'
+              }`}>
+                📊 Graph
+              </h3>
+              <div className="flex justify-center items-center">
+                <img 
+                  src={graphUrl} 
+                  alt="Question Graph" 
+                  className="max-w-full h-auto rounded-lg shadow-md"
+                  style={{ maxHeight: '250px' }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Answer Choices Section */}
+          <div className={`rounded-xl p-6 transition-colors ${
+            isDarkMode ? 'bg-gray-900' : 'bg-white'
+          }`} style={{ backgroundColor: isDarkMode ? undefined : boardColor }}>
+            <div className="space-y-3">
+              {isSATWriting ? (
+                <div className="space-y-4">
+                  <Textarea
+                    value={writingAnswer}
+                    onChange={(e) => setWritingAnswer(e.target.value)}
+                    placeholder="Write your response here..."
+                    className={`w-full min-h-[200px] p-4 border rounded-lg resize-none transition-colors ${
+                      isDarkMode 
+                        ? 'bg-gray-800 border-green-500/30 text-green-400 placeholder-green-600' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    }`}
+                    style={contentTextStyle}
+                  />
+                  <div className="flex justify-between items-center">
+                    <span className={`text-sm ${isDarkMode ? 'text-green-500' : 'text-gray-500'}`}>
+                      {writingAnswer.length} characters
+                    </span>
+                    <Button
+                      onClick={handleAIEvaluation}
+                      disabled={!writingAnswer.trim() || isEvaluating}
+                      className={`transition-colors ${
+                        isDarkMode 
+                          ? 'bg-green-600 hover:bg-green-700 text-white border-green-500/30' 
+                          : 'bg-blue-600 hover:bg-blue-700 text-white'
+                      }`}
+                    >
+                      {isEvaluating ? (
+                        <>
+                          <Bot className="h-4 w-4 mr-2 animate-spin" />
+                          Evaluating...
+                        </>
+                      ) : (
+                        <>
+                          <Bot className="h-4 w-4 mr-2" />
+                          Get AI Feedback
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  {aiEvaluation && (
+                    <div className={`mt-4 p-4 border rounded-lg transition-colors ${
+                      isDarkMode 
+                        ? 'bg-gray-800 border-green-500/30 text-green-400' 
+                        : 'bg-blue-50 border-blue-200 text-gray-800'
+                    }`}>
+                      <h4 className={`font-semibold mb-2 ${
+                        isDarkMode ? 'text-green-400' : 'text-blue-800'
+                      }`}>
+                        AI Evaluation:
+                      </h4>
+                      <div className="whitespace-pre-wrap text-sm">
+                        {aiEvaluation}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={toggleQuestionType}
+                      className={`flex items-center gap-2 transition-colors ${
+                        isDarkMode 
+                          ? 'border-green-500/30 text-green-400 hover:bg-gray-800' 
+                          : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {isMultipleChoice ? <ToggleLeft className="h-4 w-4" /> : <ToggleRight className="h-4 w-4" />}
+                      {isMultipleChoice ? 'Multiple Choice' : 'Fill in the Blank'}
+                    </Button>
+                  </div>
+
+                  {/* Single Column Multiple Choice for Mobile */}
+                  {isMultipleChoice ? (
+                    <div className="grid grid-cols-1 gap-3 mt-6">
+                      {currentQuestion.choices?.map((choice, index) => {
+                        const choiceKey = String.fromCharCode(65 + index);
+                        const isSelected = selectedAnswer === choiceKey;
+                        const isCorrectChoice = currentQuestion.correctAnswer === choiceKey;
+                        
+                        let buttonStyle = '';
+                        let animationClass = '';
+                        
+                        if (selectedAnswer && isSelected) {
+                          if (isCorrect) {
+                            buttonStyle = 'bg-green-100 border-green-400 text-green-800 shadow-md';
+                            animationClass = 'transition-all duration-300 scale-105';
+                          } else {
+                            buttonStyle = 'bg-red-100 border-red-400 text-red-800 shadow-md';
+                            animationClass = 'transition-all duration-300 scale-105';
+                          }
+                        } else if (selectedAnswer && isCorrectChoice) {
+                          buttonStyle = 'bg-green-100 border-green-400 text-green-800 shadow-md';
+                          animationClass = 'transition-all duration-300 scale-105';
+                        } else {
+                          buttonStyle = isDarkMode 
+                            ? 'bg-gray-800 border-green-500 text-white hover:bg-gray-700 shadow-sm hover:shadow-md'
+                            : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm hover:shadow-md';
+                        }
+
+                        return (
+                          <Button
+                            key={index}
+                            variant="outline"
+                            className={`w-full h-auto min-h-[40px] rounded-full px-3 py-2 text-center justify-center transition-all duration-200 ${buttonStyle} ${animationClass}`}
+                            onClick={() => checkAnswer(choiceKey)}
+                            disabled={!!selectedAnswer}
+                            style={{ 
+                              fontFamily: getFontFamily(),
+                              fontSize: '13px',
+                              fontWeight: '500',
+                              color: isDarkMode ? '#ffffff' : undefined
+                            }}
+                          >
+                            <div className="flex items-center justify-center w-full gap-2">
+                              <div className="flex flex-col items-center text-center">
+                                <span className={`text-xs mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>Option {choiceKey}</span>
+                                <span 
+                                  className="text-sm leading-tight"
+                                  dangerouslySetInnerHTML={{ __html: choice }}
+                                />
+                              </div>
+                              {selectedAnswer && isSelected && (
+                                isCorrect ? <Check className="h-5 w-5 ml-2 flex-shrink-0" /> : <X className="h-5 w-5 ml-2 flex-shrink-0" />
+                              )}
+                              {selectedAnswer && !isSelected && isCorrectChoice && (
+                                <Check className="h-5 w-5 ml-2 flex-shrink-0" />
+                              )}
+                            </div>
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex gap-3">
+                      <Input
+                        value={fillInAnswer}
+                        onChange={(e) => setFillInAnswer(e.target.value)}
+                        placeholder="Enter your answer..."
+                        className={`flex-1 transition-colors ${
+                          isDarkMode 
+                            ? 'bg-gray-800 border-green-500/30 text-green-400 placeholder-green-600' 
+                            : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                        }`}
+                        style={contentTextStyle}
+                        onKeyPress={(e) => e.key === 'Enter' && handleSubmitFillIn()}
+                      />
+                      <Button 
+                        onClick={handleSubmitFillIn}
+                        disabled={!fillInAnswer.trim()}
+                        className={`transition-colors ${
+                          isDarkMode 
+                            ? 'bg-green-600 hover:bg-green-700 text-white border-green-500/30' 
+                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                        }`}
+                      >
+                        Submit
+                      </Button>
+                    </div>
+                  )}
+
+                  {selectedAnswer && (
+                    <div className={`p-3 rounded-lg transition-colors ${
+                      isCorrect 
+                        ? isDarkMode 
+                          ? 'bg-green-900/50 border border-green-500/30 text-green-300' 
+                          : 'bg-green-50 border border-green-200 text-green-700'
+                        : isDarkMode 
+                          ? 'bg-red-900/50 border border-red-500/30 text-red-300' 
+                          : 'bg-red-50 border border-red-200 text-red-700'
+                    }`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        {isCorrect ? <Check className="h-5 w-5" /> : <X className="h-5 w-5" />}
+                        <span className="font-semibold">
+                          {isCorrect ? 'Correct!' : 'Incorrect'}
+                        </span>
+                      </div>
+                      {!isCorrect && (
+                        <p className="text-sm">
+                          The correct answer is: <strong>{currentQuestion.correctAnswer}</strong>
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Solution Below for Mobile */}
+          {activeTab !== 'problem' && (
+            <div className={`rounded-xl p-4 transition-colors ${
+              isDarkMode ? 'bg-gray-800 border border-green-500/30' : 'bg-gray-50 border border-gray-200'
+            }`}>
+              {activeTab === 'solution' && (
+                <>
+                  <h3 className={`text-sm font-semibold mb-3 ${
+                    isDarkMode ? 'text-green-400' : 'text-gray-800'
+                  }`}>
+                    💡 Solution & Explanation
+                  </h3>
+                  <div 
+                    style={{
+                      ...contentTextStyle,
+                      fontSize: `${displaySettings.fontSize - 1}px`,
+                      color: isDarkMode ? '#ffffff' : contentTextStyle.color
+                    }}
+                    className="whitespace-pre-wrap text-sm leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: currentQuestion.solution || 'No solution available for this question.' }}
+                  />
+                </>
+              )}
+              {activeTab === 'quote' && (
+                <>
+                  <h3 className={`text-sm font-semibold mb-3 ${
+                    isDarkMode ? 'text-green-400' : 'text-gray-800'
+                  }`}>
+                    🎯 Key Idea
+                  </h3>
+                  <div 
+                    style={{
+                      ...contentTextStyle,
+                      fontSize: `${displaySettings.fontSize - 1}px`,
+                      color: isDarkMode ? '#ffffff' : contentTextStyle.color
+                    }}
+                    className="whitespace-pre-wrap text-sm leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: currentQuestion.quote || 'No key idea available for this question.' }}
+                  />
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
       </div>
     </div>
   );
