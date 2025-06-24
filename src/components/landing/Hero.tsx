@@ -44,7 +44,7 @@ Always respond with practical, encouraging advice formatted in a clear, organize
   
   return (
     <section 
-      className="relative py-32 bg-gradient-to-br from-gray-50 to-blue-50"
+      className="relative pt-16 pb-32 bg-gradient-to-br from-gray-50 to-blue-50"
       style={{
         backgroundImage: `url('/lovable-uploads/corner-building-for-4k-white-background-tsx7c82luhg36ygy.jpg')`,
         backgroundSize: 'cover',

@@ -106,7 +106,7 @@ const PracticeProgress = ({
   };
 
   return (
-    <div className={`sticky top-[57px] z-40 px-4 py-3 border-b transition-colors duration-300 ${
+    <div className={`sticky top-[56px] z-40 px-4 py-3 border-b transition-colors duration-300 ${
       isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
     }`}>
       {/* Main layout with balanced widths for true centering */}

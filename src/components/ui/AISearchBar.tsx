@@ -41,9 +41,13 @@ const AISearchBar: React.FC<AISearchBarProps> = ({
           <Sparkles className="h-4 w-4 text-red-500 animate-pulse" />
         </div>
 
-        {/* Input and Submit Row */}
-        <form onSubmit={handleSubmit} className="flex items-center gap-3">
-          <div className="relative flex-1">
+        {/* Integrated Input and Submit Row */}
+        <form onSubmit={handleSubmit} className="w-full">
+          <div className={cn(
+            'relative flex items-center h-12 rounded-full border bg-transparent transition-all duration-300',
+            'border-gray-300 focus-within:border-[#8A0303]',
+            isFocused ? 'border-[#8A0303]' : 'border-gray-300'
+          )}>
             <Input
               type="text"
               value={query}
@@ -52,28 +56,32 @@ const AISearchBar: React.FC<AISearchBarProps> = ({
               onBlur={() => setIsFocused(false)}
               placeholder={placeholder}
               className={cn(
-                'border bg-transparent h-12 px-5 rounded-full text-base',
-                'focus:ring-0 focus:outline-none focus:ring-offset-0 transition-all duration-300',
+                'flex-1 bg-transparent h-full px-5 rounded-full text-base border-0',
+                'focus:ring-0 focus:outline-none focus:ring-offset-0 focus-visible:ring-0',
+                'focus:border-transparent focus-visible:border-transparent',
                 'placeholder:text-gray-400 focus:placeholder:text-gray-500',
-                'font-medium resize-none',
-                'border-gray-300 focus:border-[#8A0303] focus-visible:ring-0 focus-visible:ring-offset-0'
+                'font-medium resize-none shadow-none'
               )}
+              style={{ boxShadow: 'none' }}
             />
+            
+            {/* Vertical Separator */}
+            <div className="h-6 w-px bg-gray-300 mx-2" />
+            
+            {/* Integrated Send Button */}
+            <Button
+              type="submit"
+              disabled={!query.trim()}
+              className={cn(
+                'rounded-full h-8 w-8 mr-2 p-0 transition-all duration-300 ease-out',
+                'hover:scale-110 transform-gpu disabled:scale-100 disabled:opacity-50',
+                'flex items-center justify-center shrink-0',
+                'bg-white hover:bg-gray-50 text-[#8A0303] border border-[#8A0303] hover:border-[#6b0202]'
+              )}
+            >
+              <Send className="h-3 w-3" />
+            </Button>
           </div>
-
-          {/* Send Button */}
-          <Button
-            type="submit"
-            disabled={!query.trim()}
-            className={cn(
-              'rounded-full h-12 w-12 p-0 transition-all duration-300 ease-out',
-              'hover:scale-110 transform-gpu disabled:scale-100 disabled:opacity-50',
-              'flex items-center justify-center',
-              'bg-white hover:bg-gray-50 text-[#8A0303] border border-[#8A0303] hover:border-[#6b0202]'
-            )}
-          >
-            <Send className="h-4 w-4" />
-          </Button>
         </form>
       </div>
     </div>

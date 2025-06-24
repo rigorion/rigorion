@@ -303,10 +303,10 @@ const Progress = () => {
         <main className={`flex-1 transition-colors duration-300 ${
           isDarkMode ? 'bg-gray-900' : 'bg-mono-bg'
         }`}>
-          <header className={`sticky top-0 z-50 border-b px-4 py-3 transition-colors duration-300 ${
+          <header className={`sticky top-0 z-50 border-b px-4 h-14 shadow-sm transition-colors duration-300 ${
             isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
           }`}>
-            <div className="container mx-auto flex items-center justify-between">
+            <div className="container mx-auto flex h-full items-center justify-between">
               <div className="flex items-center gap-4">
                 <DropdownMenu open={isNavDropdownOpen} onOpenChange={setIsNavDropdownOpen}>
                   <DropdownMenuTrigger className={`rounded-lg p-2 ${
