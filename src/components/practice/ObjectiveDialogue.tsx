@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { X } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface ObjectiveDialogProps {
   open: boolean;
@@ -13,6 +14,7 @@ interface ObjectiveDialogProps {
 }
 
 const ObjectiveDialog = ({ open, onOpenChange, onSetObjective, maxQuestions = 300 }: ObjectiveDialogProps) => {
+  const { isDarkMode } = useTheme();
   const [objectiveType, setObjectiveType] = useState<"questions" | "time">("questions");
   const [questionCount, setQuestionCount] = useState<number>(10);
   const [timeInMinutes, setTimeInMinutes] = useState<number>(30);
@@ -169,19 +171,30 @@ const ObjectiveDialog = ({ open, onOpenChange, onSetObjective, maxQuestions = 30
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden rounded-xl bg-white">
+      <DialogContent className={`sm:max-w-md p-0 overflow-hidden rounded-xl transition-colors ${
+        isDarkMode ? 'bg-gray-900 border border-green-500/30' : 'bg-white border border-gray-200'
+      }`}>
         <div className="p-6">
-          <div className="flex justify-between items-center mb-3">
-            <DialogTitle className="text-xl font-medium">Set Your Practice Objective</DialogTitle>
-            <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="rounded-full h-8 w-8">
-              <X className="h-3 w-3" />
-            </Button>
+          <div className="mb-3">
+            <DialogTitle className={`text-xl font-medium ${
+              isDarkMode ? 'text-green-400' : 'text-gray-900'
+            }`}>Set Your Practice Objective</DialogTitle>
           </div>
           
           <Tabs defaultValue="questions" onValueChange={(value) => setObjectiveType(value as "questions" | "time")} className="mb-6">
-            <TabsList className="grid w-full grid-cols-2 bg-gray-100 rounded-lg p-1">
-              <TabsTrigger value="questions" className="rounded-md">Questions</TabsTrigger>
-              <TabsTrigger value="time" className="rounded-md">Time</TabsTrigger>
+            <TabsList className={`grid w-full grid-cols-2 rounded-lg p-1 ${
+              isDarkMode ? 'bg-gray-800' : 'bg-gray-100'
+            }`}>
+              <TabsTrigger value="questions" className={`rounded-md ${
+                isDarkMode 
+                  ? 'data-[state=active]:bg-gray-900 data-[state=active]:text-green-400 text-gray-400' 
+                  : 'data-[state=active]:bg-white data-[state=active]:text-gray-900 text-gray-600'
+              }`}>Questions</TabsTrigger>
+              <TabsTrigger value="time" className={`rounded-md ${
+                isDarkMode 
+                  ? 'data-[state=active]:bg-gray-900 data-[state=active]:text-green-400 text-gray-400' 
+                  : 'data-[state=active]:bg-white data-[state=active]:text-gray-900 text-gray-600'
+              }`}>Time</TabsTrigger>
             </TabsList>
             
             <TabsContent value="questions" className="mt-4">
@@ -192,7 +205,13 @@ const ObjectiveDialog = ({ open, onOpenChange, onSetObjective, maxQuestions = 30
                   value={questionCountInput}
                   onChange={(e) => handleQuestionCountChange(e.target.value)}
                   onBlur={handleQuestionCountBlur}
-                  className={`w-full rounded-xl ${questionError ? 'border-red-500 focus:border-red-500' : ''}`}
+                  className={`w-full rounded-xl transition-colors ${
+                    questionError 
+                      ? 'border-red-500 focus:border-red-500' 
+                      : isDarkMode 
+                        ? 'bg-gray-800 border-green-500/30 text-green-400 placeholder-green-600' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  }`}
                 />
                 {questionError && (
                   <p className="text-red-500 text-xs mt-1">{questionError}</p>
@@ -208,7 +227,13 @@ const ObjectiveDialog = ({ open, onOpenChange, onSetObjective, maxQuestions = 30
                   value={timeInput}
                   onChange={(e) => handleTimeChange(e.target.value)}
                   onBlur={handleTimeBlur}
-                  className={`w-full rounded-xl ${timeError ? 'border-red-500 focus:border-red-500' : ''}`}
+                  className={`w-full rounded-xl transition-colors ${
+                    timeError 
+                      ? 'border-red-500 focus:border-red-500' 
+                      : isDarkMode 
+                        ? 'bg-gray-800 border-green-500/30 text-green-400 placeholder-green-600' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  }`}
                 />
                 {timeError && (
                   <p className="text-red-500 text-xs mt-1">{timeError}</p>
@@ -220,7 +245,11 @@ const ObjectiveDialog = ({ open, onOpenChange, onSetObjective, maxQuestions = 30
           <div className="flex justify-end">
             <Button 
               onClick={handleSetObjective}
-              className="bg-cyan-500 hover:bg-cyan-600 text-white rounded-xl px-16 py-2"
+              className={`rounded-xl px-16 py-2 transition-colors ${
+                isDarkMode 
+                  ? 'bg-green-600 hover:bg-green-700 text-white' 
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
             >
               Set Objective
             </Button>
