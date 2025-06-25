@@ -147,7 +147,7 @@ export const ProgressDashboard = ({
         {/* Chapter Progress - now placed beside the total progress */}
         {visibleSections.chapterProgress && (
           <AnimatedItem>
-            <Card className={`p-6 border h-full overflow-auto ${
+            <Card className={`p-6 border h-[480px] overflow-hidden ${
               isDarkMode ? 'bg-gray-900 border-green-500/30 text-green-400' : 'bg-white border-gray-50'
             }`}>
               <ChapterProgress chapters={userData.chapterPerformance} />

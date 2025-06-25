@@ -7,6 +7,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface StatProps {
   title: string;
@@ -47,6 +48,8 @@ export const StatsCard = ({
   stat,
   index
 }: StatsCardProps) => {
+  const { isDarkMode } = useTheme();
+  
   if ('component' in stat) {
     const Component = stat.component;
     return <Component />;
@@ -64,17 +67,29 @@ export const StatsCard = ({
 
   if (isCalendar) {
     return (
-      <Card className="p-3 md:p-4 transition-all duration-300 border-none shadow-none">
-        <div className="flex items-center gap-2 md:gap-3">
+      <Card className={`transition-all duration-300 border shadow-sm rounded-lg w-full h-24 ${
+        isDarkMode 
+          ? 'border-green-500/30 bg-gray-900' 
+          : 'border-gray-200 bg-white'
+      }`}>
+        <div className="flex flex-col items-center justify-center p-2 text-center h-full">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="ghost" className="w-full justify-between rounded-full text-sm md:text-base font-normal p-0 hover:bg-transparent">
-                <div className="flex items-center gap-2 md:gap-3">
-                  <Calendar className="h-5 w-5 md:h-6 md:w-6 text-blue-500" strokeWidth={1.5} />
-                  <div>
-                    <p className="text-xs md:text-sm text-gray-500 text-left">{title}</p>
-                    <p className="text-sm md:text-lg font-semibold text-left">{value}</p>
-                  </div>
+              <Button variant="ghost" className="w-full text-sm font-normal p-0 hover:bg-transparent flex flex-col items-center gap-1 h-full">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  isDarkMode ? 'bg-green-500/20' : 'bg-blue-50'
+                }`}>
+                  <Calendar className={`h-4 w-4 strokeWidth={1.5} ${
+                    isDarkMode ? 'text-green-400' : 'text-blue-500'
+                  }`} />
+                </div>
+                <div>
+                  <p className={`text-xs ${
+                    isDarkMode ? 'text-green-400/70' : 'text-gray-500'
+                  }`}>{title}</p>
+                  <p className={`text-xs font-semibold ${
+                    isDarkMode ? 'text-green-400' : 'text-gray-900'
+                  }`}>{value}</p>
                 </div>
               </Button>
             </PopoverTrigger>
@@ -94,12 +109,26 @@ export const StatsCard = ({
   }
 
   return (
-    <Card className="p-3 md:p-4 transition-all duration-300 border-none shadow-none">
-      <div className="flex items-center gap-2 md:gap-3">
-        <Icon className="h-5 w-5 md:h-6 md:w-6 text-blue-500" strokeWidth={1.5} />
+    <Card className={`transition-all duration-300 border shadow-sm rounded-lg w-full h-24 ${
+      isDarkMode 
+        ? 'border-green-500/30 bg-gray-900' 
+        : 'border-gray-200 bg-white'
+    }`}>
+      <div className="flex flex-col items-center justify-center p-2 text-center h-full">
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${
+          isDarkMode ? 'bg-green-500/20' : 'bg-blue-50'
+        }`}>
+          <Icon className={`h-4 w-4 strokeWidth={1.5} ${
+            isDarkMode ? 'text-green-400' : 'text-blue-500'
+          }`} />
+        </div>
         <div>
-          <p className="text-xs md:text-sm text-gray-500">{title}</p>
-          <p className="text-sm md:text-lg font-semibold">{value}</p>
+          <p className={`text-xs ${
+            isDarkMode ? 'text-green-400/70' : 'text-gray-500'
+          }`}>{title}</p>
+          <p className={`text-xs font-semibold ${
+            isDarkMode ? 'text-green-400' : 'text-gray-900'
+          }`}>{value}</p>
         </div>
       </div>
     </Card>
@@ -125,7 +154,7 @@ export const StatsCardGrid = ({
           }
         }
       }}
-      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-4 w-full max-w-[98%] md:max-w-[95%] mx-auto rounded-full border border-gray-200 py-2 px-2 md:px-4"
+      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 w-full max-w-[98%] md:max-w-[95%] mx-auto"
     >
       {stats.map((stat, index) => (
         <motion.div 

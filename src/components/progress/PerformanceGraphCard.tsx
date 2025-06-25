@@ -141,7 +141,13 @@ export const PerformanceGraphCard = ({
     fetchPerformanceData();
   }, [propData, session]);
 
-  const displayData = propData || performanceData || [];
+  const displayData = (propData && propData.length > 0) ? propData : performanceData;
+  
+  // Debug logging
+  console.log("PerformanceGraphCard propData:", propData);
+  console.log("PerformanceGraphCard performanceData:", performanceData);
+  console.log("PerformanceGraphCard displayData:", displayData);
+  console.log("PerformanceGraphCard displayData length:", displayData?.length);
 
   // Calculate if there's a trend by comparing the last 3 days to the previous 3 days
   const calculateTrend = () => {

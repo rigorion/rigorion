@@ -95,12 +95,8 @@ export const ChapterProgress = ({
                   <td className={`py-2 px-3 text-center ${
                     isDarkMode ? 'text-green-400' : 'text-emerald-600'
                   }`}>{chapter.correct}</td>
-                  <td className={`py-2 px-3 text-center ${
-                    isDarkMode ? 'text-green-400' : 'text-rose-600'
-                  }`}>{chapter.incorrect}</td>
-                  <td className={`py-2 px-3 text-center ${
-                    isDarkMode ? 'text-green-400' : 'text-amber-600'
-                  }`}>{chapter.unattempted}</td>
+                  <td className="py-2 px-3 text-center text-red-600">{chapter.incorrect}</td>
+                  <td className="py-2 px-3 text-center text-orange-600">{chapter.unattempted}</td>
                   <td className="py-2 px-3">
                     <div className="flex items-center justify-end gap-2">
                       <div className={`w-24 h-2 rounded-full overflow-hidden ${

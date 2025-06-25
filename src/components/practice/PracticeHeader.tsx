@@ -89,7 +89,7 @@ export const PracticeHeader = ({
 
   const handleLogout = async () => {
     await signOut();
-    navigate("/signin");
+    navigate("/");
   };
 
   const handleChapterFilter = (chapter: string) => {

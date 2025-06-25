@@ -92,8 +92,8 @@ export const SecureProgressProvider: React.FC<SecureProgressProviderProps> = ({
             correctAnswerAvgTime: 2.0, // Placeholder
             incorrectAnswerAvgTime: 3.5, // Placeholder
             longestQuestionTime: 8.0, // Placeholder
-            performanceGraph: Array.from({ length: 10 }, (_, i) => ({
-              date: new Date(Date.now() - (9 - i) * 24 * 3600 * 1000).toISOString().slice(0, 10),
+            performanceGraph: Array.from({ length: 15 }, (_, i) => ({
+              date: new Date(Date.now() - (14 - i) * 24 * 3600 * 1000).toISOString().slice(0, 10),
               attempted: Math.floor(Math.random() * 30) + 10
             })),
             chapterPerformance: [
@@ -167,8 +167,8 @@ export const SecureProgressProvider: React.FC<SecureProgressProviderProps> = ({
             correctAnswerAvgTime: 2.0,
             incorrectAnswerAvgTime: 3.5,
             longestQuestionTime: 8.0,
-            performanceGraph: Array.from({ length: 10 }, (_, i) => ({
-              date: new Date(Date.now() - (9 - i) * 24 * 3600 * 1000).toISOString().slice(0, 10),
+            performanceGraph: Array.from({ length: 15 }, (_, i) => ({
+              date: new Date(Date.now() - (14 - i) * 24 * 3600 * 1000).toISOString().slice(0, 10),
               attempted: Math.floor(Math.random() * 30) + 10
             })),
             chapterPerformance: [

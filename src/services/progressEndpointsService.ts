@@ -83,9 +83,9 @@ export function processProgressData(endpointsData: any[]): UserProgressData {
     incorrectAnswerAvgTime: 3.5,
     longestQuestionTime: 8.0,
     performanceGraph: Array.from({
-      length: 10
+      length: 15
     }, (_, i) => ({
-      date: new Date(Date.now() - (9 - i) * 24 * 3600 * 1000).toISOString().slice(0, 10),
+      date: new Date(Date.now() - (14 - i) * 24 * 3600 * 1000).toISOString().slice(0, 10),
       attempted: Math.floor(Math.random() * 30) + 10
     })),
     chapterPerformance: [

@@ -205,8 +205,8 @@ export const TotalProgressCard = ({
               r={radius} 
               fill="none" 
               stroke={isDarkMode ? "#22c55e" : "#22c55e"} 
-              strokeWidth="5" 
-              strokeDasharray={circumference} 
+              strokeWidth="5"
+              strokeDasharray={circumference}
               strokeDashoffset={correctOffset} 
               strokeLinecap="round" 
               initial={{
@@ -226,8 +226,8 @@ export const TotalProgressCard = ({
               r={radius} 
               fill="none" 
               stroke={isDarkMode ? "#ef4444" : "#ef4444"} 
-              strokeWidth="5" 
-              strokeDasharray={circumference} 
+              strokeWidth="5"
+              strokeDasharray={circumference}
               strokeDashoffset={incorrectOffset} 
               strokeLinecap="round" 
               initial={{
@@ -247,9 +247,9 @@ export const TotalProgressCard = ({
               cy="50" 
               r={radius} 
               fill="none" 
-              stroke={isDarkMode ? "#93c5fd" : "#93c5fd"} 
-              strokeWidth="5" 
-              strokeDasharray={circumference} 
+              stroke={isDarkMode ? "#f97316" : "#f97316"} 
+              strokeWidth="5"
+              strokeDasharray={circumference}
               strokeDashoffset={unattemptedOffset} 
               strokeLinecap="round" 
               initial={{
@@ -329,22 +329,18 @@ export const TotalProgressCard = ({
                   isDarkMode ? 'text-green-400' : 'text-gray-600'
                 }`}>Incorrect</span>
               </div>
-              <span className={`text-sm font-medium ${
-                isDarkMode ? 'text-green-400' : 'text-red-600'
-              }`}>
+              <span className={`text-sm font-medium text-red-600`}>
                 {incorrectQuestionsValue} ({incorrectPercentage}%)
               </span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-blue-400" />
+                <div className="w-3 h-3 rounded-full bg-orange-500" />
                 <span className={`text-sm ${
                   isDarkMode ? 'text-green-400' : 'text-gray-600'
                 }`}>Unattempted</span>
               </div>
-              <span className={`text-sm font-medium ${
-                isDarkMode ? 'text-green-400' : 'text-blue-600'
-              }`}>
+              <span className={`text-sm font-medium text-orange-600`}>
                 {unattemptedQuestionsValue} ({unattemptedPercentage}%)
               </span>
             </div>

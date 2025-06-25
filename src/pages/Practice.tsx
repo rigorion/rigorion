@@ -131,8 +131,7 @@ const Practice = () => {
         const response = await fetch(url, {
           method: "GET",
           headers: { 
-            "Content-Type": "application/json",
-            "X-Request-Source": "practice-app" 
+            "Content-Type": "application/json"
           },
           mode: "cors",
         });
@@ -155,6 +154,8 @@ const Practice = () => {
       };
 
       const result = await secureFetch();
+      console.log("API fetch successful, result:", result);
+      console.log("About to store result, type:", typeof result, "isArray:", Array.isArray(result));
       await storeSecureFunctionData(ENDPOINT, result);
 
       // Handle direct array response from edge function
@@ -187,6 +188,8 @@ const Practice = () => {
         title: "Questions Ready",
         description: `Loaded ${validQuestions.length} practice questions securely.`,
       });
+      
+      return result; // Return the raw API result
     } catch (e: any) {
       console.error("Fetch error:", e.message);
       setError(e.message || "Failed to load questions");

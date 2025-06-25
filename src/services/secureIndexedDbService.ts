@@ -85,6 +85,14 @@ export const safeGetSecureData = async (functionName: string, refreshFunction: (
 
     if (storedData.length > 0) {
       const latestEntry = storedData[storedData.length - 1];
+      
+      // Check if latestEntry and its data exist
+      if (!latestEntry || latestEntry.data === undefined) {
+        console.warn(`Invalid stored data structure for function: ${functionName}. Refreshing...`);
+        const newData = await refreshFunction();
+        return { data: newData, fromCache: false };
+      }
+      
       const currentHash = hashData(latestEntry.data);
 
       if (latestEntry.hash === currentHash) {

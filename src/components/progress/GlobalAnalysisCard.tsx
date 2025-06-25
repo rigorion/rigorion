@@ -124,8 +124,13 @@ export const GlobalAnalysisCard = ({
             </div>
           </div>
           
+          {/* Separator line */}
+          <div className={`w-full h-px ${
+            isDarkMode ? 'bg-green-500/30' : 'bg-gray-200'
+          } mt-6`}></div>
+          
           {/* Side by side layout for Objective Accomplishment and Strength Areas */}
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-2 gap-6 mt-6 relative">
             {/* Objective Accomplishment */}
             <div>
               <h4 className={`text-md font-medium mb-2 ${
@@ -171,6 +176,11 @@ export const GlobalAnalysisCard = ({
                 </div>
               </div>
             </div>
+            
+            {/* Vertical separator */}
+            <div className={`absolute left-1/2 top-0 bottom-0 w-px ${
+              isDarkMode ? 'bg-green-500/30' : 'bg-gray-200'
+            } transform -translate-x-1/2`}></div>
             
             {/* Strength Areas */}
             <div>

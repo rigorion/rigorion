@@ -1,7 +1,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabase";
+import { supabase, SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface AuthContextType {
@@ -138,10 +138,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log("Attempting to sign in with:", email);
+      console.log("Supabase URL:", SUPABASE_URL);
+      console.log("Supabase Key (first 20 chars):", SUPABASE_PUBLISHABLE_KEY.substring(0, 20) + "...");
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+
+      console.log("Sign-in response:", { data, error });
 
       if (error) throw error;
 
@@ -150,10 +156,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: "Welcome back!",
       });
     } catch (error: any) {
-      console.error("Sign-in error:", error.message);
+      console.error("Sign-in error details:", error);
+      console.error("Error message:", error.message);
+      console.error("Error code:", error.code);
       toast({
         title: "Sign In Failed",
-        description: error.message,
+        description: error.message || "Authentication failed",
         variant: "destructive",
       });
     }
