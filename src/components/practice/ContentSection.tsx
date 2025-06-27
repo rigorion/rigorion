@@ -103,10 +103,52 @@ const ContentSection = ({
           >
             Step-by-Step Solution
           </h3>
-          <div 
-            dangerouslySetInnerHTML={{ __html: question.solution || "Solution not available" }} 
-            style={contentStyle}
-          />
+          
+          {/* Handle new step-based structure */}
+          {(() => {
+            // Check if solution is an array of step objects
+            let solutionSteps = [];
+            try {
+              if (typeof question.solution === 'string') {
+                const parsed = JSON.parse(question.solution);
+                if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].step) {
+                  solutionSteps = parsed;
+                }
+              } else if (Array.isArray(question.solution)) {
+                solutionSteps = question.solution;
+              }
+            } catch (e) {
+              // If parsing fails, fall back to original string rendering
+            }
+
+            if (solutionSteps.length > 0) {
+              return (
+                <div className="space-y-4">
+                  {solutionSteps.map((stepObj, index) => (
+                    <div key={index} className="flex items-start gap-3 p-3 bg-white rounded-lg border">
+                      <div className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-medium">
+                        {index + 1}
+                      </div>
+                      <div 
+                        className="flex-1"
+                        style={contentStyle}
+                        dangerouslySetInnerHTML={{ __html: stepObj.step }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              );
+            } else {
+              // Fall back to original solution rendering
+              return (
+                <div 
+                  dangerouslySetInnerHTML={{ __html: question.solution || "Solution not available" }} 
+                  style={contentStyle}
+                />
+              );
+            }
+          })()}
+          
           {question.explanation && (
             <div className="mt-4 p-4 bg-white rounded-lg border">
               <h4 className="font-medium mb-2" style={contentStyle}>Explanation</h4>
