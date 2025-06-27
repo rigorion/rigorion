@@ -248,9 +248,9 @@ const Progress = () => {
   const [isNavDropdownOpen, setIsNavDropdownOpen] = useState(false);
   const [hasNotifications, setHasNotifications] = useState(true);
   const [courses, setCourses] = useState<Course[]>([
-    { id: '1', name: 'GMAT Preparation', status: 'active', expiresIn: 30 },
-    { id: '2', name: 'SAT Advanced', status: 'active', expiresIn: 25 },
-    { id: '3', name: 'GRE Verbal', status: 'expired', expiresIn: 0 }
+    { id: '1', name: 'SAT Math', status: 'active', expiresIn: 30 },
+    { id: '2', name: 'SAT Reading', status: 'active', expiresIn: 25 },
+    { id: '3', name: 'SAT Writing', status: 'active', expiresIn: 20 }
   ]);
   const [selectedCourse, setSelectedCourse] = useState<string>('1');
   const queryClient = useQueryClient();
@@ -441,12 +441,6 @@ const Progress = () => {
           <Tabs defaultValue={activeTab} value={activeTab} onValueChange={value => setActiveTab(value as ProgressTab)} className="w-full">
             <div className="container mx-auto p-6">
               <div className="mb-6 flex flex-col items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <h1 className={`font-bold text-lg ${
-                    isDarkMode ? 'text-green-400' : ''
-                  }`}>Progress Dashboard</h1>
-                </div>
-                
                 <div className="flex justify-center w-full">
                   <div className={`inline-flex items-center rounded-full p-1 border ${
                     isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'

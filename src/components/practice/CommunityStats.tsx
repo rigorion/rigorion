@@ -12,6 +12,9 @@ export function CommunityStats({ questionId }: { questionId: string }) {
   const [loading, setLoading] = useState(true);
   const { isDarkMode } = useTheme();
 
+  // Debug logging
+  console.log("CommunityStats rendered with questionId:", questionId);
+
   useEffect(() => {
     async function fetchStats() {
       if (!questionId) return;
@@ -78,13 +81,17 @@ export function CommunityStats({ questionId }: { questionId: string }) {
 
   // If no stats or invalid data structure, show sample data
   if (!stats || !isValidData(stats)) {
-    // Generate sample stats based on question ID for variety
+    // Generate realistic sample stats based on question ID for variety
     const questionIndex = parseInt(questionId?.slice(-1) || "1") || 1;
+    const baseAttempts = 850 + (questionIndex * 127);
+    const difficultyFactor = 0.58 + (questionIndex * 0.03); // Varies from 58% to 88% success rate
+    const timeFactor = questionIndex % 3; // Varies timing patterns
+    
     const sampleStats = {
-      total_attempts: 150 + (questionIndex * 23),
-      correct_count: Math.floor((150 + (questionIndex * 23)) * (0.6 + (questionIndex * 0.05))),
-      incorrect_count: Math.floor((150 + (questionIndex * 23)) * (0.4 - (questionIndex * 0.05))),
-      average_time_seconds: 45 + (questionIndex * 8)
+      total_attempts: baseAttempts,
+      correct_count: Math.floor(baseAttempts * difficultyFactor),
+      incorrect_count: Math.floor(baseAttempts * (1 - difficultyFactor)),
+      average_time_seconds: 42 + (timeFactor * 18) + (questionIndex * 6) // Varies from 42s to 108s
     };
     
     return (

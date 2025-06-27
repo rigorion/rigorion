@@ -261,6 +261,7 @@ const PracticeFooter = ({
       {/* Community Stats Display */}
       {showCommunityStats && (
         <div className={`fixed bottom-24 left-4 animate-in fade-in slide-in-from-left-5 z-20`}>
+          {console.log("Rendering CommunityStats with questionId:", currentQuestionId)}
           <CommunityStats questionId={currentQuestionId} />
         </div>
       )}

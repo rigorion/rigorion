@@ -74,10 +74,10 @@ export const ProgressNavigation: React.FC<ProgressNavigationProps> = ({
         {courses.length > 0 && setSelectedCourse && (
           <div className="relative">
             <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-              <SelectTrigger className={`w-[180px] rounded-full shadow-sm border ${
+              <SelectTrigger className={`w-[180px] rounded-full shadow-sm border focus:ring-0 focus:ring-offset-0 ${
                 isDarkMode 
-                  ? 'bg-gray-800 hover:bg-gray-700 border-green-500/30 text-green-400' 
-                  : 'bg-white hover:bg-gray-50 border-gray-200'
+                  ? 'bg-gray-800 hover:bg-gray-700 border-green-500/30 text-green-400 focus:border-green-500/50' 
+                  : 'bg-white hover:bg-gray-50 border-gray-200 focus:border-blue-300'
               }`}>
                 <SelectValue placeholder="Select Course" />
               </SelectTrigger>
