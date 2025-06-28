@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Timer, Layers, Hand, Clock, FileText, X } from "lucide-react";
+import { Timer, Layers, Hand, Clock, FileText, X, Zap } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 
 interface ModeDialogProps {
@@ -69,7 +69,7 @@ const ModeDialog = ({ open, onOpenChange, onSetMode }: ModeDialogProps) => {
                       : 'data-[state=active]:bg-white data-[state=active]:text-gray-900 text-gray-600'
                   }`}
                 >
-                  <Timer className="h-4 w-4 mr-1" />
+                  <Zap className="h-4 w-4 mr-1" />
                   Timer
                 </TabsTrigger>
                 <TabsTrigger 

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Timer, Clock, Hand } from "lucide-react";
+import { Timer, Clock, Hand, Zap } from "lucide-react";
 
 interface ModeSelectorProps {
   currentMode: "timer" | "pomodoro" | "manual" | "level" | "exam";
@@ -16,7 +16,7 @@ const ModeSelector = ({ currentMode, onModeChange }: ModeSelectorProps) => {
         onClick={() => onModeChange("timer")}
         className="flex items-center gap-2"
       >
-        <Timer className="w-4 h-4" />
+        <Zap className="w-4 h-4" />
         Timer
       </Button>
       
