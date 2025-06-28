@@ -5,7 +5,7 @@ import { Check, X } from 'lucide-react';
 type FeatureType = {
   name: string;
   competitors: {
-    rigorion: boolean;
+    academicarc: boolean;
     scoresmart: boolean;
     magoosh: boolean;
     edisonos: boolean;
@@ -18,7 +18,7 @@ const FEATURES: FeatureType[] = [
   {
     name: "5000+ Practice Questions",
     competitors: {
-      rigorion: true,
+      academicarc: true,
       scoresmart: false,
       magoosh: false,
       edisonos: false,
@@ -29,7 +29,7 @@ const FEATURES: FeatureType[] = [
   {
     name: "AI-Powered Writing Examiner",
     competitors: {
-      rigorion: true,
+      academicarc: true,
       scoresmart: false,
       magoosh: false,
       edisonos: false,
@@ -40,7 +40,7 @@ const FEATURES: FeatureType[] = [
   {
     name: "5 Different Practice Modes",
     competitors: {
-      rigorion: true,
+      academicarc: true,
       scoresmart: false,
       magoosh: true,
       edisonos: false,
@@ -51,7 +51,7 @@ const FEATURES: FeatureType[] = [
   {
     name: "Military-Grade Security",
     competitors: {
-      rigorion: true,
+      academicarc: true,
       scoresmart: false,
       magoosh: false,
       edisonos: false,
@@ -62,7 +62,7 @@ const FEATURES: FeatureType[] = [
   {
     name: "Advanced Analytics Dashboard",
     competitors: {
-      rigorion: true,
+      academicarc: true,
       scoresmart: true,
       magoosh: true,
       edisonos: false,
@@ -73,7 +73,7 @@ const FEATURES: FeatureType[] = [
   {
     name: "Global Leaderboard System",
     competitors: {
-      rigorion: true,
+      academicarc: true,
       scoresmart: false,
       magoosh: false,
       edisonos: true,
@@ -84,7 +84,7 @@ const FEATURES: FeatureType[] = [
   {
     name: "12 Full-Length Mock Tests",
     competitors: {
-      rigorion: true,
+      academicarc: true,
       scoresmart: true,
       magoosh: true,
       edisonos: true,
@@ -95,7 +95,7 @@ const FEATURES: FeatureType[] = [
   {
     name: "Offline Practice Capability",
     competitors: {
-      rigorion: true,
+      academicarc: true,
       scoresmart: false,
       magoosh: false,
       edisonos: false,
@@ -104,20 +104,9 @@ const FEATURES: FeatureType[] = [
     }
   },
   {
-    name: "Gamified Learning Experience",
-    competitors: {
-      rigorion: true,
-      scoresmart: true,
-      magoosh: false,
-      edisonos: true,
-      testinnovators: false,
-      princetonreview: false
-    }
-  },
-  {
     name: "Real-Time Performance Insights",
     competitors: {
-      rigorion: true,
+      academicarc: true,
       scoresmart: false,
       magoosh: true,
       edisonos: false,
@@ -128,7 +117,7 @@ const FEATURES: FeatureType[] = [
   {
     name: "Personalized Study Plans",
     competitors: {
-      rigorion: true,
+      academicarc: true,
       scoresmart: true,
       magoosh: true,
       edisonos: false,
@@ -139,7 +128,7 @@ const FEATURES: FeatureType[] = [
   {
     name: "Advanced Customization Options",
     competitors: {
-      rigorion: true,
+      academicarc: true,
       scoresmart: false,
       magoosh: false,
       edisonos: false,
@@ -150,7 +139,7 @@ const FEATURES: FeatureType[] = [
 ];
 
 const COMPETITORS = [
-  { id: "rigorion", name: "Rigorion", color: "#8A0303" },
+  { id: "academicarc", name: "Academic Arc", color: "#8A0303" },
   { id: "scoresmart", name: "ScoreSmart", color: "#38B04A" },
   { id: "magoosh", name: "Magoosh", color: "#046C76" },
   { id: "edisonos", name: "Edisonos", color: "#D93232" },
@@ -191,7 +180,7 @@ export const ComparisonTable = () => {
                   key={feature.name}
                   className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
                 >
-                  <td className="p-4 font-medium text-gray-700">{feature.name}</td>
+                  <td className="p-4 text-gray-700 italic">{feature.name}</td>
                   {COMPETITORS.map((competitor) => {
                     const hasFeature = feature.competitors[competitor.id as keyof typeof feature.competitors];
                     

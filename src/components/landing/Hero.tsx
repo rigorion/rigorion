@@ -13,12 +13,21 @@ export const Hero = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Array of background images to cycle through (only actual files in resources)
+  // Animated placeholder texts
+  const placeholderTexts = [
+    "Tell me how to use Academic Arc...",
+    "Make my SAT Perfect Plan...",
+    "Create a study schedule for AP classes...",
+    "Help me balance SAT prep with schoolwork...",
+    "Design a 3-month ACT preparation strategy...",
+    "Plan my college application timeline..."
+  ];
+
+  // Array of background images to cycle through (using all available images in resources)
   const backgroundImages = [
-    '/resources/depositphotos_77288388-stock-photo-red-circle-test.jpg',
+    '/resources/4k-white-two-skyscrapers-j25128ysdyqlmeo6.jpg',
     '/resources/corner-building-for-4k-white-background-tsx7c82luhg36ygy.jpg',
-    '/resources/grad.jpg',
-    '/resources/grad.png'
+    '/resources/white-abstract-fading-horse-os2b11l2drnjvlqz.jpg'
   ];
 
   // Cycle through images every 8 seconds
@@ -56,7 +65,7 @@ Always respond with practical, encouraging advice formatted in a clear, organize
       setAnalysisResult(result);
     } catch (error) {
       console.error('AI Analysis error:', error);
-      setAnalysisResult('Welcome to Rigorion! I\'m your AI study companion. Tell me about your learning goals, the subjects you\'re working on, or specific topics you\'d like to master, and I\'ll create a personalized study plan tailored just for you. Let\'s make learning efficient and enjoyable!');
+      setAnalysisResult('Welcome to Academic Arc! I\'m your AI study companion. Tell me about your learning goals, the subjects you\'re working on, or specific topics you\'d like to master, and I\'ll create a personalized study plan tailored just for you. Let\'s make learning efficient and enjoyable!');
     } finally {
       setIsAnalyzing(false);
     }
@@ -91,6 +100,7 @@ Always respond with practical, encouraging advice formatted in a clear, organize
             <AISearchBar
               onAIAnalyze={handleAIAnalyze}
               placeholder="Tell me about your study goals..."
+              animatedPlaceholders={placeholderTexts}
               className="w-full max-w-none"
             />
           </div>
@@ -142,7 +152,7 @@ Always respond with practical, encouraging advice formatted in a clear, organize
               onClick={() => setShowPaymentModal(true)}
               className="bg-white hover:bg-gray-50 text-[#8A0303] border border-[#8A0303] font-medium px-8 py-3 rounded-full shadow-sm"
             >
-              {isAnalyzing ? 'Analyzing...' : 'Join us'}
+              {isAnalyzing ? 'Analyzing...' : 'Start Now'}
             </Button>
           </div>
         </div>

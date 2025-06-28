@@ -2,6 +2,7 @@
 import { Question } from "@/types/QuestionInterface";
 import { CheckCircle, XCircle } from "lucide-react";
 import React from "react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface TextSettings {
   fontFamily: string;
@@ -27,6 +28,7 @@ const ContentSection = ({
   onAnswerSelected,
   settings
 }: ContentSectionProps) => {
+  const { isDarkMode } = useTheme();
   // Get font family class (tailwind utility or fallback to default)
   const fontFamilyClass = `font-${settings.fontFamily}`;
 
@@ -96,10 +98,12 @@ const ContentSection = ({
       )}
 
       {activeTab === "solution" && (
-        <div className="prose max-w-none mb-12 p-6 bg-gray-50 rounded-lg">
+        <div className={`prose max-w-none mb-12 p-6 rounded-lg transition-colors ${
+          isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+        }`}>
           <h3 
             className="text-lg font-semibold mb-4"
-            style={contentStyle}
+            style={{...contentStyle, color: isDarkMode ? '#a3e635' : contentStyle.color}}
           >
             Step-by-Step Solution
           </h3>
@@ -125,13 +129,17 @@ const ContentSection = ({
               return (
                 <div className="space-y-4">
                   {solutionSteps.map((stepObj, index) => (
-                    <div key={index} className="flex items-start gap-3 p-3 bg-white rounded-lg border">
-                      <div className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-medium">
+                    <div key={index} className={`flex items-start gap-3 p-3 rounded-lg border transition-colors ${
+                      isDarkMode ? 'bg-gray-800 border-green-500/30' : 'bg-white border-gray-200'
+                    }`}>
+                      <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-medium ${
+                        isDarkMode ? 'bg-green-500/20 text-green-400' : 'bg-blue-100 text-blue-600'
+                      }`}>
                         {index + 1}
                       </div>
                       <div 
                         className="flex-1"
-                        style={contentStyle}
+                        style={{...contentStyle, color: isDarkMode ? '#a3e635' : contentStyle.color}}
                         dangerouslySetInnerHTML={{ __html: stepObj.step }}
                       />
                     </div>
@@ -150,9 +158,11 @@ const ContentSection = ({
           })()}
           
           {question.explanation && (
-            <div className="mt-4 p-4 bg-white rounded-lg border">
-              <h4 className="font-medium mb-2" style={contentStyle}>Explanation</h4>
-              <p style={contentStyle}>{question.explanation}</p>
+            <div className={`mt-4 p-4 rounded-lg border transition-colors ${
+              isDarkMode ? 'bg-gray-900 border-green-500/30' : 'bg-white border-gray-200'
+            }`}>
+              <h4 className="font-medium mb-2" style={{...contentStyle, color: isDarkMode ? '#a3e635' : contentStyle.color}}>Explanation</h4>
+              <p style={{...contentStyle, color: isDarkMode ? '#a3e635' : contentStyle.color}}>{question.explanation}</p>
             </div>
           )}
         </div>

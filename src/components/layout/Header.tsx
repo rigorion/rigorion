@@ -27,7 +27,7 @@ const Header = () => {
     { name: "Home", path: "/" },
     { name: "Practice", path: "/practice" },
     { name: "Analytics", path: "/analytics" },
-    { name: "About", path: "/about" },
+    { name: "About us", path: "/about" },
   ];
 
   const handleNavigation = (path: string) => {

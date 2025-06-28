@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Calculator, Brain, Timer, Shield, BarChart3, Users, Target, Gamepad2, Settings, CheckCircle, TrendingUp, Zap } from 'lucide-react';
+import { PaymentModal } from '@/components/payment/PaymentModal';
 
 type FeatureType = {
   id: number;
@@ -100,6 +101,7 @@ const FEATURES: FeatureType[] = [
 export const PrinciplesSection = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   // Split features into two rows of 6
   const firstRow = FEATURES.slice(0, 6);
@@ -110,13 +112,13 @@ export const PrinciplesSection = () => {
       <div className="container mx-auto px-12">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl lg:text-5xl font-bold mb-4">
+          <h2 className="text-3xl lg:text-4xl font-bold mb-4">
             <span className="italic font-script text-black" style={{ fontFamily: 'Dancing Script, cursive' }}>
-              What Stands Rigorion Apart
+              What Stands Academic Arc Apart
             </span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Discover the innovative features and technologies that make Rigorion the most advanced SAT preparation platform available today.
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            Discover the innovative features and technologies that make Academic Arc the most advanced SAT preparation platform available today.
           </p>
         </div>
 
@@ -251,11 +253,21 @@ export const PrinciplesSection = () => {
           <p className="text-lg text-gray-600 mb-6">
             Experience all these features and more in your personalized SAT preparation journey.
           </p>
-          <button className="bg-white hover:bg-gray-50 text-[#8A0303] border border-[#8A0303] hover:border-[#6b0202] font-medium px-8 py-3 rounded-full transition-all duration-300 hover:scale-105">
+          <button 
+            onClick={() => setShowPaymentModal(true)}
+            className="bg-white hover:bg-gray-50 text-[#8A0303] border border-[#8A0303] hover:border-[#6b0202] font-medium px-8 py-3 rounded-full transition-all duration-300 hover:scale-105"
+          >
             Start Your Free Trial
           </button>
         </div>
       </div>
+      
+      <PaymentModal 
+        isOpen={showPaymentModal} 
+        onClose={() => setShowPaymentModal(false)}
+        planType="monthly"
+        amount="49.99"
+      />
 
       <style jsx>{`
         @keyframes slide-left {

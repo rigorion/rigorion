@@ -10,14 +10,14 @@ type TestimonialType = {
 };
 const TESTIMONIALS: TestimonialType[] = [{
   id: 1,
-  content: "Rigorion transformed my SAT preparation completely. The AI writing examiner helped me improve my essays dramatically, and the practice modes kept me engaged throughout my study journey.",
+  content: "Academic Arc transformed my SAT preparation completely. The AI writing examiner helped me improve my essays dramatically, and the practice modes kept me engaged throughout my study journey.",
   author: "Jason Miller",
   location: "Netherlands",
   rating: 5,
   image: "https://randomuser.me/api/portraits/men/32.jpg"
 }, {
   id: 2,
-  content: "The analytics dashboard is incredible! I could track my progress in real-time and see exactly where I needed improvement. Scored 1480 thanks to Rigorion's comprehensive approach.",
+  content: "The analytics dashboard is incredible! I could track my progress in real-time and see exactly where I needed improvement. Scored 1480 thanks to Academic Arc's comprehensive approach.",
   author: "Chad Yat",
   location: "Australia", 
   rating: 5,

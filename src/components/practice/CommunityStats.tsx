@@ -12,35 +12,12 @@ export function CommunityStats({ questionId }: { questionId: string }) {
   const [loading, setLoading] = useState(true);
   const { isDarkMode } = useTheme();
 
-  // Debug logging
-  console.log("CommunityStats rendered with questionId:", questionId);
 
   useEffect(() => {
-    async function fetchStats() {
-      if (!questionId) return;
-
-      try {
-        // Use type assertion to help TypeScript understand our intention
-        const { data, error } = await (supabase
-          .from("community_stats" as any)
-          .select("*")
-          .eq("question_id", questionId)
-          .single()) as any;
-
-        if (error) {
-          console.error("Error fetching community stats:", error);
-          return;
-        }
-
-        setStats(data);
-      } catch (err) {
-        console.error("Failed to load community stats:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchStats();
+    // Always use sample data instead of trying to fetch from database
+    setLoading(false);
+    // Don't set stats - let the component fall back to sample data generation
+    setStats(null);
   }, [questionId]);
 
   if (loading) {
@@ -81,18 +58,51 @@ export function CommunityStats({ questionId }: { questionId: string }) {
 
   // If no stats or invalid data structure, show sample data
   if (!stats || !isValidData(stats)) {
-    // Generate realistic sample stats based on question ID for variety
-    const questionIndex = parseInt(questionId?.slice(-1) || "1") || 1;
-    const baseAttempts = 850 + (questionIndex * 127);
-    const difficultyFactor = 0.58 + (questionIndex * 0.03); // Varies from 58% to 88% success rate
-    const timeFactor = questionIndex % 3; // Varies timing patterns
-    
-    const sampleStats = {
-      total_attempts: baseAttempts,
-      correct_count: Math.floor(baseAttempts * difficultyFactor),
-      incorrect_count: Math.floor(baseAttempts * (1 - difficultyFactor)),
-      average_time_seconds: 42 + (timeFactor * 18) + (questionIndex * 6) // Varies from 42s to 108s
+    // Enhanced sample data generation with more realistic variety based on question content
+    const generateSampleStats = (qId: string) => {
+      // Map specific question IDs to realistic stats
+      const questionStatsMap: { [key: string]: any } = {
+        'MATH-001': { attempts: 1247, success: 0.72, avgTime: 45 },
+        'MATH-002': { attempts: 1156, success: 0.68, avgTime: 52 },
+        'MATH-003': { attempts: 1398, success: 0.81, avgTime: 38 },
+        'MATH-004': { attempts: 1089, success: 0.65, avgTime: 58 },
+        'MATH-005': { attempts: 1345, success: 0.74, avgTime: 41 },
+        'MATH-006': { attempts: 1567, success: 0.79, avgTime: 35 },
+        'MATH-007': { attempts: 1234, success: 0.76, avgTime: 43 },
+        'MATH-008': { attempts: 1489, success: 0.83, avgTime: 32 },
+        'MATH-009': { attempts: 967, success: 0.61, avgTime: 67 },
+        'READ-001': { attempts: 1123, success: 0.69, avgTime: 85 },
+        'READ-002': { attempts: 934, success: 0.58, avgTime: 112 },
+        'READ-003': { attempts: 1245, success: 0.71, avgTime: 78 },
+        'READ-004': { attempts: 1098, success: 0.66, avgTime: 89 },
+        'READ-005': { attempts: 876, success: 0.54, avgTime: 124 },
+        'READ-006': { attempts: 1167, success: 0.68, avgTime: 91 },
+        'WRITE-001': { attempts: 1356, success: 0.73, avgTime: 62 },
+        'WRITE-002': { attempts: 1089, success: 0.67, avgTime: 71 },
+        'WRITE-003': { attempts: 1445, success: 0.78, avgTime: 48 },
+        'WRITE-004': { attempts: 1234, success: 0.72, avgTime: 55 },
+        'WRITE-005': { attempts: 1012, success: 0.64, avgTime: 73 },
+        'WRITE-006': { attempts: 1389, success: 0.76, avgTime: 51 },
+        'WRITE-007': { attempts: 1156, success: 0.69, avgTime: 68 },
+        'WRITE-008': { attempts: 1278, success: 0.71, avgTime: 59 }
+      };
+
+      // Get stats for this question or generate fallback
+      const stats = questionStatsMap[qId] || {
+        attempts: 950 + Math.floor(Math.random() * 600),
+        success: 0.60 + Math.random() * 0.25,
+        avgTime: 40 + Math.floor(Math.random() * 50)
+      };
+
+      return {
+        total_attempts: stats.attempts,
+        correct_count: Math.floor(stats.attempts * stats.success),
+        incorrect_count: Math.floor(stats.attempts * (1 - stats.success)),
+        average_time_seconds: stats.avgTime
+      };
     };
+
+    const sampleStats = generateSampleStats(questionId);
     
     return (
       <Card className={`shadow-lg mb-4 transition-colors ${

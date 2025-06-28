@@ -32,11 +32,13 @@ const ModulesDialog = ({ onExamFilter, currentExamFilter }: ModulesDialogProps) 
   const { toast } = useToast();
   const { questions } = useQuestions();
   
-  // Fixed exam tests list with only 3 exams
+  // Expanded exam tests list with 5 exams
   const [examTests] = useState<ExamTest[]>([
-    { id: 1, title: "Exam 1", description: "Comprehensive SAT practice test", completionRate: 85, examNumber: 1 },
-    { id: 2, title: "Exam 2", description: "Advanced problem-solving scenarios", completionRate: 75, examNumber: 2 },
-    { id: 3, title: "Exam 3", description: "Reading comprehension focus", completionRate: 60, examNumber: 3 }
+    { id: 1, title: "Exam 1", description: "Heart of Algebra focus", completionRate: 85, examNumber: 1 },
+    { id: 2, title: "Exam 2", description: "Problem Solving and Data Analysis", completionRate: 75, examNumber: 2 },
+    { id: 3, title: "Exam 3", description: "Passport to Advanced Math", completionRate: 60, examNumber: 3 },
+    { id: 4, title: "Exam 4", description: "Reading Comprehension", completionRate: 70, examNumber: 4 },
+    { id: 5, title: "Exam 5", description: "Writing and Language", completionRate: 80, examNumber: 5 }
   ]);
 
   const handleExamClick = (exam: ExamTest) => {

@@ -94,15 +94,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .eq("id", userId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        // If profile doesn't exist, create a default one
+        if (error.code === 'PGRST116') {
+          console.log("Profile not found, creating default profile for user:", userId);
+          setProfile({
+            id: userId,
+            full_name: user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User',
+            avatar_url: null,
+            updated_at: new Date().toISOString()
+          });
+          setLoading(false);
+          return;
+        }
+        throw error;
+      }
       setProfile(data);
     } catch (error) {
       console.error("Error fetching profile:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch user profile",
-        variant: "destructive",
-      });
+      
+      // Create a fallback profile from user data instead of showing error
+      if (user) {
+        console.log("Creating fallback profile from user data");
+        setProfile({
+          id: userId,
+          full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+          avatar_url: user.user_metadata?.avatar_url || null,
+          updated_at: new Date().toISOString()
+        });
+      }
     } finally {
       setLoading(false);
     }

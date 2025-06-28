@@ -50,12 +50,16 @@ export const Footer = () => {
   const { isDarkMode } = useTheme();
   
   return (
-    <footer className={`pt-6 pb-6 border-t ${
+    <footer className={`pt-6 pb-6 ${
       isDarkMode 
-        ? 'bg-transparent border-gray-300 text-black' 
-        : 'bg-white border-gray-200'
+        ? 'bg-transparent text-black' 
+        : 'bg-white'
     }`}>
-      <div className="container mx-auto px-4">
+      {/* Full width divider */}
+      <div className={`w-full border-t ${
+        isDarkMode ? 'border-gray-300' : 'border-gray-200'
+      }`}></div>
+      <div className="container mx-auto px-4 pt-6">
         <div className="flex flex-wrap justify-center space-x-6 md:space-x-12 mb-10">
           {footerLinks.map((link, index) => (
             <a 

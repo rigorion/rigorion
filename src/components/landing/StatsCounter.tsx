@@ -124,7 +124,7 @@ export const StatsCounter = () => {
           <div className="text-center mb-12">
             <h2 className="text-2xl font-bold mb-2">
               <span className="italic font-script text-black" style={{ fontFamily: 'Dancing Script, cursive' }}>
-                Rigorion by the Numbers
+                Academic Arc by the Numbers
               </span>
             </h2>
             <p className="text-gray-600">Join thousands of successful students worldwide</p>

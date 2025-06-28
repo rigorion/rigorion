@@ -29,7 +29,7 @@ export const QuestionNavigation = ({
       <Button
         variant="outline"
         onClick={onPrevious}
-        className="rounded-full border-[#48D1CC] bg-[#48D1CC] hover:bg-[#48D1CC]/90"
+        className="!rounded-l-full !rounded-r-none border-[#48D1CC] bg-[#48D1CC] hover:bg-[#48D1CC]/90"
         disabled={currentIndex === 0}
       >
         <ArrowLeft className="h-4 w-4 text-black font-normal" />
@@ -70,7 +70,7 @@ export const QuestionNavigation = ({
       <Button
         variant="outline"
         onClick={onNext}
-        className="rounded-full border-[#48D1CC] bg-[#48D1CC] hover:bg-[#48D1CC]/90"
+        className="!rounded-r-full !rounded-l-none border-[#48D1CC] bg-[#48D1CC] hover:bg-[#48D1CC]/90"
         disabled={currentIndex === totalQuestions - 1}
       >
         <ArrowRight className="h-4 w-4 text-black font-normal" />

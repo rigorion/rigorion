@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Target, Navigation, ChevronDown, LogOut, Bell, Filter, Moon, Sun, BookOpen, Clock } from "lucide-react";
+import { Target, Navigation, ChevronDown, LogOut, Bell, Filter, Moon, Sun, BookOpen, Clock, Home, Users, BarChart } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -49,7 +49,7 @@ export const PracticeHeader = ({
     { name: "Home", path: "/" },
     { name: "Practice", path: "/practice" },
     { name: "Analytics", path: "/analytics" },
-    { name: "About", path: "/about" },
+    { name: "About us", path: "/about" },
   ];
 
   const chapters = [
@@ -189,6 +189,21 @@ export const PracticeHeader = ({
     return user?.email?.substring(0, 2).toUpperCase() || 'U';
   };
 
+  const getPageIcon = (pageName: string) => {
+    switch (pageName) {
+      case "Home":
+        return <Home className={`h-4 w-4 mr-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />;
+      case "Practice":
+        return <BookOpen className={`h-4 w-4 mr-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />;
+      case "Analytics":
+        return <BarChart className={`h-4 w-4 mr-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />;
+      case "About us":
+        return <Users className={`h-4 w-4 mr-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />;
+      default:
+        return null;
+    }
+  };
+
   const getActiveFilterText = () => {
     if (selectedExam !== null) {
       return `Exam ${selectedExam}`;
@@ -229,11 +244,12 @@ export const PracticeHeader = ({
               {pages.map((page, index) => (
                 <DropdownMenuItem 
                   key={index}
-                  className={`cursor-pointer py-2 rounded-sm transition-colors ${
+                  className={`cursor-pointer py-2 rounded-sm transition-colors flex items-center ${
                     isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
                   }`}
                   onClick={() => handleNavigation(page.path)}
                 >
+                  {getPageIcon(page.name)}
                   <span className={`font-source-sans ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{page.name}</span>
                 </DropdownMenuItem>
               ))}

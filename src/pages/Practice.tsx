@@ -15,86 +15,30 @@ import CommentSection from "@/components/practice/CommentSection";
 import { mapQuestions, validateQuestion } from "@/utils/mapQuestion";
 import { Question } from "@/types/QuestionInterface";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { sampleQuestions } from "@/components/practice/sampleQuestion";
 
 const ENDPOINT = "my-function";
 
-// Dummy questions as fallback - formatted for the mapper
-const DUMMY_QUESTIONS = [
-  {
-    id: "1",
-    number: 1,
-    content: "What is the value of x in the equation 2x + 5 = 13?",
-    choices: ["x = 3", "x = 4", "x = 5", "x = 6"],
-    correctAnswer: "B",
-    solution: "To solve 2x + 5 = 13, subtract 5 from both sides: 2x = 8, then divide by 2: x = 4",
-    solutionSteps: [
-      "Start with the equation: 2x + 5 = 13",
-      "Subtract 5 from both sides: 2x = 8", 
-      "Divide both sides by 2: x = 4"
-    ],
-    difficulty: "easy",
-    chapter: "Algebra",
-    module: "SAT Math",
-    examNumber: 1,
-    hint: "Remember to isolate the variable by performing inverse operations"
-  },
-  {
-    id: "2",
-    number: 2,
-    content: "If f(x) = x² - 3x + 2, what is f(3)?",
-    choices: ["2", "3", "4", "5"],
-    correctAnswer: "A",
-    solution: "Substitute x = 3: f(3) = 3² - 3(3) + 2 = 9 - 9 + 2 = 2",
-    solutionSteps: [
-      "Substitute x = 3 into the function",
-      "Calculate: f(3) = (3)² - 3(3) + 2",
-      "Simplify: f(3) = 9 - 9 + 2 = 2"
-    ],
-    difficulty: "medium",
-    chapter: "Functions",
-    module: "SAT Math",
-    examNumber: 1,
-    hint: "Substitute the given value for x and follow order of operations"
-  },
-  {
-    id: "3",
-    number: 3,
-    content: "What is the area of a circle with radius 5?",
-    choices: ["10π", "15π", "20π", "25π"],
-    correctAnswer: "D",
-    solution: "Area of circle = πr² = π(5)² = 25π",
-    solutionSteps: [
-      "Use the formula for area of a circle: A = πr²",
-      "Substitute r = 5: A = π(5)²",
-      "Calculate: A = π × 25 = 25π"
-    ],
-    difficulty: "easy",
-    chapter: "Geometry",
-    module: "SAT Math",
-    examNumber: 1,
-    hint: "Remember the formula for the area of a circle",
-    graph: "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=400&h=300&fit=crop"
-  },
-  {
-    id: "4",
-    number: 4,
-    content: "A linear function passes through points (2, 5) and (4, 11). What is the slope of this line?",
-    choices: ["2", "3", "4", "6"],
-    correctAnswer: "B",
-    solution: "Use the slope formula: m = (y₂ - y₁)/(x₂ - x₁) = (11 - 5)/(4 - 2) = 6/2 = 3",
-    solutionSteps: [
-      "Identify the two points: (2, 5) and (4, 11)",
-      "Use the slope formula: m = (y₂ - y₁)/(x₂ - x₁)",
-      "Substitute values: m = (11 - 5)/(4 - 2) = 6/2 = 3"
-    ],
-    difficulty: "medium",
-    chapter: "Linear Functions",
-    module: "SAT Math",
-    examNumber: 1,
-    hint: "Use the slope formula with the two given points",
-    graph: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop"
-  }
-];
+// Convert comprehensive sample questions to the format expected by Practice.tsx
+const convertToApiFormat = (questions: Question[]) => {
+  return questions.map(q => ({
+    id: q.id,
+    number: q.number,
+    content: q.content,
+    choices: q.choices,
+    correctAnswer: q.correctAnswer,
+    solution: JSON.stringify(q.solutionSteps?.map(step => ({ step })) || [{ step: q.solution }]),
+    difficulty: q.difficulty,
+    chapter: q.chapter,
+    module: q.module,
+    examNumber: q.examNumber,
+    hint: q.hint || q.explanation,
+    graph: q.graph?.url || q.graph
+  }));
+};
+
+// Use comprehensive sample questions as fallback (23 questions covering all filters)
+const DUMMY_QUESTIONS = convertToApiFormat(sampleQuestions);
 
 const Practice = () => {
   const { toast } = useToast();
@@ -285,7 +229,17 @@ const Practice = () => {
 
   useEffect(() => {
     setIsStorageValid(isSecureStorageValid());
-    loadLatestQuestions();
+    // Clear existing cache on first load to force fresh fetch
+    const clearAndLoad = async () => {
+      try {
+        await clearAllSecureData();
+        console.log("Cleared secure storage, loading fresh questions...");
+      } catch (e) {
+        console.warn("Failed to clear storage:", e);
+      }
+      loadLatestQuestions();
+    };
+    clearAndLoad();
   }, []);
 
   return (

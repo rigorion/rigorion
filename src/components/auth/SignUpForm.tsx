@@ -50,9 +50,9 @@ export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel className="font-light text-gray-600">Name</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} className="rounded-full border-gray-300 focus:border-[#8A0303] focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -63,9 +63,9 @@ export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="font-light text-gray-600">Email</FormLabel>
               <FormControl>
-                <Input {...field} type="email" />
+                <Input {...field} type="email" className="rounded-full border-gray-300 focus:border-[#8A0303] focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -76,21 +76,23 @@ export const SignUpForm = ({ onSuccess }: SignUpFormProps) => {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel className="font-light text-gray-600">Password</FormLabel>
               <FormControl>
-                <Input {...field} type="password" />
+                <Input {...field} type="password" className="rounded-full border-gray-300 focus:border-[#8A0303] focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button 
-          type="submit" 
-          className="w-full bg-white hover:bg-gray-50 text-[#8A0303] border border-[#8A0303] hover:border-[#6b0202] rounded-full py-2"
-          disabled={isLoading}
-        >
-          {isLoading ? "Signing Up..." : "Sign Up"}
-        </Button>
+        <div className="flex justify-center">
+          <Button 
+            type="submit" 
+            className="px-8 py-2 bg-white hover:bg-gray-50 text-[#8A0303] border border-[#8A0303] hover:border-[#6b0202] rounded-full shadow-lg hover:shadow-[0_0_20px_rgba(138,3,3,0.3)] transition-all duration-300 ease-out"
+            disabled={isLoading}
+          >
+            {isLoading ? "Signing Up..." : "Sign Up"}
+          </Button>
+        </div>
       </form>
     </Form>
   );

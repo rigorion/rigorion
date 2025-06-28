@@ -5,7 +5,7 @@ import { ProgressDashboard } from "@/components/progress/ProgressDashboard";
 import { LeaderboardData } from "@/components/progress/LeaderboardData";
 import { FullPageLoader } from "@/components/progress/FullPageLoader";
 import type { TimePeriod, ProgressTab } from "@/types/progress";
-import { TrendingUp, Trophy, Navigation, Bell } from "lucide-react";
+import { TrendingUp, Trophy, Navigation, Bell, Home, Users, BookOpen, BarChart } from "lucide-react";
 import { ProgressNavigation } from "@/components/progress/ProgressNavigation";
 import { SecureProgressDataProvider } from "@/components/progress/SecureProgressDataProvider";
 import { useProgress } from "@/contexts/ProgressContext";
@@ -264,8 +264,7 @@ const Progress = () => {
     { name: "Home", path: "/" },
     { name: "Practice", path: "/practice" },
     { name: "Progress", path: "/progress" },
-    { name: "Chat", path: "/chat" },
-    { name: "About", path: "/about" },
+    { name: "About us", path: "/about" },
   ];
   
   const userId = session?.user?.id;
@@ -274,6 +273,21 @@ const Progress = () => {
   const handleNavigation = (path: string) => {
     navigate(path);
     setIsNavDropdownOpen(false);
+  };
+
+  const getNavigationIcon = (itemName: string) => {
+    switch (itemName) {
+      case "Home":
+        return <Home className={`h-4 w-4 mr-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />;
+      case "Practice":
+        return <BookOpen className={`h-4 w-4 mr-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />;
+      case "Progress":
+        return <BarChart className={`h-4 w-4 mr-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />;
+      case "About us":
+        return <Users className={`h-4 w-4 mr-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />;
+      default:
+        return null;
+    }
   };
   
   const [visibleSections, setVisibleSections] = useState<VisibleSections>({
@@ -323,11 +337,12 @@ const Progress = () => {
                       {navigationItems.map((item, index) => (
                         <DropdownMenuItem 
                           key={index}
-                          className={`cursor-pointer py-2 rounded-sm transition-colors ${
+                          className={`cursor-pointer py-2 rounded-sm transition-colors flex items-center ${
                             isDarkMode ? 'hover:bg-gray-700 text-green-400' : 'hover:bg-gray-100 text-[#304455]'
                           }`}
                           onClick={() => handleNavigation(item.path)}
                         >
+                          {getNavigationIcon(item.name)}
                           <span className={`font-source-sans ${
                             isDarkMode ? 'text-green-400' : 'text-[#304455]'
                           }`}>{item.name}</span>

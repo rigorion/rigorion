@@ -125,7 +125,9 @@ const CountdownTimer = ({
 
   return (
     <div className={cn(
-      "inline-flex items-center justify-center p-3 bg-white rounded-full min-w-[90px] transition-all",
+      "inline-flex items-center justify-center p-3 rounded-full min-w-[90px] transition-all",
+      // Remove white background for timer and pomodoro modes, keep for exam mode
+      mode === "exam" ? "bg-white" : "bg-transparent border border-gray-300",
       isWarning ? "animate-pulse" : "",
       colorScheme.border,
       className

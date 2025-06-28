@@ -36,18 +36,18 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[400px] bg-white border-0 shadow-xl rounded-xl p-6">
         <DialogHeader className="space-y-2">
-          <DialogTitle className="text-2xl font-semibold text-center text-gray-900">
+          <DialogTitle className="text-2xl font-light text-center text-[#8A0303]">
             {showForgotPassword 
               ? "Reset Password" 
               : activeTab === "signin" 
-                ? "Welcome Back" 
-                : "Create Account"}
+                ? "Return to Studies" 
+                : "Begin Your Journey"}
           </DialogTitle>
           {!showForgotPassword && (
-            <p className="text-sm text-gray-600 text-center">
+            <p className="text-sm font-light text-gray-500 text-center">
               {activeTab === "signin" 
-                ? "Sign in to your account" 
-                : "Join us and start your journey"}
+                ? "Continue your academic preparation" 
+                : "Start your academic excellence journey"}
             </p>
           )}
         </DialogHeader>

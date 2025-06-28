@@ -5,7 +5,7 @@ export interface Question {
     id: string;
     number: number;
     content: string;
-    solution: string;
+    solution: string | Array<{step: string}>;
     difficulty: "easy" | "medium" | "hard";
     chapter: string;
     module?: string;

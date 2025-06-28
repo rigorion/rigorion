@@ -305,72 +305,76 @@ export const TotalProgressCard = ({
           </motion.div>
         </div>
 
-        {/* Two column layout for statistics */}
-        <div className="grid grid-cols-2 gap-8 w-full">
-          {/* Left column - Progress Breakdown */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                <span className={`text-sm ${
-                  isDarkMode ? 'text-green-400' : 'text-gray-600'
-                }`}>Correct</span>
+        {/* Centered progress breakdown */}
+        <div className="w-full space-y-4">
+          {/* Progress breakdown centered */}
+          <div className="flex justify-center">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between min-w-[200px]">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                  <span className={`text-sm ${
+                    isDarkMode ? 'text-green-400' : 'text-gray-600'
+                  }`}>Correct</span>
+                </div>
+                <span className={`text-sm font-medium ${
+                  isDarkMode ? 'text-green-400' : 'text-emerald-600'
+                }`}>
+                  {correctQuestionsValue} ({correctPercentage}%)
+                </span>
               </div>
-              <span className={`text-sm font-medium ${
-                isDarkMode ? 'text-green-400' : 'text-emerald-600'
-              }`}>
-                {correctQuestionsValue} ({correctPercentage}%)
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500" />
-                <span className={`text-sm ${
-                  isDarkMode ? 'text-green-400' : 'text-gray-600'
-                }`}>Incorrect</span>
+              <div className="flex items-center justify-between min-w-[200px]">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500" />
+                  <span className={`text-sm ${
+                    isDarkMode ? 'text-green-400' : 'text-gray-600'
+                  }`}>Incorrect</span>
+                </div>
+                <span className={`text-sm font-medium text-red-600`}>
+                  {incorrectQuestionsValue} ({incorrectPercentage}%)
+                </span>
               </div>
-              <span className={`text-sm font-medium text-red-600`}>
-                {incorrectQuestionsValue} ({incorrectPercentage}%)
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-orange-500" />
-                <span className={`text-sm ${
-                  isDarkMode ? 'text-green-400' : 'text-gray-600'
-                }`}>Unattempted</span>
+              <div className="flex items-center justify-between min-w-[200px]">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-orange-500" />
+                  <span className={`text-sm ${
+                    isDarkMode ? 'text-green-400' : 'text-gray-600'
+                  }`}>Unattempted</span>
+                </div>
+                <span className={`text-sm font-medium text-orange-600`}>
+                  {unattemptedQuestionsValue} ({unattemptedPercentage}%)
+                </span>
               </div>
-              <span className={`text-sm font-medium text-orange-600`}>
-                {unattemptedQuestionsValue} ({unattemptedPercentage}%)
-              </span>
             </div>
           </div>
           
-          {/* Right column - Additional Stats */}
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className={`text-sm ${
-                isDarkMode ? 'text-green-400' : 'text-gray-600'
-              }`}>Avg Score:</span>
-              <span className={`text-sm font-medium ${
-                isDarkMode ? 'text-green-400' : 'text-gray-800'
-              }`}>92%</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className={`text-sm ${
-                isDarkMode ? 'text-green-400' : 'text-gray-600'
-              }`}>Success Rate:</span>
-              <span className={`text-sm font-medium ${
-                isDarkMode ? 'text-green-400' : 'text-gray-800'
-              }`}>85%</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className={`text-sm ${
-                isDarkMode ? 'text-green-400' : 'text-gray-600'
-              }`}>Accuracy:</span>
-              <span className={`text-sm font-medium ${
-                isDarkMode ? 'text-green-400' : 'text-gray-800'
-              }`}>88%</span>
+          {/* Additional Stats centered */}
+          <div className="flex justify-center pt-4 border-t border-gray-200">
+            <div className="grid grid-cols-3 gap-8 text-center">
+              <div>
+                <span className={`text-sm ${
+                  isDarkMode ? 'text-green-400' : 'text-gray-600'
+                }`}>Avg Score:</span>
+                <div className={`text-sm font-medium ${
+                  isDarkMode ? 'text-green-400' : 'text-gray-800'
+                }`}>92%</div>
+              </div>
+              <div>
+                <span className={`text-sm ${
+                  isDarkMode ? 'text-green-400' : 'text-gray-600'
+                }`}>Success Rate:</span>
+                <div className={`text-sm font-medium ${
+                  isDarkMode ? 'text-green-400' : 'text-gray-800'
+                }`}>85%</div>
+              </div>
+              <div>
+                <span className={`text-sm ${
+                  isDarkMode ? 'text-green-400' : 'text-gray-600'
+                }`}>Accuracy:</span>
+                <div className={`text-sm font-medium ${
+                  isDarkMode ? 'text-green-400' : 'text-gray-800'
+                }`}>88%</div>
+              </div>
             </div>
           </div>
         </div>

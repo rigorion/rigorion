@@ -16,7 +16,7 @@ type PromotionalItem = {
 const PROMOTIONAL_ITEMS: PromotionalItem[] = [{
   id: "sat-math",
   title: "SAT Math",
-  brand: "Rigorion SAT",
+  brand: "Academic Arc",
   description: "Master mathematical concepts with comprehensive practice problems, detailed explanations, and strategic problem-solving techniques for optimal SAT Math scores.",
   tags: ["Algebra & Functions", "Geometry", "Statistics", "Advanced Topics"],
   imageUrl: "https://images.unsplash.com/photo-1596495577886-d920f1fb7238?w=400&h=300&fit=crop",
@@ -25,7 +25,7 @@ const PROMOTIONAL_ITEMS: PromotionalItem[] = [{
 }, {
   id: "sat-reading",
   title: "SAT Reading",
-  brand: "Rigorion SAT",
+  brand: "Academic Arc",
   description: "Enhance reading comprehension skills with diverse passages, critical analysis techniques, and strategic approaches to tackle any SAT Reading section.",
   tags: ["Literature Analysis", "Social Studies", "Science Passages", "Critical Reading"],
   imageUrl: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop",
@@ -33,7 +33,7 @@ const PROMOTIONAL_ITEMS: PromotionalItem[] = [{
 }, {
   id: "sat-writing",
   title: "SAT Writing",
-  brand: "Rigorion SAT",
+  brand: "Academic Arc",
   description: "Perfect your writing skills with comprehensive grammar rules, essay techniques, language usage patterns, and rhetoric strategies for SAT success.",
   tags: ["Grammar Rules", "Essay Writing", "Language Usage", "Rhetoric"],
   imageUrl: "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&h=300&fit=crop",
@@ -41,7 +41,7 @@ const PROMOTIONAL_ITEMS: PromotionalItem[] = [{
 }, {
   id: "sat-full-tests",
   title: "12 SAT Full Tests",
-  brand: "Rigorion SAT",
+  brand: "Academic Arc",
   description: "Complete practice tests with realistic timing, detailed scoring analytics, performance insights, and personalized improvement recommendations.",
   tags: ["Full-Length Tests", "Detailed Analytics", "Time Management", "Score Prediction"],
   imageUrl: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop",
@@ -107,12 +107,9 @@ export const PartnerLogos = () => {
   return <section id="products" ref={projectsRef} className="bg-gray-50 py-[50px] w-full h-[600px] overflow-hidden">
       <div className="w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className={`text-center mb-10 max-w-3xl mx-auto transition-all duration-1000 ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <div className="inline-block mb-2 px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm font-medium">
-            SAT Preparation
-          </div>
           <h2 className="text-3xl font-bold mb-3">
             <span className="italic font-script text-[#8A0303]" style={{ fontFamily: 'Dancing Script, cursive' }}>
-              Rigorion transforms SAT uncertainty into inevitability.
+              Academic Arc transforms SAT uncertainty into inevitability.
             </span>
           </h2>
           <p className="text-gray-600 text-lg">
@@ -157,9 +154,9 @@ export const PartnerLogos = () => {
                 }}>
                       <div className="absolute inset-0 bg-black/60"></div>
                       <div className="relative z-10 flex flex-col items-center justify-center p-6">
-                        <h3 className="text-3xl font-bold text-white mb-3">{item.brand.toUpperCase()}</h3>
+                        <h3 className="text-3xl italic font-script text-white mb-3" style={{ fontFamily: 'Dancing Script, cursive' }}>{item.title.toUpperCase()}</h3>
                         <div className="w-16 h-1 bg-white mb-3"></div>
-                        <p className="text-white text-lg font-medium text-center">{item.title}</p>
+                        <p className="text-white text-lg font-medium text-center">{item.brand}</p>
                       </div>
                     </div>
                     

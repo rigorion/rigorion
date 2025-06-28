@@ -53,9 +53,9 @@ export const SignInForm = ({ onForgotPassword, onSuccess }: SignInFormProps) => 
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="font-light text-gray-600">Email</FormLabel>
               <FormControl>
-                <Input {...field} type="email" />
+                <Input {...field} type="email" className="rounded-full border-gray-300 focus:border-[#8A0303] focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -66,9 +66,9 @@ export const SignInForm = ({ onForgotPassword, onSuccess }: SignInFormProps) => 
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel className="font-light text-gray-600">Password</FormLabel>
               <FormControl>
-                <Input {...field} type="password" />
+                <Input {...field} type="password" className="rounded-full border-gray-300 focus:border-[#8A0303] focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -80,19 +80,21 @@ export const SignInForm = ({ onForgotPassword, onSuccess }: SignInFormProps) => 
               type="button" 
               variant="link" 
               onClick={onForgotPassword}
-              className="p-0 h-auto font-normal text-sm text-primary"
+              className="p-0 h-auto font-light text-sm text-gray-500 hover:text-[#8A0303]"
             >
               Forgot password?
             </Button>
           )}
         </div>
-        <Button 
-          type="submit" 
-          className="w-full bg-white hover:bg-gray-50 text-[#8A0303] border border-[#8A0303] hover:border-[#6b0202] rounded-full py-2"
-          disabled={isLoading}
-        >
-          {isLoading ? "Signing In..." : "Sign In"}
-        </Button>
+        <div className="flex justify-center">
+          <Button 
+            type="submit" 
+            className="px-8 py-2 bg-white hover:bg-gray-50 text-[#8A0303] border border-[#8A0303] hover:border-[#6b0202] rounded-full shadow-lg hover:shadow-[0_0_20px_rgba(138,3,3,0.3)] transition-all duration-300 ease-out"
+            disabled={isLoading}
+          >
+            {isLoading ? "Signing In..." : "Sign In"}
+          </Button>
+        </div>
       </form>
     </Form>
   );
