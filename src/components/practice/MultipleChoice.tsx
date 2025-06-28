@@ -22,17 +22,18 @@ export const MultipleChoice = ({ onSelect, selectedValue, isCorrect }: MultipleC
       {choices.map((choice, index) => (
         <motion.div
           key={choice.id}
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.02, y: -2 }}
           whileTap={{ scale: 0.98 }}
           className="w-full"
+          transition={{ duration: 0.2 }}
         >
           <Button
-            className={`w-full h-12 text-lg relative rounded-md border ${
+            className={`w-full h-14 text-lg relative rounded-xl border-2 font-medium transition-all duration-300 shadow-sm ${
               selectedValue === choice.id
                 ? isCorrect
-                  ? "bg-gradient-to-r from-green-400 to-green-600 text-white"
-                  : "bg-gradient-to-r from-red-400 to-red-600 text-white"
-                : "bg-white text-gray-800 hover:bg-gray-50 transition-colors border-gray-200"
+                  ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white border-green-400 shadow-green-200/50 shadow-lg"
+                  : "bg-gradient-to-r from-red-500 to-rose-600 text-white border-red-400 shadow-red-200/50 shadow-lg"
+                : "bg-white text-gray-800 hover:bg-gray-50 hover:border-gray-300 hover:shadow-md transition-all border-gray-200"
             }`}
             variant="ghost"
             onClick={() => onSelect(choice.id)}
@@ -40,9 +41,10 @@ export const MultipleChoice = ({ onSelect, selectedValue, isCorrect }: MultipleC
             {choice.text}
             {selectedValue === choice.id && (
               <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="absolute right-4"
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="absolute right-4 p-1 rounded-full bg-white/20"
               >
                 {isCorrect ? (
                   <Check className="h-5 w-5 text-white" />

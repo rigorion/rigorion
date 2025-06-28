@@ -428,16 +428,20 @@ export default function PracticeContent({
     if (correct) {
       setCorrectAnswers(prev => prev + 1);
       toast({
-        title: "Correct!",
-        description: "Great job on answering correctly!",
-        variant: "default"
+        title: "🎉 Excellent!",
+        description: "You got it right! Keep up the great work!",
+        variant: "default",
+        duration: 3000,
+        className: "bg-gradient-to-r from-green-500 to-emerald-500 text-white border-none"
       });
     } else {
       setIncorrectAnswers(prev => prev + 1);
       toast({
-        title: "Incorrect",
+        title: "❌ Not quite right",
         description: `The correct answer was: ${currentQuestion.correctAnswer}`,
-        variant: "destructive"
+        variant: "destructive",
+        duration: 4000,
+        className: "bg-gradient-to-r from-red-500 to-rose-500 text-white border-none"
       });
     }
     if (correct && currentQuestionIndex < filteredQuestions.length - 1) {
